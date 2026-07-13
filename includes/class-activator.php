@@ -403,6 +403,32 @@ class THW_Activator {
 	}
 
 	/**
+	 * Find the demo page by title (WP 6.2+ compatible).
+	 *
+	 * @return WP_Post|null
+	 */
+	public static function get_demo_page() {
+		$title = __( "Today's Lesson", 'the-hidden-word' );
+		$query = new WP_Query(
+			array(
+				'post_type'              => 'page',
+				'title'                  => $title,
+				'posts_per_page'         => 1,
+				'post_status'            => 'publish',
+				'no_found_rows'          => true,
+				'update_post_meta_cache' => false,
+				'update_post_term_cache' => false,
+			)
+		);
+
+		if ( $query->have_posts() ) {
+			return $query->posts[0];
+		}
+
+		return null;
+	}
+
+	/**
 	 * Create a starter front-end page with [thw_lesson] on first activation.
 	 */
 	private static function maybe_create_demo_page() {
@@ -410,7 +436,7 @@ class THW_Activator {
 			return;
 		}
 
-		$existing = get_page_by_title( "Today's Lesson", OBJECT, 'page' );
+		$existing = self::get_demo_page();
 		if ( $existing instanceof WP_Post ) {
 			update_option( 'thw_demo_page_created', true );
 			return;

@@ -63,7 +63,7 @@ class THW_Plugin {
 			)
 		);
 
-		$demo_page = get_page_by_title( __( "Today's Lesson", 'the-hidden-word' ), OBJECT, 'page' );
+		$demo_page = THW_Activator::get_demo_page();
 		if ( $demo_page instanceof WP_Post ) {
 			echo ' ';
 			printf(

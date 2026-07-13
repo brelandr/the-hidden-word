@@ -4,7 +4,7 @@ Tags: bible, scripture, discipleship, memorization, verse of the day
 Requires at least: 6.2
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.1.3
+Stable tag: 1.1.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -82,6 +82,10 @@ Yes. Use the shortcode `[thw_lesson]` in any page builder text widget or the Gut
 
 == Changelog ==
 
+= 1.1.4 =
+* Replace deprecated `get_page_by_title()` with `WP_Query` for demo page lookup
+* Add combined `smoke-all.sh` and Plugin Check smoke script
+
 = 1.1.3 =
 * Replace mock WordPress.org screenshots with real wp-env UI captures
 * Seeding-complete admin notice links to the Today's Lesson demo page
@@ -115,6 +119,9 @@ Yes. Use the shortcode `[thw_lesson]` in any page builder text widget or the Gut
 * Gutenberg block and shortcodes
 
 == Upgrade Notice ==
+
+= 1.1.4 =
+Fixes WordPress 6.2+ deprecation warning for demo page detection.
 
 = 1.1.3 =
 Documentation and screenshot updates for WordPress.org submission. No required action for existing sites.
