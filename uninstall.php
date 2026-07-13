@@ -13,6 +13,13 @@ delete_option( 'thw_seeded' );
 delete_option( 'thw_schedule_mode' );
 delete_option( 'thw_active_translation' );
 delete_option( 'thw_copyright_displayed' );
+delete_option( 'thw_curriculum_version' );
+delete_option( 'thw_seed_queue' );
+delete_option( 'thw_seed_created_count' );
+delete_option( 'thw_lesson_lookup_map' );
+delete_transient( 'thw_curriculum_upgraded' );
+
+wp_clear_scheduled_hook( 'thw_seed_curriculum_batch' );
 
 $lessons = get_posts(
 	array(

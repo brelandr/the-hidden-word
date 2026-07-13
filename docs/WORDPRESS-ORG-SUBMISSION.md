@@ -1,6 +1,6 @@
 # WordPress.org Submission & Screenshots
 
-Guide for submitting **The Hidden Word** v1.1.0 to the [WordPress Plugin Directory](https://wordpress.org/plugins/developers/).
+Guide for submitting **The Hidden Word** v1.1.1 to the [WordPress Plugin Directory](https://wordpress.org/plugins/developers/).
 
 ---
 
@@ -42,7 +42,7 @@ The readme already lists five screenshots. Capture these on a **clean WordPress 
 
 **Steps:**
 
-1. Activate plugin (500 lessons seed).
+1. Activate plugin (500 lessons seed in background batches; admin notice shows progress).
 2. Create page **“Today’s Lesson”** with block **Bible Lesson** or shortcode `[thw_lesson]`.
 3. View page on front end.
 4. Click through one tab so multiple panels are implied (Blueprint selected is fine).
@@ -97,6 +97,21 @@ The readme already lists five screenshots. Capture these on a **clean WordPress 
 
 ---
 
+## Generate screenshots (mock UI)
+
+If you do not have a live demo site yet, generate placeholder screenshots that match the plugin palette:
+
+```bash
+cd The-Hidden-Word
+python3 scripts/generate-screenshots.py
+```
+
+Output: `docs/screenshots/screenshot-1.png` … `screenshot-5.png`
+
+Replace with real captures from a clean WP install before final SVN upload if possible.
+
+---
+
 ## Capture tools (macOS)
 
 ### Option A — Browser DevTools
@@ -147,36 +162,36 @@ Structure:
 ```text
 the-hidden-word/
 ├── trunk/          # development copy
-├── tags/1.1.0/     # immutable release
+├── tags/1.1.1/     # immutable release
 └── assets/         # icons, banners, screenshots (NOT in trunk)
 ```
 
 ### 3. Copy release into trunk
 
 ```bash
-# Unzip or rsync from Dist/the-hidden-word-1.1.0.zip contents into trunk/
+# Unzip or rsync from Dist/the-hidden-word-1.1.1.zip contents into trunk/
 rsync -av --delete /path/to/the-hidden-word/ trunk/ \
   --exclude='.git' --exclude='tests' --exclude='scripts' --exclude='data/curriculum-parts'
 ```
 
-Ensure `readme.txt` **Stable tag** matches: `1.1.0`.
+Ensure `readme.txt` **Stable tag** matches: `1.1.1`.
 
 ### 4. Copy assets & screenshots
 
 ```bash
 cp assets/icon-*.png assets/banner-*.png ../assets/
-cp screenshot-*.png ../assets/
+cp docs/screenshots/screenshot-*.png ../assets/
 ```
 
 ### 5. Tag release
 
 ```bash
-svn cp trunk tags/1.1.0
-svn add tags/1.1.0 assets/*
-svn commit -m "Release 1.1.0 — 500-verse curriculum"
+svn cp trunk tags/1.1.1
+svn add tags/1.1.1 assets/*
+svn commit -m "Release 1.1.1 — batched seeding and lookup map"
 ```
 
-WordPress.org builds zip from `tags/1.1.0/` automatically.
+WordPress.org builds zip from `tags/1.1.1/` automatically.
 
 ---
 
@@ -204,7 +219,7 @@ WordPress.org builds zip from `tags/1.1.0/` automatically.
 
 - [ ] `icon-128x128.png`, `icon-256x256.png`
 - [ ] `banner-772x250.png`, `banner-1544x500.png`
-- [ ] `screenshot-1.png` … `screenshot-5.png` in SVN `assets/`
+- [ ] `docs/screenshots/screenshot-1.png` … `screenshot-5.png` in SVN `assets/`
 
 ### After approval
 
@@ -233,7 +248,7 @@ Keep captions in sync with uploaded files:
 ## Local demo site setup (fast path)
 
 1. `wp core download` + `wp config create` + `wp db create`
-2. `wp plugin install` from `Dist/the-hidden-word-1.1.0.zip`
+2. `wp plugin install` from `Dist/the-hidden-word-1.1.1.zip`
 3. `wp plugin activate the-hidden-word`
 4. `wp post create --post_type=page --post_title="Today's Lesson" --post_status=publish`
 5. `wp post meta update <page_id> _wp_page_template` (or insert block via admin)

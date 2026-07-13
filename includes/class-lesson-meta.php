@@ -212,9 +212,9 @@ class THW_Lesson_Meta {
 							<option value="<?php echo esc_attr( $id ); ?>" <?php selected( isset( $entry['book_id'] ) ? (int) $entry['book_id'] : 0, (int) $id ); ?>><?php echo esc_html( $name ); ?></option>
 						<?php endforeach; ?>
 					</select>
-					<input type="number" name="thw_echo_chapter[]" placeholder="<? esc_attr_e( 'Ch', 'the-hidden-word' ); ?>" value="<?php echo esc_attr( isset( $entry['chapter'] ) ? $entry['chapter'] : '' ); ?>" min="1" />
-					<input type="number" name="thw_echo_verse[]" placeholder="<? esc_attr_e( 'Vs', 'the-hidden-word' ); ?>" value="<?php echo esc_attr( isset( $entry['verse'] ) ? $entry['verse'] : '' ); ?>" min="1" />
-					<input type="text" name="thw_echo_note[]" class="widefat" placeholder="<? esc_attr_e( 'Connection note', 'the-hidden-word' ); ?>" value="<?php echo esc_attr( isset( $entry['note'] ) ? $entry['note'] : '' ); ?>" />
+					<input type="number" name="thw_echo_chapter[]" placeholder="<?php esc_attr_e( 'Ch', 'the-hidden-word' ); ?>" value="<?php echo esc_attr( isset( $entry['chapter'] ) ? $entry['chapter'] : '' ); ?>" min="1" />
+					<input type="number" name="thw_echo_verse[]" placeholder="<?php esc_attr_e( 'Vs', 'the-hidden-word' ); ?>" value="<?php echo esc_attr( isset( $entry['verse'] ) ? $entry['verse'] : '' ); ?>" min="1" />
+					<input type="text" name="thw_echo_note[]" class="widefat" placeholder="<?php esc_attr_e( 'Connection note', 'the-hidden-word' ); ?>" value="<?php echo esc_attr( isset( $entry['note'] ) ? $entry['note'] : '' ); ?>" />
 					<button type="button" class="button thw-remove-echo"><?php esc_html_e( 'Remove', 'the-hidden-word' ); ?></button>
 				</div>
 			<?php endforeach; ?>
@@ -238,7 +238,7 @@ class THW_Lesson_Meta {
 		<div id="thw-questions-repeater">
 			<?php foreach ( $entries as $question ) : ?>
 				<div class="thw-question-row">
-					<input type="text" name="thw_discussion_question[]" class="widefat" value="<?php echo esc_attr( $question ); ?>" placeholder="<? esc_attr_e( 'Reflection question', 'the-hidden-word' ); ?>" />
+					<input type="text" name="thw_discussion_question[]" class="widefat" value="<?php echo esc_attr( $question ); ?>" placeholder="<?php esc_attr_e( 'Reflection question', 'the-hidden-word' ); ?>" />
 					<button type="button" class="button thw-remove-question"><?php esc_html_e( 'Remove', 'the-hidden-word' ); ?></button>
 				</div>
 			<?php endforeach; ?>
@@ -318,8 +318,9 @@ class THW_Lesson_Meta {
 
 		$questions = array();
 		if ( isset( $_POST['thw_discussion_question'] ) && is_array( $_POST['thw_discussion_question'] ) ) {
-			foreach ( wp_unslash( $_POST['thw_discussion_question'] ) as $q ) {
-				$q = sanitize_text_field( $q );
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized via array_map( 'sanitize_text_field', ... ) below; the sniff can't see through array_map.
+			$raw_questions = array_map( 'sanitize_text_field', wp_unslash( $_POST['thw_discussion_question'] ) );
+			foreach ( $raw_questions as $q ) {
 				if ( $q ) {
 					$questions[] = $q;
 				}

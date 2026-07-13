@@ -2,9 +2,9 @@
 Contributors: brelandr
 Tags: bible, scripture, discipleship, memorization, verse of the day
 Requires at least: 6.2
-Tested up to: 6.8
+Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.1.0
+Stable tag: 1.1.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -54,7 +54,7 @@ This free plugin does not send data to third-party servers. Bundled NIV text is 
 
 1. Upload the plugin to `/wp-content/plugins/the-hidden-word/`
 2. Activate through the 'Plugins' menu
-3. Go to **The Hidden Word** in the admin menu — 500 lessons are seeded automatically
+3. Go to **The Hidden Word** in the admin menu — 500 lessons seed in the background (progress notice while running)
 4. Add `[thw_lesson]` to any page or use the **Bible Lesson** Gutenberg block
 5. Configure schedule and translation under **The Hidden Word → Settings**
 
@@ -82,6 +82,10 @@ Yes. Use the shortcode `[thw_lesson]` in any page builder text widget or the Gut
 
 == Changelog ==
 
+= 1.1.1 =
+* The bundled 500-lesson curriculum now seeds in small background batches instead of all at once on activation, to avoid timeouts on slower hosting. An admin notice shows progress while it runs.
+* Lesson scheduling uses an in-memory lookup map instead of slow meta queries on every page load.
+
 = 1.1.0 =
 * Expand bundled NIV curriculum from 52 to 500 verses (Biblica fair-use maximum)
 * Add THW_Curriculum helper for verse counting and lesson scheduling
@@ -102,6 +106,9 @@ Yes. Use the shortcode `[thw_lesson]` in any page builder text widget or the Gut
 * Gutenberg block and shortcodes
 
 == Upgrade Notice ==
+
+= 1.1.1 =
+Background batched seeding avoids activation timeouts on slower hosts. An admin notice shows progress while lessons are created.
 
 = 1.1.0 =
 Expands the bundled curriculum to 500 NIV verses. Existing sites automatically receive new lessons on upgrade.

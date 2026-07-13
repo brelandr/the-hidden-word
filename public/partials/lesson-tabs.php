@@ -27,7 +27,7 @@ $lesson_id = $lesson['id'];
 		<?php do_action( 'thw_lesson_render_before_tabs', $lesson_id ); ?>
 	</header>
 
-	<nav class="thw-lesson-tabs" role="tablist" aria-label="<? esc_attr_e( 'Lesson sections', 'the-hidden-word' ); ?>">
+	<nav class="thw-lesson-tabs" role="tablist" aria-label="<?php esc_attr_e( 'Lesson sections', 'the-hidden-word' ); ?>">
 		<?php $first = true; ?>
 		<?php foreach ( $tabs as $slug => $label ) : ?>
 			<button

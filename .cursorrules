@@ -59,7 +59,7 @@
 * KJV is public domain; bundled alongside NIV in `data/kjv-curriculum.json`.
 * **Never** add API-fetched NIV in the free plugin — multi-translation is Premium BYOK only.
 * `data/niv-curriculum.json` entries may include: `historical_context`, `preceding_narrative`, `discussion_questions`.
-* Activator seeder reads JSON once (`thw_seeded` option); changing JSON does not auto-update existing sites.
+* Activator seeds via batched cron (`thw_seed_curriculum_batch`, `thw_seed_queue`); `THW_CURRICULUM_DB_VERSION` triggers `maybe_upgrade_curriculum()` on version bump. Changing JSON alone does not re-seed existing sites.
 
 ---
 

@@ -11,8 +11,34 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * Class THW_Activator
+ *
+ * Seeds the bundled curriculum in small background batches instead of
+ * inserting all 500 lessons synchronously during activation, which risks a
+ * PHP/webserver timeout on slower hosting. Activation runs one batch inline
+ * (so the site has content immediately) and schedules the rest via wp-cron.
  */
 class THW_Activator {
+
+	/**
+	 * Lessons to insert per batch.
+	 *
+	 * @var int
+	 */
+	const SEED_BATCH_SIZE = 25;
+
+	/**
+	 * Lesson numbers that already exist, cached for the current seed request.
+	 *
+	 * @var array<int, true>|null
+	 */
+	private static $seeded_lesson_numbers = null;
+
+	/**
+	 * wp-cron hook used to process background seed batches.
+	 *
+	 * @var string
+	 */
+	const SEED_CRON_HOOK = 'thw_seed_curriculum_batch';
 
 	/**
 	 * Activate plugin.
@@ -26,8 +52,6 @@ class THW_Activator {
 
 		flush_rewrite_rules();
 
-		self::maybe_upgrade_curriculum();
-
 		if ( ! get_option( 'thw_schedule_mode' ) ) {
 			update_option( 'thw_schedule_mode', 'week' );
 		}
@@ -35,25 +59,141 @@ class THW_Activator {
 		if ( ! get_option( 'thw_active_translation' ) ) {
 			update_option( 'thw_active_translation', 'niv' );
 		}
+
+		self::maybe_upgrade_curriculum();
 	}
 
 	/**
-	 * Seed new bundled lessons when the curriculum expands on upgrade.
+	 * Check whether the curriculum needs (re)seeding and, if so, kick things
+	 * off. Safe to call on every 'init' — it does almost nothing once seeding
+	 * is either finished or already queued and scheduled.
 	 */
 	public static function maybe_upgrade_curriculum() {
 		$installed = get_option( 'thw_curriculum_version', '' );
 		$target    = THW_CURRICULUM_DB_VERSION;
+		$queue     = get_option( 'thw_seed_queue', false );
 
-		if ( ! get_option( 'thw_seeded' ) || version_compare( $installed, $target, '<' ) ) {
+		$fully_seeded = get_option( 'thw_seeded' ) && version_compare( $installed, $target, '>=' );
+
+		if ( $fully_seeded && false === $queue ) {
+			return;
+		}
+
+		if ( false === $queue ) {
+			// First time we've seen this version bump: build the work queue and
+			// run one batch immediately so the site has content right away.
 			self::migrate_legacy_lesson_numbers();
-			$created = self::seed_lessons();
-			update_option( 'thw_seeded', true );
-			update_option( 'thw_curriculum_version', $target );
+			self::queue_pending_lessons();
+			self::process_seed_batch();
+			return;
+		}
 
-			if ( $created > 0 ) {
-				set_transient( 'thw_curriculum_upgraded', $created, MINUTE_IN_SECONDS * 5 );
+		// A queue already exists (seeding in progress from a previous request).
+		// Never seed inline from 'init' — just make sure a background batch is
+		// scheduled, so ordinary front-end page views stay fast while seeding
+		// finishes in the background.
+		self::ensure_batch_scheduled();
+	}
+
+	/**
+	 * Build the queue of lesson numbers that still need to be created.
+	 */
+	private static function queue_pending_lessons() {
+		require_once THW_PLUGIN_DIR . 'includes/class-curriculum.php';
+
+		$queue = array();
+		foreach ( THW_Curriculum::load_niv() as $entry ) {
+			$lesson = THW_Curriculum::get_entry_lesson_number( $entry );
+			if ( $lesson >= 1 ) {
+				$queue[] = $lesson;
 			}
 		}
+
+		update_option( 'thw_seed_queue', $queue, false );
+		update_option( 'thw_seed_created_count', 0, false );
+	}
+
+	/**
+	 * Process one batch off the seed queue, and either schedule the next
+	 * batch (work remains) or finalize (queue empty).
+	 */
+	public static function process_seed_batch() {
+		$queue = get_option( 'thw_seed_queue', false );
+
+		if ( ! is_array( $queue ) ) {
+			return; // Nothing queued — already finished, or never started.
+		}
+
+		if ( empty( $queue ) ) {
+			self::finish_seeding();
+			return;
+		}
+
+		$batch_size = (int) apply_filters( 'thw_seed_batch_size', self::SEED_BATCH_SIZE );
+		$batch      = array_splice( $queue, 0, max( 1, $batch_size ) );
+
+		update_option( 'thw_seed_queue', $queue, false );
+
+		$created = self::seed_lesson_numbers( $batch );
+
+		$total_created = (int) get_option( 'thw_seed_created_count', 0 ) + $created;
+		update_option( 'thw_seed_created_count', $total_created, false );
+
+		if ( empty( $queue ) ) {
+			self::finish_seeding();
+			return;
+		}
+
+		self::ensure_batch_scheduled();
+	}
+
+	/**
+	 * Schedule the next background batch if one isn't already pending.
+	 */
+	private static function ensure_batch_scheduled() {
+		$queue = get_option( 'thw_seed_queue', false );
+
+		if ( is_array( $queue ) && ! empty( $queue ) && ! wp_next_scheduled( self::SEED_CRON_HOOK ) ) {
+			wp_schedule_single_event( time() + 15, self::SEED_CRON_HOOK );
+		}
+	}
+
+	/**
+	 * Finalize seeding once the queue is empty: record version/seeded state
+	 * and surface a one-time admin notice with the total created.
+	 */
+	private static function finish_seeding() {
+		delete_option( 'thw_seed_queue' );
+
+		update_option( 'thw_seeded', true );
+		update_option( 'thw_curriculum_version', THW_CURRICULUM_DB_VERSION );
+
+		$created = (int) get_option( 'thw_seed_created_count', 0 );
+		delete_option( 'thw_seed_created_count' );
+
+		THW_Scheduler::rebuild_lookup_map();
+
+		if ( $created > 0 ) {
+			set_transient( 'thw_curriculum_upgraded', $created, MINUTE_IN_SECONDS * 5 );
+		}
+	}
+
+	/**
+	 * Progress info for the "seeding in progress" admin notice.
+	 *
+	 * @return array{remaining:int,created:int}|null Null when no seeding is in progress.
+	 */
+	public static function get_seed_progress() {
+		$queue = get_option( 'thw_seed_queue', false );
+
+		if ( ! is_array( $queue ) ) {
+			return null;
+		}
+
+		return array(
+			'remaining' => count( $queue ),
+			'created'   => (int) get_option( 'thw_seed_created_count', 0 ),
+		);
 	}
 
 	/**
@@ -66,34 +206,14 @@ class THW_Activator {
 				'posts_per_page' => -1,
 				'post_status'    => 'any',
 				'fields'         => 'ids',
-				'meta_query'     => array(
-					'relation' => 'AND',
-					array(
-						'key'     => '_thw_week_number',
-						'value'   => 0,
-						'compare' => '>',
-						'type'    => 'NUMERIC',
-					),
-					array(
-						'relation' => 'OR',
-						array(
-							'key'     => '_thw_lesson_number',
-							'compare' => 'NOT EXISTS',
-						),
-						array(
-							'key'     => '_thw_lesson_number',
-							'value'   => 0,
-							'compare' => '=',
-							'type'    => 'NUMERIC',
-						),
-					),
-				),
 			)
 		);
 
 		foreach ( $lessons as $lesson_id ) {
-			$week = (int) get_post_meta( $lesson_id, '_thw_week_number', true );
-			if ( $week > 0 ) {
+			$week        = (int) get_post_meta( $lesson_id, '_thw_week_number', true );
+			$lesson_meta = (int) get_post_meta( $lesson_id, '_thw_lesson_number', true );
+
+			if ( $week > 0 && $lesson_meta < 1 ) {
 				update_post_meta( $lesson_id, '_thw_lesson_number', $week );
 			}
 		}
@@ -136,41 +256,31 @@ class THW_Activator {
 	}
 
 	/**
-	 * Seed bundled lessons from curriculum JSON.
+	 * Seed specific lesson numbers from the bundled NIV curriculum. Skips any
+	 * lesson number that already exists, so a batch can be safely re-run.
 	 *
+	 * @param int[] $lesson_numbers Lesson numbers to seed in this batch.
 	 * @return int Number of lessons created.
 	 */
-	public static function seed_lessons() {
-		$niv_path = THW_PLUGIN_DIR . 'data/niv-curriculum.json';
-		if ( ! is_readable( $niv_path ) ) {
-			return 0;
-		}
+	private static function seed_lesson_numbers( $lesson_numbers ) {
+		require_once THW_PLUGIN_DIR . 'includes/class-curriculum.php';
 
-		$curriculum = json_decode( file_get_contents( $niv_path ), true );
-		if ( ! is_array( $curriculum ) ) {
-			return 0;
+		$by_lesson = array();
+		foreach ( THW_Curriculum::load_niv() as $entry ) {
+			$by_lesson[ THW_Curriculum::get_entry_lesson_number( $entry ) ] = $entry;
 		}
 
 		$books   = THW_Books::get_all();
 		$created = 0;
 
-		foreach ( $curriculum as $entry ) {
-			$lesson = THW_Curriculum::get_entry_lesson_number( $entry );
-			if ( $lesson < 1 ) {
+		foreach ( $lesson_numbers as $lesson ) {
+			if ( ! isset( $by_lesson[ $lesson ] ) ) {
 				continue;
 			}
 
-			$existing = get_posts(
-				array(
-					'post_type'      => 'thw_lesson',
-					'posts_per_page' => 1,
-					'meta_key'       => '_thw_lesson_number',
-					'meta_value'     => $lesson,
-					'fields'         => 'ids',
-				)
-			);
+			$entry = $by_lesson[ $lesson ];
 
-			if ( ! empty( $existing ) ) {
+			if ( self::lesson_number_exists( $lesson ) ) {
 				continue;
 			}
 
@@ -218,9 +328,76 @@ class THW_Activator {
 				update_post_meta( $post_id, '_thw_discussion_questions', wp_json_encode( $entry['discussion_questions'] ) );
 			}
 
-			$created++;
+			self::mark_lesson_number_seeded( $lesson );
+
+			++$created;
 		}
 
 		return $created;
+	}
+
+	/**
+	 * Whether a lesson number already exists in the database.
+	 *
+	 * @param int $lesson_number Lesson number.
+	 * @return bool
+	 */
+	private static function lesson_number_exists( $lesson_number ) {
+		$lesson_number = (int) $lesson_number;
+		if ( $lesson_number < 1 ) {
+			return false;
+		}
+
+		self::prime_seeded_lesson_numbers();
+
+		return isset( self::$seeded_lesson_numbers[ $lesson_number ] );
+	}
+
+	/**
+	 * Record a lesson number as seeded for the current request.
+	 *
+	 * @param int $lesson_number Lesson number.
+	 */
+	private static function mark_lesson_number_seeded( $lesson_number ) {
+		$lesson_number = (int) $lesson_number;
+		if ( $lesson_number < 1 ) {
+			return;
+		}
+
+		self::prime_seeded_lesson_numbers();
+		self::$seeded_lesson_numbers[ $lesson_number ] = true;
+	}
+
+	/**
+	 * Load all existing lesson/week numbers once per seed request.
+	 */
+	private static function prime_seeded_lesson_numbers() {
+		if ( null !== self::$seeded_lesson_numbers ) {
+			return;
+		}
+
+		self::$seeded_lesson_numbers = array();
+
+		$lesson_ids = get_posts(
+			array(
+				'post_type'      => 'thw_lesson',
+				'posts_per_page' => -1,
+				'post_status'    => 'any',
+				'fields'         => 'ids',
+			)
+		);
+
+		foreach ( $lesson_ids as $lesson_id ) {
+			$lesson_number = (int) get_post_meta( $lesson_id, '_thw_lesson_number', true );
+			if ( $lesson_number > 0 ) {
+				self::$seeded_lesson_numbers[ $lesson_number ] = true;
+				continue;
+			}
+
+			$week_number = (int) get_post_meta( $lesson_id, '_thw_week_number', true );
+			if ( $week_number > 0 ) {
+				self::$seeded_lesson_numbers[ $week_number ] = true;
+			}
+		}
 	}
 }

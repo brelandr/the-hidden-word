@@ -18,10 +18,10 @@ class THW_Plugin {
 	 * Run the plugin.
 	 */
 	public function run() {
-		$this->load_textdomain();
-
 		add_action( 'init', array( 'THW_Activator', 'maybe_upgrade_curriculum' ), 1 );
+		add_action( THW_Activator::SEED_CRON_HOOK, array( 'THW_Activator', 'process_seed_batch' ) );
 		add_action( 'admin_notices', array( $this, 'curriculum_upgrade_notice' ) );
+		add_action( 'admin_notices', array( $this, 'curriculum_seeding_notice' ) );
 
 		new THW_CPT_Lesson();
 		new THW_Lesson_Meta();
@@ -66,13 +66,31 @@ class THW_Plugin {
 	}
 
 	/**
-	 * Load plugin text domain.
+	 * Notify admins that the bundled curriculum is still seeding in the
+	 * background, so a mostly-empty lesson list right after activation isn't
+	 * mistaken for a bug.
 	 */
-	private function load_textdomain() {
-		load_plugin_textdomain(
-			'the-hidden-word',
-			false,
-			dirname( THW_PLUGIN_BASENAME ) . '/languages'
+	public function curriculum_seeding_notice() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		$progress = THW_Activator::get_seed_progress();
+		if ( null === $progress ) {
+			return;
+		}
+
+		$total = $progress['created'] + $progress['remaining'];
+
+		echo '<div class="notice notice-info"><p>';
+		echo esc_html(
+			sprintf(
+				/* translators: 1: lessons added so far, 2: total lessons being seeded */
+				__( 'The Hidden Word: adding the bundled Bible lesson curriculum in the background (%1$d of %2$d added so far). This happens gradually to avoid slowing down your site — no action needed.', 'the-hidden-word' ),
+				$progress['created'],
+				$total
+			)
 		);
+		echo '</p></div>';
 	}
 }

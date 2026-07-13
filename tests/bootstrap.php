@@ -7,7 +7,7 @@
 
 define( 'ABSPATH', true );
 define( 'THW_TESTS', true );
-define( 'THW_VERSION', '1.1.0' );
+define( 'THW_VERSION', '1.1.1' );
 define( 'THW_PLUGIN_DIR', dirname( __DIR__ ) . '/' );
 define( 'THW_PLUGIN_URL', 'http://example.org/wp-content/plugins/the-hidden-word/' );
 define( 'THW_PLUGIN_BASENAME', 'the-hidden-word/the-hidden-word.php' );
