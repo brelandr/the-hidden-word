@@ -55,7 +55,7 @@
 
 # 📖 SECTION 3: NIV FAIR-USE (NON-NEGOTIABLE)
 
-* Bundled NIV cap: **500 verses max** (`THW_MAX_BUNDLED_VERSES`); 52-week curriculum = 52 NIV entries.
+* Bundled NIV cap: **500 verses max** (`THW_MAX_NIV_VERSES`); curriculum = 500 single-verse lessons.
 * KJV is public domain; bundled alongside NIV in `data/kjv-curriculum.json`.
 * **Never** add API-fetched NIV in the free plugin — multi-translation is Premium BYOK only.
 * `data/niv-curriculum.json` entries may include: `historical_context`, `preceding_narrative`, `discussion_questions`.
@@ -101,4 +101,4 @@ Output: `LearnTheBible/Dist/the-hidden-word-{version}.zip`
 
 * **@Audit** — Scan for debug code, nonce gaps, SQL injection, wrong text domain, NIV cap breach.
 * **@Refactor** — Apply Section 1–2 security and WPCS.
-* **@Curriculum** — Validate `niv-curriculum.json` has 52 weeks with enrichment fields.
+* **@Curriculum** — Validate `niv-curriculum.json` has 500 lessons, ≤500 NIV verses, enrichment fields.

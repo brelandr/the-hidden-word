@@ -79,7 +79,7 @@ class THW_Shortcodes {
 		$lesson      = THW_CPT_Lesson::get_lesson_data( $lesson_id );
 		$translation = get_option( 'thw_active_translation', 'niv' );
 		$trans_svc   = THW_Translation_Service::instance();
-		$verse_text  = $trans_svc->get_verse_by_week( $lesson['week_number'], $translation );
+		$verse_text  = $trans_svc->get_verse_by_week( $lesson['lesson_number'], $translation );
 
 		if ( ! $verse_text ) {
 			$verse_text = $trans_svc->get_verse_text( $lesson['book_id'], $lesson['chapter'], $lesson['verse_start'], $translation );

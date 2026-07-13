@@ -4,11 +4,11 @@ Tags: bible, scripture, discipleship, memorization, verse of the day
 Requires at least: 6.2
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.0.1
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-A 52-week Bible discipleship plugin with deep-dive lessons, historical context, memorization tools, and discussion prompts.
+A Bible discipleship plugin with 500 NIV verses, deep-dive lessons, historical context, memorization tools, and discussion prompts.
 
 == Description ==
 
@@ -22,7 +22,7 @@ The Hidden Word helps your church or ministry teach Scripture through structured
 
 = Features =
 
-* 52-week curated NIV curriculum (fair-use compliant, under 500 verses)
+* 500-verse curated NIV curriculum (Biblica fair-use maximum)
 * King James Version (public domain) included
 * Verse of the Week or Verse of the Day scheduling
 * Fill-in-the-blanks memorization widget
@@ -54,7 +54,7 @@ This free plugin does not send data to third-party servers. Bundled NIV text is 
 
 1. Upload the plugin to `/wp-content/plugins/the-hidden-word/`
 2. Activate through the 'Plugins' menu
-3. Go to **The Hidden Word** in the admin menu — 52 lessons are seeded automatically
+3. Go to **The Hidden Word** in the admin menu — 500 lessons are seeded automatically
 4. Add `[thw_lesson]` to any page or use the **Bible Lesson** Gutenberg block
 5. Configure schedule and translation under **The Hidden Word → Settings**
 
@@ -62,17 +62,22 @@ This free plugin does not send data to third-party servers. Bundled NIV text is 
 
 = How many NIV verses are bundled? =
 
-52 verses (one per week), well within Biblica's 500-verse gratis use limit.
+500 single-verse lessons, using the full Biblica 500-verse gratis use allowance.
 
 = Can I add my own lessons? =
 
-Yes. Create new Bible Lessons or edit the seeded 52-week curriculum.
+Yes. Create new Bible Lessons or edit the seeded 500-lesson curriculum.
 
 = Does this work with page builders? =
 
 Yes. Use the shortcode `[thw_lesson]` in any page builder text widget or the Gutenberg block.
 
 == Changelog ==
+
+= 1.1.0 =
+* Expand bundled NIV curriculum from 52 to 500 verses (Biblica fair-use maximum)
+* Add THW_Curriculum helper for verse counting and lesson scheduling
+* Scheduler and lesson meta now support lesson numbers 1–500
 
 = 1.0.1 =
 * Complete 52-week NIV curriculum with historical context, narrative, and discussion questions
@@ -87,6 +92,9 @@ Yes. Use the shortcode `[thw_lesson]` in any page builder text widget or the Gut
 * Gutenberg block and shortcodes
 
 == Upgrade Notice ==
+
+= 1.1.0 =
+Expands the bundled curriculum to 500 NIV verses. Existing sites automatically receive new lessons on upgrade.
 
 = 1.0.0 =
 Initial release of The Hidden Word.

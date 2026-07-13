@@ -20,29 +20,25 @@ class THW_Curriculum_Test extends TestCase {
 		$this->assertFileExists( $path );
 		$data = json_decode( file_get_contents( $path ), true );
 		$this->assertIsArray( $data );
-		$this->assertLessThanOrEqual( 500, count( $data ) );
+		$this->assertLessThanOrEqual( THW_MAX_NIV_VERSES, THW_Curriculum::count_verses( $data ) );
 	}
 
 	/**
-	 * Combined bundled verses must not exceed limit.
+	 * Bundled curriculum should use the full 500-verse NIV allowance.
 	 */
-	public function test_combined_verse_count_within_limit() {
-		$total = 0;
-		foreach ( array( 'niv-curriculum.json', 'kjv-curriculum.json' ) as $file ) {
-			$path = THW_PLUGIN_DIR . 'data/' . $file;
-			$data = json_decode( file_get_contents( $path ), true );
-			$total += count( $data );
-		}
-		$this->assertLessThanOrEqual( THW_MAX_BUNDLED_VERSES, $total );
+	public function test_niv_curriculum_uses_full_allowance() {
+		$data = THW_Curriculum::load_niv();
+		$this->assertCount( 500, $data );
+		$this->assertSame( 500, THW_Curriculum::count_verses( $data ) );
 	}
 
 	/**
-	 * Curriculum must have 52 weeks.
+	 * KJV curriculum must mirror NIV lesson count.
 	 */
-	public function test_curriculum_has_52_weeks() {
-		$path = THW_PLUGIN_DIR . 'data/niv-curriculum.json';
-		$data = json_decode( file_get_contents( $path ), true );
-		$this->assertCount( 52, $data );
+	public function test_kjv_matches_niv_lesson_count() {
+		$niv = THW_Curriculum::load_niv();
+		$kjv = THW_Curriculum::load_kjv();
+		$this->assertCount( count( $niv ), $kjv );
 	}
 
 	/**
@@ -64,17 +60,17 @@ class THW_Curriculum_Test extends TestCase {
 	}
 
 	/**
-	 * Each NIV week includes enriched lesson fields.
+	 * Each NIV lesson includes enriched lesson fields.
 	 */
-	public function test_niv_curriculum_weeks_are_enriched() {
-		$path = THW_PLUGIN_DIR . 'data/niv-curriculum.json';
-		$data = json_decode( file_get_contents( $path ), true );
+	public function test_niv_curriculum_lessons_are_enriched() {
+		$data = THW_Curriculum::load_niv();
 
-		foreach ( $data as $week ) {
-			$this->assertNotEmpty( $week['historical_context'], 'Week ' . $week['week'] . ' missing historical_context' );
-			$this->assertNotEmpty( $week['preceding_narrative'], 'Week ' . $week['week'] . ' missing preceding_narrative' );
-			$this->assertIsArray( $week['discussion_questions'] );
-			$this->assertGreaterThanOrEqual( 3, count( $week['discussion_questions'] ), 'Week ' . $week['week'] . ' needs discussion questions' );
+		foreach ( $data as $lesson ) {
+			$num = THW_Curriculum::get_entry_lesson_number( $lesson );
+			$this->assertNotEmpty( $lesson['historical_context'], 'Lesson ' . $num . ' missing historical_context' );
+			$this->assertNotEmpty( $lesson['preceding_narrative'], 'Lesson ' . $num . ' missing preceding_narrative' );
+			$this->assertIsArray( $lesson['discussion_questions'] );
+			$this->assertGreaterThanOrEqual( 3, count( $lesson['discussion_questions'] ), 'Lesson ' . $num . ' needs discussion questions' );
 		}
 	}
 }

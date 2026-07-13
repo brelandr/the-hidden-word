@@ -49,22 +49,33 @@ class THW_Bundled_Provider implements THW_Translation_Provider {
 	}
 
 	/**
-	 * Get verse text by week number.
+	 * Get verse text by lesson number.
+	 *
+	 * @param int    $lesson      Lesson number.
+	 * @param string $translation Translation slug.
+	 * @return string|null
+	 */
+	public function get_verse_by_lesson( $lesson, $translation ) {
+		$curriculum = $this->load_curriculum( strtolower( $translation ) );
+
+		foreach ( $curriculum as $entry ) {
+			if ( THW_Curriculum::get_entry_lesson_number( $entry ) === (int) $lesson ) {
+				return isset( $entry['text'] ) ? $entry['text'] : null;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Get verse text by week number (legacy alias).
 	 *
 	 * @param int    $week        Week number.
 	 * @param string $translation Translation slug.
 	 * @return string|null
 	 */
 	public function get_verse_by_week( $week, $translation ) {
-		$curriculum = $this->load_curriculum( strtolower( $translation ) );
-
-		foreach ( $curriculum as $entry ) {
-			if ( (int) $entry['week'] === (int) $week ) {
-				return isset( $entry['text'] ) ? $entry['text'] : null;
-			}
-		}
-
-		return null;
+		return $this->get_verse_by_lesson( $week, $translation );
 	}
 
 	/**

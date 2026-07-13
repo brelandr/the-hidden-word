@@ -108,14 +108,18 @@ class THW_Lesson_Meta {
 		$chapter     = (int) get_post_meta( $post->ID, '_thw_chapter', true );
 		$verse_start = (int) get_post_meta( $post->ID, '_thw_verse_start', true );
 		$verse_end   = (int) get_post_meta( $post->ID, '_thw_verse_end', true );
-		$week_number = (int) get_post_meta( $post->ID, '_thw_week_number', true );
+		$lesson_number = (int) get_post_meta( $post->ID, '_thw_lesson_number', true );
+		if ( ! $lesson_number ) {
+			$lesson_number = (int) get_post_meta( $post->ID, '_thw_week_number', true );
+		}
+		$max_lesson = THW_Curriculum::get_lesson_count() ?: 500;
 		?>
 		<table class="form-table thw-meta-table">
 			<tr>
-				<th><label for="thw_week_number"><?php esc_html_e( 'Week Number', 'the-hidden-word' ); ?></label></th>
+				<th><label for="thw_lesson_number"><?php esc_html_e( 'Lesson Number', 'the-hidden-word' ); ?></label></th>
 				<td>
-					<input type="number" id="thw_week_number" name="thw_week_number" value="<?php echo esc_attr( $week_number ); ?>" min="1" max="52" />
-					<p class="description"><?php esc_html_e( 'Slot in the 52-week curriculum (1–52).', 'the-hidden-word' ); ?></p>
+					<input type="number" id="thw_lesson_number" name="thw_lesson_number" value="<?php echo esc_attr( $lesson_number ); ?>" min="1" max="<?php echo esc_attr( $max_lesson ); ?>" />
+					<p class="description"><?php esc_html_e( 'Slot in the bundled curriculum (1–500).', 'the-hidden-word' ); ?></p>
 				</td>
 			</tr>
 			<tr>
@@ -265,17 +269,22 @@ class THW_Lesson_Meta {
 		}
 
 		$int_fields = array(
-			'thw_book_id'     => '_thw_book_id',
-			'thw_chapter'     => '_thw_chapter',
-			'thw_verse_start' => '_thw_verse_start',
-			'thw_verse_end'   => '_thw_verse_end',
-			'thw_week_number' => '_thw_week_number',
+			'thw_book_id'       => '_thw_book_id',
+			'thw_chapter'       => '_thw_chapter',
+			'thw_verse_start'   => '_thw_verse_start',
+			'thw_verse_end'     => '_thw_verse_end',
+			'thw_lesson_number' => '_thw_lesson_number',
+			'thw_week_number'   => '_thw_week_number',
 		);
 
 		foreach ( $int_fields as $field => $meta_key ) {
 			if ( isset( $_POST[ $field ] ) ) {
 				update_post_meta( $post_id, $meta_key, absint( $_POST[ $field ] ) );
 			}
+		}
+
+		if ( isset( $_POST['thw_lesson_number'] ) ) {
+			update_post_meta( $post_id, '_thw_week_number', absint( $_POST['thw_lesson_number'] ) );
 		}
 
 		if ( isset( $_POST['thw_historical_context'] ) ) {
