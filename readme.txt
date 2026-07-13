@@ -4,7 +4,7 @@ Tags: bible, scripture, discipleship, memorization, verse of the day
 Requires at least: 6.2
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.1.1
+Stable tag: 1.1.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -82,6 +82,10 @@ Yes. Use the shortcode `[thw_lesson]` in any page builder text widget or the Gut
 
 == Changelog ==
 
+= 1.1.2 =
+* Create a "Today's Lesson" demo page with `[thw_lesson]` on first activation (does not change your homepage)
+* Add WordPress.org application form copy and plugin apply guide
+
 = 1.1.1 =
 * The bundled 500-lesson curriculum now seeds in small background batches instead of all at once on activation, to avoid timeouts on slower hosting. An admin notice shows progress while it runs.
 * Lesson scheduling uses an in-memory lookup map instead of slow meta queries on every page load.
@@ -106,6 +110,9 @@ Yes. Use the shortcode `[thw_lesson]` in any page builder text widget or the Gut
 * Gutenberg block and shortcodes
 
 == Upgrade Notice ==
+
+= 1.1.2 =
+Creates a starter front-end page on new installs so lessons are visible immediately after activation.
 
 = 1.1.1 =
 Background batched seeding avoids activation timeouts on slower hosts. An admin notice shows progress while lessons are created.

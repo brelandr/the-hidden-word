@@ -61,6 +61,7 @@ class THW_Activator {
 		}
 
 		self::maybe_upgrade_curriculum();
+		self::maybe_create_demo_page();
 	}
 
 	/**
@@ -398,6 +399,35 @@ class THW_Activator {
 			if ( $week_number > 0 ) {
 				self::$seeded_lesson_numbers[ $week_number ] = true;
 			}
+		}
+	}
+
+	/**
+	 * Create a starter front-end page with [thw_lesson] on first activation.
+	 */
+	private static function maybe_create_demo_page() {
+		if ( get_option( 'thw_demo_page_created' ) ) {
+			return;
+		}
+
+		$existing = get_page_by_title( "Today's Lesson", OBJECT, 'page' );
+		if ( $existing instanceof WP_Post ) {
+			update_option( 'thw_demo_page_created', true );
+			return;
+		}
+
+		$page_id = wp_insert_post(
+			array(
+				'post_type'    => 'page',
+				'post_title'   => __( "Today's Lesson", 'the-hidden-word' ),
+				'post_status'  => 'publish',
+				'post_content' => "<!-- wp:shortcode -->\n[thw_lesson]\n<!-- /wp:shortcode -->",
+			),
+			true
+		);
+
+		if ( ! is_wp_error( $page_id ) && $page_id > 0 ) {
+			update_option( 'thw_demo_page_created', true );
 		}
 	}
 }

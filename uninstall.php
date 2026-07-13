@@ -16,6 +16,7 @@ delete_option( 'thw_copyright_displayed' );
 delete_option( 'thw_curriculum_version' );
 delete_option( 'thw_seed_queue' );
 delete_option( 'thw_seed_created_count' );
+delete_option( 'thw_demo_page_created' );
 delete_option( 'thw_lesson_lookup_map' );
 delete_transient( 'thw_curriculum_upgraded' );
 
