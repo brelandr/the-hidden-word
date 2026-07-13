@@ -13,7 +13,7 @@ The Hidden Word is a free Bible discipleship plugin that seeds up to 500 single-
 
 1. Activate the plugin.
 2. Open The Hidden Word → Bible Lessons (lessons appear gradually; admin notice shows progress).
-3. Create a page with [thw_lesson] or the Bible Lesson block.
+3. Visit the auto-created **Today's Lesson** page (or add `[thw_lesson]` to any page).
 4. View the front end — tabbed lesson UI with NIV/KJV per Settings.
 5. Uninstall removes all thw_lesson posts and plugin options.
 

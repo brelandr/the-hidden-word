@@ -19,7 +19,7 @@ cd LearnTheBible
 bash scripts/deploy-wporg-svn.sh
 cd .svn-the-hidden-word
 svn status
-svn commit -m "Release 1.1.1"
+svn commit -m "Release 1.1.2"
 ```
 
 ## Pre-application checklist (completed in repo)
@@ -41,7 +41,7 @@ svn commit -m "Release 1.1.1"
 On a local WP 6.2+ install:
 
 1. Install Plugin Check from wordpress.org
-2. Activate The Hidden Word from `Dist/the-hidden-word-1.1.1.zip`
+2. Activate The Hidden Word from `Dist/the-hidden-word-1.1.2.zip`
 3. Run **Tools → Plugin Check** — confirm 0 errors
 
 ## Update Premium store after approval
