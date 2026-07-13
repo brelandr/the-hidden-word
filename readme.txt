@@ -72,12 +72,22 @@ Yes. Create new Bible Lessons or edit the seeded 500-lesson curriculum.
 
 Yes. Use the shortcode `[thw_lesson]` in any page builder text widget or the Gutenberg block.
 
+== Screenshots ==
+
+1. Tabbed lesson view with scripture, context, narrative, echo, and discussion tabs
+2. Fill-in-the-blanks memorization widget
+3. Verse of the Week scheduling on the front end
+4. Lesson editor with verse reference and enrichment meta boxes
+5. Plugin settings — schedule mode and translation switcher
+
 == Changelog ==
 
 = 1.1.0 =
 * Expand bundled NIV curriculum from 52 to 500 verses (Biblica fair-use maximum)
 * Add THW_Curriculum helper for verse counting and lesson scheduling
 * Scheduler and lesson meta now support lesson numbers 1–500
+* Automatic upgrade seeding for existing installs
+* WordPress.org assets and GitHub Actions CI
 
 = 1.0.1 =
 * Complete 52-week NIV curriculum with historical context, narrative, and discussion questions
