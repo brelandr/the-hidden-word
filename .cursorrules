@@ -102,3 +102,4 @@ Output: `LearnTheBible/Dist/the-hidden-word-{version}.zip`
 * **@Audit** — Scan for debug code, nonce gaps, SQL injection, wrong text domain, NIV cap breach.
 * **@Refactor** — Apply Section 1–2 security and WPCS.
 * **@Curriculum** — Validate `niv-curriculum.json` has 500 lessons, ≤500 NIV verses, enrichment fields.
+* **@Ship** — See `docs/WORDPRESS-ORG-SUBMISSION.md` for SVN, screenshots, and assets.
