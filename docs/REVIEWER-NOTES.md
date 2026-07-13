@@ -1,4 +1,4 @@
-# WordPress.org Reviewer Notes — The Hidden Word v1.1.3
+# WordPress.org Reviewer Notes — The Hidden Word v1.1.4
 
 Paste the paragraph below into the **Notes for reviewers** field on submission.
 

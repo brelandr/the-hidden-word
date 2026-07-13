@@ -1,6 +1,6 @@
 # WordPress.org Submission & Screenshots
 
-Guide for submitting **The Hidden Word** v1.1.3 to the [WordPress Plugin Directory](https://wordpress.org/plugins/developers/).
+Guide for submitting **The Hidden Word** v1.1.4 to the [WordPress Plugin Directory](https://wordpress.org/plugins/developers/).
 
 ---
 
@@ -180,19 +180,19 @@ Structure:
 ```text
 the-hidden-word/
 ├── trunk/          # development copy
-├── tags/1.1.3/     # immutable release
+├── tags/1.1.4/     # immutable release
 └── assets/         # icons, banners, screenshots (NOT in trunk)
 ```
 
 ### 3. Copy release into trunk
 
 ```bash
-# Unzip or rsync from Dist/the-hidden-word-1.1.3.zip contents into trunk/
+# Unzip or rsync from Dist/the-hidden-word-1.1.4.zip contents into trunk/
 rsync -av --delete /path/to/the-hidden-word/ trunk/ \
   --exclude='.git' --exclude='tests' --exclude='scripts' --exclude='data/curriculum-parts'
 ```
 
-Ensure `readme.txt` **Stable tag** matches: `1.1.3`.
+Ensure `readme.txt` **Stable tag** matches: `1.1.4`.
 
 ### 4. Copy assets & screenshots
 
@@ -204,12 +204,12 @@ cp docs/screenshots/screenshot-*.png ../assets/
 ### 5. Tag release
 
 ```bash
-svn cp trunk tags/1.1.3
-svn add tags/1.1.3 assets/*
-svn commit -m "Release 1.1.3 — real screenshots and submission docs"
+svn cp trunk tags/1.1.4
+svn add tags/1.1.4 assets/*
+svn commit -m "Release 1.1.4 — Plugin Check fixes and submission docs"
 ```
 
-WordPress.org builds zip from `tags/1.1.3/` automatically.
+WordPress.org builds zip from `tags/1.1.4/` automatically.
 
 ---
 
@@ -270,7 +270,7 @@ Keep captions in sync with uploaded files:
 ## Local demo site setup (fast path)
 
 1. `wp core download` + `wp config create` + `wp db create`
-2. `wp plugin install` from `Dist/the-hidden-word-1.1.3.zip`
+2. `wp plugin install` from `Dist/the-hidden-word-1.1.4.zip`
 3. `wp plugin activate the-hidden-word`
 4. `wp post create --post_type=page --post_title="Today's Lesson" --post_status=publish`
 5. `wp post meta update <page_id> _wp_page_template` (or insert block via admin)
