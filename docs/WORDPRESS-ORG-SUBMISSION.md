@@ -1,6 +1,6 @@
 # WordPress.org Submission & Screenshots
 
-Guide for submitting **The Hidden Word** v1.1.1 to the [WordPress Plugin Directory](https://wordpress.org/plugins/developers/).
+Guide for submitting **The Hidden Word** v1.1.2 to the [WordPress Plugin Directory](https://wordpress.org/plugins/developers/).
 
 ---
 
@@ -162,19 +162,19 @@ Structure:
 ```text
 the-hidden-word/
 ├── trunk/          # development copy
-├── tags/1.1.1/     # immutable release
+├── tags/1.1.2/     # immutable release
 └── assets/         # icons, banners, screenshots (NOT in trunk)
 ```
 
 ### 3. Copy release into trunk
 
 ```bash
-# Unzip or rsync from Dist/the-hidden-word-1.1.1.zip contents into trunk/
+# Unzip or rsync from Dist/the-hidden-word-1.1.2.zip contents into trunk/
 rsync -av --delete /path/to/the-hidden-word/ trunk/ \
   --exclude='.git' --exclude='tests' --exclude='scripts' --exclude='data/curriculum-parts'
 ```
 
-Ensure `readme.txt` **Stable tag** matches: `1.1.1`.
+Ensure `readme.txt` **Stable tag** matches: `1.1.2`.
 
 ### 4. Copy assets & screenshots
 
