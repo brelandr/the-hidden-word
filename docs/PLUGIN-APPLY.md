@@ -7,7 +7,7 @@ The SVN repository `https://plugins.svn.wordpress.org/the-hidden-word/` does **n
 1. Log in at https://wordpress.org/plugins/developers/add/
 2. Request slug: **`the-hidden-word`**
 3. Paste the reviewer intro from `The-Hidden-Word/docs/REVIEWER-NOTES.md`
-4. Upload or link to the latest release zip: `Dist/the-hidden-word-1.1.2.zip`
+4. Upload or link to the latest release zip: `Dist/the-hidden-word-1.1.3.zip`
 5. Wait for review (typically days to weeks)
 
 ## After approval
@@ -31,7 +31,7 @@ svn commit -m "Release 1.1.2"
 - [x] `readme.txt` Contributors: `brelandr`
 - [x] External Services + NIV copyright in readme
 - [x] PHPUnit passes (6 tests)
-- [x] Release zip builds (`the-hidden-word-1.1.2.zip`)
+- [x] Release zip builds (`the-hidden-word-1.1.3.zip`)
 - [x] Icons and banners in `assets/`
 - [x] Screenshots in `docs/screenshots/` (real wp-env captures)
 - [x] Reviewer notes in `docs/REVIEWER-NOTES.md`

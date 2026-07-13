@@ -4,7 +4,7 @@ Tags: bible, scripture, discipleship, memorization, verse of the day
 Requires at least: 6.2
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.1.2
+Stable tag: 1.1.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -54,7 +54,7 @@ This free plugin does not send data to third-party servers. Bundled NIV text is 
 
 1. Upload the plugin to `/wp-content/plugins/the-hidden-word/`
 2. Activate through the 'Plugins' menu
-3. Go to **The Hidden Word** in the admin menu — 500 lessons seed in the background (progress notice while running)
+3. Go to **The Hidden Word** in the admin menu — 500 lessons seed in the background (progress notice while running). A **Today's Lesson** demo page is created on first activation.
 4. Add `[thw_lesson]` to any page or use the **Bible Lesson** Gutenberg block
 5. Configure schedule and translation under **The Hidden Word → Settings**
 
@@ -81,6 +81,11 @@ Yes. Use the shortcode `[thw_lesson]` in any page builder text widget or the Gut
 5. Plugin settings — schedule mode and translation switcher
 
 == Changelog ==
+
+= 1.1.3 =
+* Replace mock WordPress.org screenshots with real wp-env UI captures
+* Seeding-complete admin notice links to the Today's Lesson demo page
+* Update WordPress.org reviewer and submission documentation
 
 = 1.1.2 =
 * Create a "Today's Lesson" demo page with `[thw_lesson]` on first activation (does not change your homepage)
@@ -110,6 +115,9 @@ Yes. Use the shortcode `[thw_lesson]` in any page builder text widget or the Gut
 * Gutenberg block and shortcodes
 
 == Upgrade Notice ==
+
+= 1.1.3 =
+Documentation and screenshot updates for WordPress.org submission. No required action for existing sites.
 
 = 1.1.2 =
 Creates a starter front-end page on new installs so lessons are visible immediately after activation.

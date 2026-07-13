@@ -3,7 +3,7 @@
 Plugin name: The Hidden Word
 Plugin slug: the-hidden-word
 Plugin URL (GitHub): https://github.com/brelandr/the-hidden-word
-Release zip: https://github.com/brelandr/the-hidden-word/releases/download/v1.1.2/the-hidden-word-1.1.2.zip
+Release zip: https://github.com/brelandr/the-hidden-word/releases/download/v1.1.3/the-hidden-word-1.1.3.zip
 
 --- Description for reviewers ---
 
