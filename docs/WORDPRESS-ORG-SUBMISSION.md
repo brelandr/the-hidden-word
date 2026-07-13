@@ -186,12 +186,12 @@ cp docs/screenshots/screenshot-*.png ../assets/
 ### 5. Tag release
 
 ```bash
-svn cp trunk tags/1.1.1
-svn add tags/1.1.1 assets/*
-svn commit -m "Release 1.1.1 — batched seeding and lookup map"
+svn cp trunk tags/1.1.2
+svn add tags/1.1.2 assets/*
+svn commit -m "Release 1.1.2 — demo page and application docs"
 ```
 
-WordPress.org builds zip from `tags/1.1.1/` automatically.
+WordPress.org builds zip from `tags/1.1.2/` automatically.
 
 ---
 
@@ -252,7 +252,7 @@ Keep captions in sync with uploaded files:
 ## Local demo site setup (fast path)
 
 1. `wp core download` + `wp config create` + `wp db create`
-2. `wp plugin install` from `Dist/the-hidden-word-1.1.1.zip`
+2. `wp plugin install` from `Dist/the-hidden-word-1.1.2.zip`
 3. `wp plugin activate the-hidden-word`
 4. `wp post create --post_type=page --post_title="Today's Lesson" --post_status=publish`
 5. `wp post meta update <page_id> _wp_page_template` (or insert block via admin)
