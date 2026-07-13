@@ -1,0 +1,9 @@
+{
+  "name": "landtech/the-hidden-word",
+  "description": "Bible discipleship WordPress plugin",
+  "type": "wordpress-plugin",
+  "license": "GPL-2.0-or-later",
+  "require-dev": {
+    "phpunit/phpunit": "^9.6"
+  }
+}
