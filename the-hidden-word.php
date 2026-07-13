@@ -3,7 +3,7 @@
  * Plugin Name: The Hidden Word
  * Plugin URI: https://wordpress.org/plugins/the-hidden-word/
  * Description: A 52-week Bible discipleship plugin with deep-dive lessons, historical context, memorization tools, and discussion prompts. NIV fair-use curriculum included.
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: Land Tech Web Designs, Corp
  * Author URI: https://landtechwebdesigns.com
  * License: GPL-2.0+
@@ -25,7 +25,7 @@ if ( defined( 'THW_BOOTSTRAP_DONE' ) ) {
 }
 
 define( 'THW_BOOTSTRAP_DONE', true );
-define( 'THW_VERSION', '1.0.0' );
+define( 'THW_VERSION', '1.0.1' );
 define( 'THW_PLUGIN_FILE', __FILE__ );
 define( 'THW_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'THW_PLUGIN_URL', plugin_dir_url( __FILE__ ) );

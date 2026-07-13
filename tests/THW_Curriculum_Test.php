@@ -62,4 +62,19 @@ class THW_Curriculum_Test extends TestCase {
 		$books = THW_Books::get_all();
 		$this->assertCount( 66, $books );
 	}
+
+	/**
+	 * Each NIV week includes enriched lesson fields.
+	 */
+	public function test_niv_curriculum_weeks_are_enriched() {
+		$path = THW_PLUGIN_DIR . 'data/niv-curriculum.json';
+		$data = json_decode( file_get_contents( $path ), true );
+
+		foreach ( $data as $week ) {
+			$this->assertNotEmpty( $week['historical_context'], 'Week ' . $week['week'] . ' missing historical_context' );
+			$this->assertNotEmpty( $week['preceding_narrative'], 'Week ' . $week['week'] . ' missing preceding_narrative' );
+			$this->assertIsArray( $week['discussion_questions'] );
+			$this->assertGreaterThanOrEqual( 3, count( $week['discussion_questions'] ), 'Week ' . $week['week'] . ' needs discussion questions' );
+		}
+	}
 }

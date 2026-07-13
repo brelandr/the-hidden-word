@@ -1,0 +1,104 @@
+# ⚙️ PROJECT CONFIGURATION — THE HIDDEN WORD (FREE)
+# ==============================================================================
+# Plugin Name:      The Hidden Word
+# Plugin Slug:      the-hidden-word
+# Text Domain:      the-hidden-word
+# Function Prefix:  thw_
+# Class Prefix:     THW_
+# Constant Prefix:  THW_
+# CPT Slug:         thw_lesson
+# GitHub (public):  https://github.com/brelandr/the-hidden-word
+# Zip build:        ../create-plugin-zip.sh (LearnTheBible root)
+# Premium add-on:   The-Hidden-Word-Premium (separate repo — do not add premium code here)
+# ==============================================================================
+
+# ⚠️ CRITICAL CONTEXT
+# Path contains `The-Hidden-Word/` (NOT `The-Hidden-Word-Premium/`) → 🟢 FREE context
+# DO NOT add license checks, LMFWC, GitHub updater, or crippleware here.
+# DO expose extension hooks for Premium (`thw_register_premium_features`, filters/actions).
+
+# 📝 End code generation with: ✅ **Context: FREE — The Hidden Word**
+
+---
+
+# 🛡️ SECTION 1: PHP SECURITY
+
+## A. Golden Nonce Pattern
+* Verify nonce as the **first line** of any `$_POST` / `admin_post` / AJAX handler.
+* Sanitize inside `wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ) ), 'action' )`.
+
+## B. Data Hygiene
+* Input: `sanitize_text_field( wp_unslash( $_POST['key'] ) )`, `map_deep()` for arrays, `esc_url_raw()` for URLs.
+* Output: `esc_html()`, `esc_attr()`, `esc_url()`, `wp_kses_post()` for rich lesson HTML.
+* DB: `$wpdb->prepare()` or `WP_Query` / `get_posts()` — never raw SQL with variables.
+
+## C. Rejection Blacklist
+* ❌ `extract()`, `eval()`, `file_put_contents()` (except vendor/build tooling outside plugin runtime)
+* ❌ `print_r()`, `var_dump()`, `error_log()` in shipped code
+* ❌ `curl_*()` — use `wp_safe_remote_get()` / `wp_safe_remote_post()`
+* ❌ `date()` — use `gmdate()` or `wp_date()`
+
+## D. Direct Access Guard
+* Every PHP file except the main loader MUST start with:
+  `if ( ! defined( 'ABSPATH' ) ) { exit; }`
+
+---
+
+# 🏗️ SECTION 2: WPCS & PREFIXING
+
+1. Prefix **all** functions (`thw_`), classes (`THW_`), hooks, options (`thw_`), transients (`thw_`).
+2. Text domain **must** be `the-hidden-word` on every `__()`, `_e()`, `esc_html__()`.
+3. Tabs for indentation; Yoda conditions (`if ( 'week' === $mode )`).
+4. Contributors in `readme.txt`: **brelandr** (WordPress.org profile).
+
+---
+
+# 📖 SECTION 3: NIV FAIR-USE (NON-NEGOTIABLE)
+
+* Bundled NIV cap: **500 verses max** (`THW_MAX_BUNDLED_VERSES`); 52-week curriculum = 52 NIV entries.
+* KJV is public domain; bundled alongside NIV in `data/kjv-curriculum.json`.
+* **Never** add API-fetched NIV in the free plugin — multi-translation is Premium BYOK only.
+* `data/niv-curriculum.json` entries may include: `historical_context`, `preceding_narrative`, `discussion_questions`.
+* Activator seeder reads JSON once (`thw_seeded` option); changing JSON does not auto-update existing sites.
+
+---
+
+# 🔌 SECTION 4: EXTENSION HOOKS (PREMIUM INTEGRATION)
+
+Premium hooks the free plugin exposes — **preserve these**:
+* `do_action( 'thw_register_premium_features' )`
+* `apply_filters( 'thw_schedule_modes', $modes )`
+* `apply_filters( 'thw_current_lesson_id', $id, $slot, $mode )`
+* `apply_filters( 'thw_translation_providers', $providers )`
+* `apply_filters( 'thw_get_verse_text', $text, ... )`
+* `apply_filters( 'thw_lesson_tabs', $tabs, $lesson_id )`
+* `do_action( 'thw_lesson_render_before_tabs' )`, `thw_lesson_render_panels`, `thw_lesson_render_after_echo`
+
+---
+
+# 🌐 SECTION 5: WORDPRESS.ORG COMPLIANCE
+
+* No phone-home tracking; no license gates in free plugin.
+* Pro upsell: link only (readme + settings), no crippleware.
+* `readme.txt`: Contributors **brelandr**, NIV copyright block, FAQ, changelog.
+* Assets: `assets/icon-256x256.png`, `icon-128x128.png`, banners per `assets/README.md`.
+* PHPUnit: `tests/THW_Curriculum_Test.php` must pass before zip (`create-plugin-zip.sh`).
+* Exclude from zip: `.cursorrules`, `.git/`, `tests/`, `vendor/` (dev), `composer.json`, `*.md`, `*.sh`.
+
+---
+
+# 📦 SECTION 6: BUILD & DEPLOY
+
+```bash
+bash "/Users/randy/wordpress-plugins/WordpressDev/LearnTheBible/create-plugin-zip.sh" --free-only
+```
+
+Output: `LearnTheBible/Dist/the-hidden-word-{version}.zip`
+
+---
+
+# ⚡ SMART COMMANDS
+
+* **@Audit** — Scan for debug code, nonce gaps, SQL injection, wrong text domain, NIV cap breach.
+* **@Refactor** — Apply Section 1–2 security and WPCS.
+* **@Curriculum** — Validate `niv-curriculum.json` has 52 weeks with enrichment fields.

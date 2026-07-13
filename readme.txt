@@ -1,10 +1,10 @@
 === The Hidden Word ===
-Contributors: landtechwebdesigns
+Contributors: brelandr
 Tags: bible, scripture, discipleship, memorization, verse of the day
 Requires at least: 6.2
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -46,6 +46,10 @@ The bundled NIV text is provided under Biblica's gratis use guidelines for non-c
 
 [The Hidden Word Premium](https://landtechwebdesigns.com/product/the-hidden-word-premium/) adds custom scheduling, PDF leader guides, multi-translation switching via API.Bible (bring your own API key), progress tracking, and AI-assisted lesson drafting.
 
+== External Services ==
+
+This free plugin does not send data to third-party servers. Bundled NIV text is stored locally under Biblica's gratis use guidelines. The optional Premium add-on (sold separately) may connect to external services when the site administrator configures API keys — see the Premium plugin readme.
+
 == Installation ==
 
 1. Upload the plugin to `/wp-content/plugins/the-hidden-word/`
@@ -69,6 +73,10 @@ Yes. Create new Bible Lessons or edit the seeded 52-week curriculum.
 Yes. Use the shortcode `[thw_lesson]` in any page builder text widget or the Gutenberg block.
 
 == Changelog ==
+
+= 1.0.1 =
+* Complete 52-week NIV curriculum with historical context, narrative, and discussion questions
+* Update project .cursorrules for The Hidden Word
 
 = 1.0.0 =
 * Initial release

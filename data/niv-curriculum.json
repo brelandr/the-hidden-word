@@ -93,7 +93,10 @@
     "chapter": 14,
     "verse_start": 6,
     "verse_end": 6,
-    "text": "Jesus answered, \"I am the way and the truth and the life. No one comes to the Father except through me.\""
+    "text": "Jesus answered, \"I am the way and the truth and the life. No one comes to the Father except through me.\"",
+    "historical_context": "<p>Jesus spoke these words on the night before His crucifixion, in an upper room in Jerusalem during Passover. His disciples were anxious about His departure and uncertain about the future under Roman occupation and growing hostility from religious leaders.</p>",
+    "preceding_narrative": "<p>Thomas had just asked how they could know the way to the Father. Jesus responds with one of His seven 'I am' statements, claiming exclusive access to God and offering Himself as the path to eternal life.</p>",
+    "discussion_questions": ["What does it mean that Jesus is the way, the truth, and the life?", "How does this claim shape the way you share your faith with others?", "Why do you think Jesus waited until this moment to speak so directly about access to the Father?"]
   },
   {
     "week": 10,
@@ -101,7 +104,10 @@
     "chapter": 12,
     "verse_start": 2,
     "verse_end": 2,
-    "text": "Do not conform to the pattern of this world, but be transformed by the renewing of your mind. Then you will be able to test and approve what God's will is—his good, pleasing and perfect will."
+    "text": "Do not conform to the pattern of this world, but be transformed by the renewing of your mind. Then you will be able to test and approve what God's will is—his good, pleasing and perfect will.",
+    "historical_context": "<p>Paul wrote to believers in Rome, the capital of the empire and center of cultural power. First-century Roman society prized honor, status, and conformity to civic religion, making countercultural discipleship a daily challenge.</p>",
+    "preceding_narrative": "<p>Romans 12 opens with a call to offer bodies as living sacrifices and not be conformed to the world. Paul urges renewed minds as the foundation for discerning and embracing God's will in everyday life.</p>",
+    "discussion_questions": ["What 'patterns of this world' are hardest for you to resist?", "How does renewing your mind differ from simply changing behavior?", "What helps you discern God's good, pleasing, and perfect will?"]
   },
   {
     "week": 11,
@@ -109,7 +115,10 @@
     "chapter": 9,
     "verse_start": 23,
     "verse_end": 23,
-    "text": "Then he said to them all: \"Whoever wants to be my disciple must deny themselves and take up their cross daily and follow me.\""
+    "text": "Then he said to them all: \"Whoever wants to be my disciple must deny themselves and take up their cross daily and follow me.\"",
+    "historical_context": "<p>Jesus spoke in Galilee to crowds who expected a political Messiah. Roman crucifixion was a brutal public execution reserved for rebels and criminals, making His language shocking and unmistakably serious.</p>",
+    "preceding_narrative": "<p>Jesus had just foretold His suffering, death, and resurrection. Peter rebuked Him, and Jesus turned to the crowd to clarify that following Him means daily self-denial, not worldly gain or comfort.</p>",
+    "discussion_questions": ["What does 'deny yourself' look like in your daily routine?", "Why does Jesus say we must take up our cross daily?", "How is discipleship different from simply admiring Jesus?"]
   },
   {
     "week": 12,
@@ -117,7 +126,10 @@
     "chapter": 6,
     "verse_start": 33,
     "verse_end": 33,
-    "text": "But seek first his kingdom and his righteousness, and all these things will be given to you as well."
+    "text": "But seek first his kingdom and his righteousness, and all these things will be given to you as well.",
+    "historical_context": "<p>Jesus taught in Galilee to people living under economic uncertainty and Roman taxation. Many struggled with basic needs like food and clothing, making anxiety about provision a constant reality.</p>",
+    "preceding_narrative": "<p>In the Sermon on the Mount, Jesus warns against storing up treasures on earth and worrying about daily needs. He points to God's care for birds and flowers before calling His followers to prioritize God's kingdom above all else.</p>",
+    "discussion_questions": ["What competes with God's kingdom for first place in your life?", "How does seeking God's righteousness change your priorities?", "When have you seen God provide after you put His kingdom first?"]
   },
   {
     "week": 13,
@@ -125,7 +137,10 @@
     "chapter": 46,
     "verse_start": 10,
     "verse_end": 10,
-    "text": "He says, \"Be still, and know that I am God; I will be exalted among the nations, I will be exalted in the earth.\""
+    "text": "He says, \"Be still, and know that I am God; I will be exalted among the nations, I will be exalted in the earth.\"",
+    "historical_context": "<p>Psalm 46 celebrates God as refuge during turmoil, likely composed during a time of national crisis or invasion. Ancient Israel lived surrounded by powerful empires, and God's people needed assurance that He remained sovereign over chaos.</p>",
+    "preceding_narrative": "<p>The psalm describes mountains falling into the sea and nations in uproar, yet declares that God is our fortress. After vivid images of cosmic upheaval, the psalmist calls God's people to stillness and trust in His supreme authority.</p>",
+    "discussion_questions": ["What makes it difficult to 'be still' before God?", "How does knowing God is sovereign change your response to chaos?", "When have you experienced God's presence in a storm?"]
   },
   {
     "week": 14,
@@ -133,7 +148,10 @@
     "chapter": 6,
     "verse_start": 10,
     "verse_end": 10,
-    "text": "Finally, be strong in the Lord and in his mighty power."
+    "text": "Finally, be strong in the Lord and in his mighty power.",
+    "historical_context": "<p>Paul wrote from prison to Christians in Ephesus, a city steeped in magic, idol worship, and spiritual warfare. Believers faced invisible powers as well as visible social pressure to conform to pagan culture.</p>",
+    "preceding_narrative": "<p>Ephesians 6 follows teaching on relationships in the home and workplace. Paul shifts to spiritual conflict, urging believers to put on the full armor of God and stand firm against the devil's schemes.</p>",
+    "discussion_questions": ["What does it mean to be strong in the Lord rather than in yourself?", "Where do you feel the need for God's mighty power today?", "How does spiritual strength connect to the armor Paul describes next?"]
   },
   {
     "week": 15,
@@ -141,7 +159,10 @@
     "chapter": 11,
     "verse_start": 1,
     "verse_end": 1,
-    "text": "Now faith is confidence in what we hope for and assurance about what we do not see."
+    "text": "Now faith is confidence in what we hope for and assurance about what we do not see.",
+    "historical_context": "<p>The letter to the Hebrews was written to Jewish Christians facing persecution and tempted to abandon their confession. The author draws on Old Testament heroes to show that faith has always meant trusting God's promises before seeing their fulfillment.</p>",
+    "preceding_narrative": "<p>Hebrews 10 warns against shrinking back and encourages perseverance. Chapter 11 opens the famous 'hall of faith,' defining faith before recounting how Abel, Enoch, Noah, and others lived by trust in God's word.</p>",
+    "discussion_questions": ["How is biblical faith different from blind optimism?", "What are you hoping for that you cannot yet see?", "Who in Hebrews 11 inspires your confidence in God?"]
   },
   {
     "week": 16,
@@ -149,7 +170,10 @@
     "chapter": 15,
     "verse_start": 5,
     "verse_end": 5,
-    "text": "\"I am the vine; you are the branches. If you remain in me and I in you, you will bear much fruit; apart from me you can do nothing.\""
+    "text": "\"I am the vine; you are the branches. If you remain in me and I in you, you will bear much fruit; apart from me you can do nothing.\"",
+    "historical_context": "<p>Jesus spoke on the night before His death, using imagery familiar in Israel where vineyards were common. Old Testament prophets often pictured Israel as God's vine, making Jesus' claim to be the true vine a bold theological statement.</p>",
+    "preceding_narrative": "<p>After washing the disciples' feet and predicting betrayal, Jesus teaches about abiding in Him. He uses the vine and branches metaphor to explain how spiritual fruitfulness flows from intimate, ongoing connection with Him.</p>",
+    "discussion_questions": ["What does it mean to 'remain' in Jesus practically?", "What fruit has God produced in your life through that connection?", "Why does Jesus say we can do nothing apart from Him?"]
   },
   {
     "week": 17,
@@ -157,7 +181,10 @@
     "chapter": 5,
     "verse_start": 8,
     "verse_end": 8,
-    "text": "But God demonstrates his own love for us in this: While we were still sinners, Christ died for us."
+    "text": "But God demonstrates his own love for us in this: While we were still sinners, Christ died for us.",
+    "historical_context": "<p>Paul wrote to the church in Rome, explaining how the gospel addresses humanity's universal sin problem. In the ancient world, people rarely died for the righteous — making Christ's death for enemies radically unexpected.</p>",
+    "preceding_narrative": "<p>Romans 5 contrasts Adam's sin with Christ's gift of righteousness. Paul argues that if people rarely die for a good person, how much more remarkable is God's love shown while we were still His enemies.</p>",
+    "discussion_questions": ["How does knowing Christ died for you while you were still a sinner affect your gratitude?", "Why is timing important — that God loved us before we cleaned up?", "How should this truth shape the way you view others who are far from God?"]
   },
   {
     "week": 18,
@@ -165,7 +192,10 @@
     "chapter": 2,
     "verse_start": 3,
     "verse_end": 4,
-    "text": "Do nothing out of selfish ambition or vain conceit. Rather, in humility value others above yourselves, not looking to your own interests but each of you to the interests of the others."
+    "text": "Do nothing out of selfish ambition or vain conceit. Rather, in humility value others above yourselves, not looking to your own interests but each of you to the interests of the others.",
+    "historical_context": "<p>Paul wrote to Philippi, a Roman colony proud of its citizenship and status. The church faced internal rivalry, and Paul pointed to Christ's example of self-emptying humility as the pattern for community life.</p>",
+    "preceding_narrative": "<p>Philippians 2 urges unity and calls believers to adopt the same mindset as Christ. Paul describes Jesus' descent from divine glory to the cross before applying that model to everyday relationships in the church.</p>",
+    "discussion_questions": ["Where do selfish ambition or vain conceit show up in your relationships?", "What does valuing others above yourself look like in practice?", "How does Christ's humility inspire you to serve?"]
   },
   {
     "week": 19,
@@ -173,7 +203,10 @@
     "chapter": 11,
     "verse_start": 28,
     "verse_end": 30,
-    "text": "\"Come to me, all you who are weary and burdened, and I will give you rest. Take my yoke upon you and learn from me, for I am gentle and humble in heart, and you will find rest for your souls. For my yoke is easy and my burden is light.\""
+    "text": "\"Come to me, all you who are weary and burdened, and I will give you rest. Take my yoke upon you and learn from me, for I am gentle and humble in heart, and you will find rest for your souls. For my yoke is easy and my burden is light.\"",
+    "historical_context": "<p>Jesus spoke in Galilee to people crushed by religious legalism and Roman oppression. Scribes and Pharisees had multiplied rules, while ordinary Jews carried heavy spiritual and social burdens.</p>",
+    "preceding_narrative": "<p>Jesus had denounced cities that rejected His message and praised the Father for revealing truth to the humble. He then extends an open invitation to all who labor under heavy loads to find rest in Him.</p>",
+    "discussion_questions": ["What burdens are you carrying that Jesus invites you to bring to Him?", "How is Jesus' yoke different from religious performance?", "What does rest for your soul feel like compared to mere physical rest?"]
   },
   {
     "week": 20,
@@ -181,7 +214,10 @@
     "chapter": 119,
     "verse_start": 105,
     "verse_end": 105,
-    "text": "Your word is a lamp for my feet, a light on my path."
+    "text": "Your word is a lamp for my feet, a light on my path.",
+    "historical_context": "<p>Psalm 119 is an acrostic poem celebrating God's law, likely composed during the exile or post-exilic period when Israel's identity depended on Scripture. In the ancient world, travelers relied on small oil lamps to see the next step on dark roads.</p>",
+    "preceding_narrative": "<p>The psalmist has been meditating on God's statutes and expressing love for His commands. Amid affliction and the schemes of the wicked, he declares that God's word provides guidance one step at a time.</p>",
+    "discussion_questions": ["How has Scripture guided you through a specific decision recently?", "Why does the psalmist compare God's word to a lamp rather than blazing sunlight?", "What habits help you let God's word light your path daily?"]
   },
   {
     "week": 21,
@@ -189,7 +225,10 @@
     "chapter": 40,
     "verse_start": 31,
     "verse_end": 31,
-    "text": "but those who hope in the LORD will renew their strength. They will soar on wings like eagles; they will run and not grow weary, they will walk and not be faint."
+    "text": "but those who hope in the LORD will renew their strength. They will soar on wings like eagles; they will run and not grow weary, they will walk and not be faint.",
+    "historical_context": "<p>Isaiah prophesied to Judah during the exile, when God's people felt abandoned and powerless in Babylon. Eagles were symbols of strength and majesty in the ancient Near East, soaring above storms that grounded other creatures.</p>",
+    "preceding_narrative": "<p>Isaiah 40 opens with comfort for God's people and declares that the Creator never grows tired. After contrasting human frailty with God's everlasting strength, the prophet promises renewal to those who wait on the LORD.</p>",
+    "discussion_questions": ["What does it mean to hope in the LORD during exhaustion?", "When have you experienced renewed strength after waiting on God?", "How does this promise speak to seasons when you can only 'walk' and not 'soar'?"]
   },
   {
     "week": 22,
@@ -197,7 +236,10 @@
     "chapter": 1,
     "verse_start": 1,
     "verse_end": 1,
-    "text": "In the beginning was the Word, and the Word was with God, and the Word was God."
+    "text": "In the beginning was the Word, and the Word was with God, and the Word was God.",
+    "historical_context": "<p>John wrote his Gospel for both Jewish and Gentile readers in the late first century, when Greek philosophy spoke of a divine 'Logos' as reason and order. John redefines this concept, declaring that the eternal Word became flesh in Jesus.</p>",
+    "preceding_narrative": "<p>John opens his Gospel with a cosmic prologue echoing Genesis 1. Before narrating Jesus' ministry, he establishes that the Word existed before creation, was with God, and was fully God — the foundation for everything that follows.</p>",
+    "discussion_questions": ["Why does John begin with 'In the beginning' instead of a birth narrative?", "What does it mean that the Word was both with God and was God?", "How does this verse shape your understanding of who Jesus is?"]
   },
   {
     "week": 23,
@@ -205,7 +247,10 @@
     "chapter": 10,
     "verse_start": 9,
     "verse_end": 9,
-    "text": "If you declare with your mouth, \"Jesus is Lord,\" and believe in your heart that God raised him from the dead, you will be saved."
+    "text": "If you declare with your mouth, \"Jesus is Lord,\" and believe in your heart that God raised him from the dead, you will be saved.",
+    "historical_context": "<p>Paul wrote to Rome where Caesar was hailed as 'Lord,' making public confession of Jesus as Lord a politically charged act. Resurrection faith stood at the center of early Christian preaching in a culture that denied life after death.</p>",
+    "preceding_narrative": "<p>Romans 10 explains that righteousness comes by faith, not by works of the law. Paul quotes Scripture about the nearness of God's word and then summarizes the simple confession that brings salvation to everyone who believes.</p>",
+    "discussion_questions": ["What does declaring 'Jesus is Lord' mean beyond words?", "Why are both confession and heart belief necessary?", "How does the resurrection anchor your faith?"]
   },
   {
     "week": 24,
@@ -213,7 +258,10 @@
     "chapter": 4,
     "verse_start": 32,
     "verse_end": 32,
-    "text": "Be kind and compassionate to one another, forgiving each other, just as in Christ God forgave you."
+    "text": "Be kind and compassionate to one another, forgiving each other, just as in Christ God forgave you.",
+    "historical_context": "<p>Paul wrote to Ephesian believers from diverse backgrounds — Jews, Gentiles, slaves, and free — who needed new patterns for community life. Forgiveness was countercultural in a honor-shame society where grudges often defined relationships.</p>",
+    "preceding_narrative": "<p>Ephesians 4 calls believers to put off the old self and put on the new self created in God's likeness. Paul lists virtues of the new life and grounds forgiveness in the massive debt Christ cancelled on our behalf.</p>",
+    "discussion_questions": ["Who do you need to forgive, and what makes it hard?", "How does remembering God's forgiveness in Christ motivate your own?", "What is the difference between kindness and mere politeness?"]
   },
   {
     "week": 25,
@@ -221,7 +269,10 @@
     "chapter": 3,
     "verse_start": 23,
     "verse_end": 23,
-    "text": "Whatever you do, work at it with all your heart, as working for the Lord, not for human masters,"
+    "text": "Whatever you do, work at it with all your heart, as working for the Lord, not for human masters,",
+    "historical_context": "<p>Paul wrote to Colossae, where many believers were slaves or workers under earthly masters. In a society where labor was often demeaning, Paul elevated every task as service rendered directly to Christ.</p>",
+    "preceding_narrative": "<p>Colossians 3 instructs households on how new life in Christ reshapes relationships. Paul addresses wives, husbands, children, fathers, and slaves, calling all believers to wholehearted work as unto the Lord.</p>",
+    "discussion_questions": ["How would your work change if you saw your boss as Christ?", "What tasks feel too ordinary to offer to God?", "Where do you need to work with 'all your heart' this week?"]
   },
   {
     "week": 26,
@@ -229,7 +280,10 @@
     "chapter": 28,
     "verse_start": 19,
     "verse_end": 20,
-    "text": "Therefore go and make disciples of all nations, baptizing them in the name of the Father and of the Son and of the Holy Spirit, and teaching them to obey everything I have commanded you. And surely I am with you always, to the very end of the age."
+    "text": "Therefore go and make disciples of all nations, baptizing them in the name of the Father and of the Son and of the Holy Spirit, and teaching them to obey everything I have commanded you. And surely I am with you always, to the very end of the age.",
+    "historical_context": "<p>Jesus spoke on a mountain in Galilee after His resurrection, commissioning Jewish disciples to reach the entire world. 'All nations' was a radical expansion beyond Israel, and baptism in the Triune name marked entrance into a new global family.</p>",
+    "preceding_narrative": "<p>Some disciples doubted when they saw the risen Jesus, yet He claimed all authority in heaven and on earth. He then sends them outward with a mission to make disciples, baptize, teach obedience, and trust His ongoing presence.</p>",
+    "discussion_questions": ["What does making disciples look like in your context?", "How does Jesus' promise to be with you encourage your obedience?", "Who is one person you can invest in spiritually this month?"]
   },
   {
     "week": 27,
@@ -237,7 +291,10 @@
     "chapter": 27,
     "verse_start": 1,
     "verse_end": 1,
-    "text": "The LORD is my light and my salvation—whom shall I fear? The LORD is the stronghold of my life—of whom shall I be afraid?"
+    "text": "The LORD is my light and my salvation—whom shall I fear? The LORD is the stronghold of my life—of whom shall I be afraid?",
+    "historical_context": "<p>David composed this psalm during seasons of pursuit by enemies, likely Saul or foreign foes. In ancient warfare, a stronghold was a fortified refuge where the vulnerable could survive attack.</p>",
+    "preceding_narrative": "<p>Psalm 27 opens with confident trust despite surrounding threats. David declares desire to dwell in God's house and behold His beauty before asking the rhetorical questions that dismiss fear in light of God's protection.</p>",
+    "discussion_questions": ["What fears compete with your trust in God right now?", "How is God both your light and your stronghold?", "When has confidence in the LORD replaced fear in your experience?"]
   },
   {
     "week": 28,
@@ -245,7 +302,10 @@
     "chapter": 8,
     "verse_start": 32,
     "verse_end": 32,
-    "text": "Then you will know the truth, and the truth will set you free."
+    "text": "Then you will know the truth, and the truth will set you free.",
+    "historical_context": "<p>Jesus debated Jewish leaders in Jerusalem during the Feast of Tabernacles. Many who heard Him were descendants of Abraham who prided themselves on freedom, yet lived under Roman rule and spiritual bondage to sin.</p>",
+    "preceding_narrative": "<p>Jesus told Jews who believed in Him that continuing in His word would prove them true disciples. He promised knowledge of truth that liberates, after they claimed never to have been enslaved to anyone.</p>",
+    "discussion_questions": ["What kind of freedom does truth in Christ bring?", "How can someone believe they are free while still in bondage?", "What truth from Jesus has set you free personally?"]
   },
   {
     "week": 29,
@@ -253,7 +313,10 @@
     "chapter": 6,
     "verse_start": 23,
     "verse_end": 23,
-    "text": "For the wages of sin is death, but the gift of God is eternal life in Christ Jesus our Lord."
+    "text": "For the wages of sin is death, but the gift of God is eternal life in Christ Jesus our Lord.",
+    "historical_context": "<p>Paul wrote to Rome using economic language familiar in a commercial empire. 'Wages' implied earned payment, while 'gift' signaled unmerited grace — a stark contrast in a culture that valued reciprocity and earned status.</p>",
+    "preceding_narrative": "<p>Romans 6 teaches that believers died to sin and were raised to new life in Christ. Paul warns against offering oneself to sin as slaves and contrasts the deadly earnings of sin with God's free gift of eternal life.</p>",
+    "discussion_questions": ["Why does Paul call sin's outcome 'wages' rather than punishment?", "How is eternal life a gift rather than something earned?", "What does it mean to receive God's gift in Christ Jesus?"]
   },
   {
     "week": 30,
@@ -261,7 +324,10 @@
     "chapter": 1,
     "verse_start": 6,
     "verse_end": 6,
-    "text": "being confident of this, that he who began a good work in you will carry it on to completion until the day of Christ Jesus."
+    "text": "being confident of this, that he who began a good work in you will carry it on to completion until the day of Christ Jesus.",
+    "historical_context": "<p>Paul wrote to Philippi from prison, separated from a church he deeply loved. First-century believers had no guarantee their faith would survive persecution, making Paul's confidence in God's finishing work deeply reassuring.</p>",
+    "preceding_narrative": "<p>Paul opens Philippians with thanksgiving and prayer for the church's partnership in the gospel. He expresses affection and confidence that God will complete the transformation He started when they first believed.</p>",
+    "discussion_questions": ["What 'good work' do you see God beginning in your life?", "How does God's commitment to finish give you hope in slow seasons?", "What might 'completion until the day of Christ Jesus' look like?"]
   },
   {
     "week": 31,
@@ -269,7 +335,10 @@
     "chapter": 27,
     "verse_start": 17,
     "verse_end": 17,
-    "text": "As iron sharpens iron, so one person sharpens another."
+    "text": "As iron sharpens iron, so one person sharpens another.",
+    "historical_context": "<p>Proverbs reflects Israel's wisdom tradition, where community life and honest relationships were essential for growth. Blacksmiths in the ancient world used one iron blade to hone another — a vivid image of mutual influence through contact.</p>",
+    "preceding_narrative": "<p>Proverbs 27 offers practical sayings about friendship, accountability, and speech. This proverb follows warnings about flattery and precedes teaching about tending flocks, all emphasizing faithful community relationships.</p>",
+    "discussion_questions": ["Who sharpens you spiritually, and how?", "Why can honest friendship feel uncomfortable yet be necessary?", "How can you be iron that sharpens others without being harsh?"]
   },
   {
     "week": 32,
@@ -277,7 +346,10 @@
     "chapter": 6,
     "verse_start": 31,
     "verse_end": 31,
-    "text": "Do to others as you would have them do to you."
+    "text": "Do to others as you would have them do to you.",
+    "historical_context": "<p>Jesus taught on a plain in Galilee to disciples and a great crowd from Judea and the coast. Similar ethical sayings existed in other traditions, but Jesus rooted this rule in love for enemies and generous, God-like mercy.</p>",
+    "preceding_narrative": "<p>Luke 6 records the Sermon on the Plain, where Jesus blesses the poor and warns the rich. He commands love for enemies and non-retaliation before stating this Golden Rule as the summary of how to treat others.</p>",
+    "discussion_questions": ["How would your relationships change if you applied this rule consistently?", "Why is it harder to practice than to quote?", "How does Jesus' teaching on loving enemies deepen the Golden Rule?"]
   },
   {
     "week": 33,
@@ -285,7 +357,10 @@
     "chapter": 37,
     "verse_start": 4,
     "verse_end": 4,
-    "text": "Take delight in the LORD, and he will give you the desires of your heart."
+    "text": "Take delight in the LORD, and he will give you the desires of your heart.",
+    "historical_context": "<p>Psalm 37 is a wisdom psalm attributed to David, addressing the envy believers feel toward the wicked who prosper. In agrarian Israel, land, livestock, and inheritance were central to security and identity.</p>",
+    "preceding_narrative": "<p>The psalmist urges not to fret over evildoers but to trust, do good, and dwell in the land. Delighting in the LORD comes after commands to commit one's way to God and wait patiently for His justice.</p>",
+    "discussion_questions": ["How does delighting in the LORD differ from using God to get what you want?", "What happens to our desires when we truly delight in God?", "When have you struggled to trust God while the wicked seem to prosper?"]
   },
   {
     "week": 34,
@@ -293,7 +368,10 @@
     "chapter": 10,
     "verse_start": 10,
     "verse_end": 10,
-    "text": "The thief comes only to steal and kill and destroy; I have come that they may have life, and have it to the full."
+    "text": "The thief comes only to steal and kill and destroy; I have come that they may have life, and have it to the full.",
+    "historical_context": "<p>Jesus taught in Jerusalem during the Feast of Dedication, using shepherd imagery familiar in Judean hills. False leaders who exploited God's people were compared to thieves, while Jesus presented Himself as the good shepherd.</p>",
+    "preceding_narrative": "<p>Jesus describes Himself as the gate for the sheep and contrasts His care with robbers who climb in illegally. He declares His purpose is abundant life, not destruction, for those who enter through Him.</p>",
+    "discussion_questions": ["What does 'life to the full' mean in your understanding?", "How have you seen the enemy steal, kill, or destroy?", "How does Jesus as the good shepherd lead you toward abundance?"]
   },
   {
     "week": 35,
@@ -301,7 +379,10 @@
     "chapter": 15,
     "verse_start": 13,
     "verse_end": 13,
-    "text": "May the God of hope fill you with all joy and peace as you trust in him, so that you may overflow with hope by the power of the Holy Spirit."
+    "text": "May the God of hope fill you with all joy and peace as you trust in him, so that you may overflow with hope by the power of the Holy Spirit.",
+    "historical_context": "<p>Paul wrote to Rome near the end of his third missionary journey, planning to visit Spain via Rome. The church included Jewish and Gentile believers with historical tensions, needing unity and hope for the mission ahead.</p>",
+    "preceding_narrative": "<p>Romans 15 urges the strong to bear with the weak and welcomes Gentiles into God's people. Paul prays that the God who gives endurance and encouragement will fill believers with joy, peace, and overflowing hope.</p>",
+    "discussion_questions": ["What role does trust play in receiving joy and peace?", "How can hope overflow to others around you?", "When have you experienced the Holy Spirit's power producing hope in a hard season?"]
   },
   {
     "week": 36,
@@ -309,7 +390,10 @@
     "chapter": 2,
     "verse_start": 10,
     "verse_end": 10,
-    "text": "For we are God's handiwork, created in Christ Jesus to do good works, which God prepared in advance for us to do."
+    "text": "For we are God's handiwork, created in Christ Jesus to do good works, which God prepared in advance for us to do.",
+    "historical_context": "<p>Paul wrote to Ephesus, where Artemis worship and magic practices shaped the cultural imagination. The Greek word for 'handiwork' implies a masterpiece — a striking identity for people formerly dead in sin.</p>",
+    "preceding_narrative": "<p>Ephesians 2 describes salvation by grace through faith and reconciliation between Jew and Gentile. Paul declares believers are God's workmanship, saved not by works but created anew for good works God planned beforehand.</p>",
+    "discussion_questions": ["How does being God's handiwork change your self-image?", "What good works might God have prepared for you today?", "How do grace and good works fit together in this verse?"]
   },
   {
     "week": 37,
@@ -317,7 +401,10 @@
     "chapter": 12,
     "verse_start": 1,
     "verse_end": 2,
-    "text": "Therefore, since we are surrounded by such a great cloud of witnesses, let us throw off everything that hinders and the sin that so easily entangles. And let us run with perseverance the race marked out for us, fixing our eyes on Jesus, the pioneer and perfecter of faith."
+    "text": "Therefore, since we are surrounded by such a great cloud of witnesses, let us throw off everything that hinders and the sin that so easily entangles. And let us run with perseverance the race marked out for us, fixing our eyes on Jesus, the pioneer and perfecter of faith.",
+    "historical_context": "<p>Hebrews was written to Christians facing persecution and fatigue, tempted to abandon their faith. The 'cloud of witnesses' evokes a stadium where heroes of chapter 11 cheer on those still running the race of faith.</p>",
+    "preceding_narrative": "<p>Chapter 11 recounts Abel, Abraham, Moses, and others who lived by faith without receiving the promise. The author now urges readers to shed hindrances and run with endurance, eyes fixed on Jesus who finished His race first.</p>",
+    "discussion_questions": ["What hinders or entangles you in your race of faith?", "Who in the 'cloud of witnesses' encourages you most?", "What does fixing your eyes on Jesus look like day to day?"]
   },
   {
     "week": 38,
@@ -325,7 +412,10 @@
     "chapter": 22,
     "verse_start": 37,
     "verse_end": 39,
-    "text": "Jesus replied: \"'Love the Lord your God with all your heart and with all your soul and with all your mind.' This is the first and greatest commandment. And the second is like it: 'Love your neighbor as yourself.'\""
+    "text": "Jesus replied: \"'Love the Lord your God with all your heart and with all your soul and with all your mind.' This is the first and greatest commandment. And the second is like it: 'Love your neighbor as yourself.'\"",
+    "historical_context": "<p>A Pharisee who was an expert in the law tested Jesus in Jerusalem during His final week. Jewish teachers had identified 613 commandments and debated which was greatest — Jesus answered by quoting Deuteronomy and Leviticus.</p>",
+    "preceding_narrative": "<p>After silencing Sadducees and Pharisees with questions about resurrection and the Messiah, Jesus is asked which commandment is greatest. He summarizes the law in two inseparable loves — for God and for neighbor.</p>",
+    "discussion_questions": ["What does loving God with heart, soul, and mind look like for you?", "How are love for God and love for neighbor connected?", "Which of these two loves needs more attention in your life?"]
   },
   {
     "week": 39,
@@ -333,7 +423,10 @@
     "chapter": 51,
     "verse_start": 10,
     "verse_end": 10,
-    "text": "Create in me a pure heart, O God, and renew a steadfast spirit within me."
+    "text": "Create in me a pure heart, O God, and renew a steadfast spirit within me.",
+    "historical_context": "<p>David composed this psalm after Nathan confronted him about his sin with Bathsheba and Uriah. Ancient Israel understood the heart as the center of will and desire, and kings were held to a standard of covenant faithfulness before God.</p>",
+    "preceding_narrative": "<p>Psalm 51 is David's prayer of repentance, pleading for mercy and cleansing. He acknowledges his sin against God alone and asks not merely for forgiveness but for inner transformation — a new heart and a steadfast spirit.</p>",
+    "discussion_questions": ["Why does David ask God to 'create' a pure heart rather than fix it himself?", "What is the difference between regret and true repentance?", "Where do you need God to renew a steadfast spirit within you?"]
   },
   {
     "week": 40,
@@ -341,7 +434,10 @@
     "chapter": 13,
     "verse_start": 34,
     "verse_end": 35,
-    "text": "\"A new command I give you: Love one another. As I have loved you, so you must love one another. By this everyone will know that you are my disciples, if you love one another.\""
+    "text": "\"A new command I give you: Love one another. As I have loved you, so you must love one another. By this everyone will know that you are my disciples, if you love one another.\"",
+    "historical_context": "<p>Jesus spoke in the upper room on the night He was betrayed, hours before the cross. In the ancient world, groups were identified by philosophies or rituals — Jesus said love would mark His followers unmistakably.</p>",
+    "preceding_narrative": "<p>After predicting Judas's betrayal and Peter's denial, Jesus gives a farewell command. He had just washed the disciples' feet as a model of servant love, and now elevates mutual love as the defining sign of discipleship.</p>",
+    "discussion_questions": ["How did Jesus love His disciples, and how should that shape your love?", "Would outsiders recognize you as Jesus' disciple by your love?", "What makes this command 'new' compared to Leviticus 19:18?"]
   },
   {
     "week": 41,
@@ -349,7 +445,10 @@
     "chapter": 3,
     "verse_start": 23,
     "verse_end": 23,
-    "text": "for all have sinned and fall short of the glory of God,"
+    "text": "for all have sinned and fall short of the glory of God,",
+    "historical_context": "<p>Paul wrote to Rome to explain the gospel to a church he had not yet visited. Both Jews with the law and Gentiles without it needed to hear that sin is universal — no group can claim moral superiority before God.</p>",
+    "preceding_narrative": "<p>Romans 3 argues that both Jew and Gentile are under sin, with Old Testament quotes proving no one is righteous. Paul levels the ground so every person must receive righteousness as a gift through faith in Christ.</p>",
+    "discussion_questions": ["Why is it important that 'all' have sinned, not just some?", "What does falling short of God's glory mean practically?", "How does acknowledging universal sin prepare us for the gospel?"]
   },
   {
     "week": 42,
@@ -357,7 +456,10 @@
     "chapter": 4,
     "verse_start": 6,
     "verse_end": 7,
-    "text": "Do not be anxious about anything, but in every situation, by prayer and petition, with thanksgiving, present your requests to God. And the peace of God, which transcends all understanding, will guard your hearts and your minds in Christ Jesus."
+    "text": "Do not be anxious about anything, but in every situation, by prayer and petition, with thanksgiving, present your requests to God. And the peace of God, which transcends all understanding, will guard your hearts and your minds in Christ Jesus.",
+    "historical_context": "<p>Paul wrote from prison to Philippi, a city proud and prosperous yet not immune to worry. Stoic philosophers also taught about anxiety, but Paul offered prayer and God's peace rather than self-mastery alone.</p>",
+    "preceding_narrative": "<p>Philippians 4 calls believers to rejoice always and let gentleness be evident. Paul then addresses anxiety directly, prescribing prayer with thanksgiving as the path to a peace that guards heart and mind in Christ.</p>",
+    "discussion_questions": ["What anxieties do you need to bring to God with thanksgiving?", "How can peace 'guard' your heart and mind?", "Why does Paul pair prayer with thanksgiving rather than only asking?"]
   },
   {
     "week": 43,
@@ -365,7 +467,10 @@
     "chapter": 16,
     "verse_start": 3,
     "verse_end": 3,
-    "text": "Commit to the LORD whatever you do, and he will establish your plans."
+    "text": "Commit to the LORD whatever you do, and he will establish your plans.",
+    "historical_context": "<p>Proverbs was written to train young leaders in wisdom for governance, business, and daily decisions. In ancient Israel, planning was essential for agriculture, trade, and community life, yet success was understood as dependent on the LORD's blessing.</p>",
+    "preceding_narrative": "<p>Proverbs 16 contrasts human plans with the LORD's sovereign purposes. This verse sits among sayings about kings, honest scales, and the fear of the LORD, reminding readers to entrust their endeavors to God.</p>",
+    "discussion_questions": ["What plans do you need to commit to the LORD this week?", "How is committing to God different from passive waiting?", "When have you seen God establish plans you surrendered to Him?"]
   },
   {
     "week": 44,
@@ -373,7 +478,10 @@
     "chapter": 41,
     "verse_start": 10,
     "verse_end": 10,
-    "text": "So do not fear, for I am with you; do not be dismayed, for I am your God. I will strengthen you and help you; I will uphold you with my righteous right hand."
+    "text": "So do not fear, for I am with you; do not be dismayed, for I am your God. I will strengthen you and help you; I will uphold you with my righteous right hand.",
+    "historical_context": "<p>Isaiah prophesied during the exile when Israel felt abandoned in Babylon. God's promise to be with His people echoed covenant language from Abraham and Moses, assuring them that exile had not ended His commitment.</p>",
+    "preceding_narrative": "<p>Isaiah 41 addresses Israel as God's servant chosen and not rejected. God challenges false gods and nations, then speaks directly to fearful Jacob, promising strength, help, and support from His righteous hand.</p>",
+    "discussion_questions": ["What situation makes you tempted to fear or be dismayed?", "How does 'I am with you' change your response to difficulty?", "What does it mean to be upheld by God's righteous right hand?"]
   },
   {
     "week": 45,
@@ -381,7 +489,10 @@
     "chapter": 11,
     "verse_start": 25,
     "verse_end": 26,
-    "text": "Jesus said to her, \"I am the resurrection and the life. The one who believes in me will live, even though they die; and whoever lives by believing in me will never die. Do you believe this?\""
+    "text": "Jesus said to her, \"I am the resurrection and the life. The one who believes in me will live, even though they die; and whoever lives by believing in me will never die. Do you believe this?\"",
+    "historical_context": "<p>Jesus spoke at Bethany near Jerusalem, where Lazarus had been dead four days — beyond hope by Jewish custom. Many Jews believed in a future resurrection, but Jesus claimed to be resurrection and life present in person.</p>",
+    "preceding_narrative": "<p>Martha met Jesus on the road and confessed faith in the resurrection on the last day. Jesus declares Himself the source of life now and asks Martha the decisive question: Do you believe this?</p>",
+    "discussion_questions": ["What does it mean that Jesus is the resurrection and the life today?", "How would you answer Jesus' question to Martha?", "How does belief in Jesus change the way you view death?"]
   },
   {
     "week": 46,
@@ -389,7 +500,10 @@
     "chapter": 8,
     "verse_start": 1,
     "verse_end": 1,
-    "text": "Therefore, there is now no condemnation for those who are in Christ Jesus,"
+    "text": "Therefore, there is now no condemnation for those who are in Christ Jesus,",
+    "historical_context": "<p>Paul wrote to Rome where law courts and imperial judgment were part of daily life. Condemnation meant a guilty verdict with no appeal — Paul announces that believers in Christ stand acquitted before God.</p>",
+    "preceding_narrative": "<p>Romans 7 describes the struggle with sin and the cry 'Who will rescue me?' Chapter 8 opens with the triumphant answer: no condemnation for those united to Christ, because the Spirit gives life where the law brought death.</p>",
+    "discussion_questions": ["How does 'no condemnation' affect your relationship with God after failure?", "What does it mean to be 'in Christ Jesus'?", "Why do believers sometimes still feel condemned despite this promise?"]
   },
   {
     "week": 47,
@@ -397,7 +511,10 @@
     "chapter": 3,
     "verse_start": 20,
     "verse_end": 20,
-    "text": "Now to him who is able to do immeasurably more than all we ask or imagine, according to his power that is at work within us,"
+    "text": "Now to him who is able to do immeasurably more than all we ask or imagine, according to his power that is at work within us,",
+    "historical_context": "<p>Paul wrote to Ephesian Gentiles who had come from pagan backgrounds with limited expectations of the divine. The God of Israel was now revealed as able to exceed every human request and imagination through inner spiritual power.</p>",
+    "preceding_narrative": "<p>Ephesians 3 is Paul's prayer that believers would grasp the dimensions of Christ's love. He bows before the Father and praises God whose power working in us far surpasses anything we could ask or conceive.</p>",
+    "discussion_questions": ["What have you asked or imagined that seems too big for God?", "How have you seen God's power at work within you or your church?", "Why does Paul emphasize God's ability rather than our limited faith?"]
   },
   {
     "week": 48,
@@ -405,7 +522,10 @@
     "chapter": 4,
     "verse_start": 7,
     "verse_end": 8,
-    "text": "Submit yourselves, then, to God. Resist the devil, and he will flee from you. Come near to God and he will come near to you. Wash your hands, you sinners, and purify your hearts, you double-minded."
+    "text": "Submit yourselves, then, to God. Resist the devil, and he will flee from you. Come near to God and he will come near to you. Wash your hands, you sinners, and purify your hearts, you double-minded.",
+    "historical_context": "<p>James wrote to scattered Jewish Christians facing social conflict and worldly influence. Spiritual warfare, repentance, and divided loyalty were real threats in communities pulled between Christ and surrounding culture.</p>",
+    "preceding_narrative": "<p>James 4 warns against friendship with the world and quarrels born of selfish desires. He calls for submission to God, resistance to the devil, and wholehearted drawing near through repentance and purified hearts.</p>",
+    "discussion_questions": ["What does submitting to God require you to release?", "How do resisting the devil and drawing near to God work together?", "Where are you tempted toward double-mindedness?"]
   },
   {
     "week": 49,
@@ -413,7 +533,10 @@
     "chapter": 34,
     "verse_start": 8,
     "verse_end": 8,
-    "text": "Taste and see that the LORD is good; blessed is the one who takes refuge in him."
+    "text": "Taste and see that the LORD is good; blessed is the one who takes refuge in him.",
+    "historical_context": "<p>David wrote this psalm after escaping danger — tradition links it to feigned madness before Abimelech. Ancient worship often included communal meals and offerings where tasting symbolized experiencing God's goodness firsthand.</p>",
+    "preceding_narrative": "<p>Psalm 34 is an acrostic of praise where David invites others to magnify the LORD with him. He recounts deliverance from fear and encourages the humble to taste and see God's goodness for themselves.</p>",
+    "discussion_questions": ["What does it mean to 'taste and see' rather than merely hear about God?", "When have you experienced God's goodness in a tangible way?", "How does taking refuge in God lead to blessing?"]
   },
   {
     "week": 50,
@@ -421,7 +544,10 @@
     "chapter": 16,
     "verse_start": 33,
     "verse_end": 33,
-    "text": "\"I have told you these things, so that in me you may have peace. In this world you will have trouble. But take heart! I have overcome the world.\""
+    "text": "\"I have told you these things, so that in me you may have peace. In this world you will have trouble. But take heart! I have overcome the world.\"",
+    "historical_context": "<p>Jesus spoke in the upper room on the night before His crucifixion, preparing disciples for persecution and scattering. Roman power and religious hostility would soon crush Him outwardly, yet He spoke of victory already achieved.</p>",
+    "preceding_narrative": "<p>John 16 records Jesus' farewell discourse about sorrow turning to joy and prayer in His name. He warns of trouble ahead but promises peace in Him because He has overcome the world's opposition to God's kingdom.</p>",
+    "discussion_questions": ["How can you have peace when Jesus promises trouble in this world?", "What does it mean that Jesus has overcome the world?", "Where do you need to 'take heart' today?"]
   },
   {
     "week": 51,
@@ -429,7 +555,10 @@
     "chapter": 8,
     "verse_start": 38,
     "verse_end": 39,
-    "text": "For I am convinced that neither death nor life, neither angels nor demons, neither the present nor the future, nor any powers, neither height nor depth, nor anything else in all creation, will be able to separate us from the love of God that is in Christ Jesus our Lord."
+    "text": "For I am convinced that neither death nor life, neither angels nor demons, neither the present nor the future, nor any powers, neither height nor depth, nor anything else in all creation, will be able to separate us from the love of God that is in Christ Jesus our Lord.",
+    "historical_context": "<p>Paul wrote to Rome listing forces that ancient people feared — death, spiritual powers, rulers, and cosmic extremes. His exhaustive catalog assured believers that nothing in their known universe could break God's love in Christ.</p>",
+    "preceding_narrative": "<p>Romans 8 builds from no condemnation through the Spirit's work to future glory and God's unstoppable purpose. Paul asks who can condemn or accuse God's elect and concludes with this unshakable conviction about Christ's love.</p>",
+    "discussion_questions": ["Which item on Paul's list feels most threatening to you?", "How does being 'in Christ Jesus' secure God's love?", "How should this conviction change the way you face uncertainty?"]
   },
   {
     "week": 52,
@@ -437,6 +566,9 @@
     "chapter": 21,
     "verse_start": 4,
     "verse_end": 4,
-    "text": "\"He will wipe every tear from their eyes. There will be no more death or mourning or crying or pain, for the old order of things has passed away.\""
+    "text": "\"He will wipe every tear from their eyes. There will be no more death or mourning or crying or pain, for the old order of things has passed away.\"",
+    "historical_context": "<p>John wrote Revelation to churches under Roman persecution, offering visions of God's ultimate victory. Ancient readers knew grief, disease, and injustice intimately — this promise of a renewed creation answered deep longing for relief.</p>",
+    "preceding_narrative": "<p>Revelation 21 describes a new heaven and new earth where God dwells with His people. The one seated on the throne announces that the former things are gone, and He personally wipes away every tear from their eyes.</p>",
+    "discussion_questions": ["What tears do you long for God to wipe away?", "How does hope for a world without death or pain shape how you live now?", "What does it mean that the old order has passed away?"]
   }
 ]
