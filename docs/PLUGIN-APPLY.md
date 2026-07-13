@@ -33,7 +33,7 @@ svn commit -m "Release 1.1.2"
 - [x] PHPUnit passes (6 tests)
 - [x] Release zip builds (`the-hidden-word-1.1.2.zip`)
 - [x] Icons and banners in `assets/`
-- [x] Screenshots in `docs/screenshots/` (mock UI — replace with real captures when possible)
+- [x] Screenshots in `docs/screenshots/` (real wp-env captures)
 - [x] Reviewer notes in `docs/REVIEWER-NOTES.md`
 
 ## Plugin Check before submit

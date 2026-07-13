@@ -62,6 +62,17 @@ class THW_Plugin {
 				(int) $created
 			)
 		);
+
+		$demo_page = get_page_by_title( __( "Today's Lesson", 'the-hidden-word' ), OBJECT, 'page' );
+		if ( $demo_page instanceof WP_Post ) {
+			echo ' ';
+			printf(
+				/* translators: %s: front-end demo page URL */
+				esc_html__( 'View the starter page: %s', 'the-hidden-word' ),
+				'<a href="' . esc_url( get_permalink( $demo_page ) ) . '">' . esc_html__( "Today's Lesson", 'the-hidden-word' ) . '</a>'
+			);
+		}
+
 		echo '</p></div>';
 	}
 
