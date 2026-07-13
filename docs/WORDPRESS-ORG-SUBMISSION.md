@@ -103,7 +103,25 @@ If you do not have a live demo site yet, generate placeholder screenshots that m
 
 ```bash
 cd The-Hidden-Word
+## Capture screenshots (real UI)
+
+With wp-env running and lessons seeded:
+
+```bash
+cd LearnTheBible
+npm install playwright   # first time only
+npx playwright install chromium
+bash scripts/capture-screenshots-wp-env.sh
+```
+
+Outputs overwrite `The-Hidden-Word/docs/screenshots/screenshot-1.png` … `screenshot-5.png`.
+
+Mock UI fallback (offline):
+
+```bash
+cd The-Hidden-Word
 python3 scripts/generate-screenshots.py
+```
 ```
 
 Output: `docs/screenshots/screenshot-1.png` … `screenshot-5.png`
@@ -219,7 +237,7 @@ WordPress.org builds zip from `tags/1.1.2/` automatically.
 
 - [x] `icon-128x128.png`, `icon-256x256.png`
 - [x] `banner-772x250.png`, `banner-1544x500.png`
-- [x] `docs/screenshots/screenshot-1.png` … `screenshot-5.png` (upload to SVN `assets/`)
+- [x] `docs/screenshots/screenshot-1.png` … `screenshot-5.png` (real wp-env captures; upload to SVN `assets/`)
 
 ### First-time application
 
