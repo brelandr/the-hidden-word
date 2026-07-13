@@ -199,27 +199,31 @@ WordPress.org builds zip from `tags/1.1.1/` automatically.
 
 ### Code & policy
 
-- [ ] GPLv2+ compatible
-- [ ] No phone-home tracking
-- [ ] No license gates in free plugin
-- [ ] Premium upsell is link-only (readme + settings)
-- [ ] `readme.txt` Contributors: `brelandr`
-- [ ] External Services section documents no third-party calls in free plugin
-- [ ] NIV copyright block present
+- [x] GPLv2+ compatible
+- [x] No phone-home tracking
+- [x] No license gates in free plugin
+- [x] Premium upsell is link-only (readme + settings)
+- [x] `readme.txt` Contributors: `brelandr`
+- [x] External Services section documents no third-party calls in free plugin
+- [x] NIV copyright block present
 
 ### Technical
 
-- [ ] `vendor/bin/phpunit` passes locally
-- [ ] `create-plugin-zip.sh --free-only` succeeds
-- [ ] Zip installs on clean WP 6.2+ / PHP 7.4+
+- [x] `vendor/bin/phpunit` passes locally
+- [x] `create-plugin-zip.sh --free-only` succeeds
+- [ ] Zip installs on clean WP 6.2+ / PHP 7.4+ (use `wp-env` or `scripts/verify-staging.sh`)
 - [ ] 500 lessons seed on activate
 - [ ] `[thw_lesson]` renders without PHP notices
 
 ### Assets
 
-- [ ] `icon-128x128.png`, `icon-256x256.png`
-- [ ] `banner-772x250.png`, `banner-1544x500.png`
-- [ ] `docs/screenshots/screenshot-1.png` … `screenshot-5.png` in SVN `assets/`
+- [x] `icon-128x128.png`, `icon-256x256.png`
+- [x] `banner-772x250.png`, `banner-1544x500.png`
+- [x] `docs/screenshots/screenshot-1.png` … `screenshot-5.png` (upload to SVN `assets/`)
+
+### First-time application
+
+SVN is not available until approved. See `docs/PLUGIN-APPLY.md`.
 
 ### After approval
 
