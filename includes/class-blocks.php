@@ -58,6 +58,29 @@ class THW_Blocks {
 				),
 			)
 		);
+
+		wp_register_script(
+			'thw-lesson-list-block',
+			THW_PLUGIN_URL . 'blocks/lesson-list-block/index.js',
+			array( 'wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-i18n' ),
+			THW_VERSION,
+			true
+		);
+
+		register_block_type(
+			'thw/lesson-list',
+			array(
+				'editor_script'   => 'thw-lesson-list-block',
+				'render_callback' => array( $this, 'render_lesson_list_block' ),
+				'attributes'      => array(
+					'group'     => array( 'type' => 'string', 'default' => 'book' ),
+					'book'      => array( 'type' => 'string', 'default' => '' ),
+					'testament' => array( 'type' => 'string', 'default' => '' ),
+					'perPage'   => array( 'type' => 'string', 'default' => '50' ),
+					'show'      => array( 'type' => 'string', 'default' => 'both' ),
+				),
+			)
+		);
 	}
 
 	/**
@@ -79,6 +102,24 @@ class THW_Blocks {
 			array(
 				'show_memorization' => ! empty( $attributes['showMemorization'] ),
 				'show_discussion'   => ! empty( $attributes['showDiscussion'] ),
+			)
+		);
+	}
+
+	/**
+	 * Server-side render callback for lesson list block.
+	 *
+	 * @param array $attributes Block attributes.
+	 * @return string
+	 */
+	public function render_lesson_list_block( $attributes ) {
+		return THW_Lesson_List::render(
+			array(
+				'group'     => isset( $attributes['group'] ) ? $attributes['group'] : 'book',
+				'book'      => ! empty( $attributes['book'] ) ? absint( $attributes['book'] ) : 0,
+				'testament' => isset( $attributes['testament'] ) ? $attributes['testament'] : '',
+				'per_page'  => ! empty( $attributes['perPage'] ) ? absint( $attributes['perPage'] ) : 50,
+				'show'      => isset( $attributes['show'] ) ? $attributes['show'] : 'both',
 			)
 		);
 	}

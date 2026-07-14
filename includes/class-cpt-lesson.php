@@ -118,7 +118,10 @@ class THW_CPT_Lesson {
 		$follow_on = get_post_meta( $lesson_id, '_thw_follow_on_verses', true );
 		$questions = get_post_meta( $lesson_id, '_thw_discussion_questions', true );
 
-		return array(
+		$follow_on_decoded = $follow_on ? json_decode( $follow_on, true ) : array();
+		$questions_decoded = $questions ? json_decode( $questions, true ) : array();
+
+		$lesson = array(
 			'id'                   => $lesson_id,
 			'title'                => get_the_title( $lesson_id ),
 			'book_id'              => $book_id,
@@ -130,9 +133,23 @@ class THW_CPT_Lesson {
 			'week_number'          => (int) get_post_meta( $lesson_id, '_thw_week_number', true ),
 			'historical_context'   => get_post_meta( $lesson_id, '_thw_historical_context', true ),
 			'preceding_narrative'  => get_post_meta( $lesson_id, '_thw_preceding_narrative', true ),
-			'follow_on_verses'     => $follow_on ? json_decode( $follow_on, true ) : array(),
-			'discussion_questions' => $questions ? json_decode( $questions, true ) : array(),
+			'follow_on_verses'     => is_array( $follow_on_decoded ) ? $follow_on_decoded : array(),
+			'discussion_questions' => is_array( $questions_decoded ) ? $questions_decoded : array(),
 			'audio_url'            => get_post_meta( $lesson_id, '_thw_audio_url', true ),
 		);
+
+		if ( $lesson['lesson_number'] > 0 ) {
+			$entry = THW_Curriculum::get_entry_by_lesson_number( $lesson['lesson_number'] );
+			$lesson = THW_Curriculum::fill_lesson_content_from_entry( $lesson, $entry );
+		} elseif ( empty( $lesson['follow_on_verses'] ) ) {
+			$lesson['follow_on_verses'] = THW_Curriculum::default_follow_on_verses(
+				$lesson['book_id'],
+				$lesson['chapter'],
+				$lesson['verse_start'],
+				$lesson['verse_end']
+			);
+		}
+
+		return apply_filters( 'thw_lesson_data', $lesson, $lesson_id );
 	}
 }

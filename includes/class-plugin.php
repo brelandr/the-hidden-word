@@ -20,7 +20,9 @@ class THW_Plugin {
 	public function run() {
 		add_action( 'init', array( 'THW_Activator', 'maybe_upgrade_curriculum' ), 1 );
 		add_action( THW_Activator::SEED_CRON_HOOK, array( 'THW_Activator', 'process_seed_batch' ) );
+		add_action( THW_Activator::SYNC_CRON_HOOK, array( 'THW_Activator', 'process_sync_batch' ) );
 		add_action( 'admin_notices', array( $this, 'curriculum_upgrade_notice' ) );
+		add_action( 'admin_notices', array( $this, 'curriculum_content_sync_notice' ) );
 		add_action( 'admin_notices', array( $this, 'curriculum_seeding_notice' ) );
 
 		new THW_CPT_Lesson();
@@ -30,6 +32,7 @@ class THW_Plugin {
 		new THW_Translation_Service();
 		new THW_Shortcodes();
 		new THW_Blocks();
+		THW_Lesson_List::init();
 		new THW_Public();
 
 		if ( is_admin() ) {
@@ -37,6 +40,32 @@ class THW_Plugin {
 		}
 
 		do_action( 'thw_register_premium_features' );
+	}
+
+	/**
+	 * Notify admins when bundled lesson content was backfilled.
+	 */
+	public function curriculum_content_sync_notice() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		$updated = get_transient( 'thw_curriculum_content_synced' );
+		if ( false === $updated ) {
+			return;
+		}
+
+		delete_transient( 'thw_curriculum_content_synced' );
+
+		echo '<div class="notice notice-success is-dismissible"><p>';
+		echo esc_html(
+			sprintf(
+				/* translators: %d: number of lessons updated */
+				__( 'The Hidden Word: added historical context, narrative background, and discussion questions to %d bundled lessons.', 'the-hidden-word' ),
+				(int) $updated
+			)
+		);
+		echo '</p></div>';
 	}
 
 	/**

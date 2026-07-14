@@ -4,7 +4,7 @@ Tags: bible, scripture, discipleship, memorization, verse of the day
 Requires at least: 6.2
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.1.5
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -29,12 +29,17 @@ The Hidden Word helps your church or ministry teach Scripture through structured
 * Fill-in-the-blanks memorization widget
 * Custom post type lesson builder with dedicated meta fields
 * Gutenberg block and shortcodes for easy placement
+* Lesson catalog at `/bible-lesson/` and `[thw_lesson_list]`
+* Print and copy verse buttons on lesson pages
+* Local memorization streak counter (browser storage)
+* Classic widget for Verse of the Week
 * WordPress comments integration for group discussion
 
 = Shortcodes =
 
 * `[thw_lesson]` — Display the current scheduled lesson
 * `[thw_lesson id="123"]` — Display a specific lesson
+* `[thw_lesson_list]` — Browse all lessons by book or testament
 * `[thw_verse_of_week]` — Compact verse display
 
 = NIV Copyright =
@@ -83,6 +88,13 @@ Yes. Use the shortcode `[thw_lesson]` in any page builder text widget or the Gut
 
 == Changelog ==
 
+= 1.2.0 =
+* Add lesson catalog with `[thw_lesson_list]`, Gutenberg block, and `/bible-lesson/` archive
+* Add print and copy verse buttons on lesson pages
+* Add browser-local memorization streak counter with Premium upsell
+* Add classic Verse of the Week widget
+* Backfill enriched lesson content and echo verse text from bundled curriculum cache
+
 = 1.1.5 =
 * Add bundled World English Bible (WEB) as a third offline translation
 * Re-initialize memorization widget when Premium translation switcher changes verse text
@@ -124,6 +136,9 @@ Yes. Use the shortcode `[thw_lesson]` in any page builder text widget or the Gut
 * Gutenberg block and shortcodes
 
 == Upgrade Notice ==
+
+= 1.2.0 =
+Adds lesson catalog browsing, print/copy tools, local streak tracking, and the Verse of the Week widget.
 
 = 1.1.4 =
 Fixes WordPress 6.2+ deprecation warning for demo page detection.

@@ -100,6 +100,27 @@ class THW_Settings {
 									<option value="<?php echo esc_attr( $slug ); ?>" <?php selected( $translation, $slug ); ?>><?php echo esc_html( $label ); ?></option>
 								<?php endforeach; ?>
 							</select>
+							<p class="description">
+								<?php
+								$count = count( $translations );
+								printf(
+									/* translators: %d: number of bundled translations */
+									esc_html( _n( '%d bundled translation available offline.', '%d bundled translations available offline.', $count, 'the-hidden-word' ) ),
+									$count
+								);
+								?>
+								<?php if ( class_exists( 'THW_Premium_License' ) ) : ?>
+									<?php if ( THW_Premium_License::is_licensed() && class_exists( 'THW_Premium_API_Bible' ) && THW_Premium_API_Bible::get_api_key() ) : ?>
+										<?php esc_html_e( 'Premium and API.Bible are configured — additional translations appear on the front-end switcher.', 'the-hidden-word' ); ?>
+									<?php elseif ( THW_Premium_License::is_licensed() ) : ?>
+										<?php esc_html_e( 'Premium is licensed. Add your API.Bible key under Bible Lessons → Premium to enable ESV, NLT, NASB, CSB, NKJV, AMP, and NET on the front-end switcher.', 'the-hidden-word' ); ?>
+									<?php else : ?>
+										<?php esc_html_e( 'Activate Premium and add an API.Bible key to unlock seven more translations (ESV, NLT, NASB, CSB, NKJV, AMP, NET) on the front-end switcher.', 'the-hidden-word' ); ?>
+									<?php endif; ?>
+								<?php else : ?>
+									<?php esc_html_e( 'Install The Hidden Word Premium and add an API.Bible key to unlock seven more translations on the front-end switcher.', 'the-hidden-word' ); ?>
+								<?php endif; ?>
+							</p>
 						</td>
 					</tr>
 				</table>
@@ -117,7 +138,11 @@ class THW_Settings {
 			<h2><?php esc_html_e( 'Shortcodes', 'the-hidden-word' ); ?></h2>
 			<p><code>[thw_lesson]</code> — <?php esc_html_e( 'Full lesson for current schedule.', 'the-hidden-word' ); ?></p>
 			<p><code>[thw_lesson id="123"]</code> — <?php esc_html_e( 'Specific lesson by post ID.', 'the-hidden-word' ); ?></p>
+			<p><code>[thw_lesson_list]</code> — <?php esc_html_e( 'Browse all bundled lessons (group by book, testament, or flat list).', 'the-hidden-word' ); ?></p>
 			<p><code>[thw_verse_of_week]</code> — <?php esc_html_e( 'Compact verse display.', 'the-hidden-word' ); ?></p>
+			<p><?php esc_html_e( 'Widgets: add Verse of the Week under Appearance → Widgets.', 'the-hidden-word' ); ?></p>
+			<p><?php esc_html_e( 'Lesson archive:', 'the-hidden-word' ); ?> <code>/bible-lesson/</code></p>
+			<p><?php esc_html_e( 'Lesson pages include Print and Copy verse buttons in the toolbar.', 'the-hidden-word' ); ?></p>
 
 			<hr />
 

@@ -41,6 +41,13 @@ class THW_Activator {
 	const SEED_CRON_HOOK = 'thw_seed_curriculum_batch';
 
 	/**
+	 * wp-cron hook used to backfill lesson content on curriculum updates.
+	 *
+	 * @var string
+	 */
+	const SYNC_CRON_HOOK = 'thw_sync_curriculum_content';
+
+	/**
 	 * Activate plugin.
 	 */
 	public static function activate() {
@@ -70,17 +77,33 @@ class THW_Activator {
 	 * is either finished or already queued and scheduled.
 	 */
 	public static function maybe_upgrade_curriculum() {
-		$installed = get_option( 'thw_curriculum_version', '' );
-		$target    = THW_CURRICULUM_DB_VERSION;
-		$queue     = get_option( 'thw_seed_queue', false );
+		$installed  = get_option( 'thw_curriculum_version', '' );
+		$target     = THW_CURRICULUM_DB_VERSION;
+		$seed_queue = get_option( 'thw_seed_queue', false );
+		$sync_queue = get_option( 'thw_sync_queue', false );
 
-		$fully_seeded = get_option( 'thw_seeded' ) && version_compare( $installed, $target, '>=' );
-
-		if ( $fully_seeded && false === $queue ) {
+		if ( is_array( $sync_queue ) ) {
+			if ( empty( $sync_queue ) ) {
+				self::finish_content_sync();
+			} else {
+				self::ensure_sync_batch_scheduled();
+			}
 			return;
 		}
 
-		if ( false === $queue ) {
+		$fully_seeded = get_option( 'thw_seeded' ) && version_compare( $installed, $target, '>=' );
+
+		if ( $fully_seeded && false === $seed_queue ) {
+			return;
+		}
+
+		if ( get_option( 'thw_seeded' ) && $installed && version_compare( $installed, $target, '<' ) && false === $seed_queue ) {
+			self::queue_content_sync();
+			self::process_sync_batch();
+			return;
+		}
+
+		if ( false === $seed_queue ) {
 			// First time we've seen this version bump: build the work queue and
 			// run one batch immediately so the site has content right away.
 			self::migrate_legacy_lesson_numbers();
@@ -94,6 +117,135 @@ class THW_Activator {
 		// scheduled, so ordinary front-end page views stay fast while seeding
 		// finishes in the background.
 		self::ensure_batch_scheduled();
+	}
+
+	/**
+	 * Queue all bundled lesson numbers for content backfill.
+	 */
+	private static function queue_content_sync() {
+		require_once THW_PLUGIN_DIR . 'includes/class-curriculum.php';
+
+		$queue = array();
+		foreach ( THW_Curriculum::load_niv() as $entry ) {
+			$lesson = THW_Curriculum::get_entry_lesson_number( $entry );
+			if ( $lesson >= 1 ) {
+				$queue[] = $lesson;
+			}
+		}
+
+		update_option( 'thw_sync_queue', $queue, false );
+		update_option( 'thw_sync_updated_count', 0, false );
+	}
+
+	/**
+	 * Backfill bundled lesson content for one batch.
+	 */
+	public static function process_sync_batch() {
+		$queue = get_option( 'thw_sync_queue', false );
+
+		if ( ! is_array( $queue ) ) {
+			return;
+		}
+
+		if ( empty( $queue ) ) {
+			self::finish_content_sync();
+			return;
+		}
+
+		$batch_size = (int) apply_filters( 'thw_sync_batch_size', self::SEED_BATCH_SIZE );
+		$batch      = array_splice( $queue, 0, max( 1, $batch_size ) );
+
+		update_option( 'thw_sync_queue', $queue, false );
+
+		$updated = self::sync_lesson_numbers( $batch );
+
+		$total_updated = (int) get_option( 'thw_sync_updated_count', 0 ) + $updated;
+		update_option( 'thw_sync_updated_count', $total_updated, false );
+
+		if ( empty( $queue ) ) {
+			self::finish_content_sync();
+			return;
+		}
+
+		self::ensure_sync_batch_scheduled();
+	}
+
+	/**
+	 * Copy bundled curriculum content into lesson post meta when fields are empty.
+	 *
+	 * @param int[] $lesson_numbers Lesson numbers to sync in this batch.
+	 * @return int Number of lessons updated.
+	 */
+	private static function sync_lesson_numbers( $lesson_numbers ) {
+		require_once THW_PLUGIN_DIR . 'includes/class-curriculum.php';
+		require_once THW_PLUGIN_DIR . 'includes/class-scheduler.php';
+
+		$updated = 0;
+
+		foreach ( $lesson_numbers as $lesson_number ) {
+			$lesson_number = (int) $lesson_number;
+			$entry         = THW_Curriculum::get_entry_by_lesson_number( $lesson_number );
+			$post_id       = THW_Scheduler::get_lesson_id_by_number( $lesson_number );
+
+			if ( ! $entry || ! $post_id ) {
+				continue;
+			}
+
+			$changed = false;
+
+			if ( ! get_post_meta( $post_id, '_thw_historical_context', true ) && ! empty( $entry['historical_context'] ) ) {
+				update_post_meta( $post_id, '_thw_historical_context', wp_kses_post( $entry['historical_context'] ) );
+				$changed = true;
+			}
+
+			if ( ! get_post_meta( $post_id, '_thw_preceding_narrative', true ) && ! empty( $entry['preceding_narrative'] ) ) {
+				update_post_meta( $post_id, '_thw_preceding_narrative', wp_kses_post( $entry['preceding_narrative'] ) );
+				$changed = true;
+			}
+
+			if ( ! get_post_meta( $post_id, '_thw_discussion_questions', true ) && ! empty( $entry['discussion_questions'] ) ) {
+				update_post_meta( $post_id, '_thw_discussion_questions', wp_json_encode( $entry['discussion_questions'] ) );
+				$changed = true;
+			}
+
+			if ( ! get_post_meta( $post_id, '_thw_follow_on_verses', true ) && ! empty( $entry['follow_on_verses'] ) ) {
+				update_post_meta( $post_id, '_thw_follow_on_verses', wp_json_encode( $entry['follow_on_verses'] ) );
+				$changed = true;
+			}
+
+			if ( $changed ) {
+				++$updated;
+			}
+		}
+
+		return $updated;
+	}
+
+	/**
+	 * Schedule the next content sync batch if one isn't already pending.
+	 */
+	private static function ensure_sync_batch_scheduled() {
+		$queue = get_option( 'thw_sync_queue', false );
+
+		if ( is_array( $queue ) && ! empty( $queue ) && ! wp_next_scheduled( self::SYNC_CRON_HOOK ) ) {
+			wp_schedule_single_event( time() + 15, self::SYNC_CRON_HOOK );
+		}
+	}
+
+	/**
+	 * Finalize content sync once the queue is empty.
+	 */
+	private static function finish_content_sync() {
+		delete_option( 'thw_sync_queue' );
+
+		update_option( 'thw_curriculum_version', THW_CURRICULUM_DB_VERSION );
+
+		$updated = (int) get_option( 'thw_sync_updated_count', 0 );
+		delete_option( 'thw_sync_updated_count' );
+
+		if ( $updated > 0 ) {
+			set_transient( 'thw_curriculum_content_synced', $updated, MINUTE_IN_SECONDS * 5 );
+		}
 	}
 
 	/**

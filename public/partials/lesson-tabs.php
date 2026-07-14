@@ -24,6 +24,13 @@ $lesson_id = $lesson['id'];
 		<?php if ( ! empty( $lesson['reference'] ) ) : ?>
 			<p class="thw-lesson-reference"><?php echo esc_html( $lesson['reference'] ); ?></p>
 		<?php endif; ?>
+		<div class="thw-lesson-toolbar">
+			<button type="button" class="thw-btn thw-print-lesson"><?php esc_html_e( 'Print lesson', 'the-hidden-word' ); ?></button>
+			<?php if ( $verse_text ) : ?>
+				<button type="button" class="thw-btn thw-btn-secondary thw-copy-verse" data-verse="<?php echo esc_attr( $verse_text ); ?>"><?php esc_html_e( 'Copy verse', 'the-hidden-word' ); ?></button>
+			<?php endif; ?>
+			<span class="thw-copy-status" role="status" aria-live="polite"></span>
+		</div>
 		<?php do_action( 'thw_lesson_render_before_tabs', $lesson_id ); ?>
 	</header>
 
@@ -61,6 +68,7 @@ $lesson_id = $lesson['id'];
 			<?php if ( ! empty( $args['show_memorization'] ) && $verse_text ) : ?>
 				<div class="thw-memorization" data-verse="<?php echo esc_attr( $verse_text ); ?>">
 					<h4><?php esc_html_e( 'Memorization Practice', 'the-hidden-word' ); ?></h4>
+					<p class="thw-memorization-streak" hidden></p>
 					<p class="thw-memorization-hint"><?php esc_html_e( 'Click words to hide them and test your memory.', 'the-hidden-word' ); ?></p>
 					<div class="thw-memorization-text"></div>
 					<div class="thw-memorization-controls">
@@ -121,17 +129,30 @@ $lesson_id = $lesson['id'];
 							isset( $echo['chapter'] ) ? (int) $echo['chapter'] : 0,
 							isset( $echo['verse'] ) ? (int) $echo['verse'] : 0
 						);
-						$echo_text = $trans_svc->get_verse_text(
+						$echo_result = $trans_svc->get_echo_verse_text(
 							isset( $echo['book_id'] ) ? (int) $echo['book_id'] : 0,
 							isset( $echo['chapter'] ) ? (int) $echo['chapter'] : 0,
 							isset( $echo['verse'] ) ? (int) $echo['verse'] : 0,
 							$translation
 						);
+						$echo_text         = $echo_result['text'];
+						$echo_translation  = $echo_result['translation'];
 						?>
 						<li class="thw-echo-item">
 							<strong><?php echo esc_html( $echo_ref ); ?></strong>
 							<?php if ( $echo_text ) : ?>
 								<blockquote><?php echo esc_html( $echo_text ); ?></blockquote>
+								<?php if ( $echo_translation && $echo_translation !== $translation ) : ?>
+									<p class="thw-echo-translation">
+										<?php
+										printf(
+											/* translators: %s: translation name */
+											esc_html__( 'Shown in %s.', 'the-hidden-word' ),
+											esc_html( $trans_svc->get_translation_label( $echo_translation ) )
+										);
+										?>
+									</p>
+								<?php endif; ?>
 							<?php endif; ?>
 							<?php if ( ! empty( $echo['note'] ) ) : ?>
 								<p class="thw-echo-note"><?php echo esc_html( $echo['note'] ); ?></p>

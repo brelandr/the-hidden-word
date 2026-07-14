@@ -20,6 +20,7 @@ class THW_Shortcodes {
 	public function __construct() {
 		add_shortcode( 'thw_lesson', array( $this, 'render_lesson' ) );
 		add_shortcode( 'thw_verse_of_week', array( $this, 'render_verse_of_week' ) );
+		add_shortcode( 'thw_lesson_list', array( $this, 'render_lesson_list' ) );
 	}
 
 	/**
@@ -92,5 +93,37 @@ class THW_Shortcodes {
 		$html .= '</div>';
 
 		return $html;
+	}
+
+	/**
+	 * Render lesson catalog shortcode.
+	 *
+	 * @param array $atts Shortcode attributes.
+	 * @return string
+	 */
+	public function render_lesson_list( $atts ) {
+		$atts = shortcode_atts(
+			array(
+				'group'     => 'book',
+				'book'      => 0,
+				'testament' => '',
+				'per_page'  => 50,
+				'show'      => 'both',
+				'page'      => 0,
+			),
+			$atts,
+			'thw_lesson_list'
+		);
+
+		return THW_Lesson_List::render(
+			array(
+				'group'     => sanitize_key( $atts['group'] ),
+				'book'      => absint( $atts['book'] ),
+				'testament' => sanitize_key( $atts['testament'] ),
+				'per_page'  => absint( $atts['per_page'] ),
+				'show'      => sanitize_key( $atts['show'] ),
+				'page'      => absint( $atts['page'] ),
+			)
+		);
 	}
 }

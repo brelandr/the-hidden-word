@@ -41,6 +41,22 @@ class THW_Books {
 	}
 
 	/**
+	 * Get book ID by name (case-insensitive).
+	 *
+	 * @param string $name Book name.
+	 * @return int
+	 */
+	public static function get_id_by_name( $name ) {
+		$name = strtolower( trim( $name ) );
+		foreach ( self::get_all() as $id => $book_name ) {
+			if ( strtolower( $book_name ) === $name ) {
+				return (int) $id;
+			}
+		}
+		return 0;
+	}
+
+	/**
 	 * Format a scripture reference.
 	 *
 	 * @param int $book_id     Book ID.
@@ -55,5 +71,22 @@ class THW_Books {
 			$ref .= '-' . $verse_end;
 		}
 		return $ref;
+	}
+
+	/**
+	 * Testament slug for a book ID (ot = 1–39, nt = 40–66).
+	 *
+	 * @param int $book_id Book ID.
+	 * @return string ot|nt|''
+	 */
+	public static function get_testament( $book_id ) {
+		$book_id = (int) $book_id;
+		if ( $book_id >= 1 && $book_id <= 39 ) {
+			return 'ot';
+		}
+		if ( $book_id >= 40 && $book_id <= 66 ) {
+			return 'nt';
+		}
+		return '';
 	}
 }

@@ -16,11 +16,15 @@ delete_option( 'thw_copyright_displayed' );
 delete_option( 'thw_curriculum_version' );
 delete_option( 'thw_seed_queue' );
 delete_option( 'thw_seed_created_count' );
+delete_option( 'thw_sync_queue' );
+delete_option( 'thw_sync_updated_count' );
 delete_option( 'thw_demo_page_created' );
 delete_option( 'thw_lesson_lookup_map' );
 delete_transient( 'thw_curriculum_upgraded' );
+delete_transient( 'thw_curriculum_content_synced' );
 
 wp_clear_scheduled_hook( 'thw_seed_curriculum_batch' );
+wp_clear_scheduled_hook( 'thw_sync_curriculum_content' );
 
 $lessons = get_posts(
 	array(

@@ -14,6 +14,49 @@ define( 'THW_PLUGIN_BASENAME', 'the-hidden-word/the-hidden-word.php' );
 define( 'THW_MAX_NIV_VERSES', 500 );
 define( 'THW_MAX_BUNDLED_VERSES', 500 );
 
+if ( ! function_exists( '__' ) ) {
+	/**
+	 * Test double for WordPress i18n.
+	 *
+	 * @param string $text Text.
+	 * @return string
+	 */
+	function __( $text ) {
+		return $text;
+	}
+}
+
+if ( ! function_exists( 'esc_html' ) ) {
+	function esc_html( $text ) {
+		return $text;
+	}
+}
+if ( ! function_exists( 'esc_attr' ) ) {
+	function esc_attr( $text ) {
+		return $text;
+	}
+}
+if ( ! function_exists( 'esc_url' ) ) {
+	function esc_url( $text ) {
+		return $text;
+	}
+}
+if ( ! function_exists( 'esc_attr__' ) ) {
+	function esc_attr__( $text ) {
+		return $text;
+	}
+}
+if ( ! function_exists( 'add_query_arg' ) ) {
+	/**
+	 * @param string $key   Query key.
+	 * @param mixed  $value Query value.
+	 * @return string
+	 */
+	function add_query_arg( $key, $value ) {
+		return '?' . $key . '=' . $value;
+	}
+}
+
 require_once THW_PLUGIN_DIR . 'includes/class-books.php';
 require_once THW_PLUGIN_DIR . 'includes/class-curriculum.php';
 require_once THW_PLUGIN_DIR . 'includes/interface-translation-provider.php';

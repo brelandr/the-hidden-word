@@ -3,7 +3,7 @@
  * Plugin Name: The Hidden Word
  * Plugin URI: https://wordpress.org/plugins/the-hidden-word/
  * Description: A Bible discipleship plugin with up to 500 NIV verses, deep-dive lessons, historical context, memorization tools, and discussion prompts.
- * Version: 1.1.5
+ * Version: 1.2.0
  * Author: Land Tech Web Designs, Corp
  * Author URI: https://landtechwebdesigns.com
  * License: GPL-2.0+
@@ -25,14 +25,14 @@ if ( defined( 'THW_BOOTSTRAP_DONE' ) ) {
 }
 
 define( 'THW_BOOTSTRAP_DONE', true );
-define( 'THW_VERSION', '1.1.5' );
+define( 'THW_VERSION', '1.2.0' );
 define( 'THW_PLUGIN_FILE', __FILE__ );
 define( 'THW_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'THW_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'THW_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 define( 'THW_MAX_NIV_VERSES', 500 );
 define( 'THW_MAX_BUNDLED_VERSES', 500 );
-define( 'THW_CURRICULUM_DB_VERSION', '1.1.0' );
+define( 'THW_CURRICULUM_DB_VERSION', '1.2.0' );
 
 require_once THW_PLUGIN_DIR . 'includes/class-activator.php';
 require_once THW_PLUGIN_DIR . 'includes/class-deactivator.php';

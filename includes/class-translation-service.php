@@ -60,6 +60,59 @@ class THW_Translation_Service {
 	}
 
 	/**
+	 * Get follow-on verse text, including public-domain cache for verses outside the 500-lesson bundle.
+	 *
+	 * @param int    $book_id     Book ID.
+	 * @param int    $chapter     Chapter.
+	 * @param int    $verse       Verse.
+	 * @param string $translation Optional translation override.
+	 * @return array{text:string,translation:string}
+	 */
+	public function get_echo_verse_text( $book_id, $chapter, $verse, $translation = '' ) {
+		if ( ! $translation ) {
+			$translation = get_option( 'thw_active_translation', 'niv' );
+		}
+
+		$translation = strtolower( $translation );
+		$text        = $this->get_verse_text( $book_id, $chapter, $verse, $translation );
+
+		if ( $text ) {
+			return array(
+				'text'         => $text,
+				'translation'  => $translation,
+			);
+		}
+
+		$cached = THW_Curriculum::get_echo_verse_text( $book_id, $chapter, $verse, $translation );
+		if ( $cached ) {
+			return $cached;
+		}
+
+		if ( 'niv' === $translation ) {
+			$web = THW_Curriculum::get_echo_verse_text( $book_id, $chapter, $verse, 'web' );
+			if ( $web ) {
+				return $web;
+			}
+		}
+
+		return array(
+			'text'        => '',
+			'translation' => '',
+		);
+	}
+
+	/**
+	 * Human-readable label for a translation slug.
+	 *
+	 * @param string $translation Translation slug.
+	 * @return string
+	 */
+	public function get_translation_label( $translation ) {
+		$labels = $this->get_supported_translations();
+		return isset( $labels[ $translation ] ) ? $labels[ $translation ] : strtoupper( $translation );
+	}
+
+	/**
 	 * Get verse text by week number.
 	 *
 	 * @param int    $week        Week number.

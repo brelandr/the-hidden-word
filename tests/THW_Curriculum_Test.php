@@ -79,6 +79,31 @@ class THW_Curriculum_Test extends TestCase {
 	}
 
 	/**
+	 * Default follow-on verses use the lines before and after the lesson.
+	 */
+	public function test_default_follow_on_verses_for_john_3_16() {
+		$echo = THW_Curriculum::default_follow_on_verses( 43, 3, 16, 16 );
+		$this->assertCount( 2, $echo );
+		$this->assertSame( 15, $echo[0]['verse'] );
+		$this->assertSame( 17, $echo[1]['verse'] );
+	}
+
+	/**
+	 * Echo verse cache includes public-domain text for John 3:15.
+	 */
+	public function test_echo_verse_cache_john_3_15() {
+		$path = THW_PLUGIN_DIR . 'data/echo-verses.json';
+		if ( ! is_readable( $path ) ) {
+			$this->markTestSkipped( 'echo-verses.json not built yet' );
+		}
+
+		$result = THW_Curriculum::get_echo_verse_text( 43, 3, 15, 'web' );
+		$this->assertIsArray( $result );
+		$this->assertNotEmpty( $result['text'] );
+		$this->assertSame( 'web', $result['translation'] );
+	}
+
+	/**
 	 * Each NIV lesson includes enriched lesson fields.
 	 */
 	public function test_niv_curriculum_lessons_are_enriched() {
