@@ -35,7 +35,37 @@ class THW_Curriculum {
 	 * @return array<int, array<string, mixed>>
 	 */
 	public static function load_kjv() {
-		$path = THW_PLUGIN_DIR . 'data/kjv-curriculum.json';
+		return self::load_translation( 'kjv' );
+	}
+
+	/**
+	 * Load WEB curriculum entries.
+	 *
+	 * @return array<int, array<string, mixed>>
+	 */
+	public static function load_web() {
+		return self::load_translation( 'web' );
+	}
+
+	/**
+	 * Load bundled curriculum entries for a translation slug.
+	 *
+	 * @param string $slug Translation slug.
+	 * @return array<int, array<string, mixed>>
+	 */
+	public static function load_translation( $slug ) {
+		$slug = strtolower( $slug );
+		$files = array(
+			'niv' => 'niv-curriculum.json',
+			'kjv' => 'kjv-curriculum.json',
+			'web' => 'web-curriculum.json',
+		);
+
+		if ( ! isset( $files[ $slug ] ) ) {
+			return array();
+		}
+
+		$path = THW_PLUGIN_DIR . 'data/' . $files[ $slug ];
 		if ( ! is_readable( $path ) ) {
 			return array();
 		}

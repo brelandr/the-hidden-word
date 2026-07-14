@@ -1,6 +1,6 @@
 <?php
 /**
- * Bundled NIV/KJV translation provider.
+ * Bundled NIV, KJV, and WEB translation provider.
  *
  * @package The_Hidden_Word
  */
@@ -13,6 +13,17 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Class THW_Bundled_Provider
  */
 class THW_Bundled_Provider implements THW_Translation_Provider {
+
+	/**
+	 * Bundled curriculum files keyed by translation slug.
+	 *
+	 * @var array<string, string>
+	 */
+	private static $curriculum_files = array(
+		'niv' => 'niv-curriculum.json',
+		'kjv' => 'kjv-curriculum.json',
+		'web' => 'web-curriculum.json',
+	);
 
 	/**
 	 * Cached curriculum data.
@@ -87,7 +98,18 @@ class THW_Bundled_Provider implements THW_Translation_Provider {
 		return array(
 			'niv' => __( 'New International Version (NIV)', 'the-hidden-word' ),
 			'kjv' => __( 'King James Version (KJV)', 'the-hidden-word' ),
+			'web' => __( 'World English Bible (WEB)', 'the-hidden-word' ),
 		);
+	}
+
+	/**
+	 * Translation slugs that must mirror NIV lesson count (excludes NIV).
+	 *
+	 * @return string[]
+	 */
+	public static function get_parity_slugs() {
+		$slugs = array_keys( self::$curriculum_files );
+		return array_values( array_diff( $slugs, array( 'niv' ) ) );
 	}
 
 	/**
@@ -101,7 +123,11 @@ class THW_Bundled_Provider implements THW_Translation_Provider {
 			return $this->cache[ $translation ];
 		}
 
-		$file = 'niv' === $translation ? 'niv-curriculum.json' : 'kjv-curriculum.json';
+		$file = isset( self::$curriculum_files[ $translation ] ) ? self::$curriculum_files[ $translation ] : '';
+		if ( ! $file ) {
+			$this->cache[ $translation ] = array();
+			return array();
+		}
 		$path = THW_PLUGIN_DIR . 'data/' . $file;
 
 		if ( ! is_readable( $path ) ) {

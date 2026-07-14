@@ -14,11 +14,13 @@ from pathlib import Path
 import time
 
 BOLLS_NIV = "https://bolls.life/get-verse/NIV/{book}/{chapter}/{verse}/"
+BOLLS_WEB = "https://bolls.life/get-verse/WEB/{book}/{chapter}/{verse}/"
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data"
 NIV_PATH = DATA / "niv-curriculum.json"
 KJV_PATH = DATA / "kjv-curriculum.json"
+WEB_PATH = DATA / "web-curriculum.json"
 BOOKS_PATH = DATA / "books.json"
 PARTS_DIR = DATA / "curriculum-parts"
 
@@ -274,21 +276,39 @@ def load_parts() -> dict[int, dict]:
     return merged
 
 
+def fetch_web(book_id: int, chapter: int, verse: int) -> str:
+    url = BOLLS_WEB.format(book=book_id, chapter=chapter, verse=verse)
+    try:
+        with urllib.request.urlopen(url, timeout=25) as resp:
+            payload = json.loads(resp.read().decode())
+            return clean_niv_text(payload.get("text", ""))
+    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError, KeyError):
+        return ""
+
+
+def rebuild_parallel_translation(existing: list[dict], label: str, out_path: Path) -> None:
+    books = load_books()
+    lessons: list[dict] = []
+    for entry in existing:
+        if label == "KJV":
+            book_name = books[str(entry["book_id"])]
+            text = fetch_kjv(book_name, entry["chapter"], entry["verse_start"])
+        else:
+            text = fetch_web(entry["book_id"], entry["chapter"], entry["verse_start"])
+        parallel = dict(entry)
+        parallel["text"] = text or entry.get("text", "")
+        lessons.append(parallel)
+    out_path.write_text(json.dumps(lessons, indent=2, ensure_ascii=False) + "\n")
+    print(f"{label} rebuilt: {len(lessons)} lessons")
+
+
 def build() -> None:
     if NIV_PATH.is_file():
         existing = json.loads(NIV_PATH.read_text())
         if len(existing) >= 500 and all(e.get('text') for e in existing):
-            print(f'NIV curriculum complete ({len(existing)} lessons); rebuilding KJV only')
-            books = load_books()
-            kjv_lessons = []
-            for entry in existing:
-                book_name = books[str(entry['book_id'])]
-                kjv_text = fetch_kjv(book_name, entry['chapter'], entry['verse_start'])
-                kjv_entry = dict(entry)
-                kjv_entry['text'] = kjv_text or entry.get('text', '')
-                kjv_lessons.append(kjv_entry)
-            KJV_PATH.write_text(json.dumps(kjv_lessons, indent=2, ensure_ascii=False) + '\n')
-            print(f'KJV rebuilt: {len(kjv_lessons)} lessons')
+            print(f'NIV curriculum complete ({len(existing)} lessons); rebuilding KJV and WEB only')
+            rebuild_parallel_translation(existing, "KJV", KJV_PATH)
+            rebuild_parallel_translation(existing, "WEB", WEB_PATH)
             return
 
     books = load_books()
@@ -378,6 +398,17 @@ def build() -> None:
 
     print()
     KJV_PATH.write_text(json.dumps(kjv_lessons, indent=2, ensure_ascii=False) + "\n")
+
+    web_lessons: list[dict] = []
+    for entry in lessons:
+        web_text = fetch_web(entry["book_id"], entry["chapter"], entry["verse_start"])
+        web_entry = dict(entry)
+        web_entry["text"] = web_text or entry.get("text", "")
+        web_lessons.append(web_entry)
+        print(f"WEB {entry['lesson']}/500", end="\r")
+
+    print()
+    WEB_PATH.write_text(json.dumps(web_lessons, indent=2, ensure_ascii=False) + "\n")
 
     verse_count = sum(e["verse_end"] - e["verse_start"] + 1 for e in lessons)
     print(f"Built {len(lessons)} lessons, {verse_count} NIV verses")

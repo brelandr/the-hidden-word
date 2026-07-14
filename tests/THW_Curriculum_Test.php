@@ -42,6 +42,25 @@ class THW_Curriculum_Test extends TestCase {
 	}
 
 	/**
+	 * WEB curriculum must mirror NIV lesson count.
+	 */
+	public function test_web_matches_niv_lesson_count() {
+		$niv = THW_Curriculum::load_niv();
+		$web = THW_Curriculum::load_web();
+		$this->assertCount( count( $niv ), $web );
+	}
+
+	/**
+	 * WEB provider returns John 3:16 text.
+	 */
+	public function test_bundled_provider_web_john_3_16() {
+		$provider = new THW_Bundled_Provider();
+		$text     = $provider->get_verse( 43, 3, 16, 'web' );
+		$this->assertNotEmpty( $text );
+		$this->assertStringContainsString( 'God so loved', $text );
+	}
+
+	/**
 	 * Bundled provider returns NIV text for John 3:16.
 	 */
 	public function test_bundled_provider_john_3_16() {

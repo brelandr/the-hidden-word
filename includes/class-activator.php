@@ -241,18 +241,21 @@ class THW_Activator {
 		}
 
 		$niv_count = THW_Curriculum::get_lesson_count();
-		$kjv_count = count( THW_Curriculum::load_kjv() );
-		if ( $kjv_count > 0 && $kjv_count !== $niv_count ) {
-			wp_die(
-				esc_html(
-					sprintf(
-						/* translators: 1: NIV lesson count, 2: KJV lesson count */
-						__( 'The Hidden Word: KJV curriculum (%2$d lessons) must match the NIV curriculum (%1$d lessons).', 'the-hidden-word' ),
-						$niv_count,
-						$kjv_count
+		foreach ( THW_Bundled_Provider::get_parity_slugs() as $slug ) {
+			$count = count( THW_Curriculum::load_translation( $slug ) );
+			if ( $count > 0 && $count !== $niv_count ) {
+				wp_die(
+					esc_html(
+						sprintf(
+							/* translators: 1: translation slug, 2: actual lesson count, 3: NIV lesson count */
+							__( 'The Hidden Word: %1$s curriculum (%2$d lessons) must match the NIV curriculum (%3$d lessons).', 'the-hidden-word' ),
+							strtoupper( $slug ),
+							$count,
+							$niv_count
+						)
 					)
-				)
-			);
+				);
+			}
 		}
 	}
 

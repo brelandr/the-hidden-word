@@ -4,7 +4,7 @@ Tags: bible, scripture, discipleship, memorization, verse of the day
 Requires at least: 6.2
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.1.4
+Stable tag: 1.1.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -24,6 +24,7 @@ The Hidden Word helps your church or ministry teach Scripture through structured
 
 * 500-verse curated NIV curriculum (Biblica fair-use maximum)
 * King James Version (public domain) included
+* World English Bible (public domain) included
 * Verse of the Week or Verse of the Day scheduling
 * Fill-in-the-blanks memorization widget
 * Custom post type lesson builder with dedicated meta fields
@@ -81,6 +82,10 @@ Yes. Use the shortcode `[thw_lesson]` in any page builder text widget or the Gut
 5. Plugin settings — schedule mode and translation switcher
 
 == Changelog ==
+
+= 1.1.5 =
+* Add bundled World English Bible (WEB) as a third offline translation
+* Re-initialize memorization widget when Premium translation switcher changes verse text
 
 = 1.1.4 =
 * Replace deprecated `get_page_by_title()` with `WP_Query` for demo page lookup

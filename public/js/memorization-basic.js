@@ -47,7 +47,18 @@
 			});
 		}
 
+		function resetState() {
+			verse = widget.getAttribute('data-verse') || '';
+			tokens = tokenize(verse);
+			state = tokens.map(function (t, i) {
+				return { text: t, hidden: false, index: i, word: isWord(t) };
+			});
+			render();
+		}
+
 		render();
+
+		widget._thwMemorizationInit = resetState;
 
 		var hideBtn = widget.querySelector('.thw-hide-random');
 		var revealBtn = widget.querySelector('.thw-reveal-all');
@@ -74,15 +85,21 @@
 
 		if (resetBtn) {
 			resetBtn.addEventListener('click', function () {
-				state = tokens.map(function (t, i) {
-					return { text: t, hidden: false, index: i, word: isWord(t) };
-				});
-				render();
+				resetState();
 			});
 		}
 	}
 
+	window.thwInitMemorization = initWidget;
+
 	document.addEventListener('DOMContentLoaded', function () {
 		document.querySelectorAll('.thw-memorization').forEach(initWidget);
+	});
+
+	document.addEventListener('thw:translation-changed', function (e) {
+		var widget = e.detail && e.detail.widget;
+		if (widget && typeof widget._thwMemorizationInit === 'function') {
+			widget._thwMemorizationInit();
+		}
 	});
 })();

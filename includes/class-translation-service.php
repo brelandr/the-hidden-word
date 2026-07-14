@@ -115,6 +115,10 @@ class THW_Translation_Service {
 			return '<p class="thw-copyright">' . esc_html__( 'King James Version (KJV) — Public Domain.', 'the-hidden-word' ) . '</p>';
 		}
 
+		if ( 'web' === $translation ) {
+			return '<p class="thw-copyright">' . esc_html__( 'World English Bible (WEB) — Public Domain.', 'the-hidden-word' ) . '</p>';
+		}
+
 		return apply_filters( 'thw_render_copyright', '', $translation );
 	}
 
