@@ -2,7 +2,7 @@
 /**
  * Translation provider interface.
  *
- * @package The_Hidden_Word
+ * @package Hidden_Word_Bible_Lessons
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -10,9 +10,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Interface THW_Translation_Provider
+ * Interface HWBL_Translation_Provider
  */
-interface THW_Translation_Provider {
+interface HWBL_Translation_Provider {
 
 	/**
 	 * Get verse text.

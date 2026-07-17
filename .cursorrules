@@ -1,13 +1,13 @@
 # ⚙️ PROJECT CONFIGURATION — THE HIDDEN WORD (FREE)
 # ==============================================================================
-# Plugin Name:      The Hidden Word
-# Plugin Slug:      the-hidden-word
-# Text Domain:      the-hidden-word
-# Function Prefix:  thw_
-# Class Prefix:     THW_
-# Constant Prefix:  THW_
-# CPT Slug:         thw_lesson
-# GitHub (public):  https://github.com/brelandr/the-hidden-word
+# Plugin Name:      Hidden Word Bible Lessons
+# Plugin Slug:      hidden-word-bible-lessons
+# Text Domain:      hidden-word-bible-lessons
+# Function Prefix:  hwbl_
+# Class Prefix:     HWBL_
+# Constant Prefix:  HWBL_
+# CPT Slug:         hwbl_lesson
+# GitHub (public):  https://github.com/brelandr/hidden-word-bible-lessons
 # Zip build:        ../create-plugin-zip.sh (LearnTheBible root)
 # Premium add-on:   The-Hidden-Word-Premium (separate repo — do not add premium code here)
 # ==============================================================================
@@ -15,9 +15,9 @@
 # ⚠️ CRITICAL CONTEXT
 # Path contains `The-Hidden-Word/` (NOT `The-Hidden-Word-Premium/`) → 🟢 FREE context
 # DO NOT add license checks, LMFWC, GitHub updater, or crippleware here.
-# DO expose extension hooks for Premium (`thw_register_premium_features`, filters/actions).
+# DO expose extension hooks for Premium (`hwbl_register_premium_features`, filters/actions).
 
-# 📝 End code generation with: ✅ **Context: FREE — The Hidden Word**
+# 📝 End code generation with: ✅ **Context: FREE — Hidden Word Bible Lessons**
 
 ---
 
@@ -46,8 +46,8 @@
 
 # 🏗️ SECTION 2: WPCS & PREFIXING
 
-1. Prefix **all** functions (`thw_`), classes (`THW_`), hooks, options (`thw_`), transients (`thw_`).
-2. Text domain **must** be `the-hidden-word` on every `__()`, `_e()`, `esc_html__()`.
+1. Prefix **all** functions (`hwbl_`), classes (`HWBL_`), hooks, options (`hwbl_`), transients (`hwbl_`).
+2. Text domain **must** be `hidden-word-bible-lessons` on every `__()`, `_e()`, `esc_html__()`.
 3. Tabs for indentation; Yoda conditions (`if ( 'week' === $mode )`).
 4. Contributors in `readme.txt`: **brelandr** (WordPress.org profile).
 
@@ -55,24 +55,24 @@
 
 # 📖 SECTION 3: NIV FAIR-USE (NON-NEGOTIABLE)
 
-* Bundled NIV cap: **500 verses max** (`THW_MAX_NIV_VERSES`); curriculum = 500 single-verse lessons.
+* Bundled NIV cap: **500 verses max** (`HWBL_MAX_NIV_VERSES`); curriculum = 500 single-verse lessons.
 * KJV is public domain; bundled alongside NIV in `data/kjv-curriculum.json`.
 * **Never** add API-fetched NIV in the free plugin — multi-translation is Premium BYOK only.
 * `data/niv-curriculum.json` entries may include: `historical_context`, `preceding_narrative`, `discussion_questions`.
-* Activator seeds via batched cron (`thw_seed_curriculum_batch`, `thw_seed_queue`); `THW_CURRICULUM_DB_VERSION` triggers `maybe_upgrade_curriculum()` on version bump. Changing JSON alone does not re-seed existing sites.
+* Activator seeds via batched cron (`hwbl_seed_curriculum_batch`, `hwbl_seed_queue`); `HWBL_CURRICULUM_DB_VERSION` triggers `maybe_upgrade_curriculum()` on version bump. Changing JSON alone does not re-seed existing sites.
 
 ---
 
 # 🔌 SECTION 4: EXTENSION HOOKS (PREMIUM INTEGRATION)
 
 Premium hooks the free plugin exposes — **preserve these**:
-* `do_action( 'thw_register_premium_features' )`
-* `apply_filters( 'thw_schedule_modes', $modes )`
-* `apply_filters( 'thw_current_lesson_id', $id, $slot, $mode )`
-* `apply_filters( 'thw_translation_providers', $providers )`
-* `apply_filters( 'thw_get_verse_text', $text, ... )`
-* `apply_filters( 'thw_lesson_tabs', $tabs, $lesson_id )`
-* `do_action( 'thw_lesson_render_before_tabs' )`, `thw_lesson_render_panels`, `thw_lesson_render_after_echo`
+* `do_action( 'hwbl_register_premium_features' )`
+* `apply_filters( 'hwbl_schedule_modes', $modes )`
+* `apply_filters( 'hwbl_current_lesson_id', $id, $slot, $mode )`
+* `apply_filters( 'hwbl_translation_providers', $providers )`
+* `apply_filters( 'hwbl_get_verse_text', $text, ... )`
+* `apply_filters( 'hwbl_lesson_tabs', $tabs, $lesson_id )`
+* `do_action( 'hwbl_lesson_render_before_tabs' )`, `hwbl_lesson_render_panels`, `hwbl_lesson_render_after_echo`
 
 ---
 
@@ -82,7 +82,7 @@ Premium hooks the free plugin exposes — **preserve these**:
 * Pro upsell: link only (readme + settings), no crippleware.
 * `readme.txt`: Contributors **brelandr**, NIV copyright block, FAQ, changelog.
 * Assets: `assets/icon-256x256.png`, `icon-128x128.png`, banners per `assets/README.md`.
-* PHPUnit: `tests/THW_Curriculum_Test.php` must pass before zip (`create-plugin-zip.sh`).
+* PHPUnit: `tests/HWBL_Curriculum_Test.php` must pass before zip (`create-plugin-zip.sh`).
 * Exclude from zip: `.cursorrules`, `.git/`, `tests/`, `vendor/` (dev), `composer.json`, `*.md`, `*.sh`.
 
 ---
@@ -93,7 +93,7 @@ Premium hooks the free plugin exposes — **preserve these**:
 bash "/Users/randy/wordpress-plugins/WordpressDev/LearnTheBible/create-plugin-zip.sh" --free-only
 ```
 
-Output: `LearnTheBible/Dist/the-hidden-word-{version}.zip`
+Output: `LearnTheBible/Dist/hidden-word-bible-lessons-{version}.zip`
 
 ---
 

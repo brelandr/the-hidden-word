@@ -2,7 +2,7 @@
 /**
  * Bible lesson custom post type.
  *
- * @package The_Hidden_Word
+ * @package Hidden_Word_Bible_Lessons
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -10,9 +10,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Class THW_CPT_Lesson
+ * Class HWBL_CPT_Lesson
  */
-class THW_CPT_Lesson {
+class HWBL_CPT_Lesson {
+
+	/**
+	 * Post types that store Bible lesson content (current + legacy).
+	 *
+	 * @var string[]
+	 */
+	private const LESSON_POST_TYPES = array( 'hwbl_lesson', 'thw_lesson' );
 
 	/**
 	 * Constructor.
@@ -23,31 +30,31 @@ class THW_CPT_Lesson {
 	}
 
 	/**
-	 * Register thw_lesson post type.
+	 * Register hwbl_lesson post type.
 	 */
 	public function register_post_type() {
 		$labels = array(
-			'name'               => __( 'Bible Lessons', 'the-hidden-word' ),
-			'singular_name'      => __( 'Bible Lesson', 'the-hidden-word' ),
-			'menu_name'          => __( 'The Hidden Word', 'the-hidden-word' ),
-			'add_new'            => __( 'Add Lesson', 'the-hidden-word' ),
-			'add_new_item'       => __( 'Add New Lesson', 'the-hidden-word' ),
-			'edit_item'          => __( 'Edit Lesson', 'the-hidden-word' ),
-			'new_item'           => __( 'New Lesson', 'the-hidden-word' ),
-			'view_item'          => __( 'View Lesson', 'the-hidden-word' ),
-			'search_items'       => __( 'Search Lessons', 'the-hidden-word' ),
-			'not_found'          => __( 'No lessons found', 'the-hidden-word' ),
-			'not_found_in_trash' => __( 'No lessons found in trash', 'the-hidden-word' ),
+			'name'               => __( 'Bible Lessons', 'hidden-word-bible-lessons' ),
+			'singular_name'      => __( 'Bible Lesson', 'hidden-word-bible-lessons' ),
+			'menu_name'          => __( 'Hidden Word Bible Lessons', 'hidden-word-bible-lessons' ),
+			'add_new'            => __( 'Add Lesson', 'hidden-word-bible-lessons' ),
+			'add_new_item'       => __( 'Add New Lesson', 'hidden-word-bible-lessons' ),
+			'edit_item'          => __( 'Edit Lesson', 'hidden-word-bible-lessons' ),
+			'new_item'           => __( 'New Lesson', 'hidden-word-bible-lessons' ),
+			'view_item'          => __( 'View Lesson', 'hidden-word-bible-lessons' ),
+			'search_items'       => __( 'Search Lessons', 'hidden-word-bible-lessons' ),
+			'not_found'          => __( 'No lessons found', 'hidden-word-bible-lessons' ),
+			'not_found_in_trash' => __( 'No lessons found in trash', 'hidden-word-bible-lessons' ),
 		);
 
 		register_post_type(
-			'thw_lesson',
+			'hwbl_lesson',
 			array(
 				'labels'              => $labels,
 				'public'              => true,
 				'has_archive'         => true,
 				'show_in_rest'        => true,
-				'rest_base'           => 'thw-lessons',
+				'rest_base'           => 'hwbl-lessons',
 				'menu_icon'           => 'dashicons-book-alt',
 				'supports'            => array( 'title', 'editor', 'comments', 'thumbnail' ),
 				'rewrite'             => array( 'slug' => 'bible-lesson' ),
@@ -62,34 +69,71 @@ class THW_CPT_Lesson {
 	 */
 	public function register_meta() {
 		$meta_fields = array(
-			'_thw_book_id'              => 'integer',
-			'_thw_chapter'              => 'integer',
-			'_thw_verse_start'          => 'integer',
-			'_thw_verse_end'            => 'integer',
-			'_thw_lesson_number'        => 'integer',
-			'_thw_week_number'          => 'integer',
-			'_thw_day_number'           => 'integer',
-			'_thw_historical_context'   => 'string',
-			'_thw_preceding_narrative'  => 'string',
-			'_thw_follow_on_verses'      => 'string',
-			'_thw_discussion_questions' => 'string',
-			'_thw_audio_url'            => 'string',
+			'_hwbl_book_id'              => 'integer',
+			'_hwbl_chapter'              => 'integer',
+			'_hwbl_verse_start'          => 'integer',
+			'_hwbl_verse_end'            => 'integer',
+			'_hwbl_lesson_number'        => 'integer',
+			'_hwbl_week_number'          => 'integer',
+			'_hwbl_day_number'           => 'integer',
+			'_hwbl_historical_context'   => 'string',
+			'_hwbl_preceding_narrative'  => 'string',
+			'_hwbl_follow_on_verses'      => 'string',
+			'_hwbl_discussion_questions' => 'string',
+			'_hwbl_audio_url'            => 'string',
 		);
 
 		foreach ( $meta_fields as $key => $type ) {
 			register_post_meta(
-				'thw_lesson',
+				'hwbl_lesson',
 				$key,
 				array(
 					'show_in_rest'  => true,
 					'single'        => true,
 					'type'          => $type,
-					'auth_callback' => function () {
-						return current_user_can( 'edit_posts' );
+					'auth_callback' => static function ( $allowed, $meta_key, $post_id ) {
+						unset( $allowed, $meta_key );
+						return current_user_can( 'edit_post', (int) $post_id );
 					},
 				)
 			);
 		}
+	}
+
+	/**
+	 * Whether a post type stores Bible lesson content.
+	 *
+	 * @param string $post_type Post type slug.
+	 * @return bool
+	 */
+	public static function is_lesson_post_type( $post_type ) {
+		return in_array( (string) $post_type, self::LESSON_POST_TYPES, true );
+	}
+
+	/**
+	 * Whether lesson data returned from get_lesson_data() is usable.
+	 *
+	 * @param array<string, mixed> $lesson Lesson data array.
+	 * @return bool
+	 */
+	public static function is_valid_lesson_data( $lesson ) {
+		return is_array( $lesson ) && ! empty( $lesson['id'] );
+	}
+
+	/**
+	 * Read lesson meta, falling back to legacy _thw_* keys when needed.
+	 *
+	 * @param int    $lesson_id Post ID.
+	 * @param string $key       Meta suffix without prefix (e.g. book_id).
+	 * @return mixed
+	 */
+	public static function get_meta_value( $lesson_id, $key ) {
+		$value = get_post_meta( $lesson_id, '_hwbl_' . $key, true );
+		if ( '' === $value || null === $value || false === $value ) {
+			$value = get_post_meta( $lesson_id, '_thw_' . $key, true );
+		}
+
+		return $value;
 	}
 
 	/**
@@ -102,24 +146,29 @@ class THW_CPT_Lesson {
 		$lesson_id = (int) $lesson_id;
 		$post      = get_post( $lesson_id );
 
-		if ( ! $post || 'thw_lesson' !== $post->post_type ) {
+		if ( ! $post || ! self::is_lesson_post_type( $post->post_type ) ) {
 			return array();
 		}
 
-		$book_id     = (int) get_post_meta( $lesson_id, '_thw_book_id', true );
-		$chapter     = (int) get_post_meta( $lesson_id, '_thw_chapter', true );
-		$verse_start = (int) get_post_meta( $lesson_id, '_thw_verse_start', true );
-		$verse_end   = (int) get_post_meta( $lesson_id, '_thw_verse_end', true );
+		$book_id     = (int) self::get_meta_value( $lesson_id, 'book_id' );
+		$chapter     = (int) self::get_meta_value( $lesson_id, 'chapter' );
+		$verse_start = (int) self::get_meta_value( $lesson_id, 'verse_start' );
+		$verse_end   = (int) self::get_meta_value( $lesson_id, 'verse_end' );
 
 		if ( ! $verse_end ) {
 			$verse_end = $verse_start;
 		}
 
-		$follow_on = get_post_meta( $lesson_id, '_thw_follow_on_verses', true );
-		$questions = get_post_meta( $lesson_id, '_thw_discussion_questions', true );
+		$follow_on = self::get_meta_value( $lesson_id, 'follow_on_verses' );
+		$questions = self::get_meta_value( $lesson_id, 'discussion_questions' );
 
 		$follow_on_decoded = $follow_on ? json_decode( $follow_on, true ) : array();
 		$questions_decoded = $questions ? json_decode( $questions, true ) : array();
+
+		$lesson_number = (int) self::get_meta_value( $lesson_id, 'lesson_number' );
+		if ( ! $lesson_number ) {
+			$lesson_number = (int) self::get_meta_value( $lesson_id, 'week_number' );
+		}
 
 		$lesson = array(
 			'id'                   => $lesson_id,
@@ -128,21 +177,21 @@ class THW_CPT_Lesson {
 			'chapter'              => $chapter,
 			'verse_start'          => $verse_start,
 			'verse_end'            => $verse_end,
-			'reference'            => THW_Books::format_reference( $book_id, $chapter, $verse_start, $verse_end ),
-			'lesson_number'        => (int) get_post_meta( $lesson_id, '_thw_lesson_number', true ) ?: (int) get_post_meta( $lesson_id, '_thw_week_number', true ),
-			'week_number'          => (int) get_post_meta( $lesson_id, '_thw_week_number', true ),
-			'historical_context'   => get_post_meta( $lesson_id, '_thw_historical_context', true ),
-			'preceding_narrative'  => get_post_meta( $lesson_id, '_thw_preceding_narrative', true ),
+			'reference'            => HWBL_Books::format_reference( $book_id, $chapter, $verse_start, $verse_end ),
+			'lesson_number'        => $lesson_number,
+			'week_number'          => (int) self::get_meta_value( $lesson_id, 'week_number' ),
+			'historical_context'   => self::get_meta_value( $lesson_id, 'historical_context' ),
+			'preceding_narrative'  => self::get_meta_value( $lesson_id, 'preceding_narrative' ),
 			'follow_on_verses'     => is_array( $follow_on_decoded ) ? $follow_on_decoded : array(),
 			'discussion_questions' => is_array( $questions_decoded ) ? $questions_decoded : array(),
-			'audio_url'            => get_post_meta( $lesson_id, '_thw_audio_url', true ),
+			'audio_url'            => self::get_meta_value( $lesson_id, 'audio_url' ),
 		);
 
 		if ( $lesson['lesson_number'] > 0 ) {
-			$entry = THW_Curriculum::get_entry_by_lesson_number( $lesson['lesson_number'] );
-			$lesson = THW_Curriculum::fill_lesson_content_from_entry( $lesson, $entry );
+			$entry = HWBL_Curriculum::get_entry_by_lesson_number( $lesson['lesson_number'] );
+			$lesson = HWBL_Curriculum::fill_lesson_content_from_entry( $lesson, $entry );
 		} elseif ( empty( $lesson['follow_on_verses'] ) ) {
-			$lesson['follow_on_verses'] = THW_Curriculum::default_follow_on_verses(
+			$lesson['follow_on_verses'] = HWBL_Curriculum::default_follow_on_verses(
 				$lesson['book_id'],
 				$lesson['chapter'],
 				$lesson['verse_start'],
@@ -150,6 +199,6 @@ class THW_CPT_Lesson {
 			);
 		}
 
-		return apply_filters( 'thw_lesson_data', $lesson, $lesson_id );
+		return apply_filters( 'hwbl_lesson_data', $lesson, $lesson_id );
 	}
 }

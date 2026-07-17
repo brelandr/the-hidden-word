@@ -2,7 +2,7 @@
 /**
  * Lesson catalog / browser.
  *
- * @package The_Hidden_Word
+ * @package Hidden_Word_Bible_Lessons
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -10,17 +10,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Class THW_Lesson_List
+ * Class HWBL_Lesson_List
  */
-class THW_Lesson_List {
+class HWBL_Lesson_List {
 
-	const INDEX_TRANSIENT = 'thw_lesson_index';
+	const INDEX_TRANSIENT = 'hwbl_lesson_index';
 
 	/**
 	 * Initialize hooks.
 	 */
 	public static function init() {
-		add_action( 'save_post_thw_lesson', array( __CLASS__, 'flush_index' ), 20 );
+		add_action( 'save_post_hwbl_lesson', array( __CLASS__, 'flush_index' ), 20 );
 		add_action( 'deleted_post', array( __CLASS__, 'flush_index_on_delete' ) );
 	}
 
@@ -37,7 +37,7 @@ class THW_Lesson_List {
 	 * @param int $post_id Post ID.
 	 */
 	public static function flush_index_on_delete( $post_id ) {
-		if ( 'thw_lesson' === get_post_type( $post_id ) ) {
+		if ( 'hwbl_lesson' === get_post_type( $post_id ) ) {
 			self::flush_index();
 		}
 	}
@@ -55,19 +55,20 @@ class THW_Lesson_List {
 
 		$lesson_ids = get_posts(
 			array(
-				'post_type'      => 'thw_lesson',
+				'post_type'      => array( 'hwbl_lesson', 'thw_lesson' ),
 				'posts_per_page' => -1,
 				'post_status'    => 'publish',
 				'fields'         => 'ids',
 				'orderby'        => 'meta_value_num',
-				'meta_key'       => '_thw_lesson_number',
+				// Small, transient-cached list (see set_transient() below); meta_key sort is fine here.
+				'meta_key'       => '_hwbl_lesson_number', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 				'order'          => 'ASC',
 			)
 		);
 
 		$rows = array();
 		foreach ( $lesson_ids as $lesson_id ) {
-			$data = THW_CPT_Lesson::get_lesson_data( $lesson_id );
+			$data = HWBL_CPT_Lesson::get_lesson_data( $lesson_id );
 			if ( empty( $data['lesson_number'] ) ) {
 				continue;
 			}
@@ -79,7 +80,7 @@ class THW_Lesson_List {
 				'reference'     => $data['reference'],
 				'book_id'       => (int) $data['book_id'],
 				'permalink'     => get_permalink( $lesson_id ),
-				'testament'     => THW_Books::get_testament( (int) $data['book_id'] ),
+				'testament'     => HWBL_Books::get_testament( (int) $data['book_id'] ),
 			);
 		}
 
@@ -151,8 +152,9 @@ class THW_Lesson_List {
 		$show  = in_array( $args['show'], array( 'reference', 'title', 'both' ), true ) ? $args['show'] : 'both';
 		$per_page = max( 1, (int) $args['per_page'] );
 		$page     = max( 1, (int) $args['page'] );
-		if ( $page < 2 && isset( $_GET['thw_page'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$page = max( 1, absint( $_GET['thw_page'] ) );
+		// Read-only pagination pointer, not a form submission — no nonce to verify.
+		if ( $page < 2 && isset( $_GET['hwbl_page'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$page = max( 1, absint( $_GET['hwbl_page'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		}
 
 		$rows = self::filter_rows( $args );
@@ -161,7 +163,7 @@ class THW_Lesson_List {
 		if ( 'all' === $group ) {
 			$offset     = ( $page - 1 ) * $per_page;
 			$page_rows  = array_slice( $rows, $offset, $per_page );
-			$grouped    = array( __( 'All Lessons', 'the-hidden-word' ) => $page_rows );
+			$grouped    = array( __( 'All Lessons', 'hidden-word-bible-lessons' ) => $page_rows );
 			$total_pages = (int) ceil( $total / $per_page );
 		} else {
 			$grouped = self::group_rows( $rows, $group );
@@ -170,7 +172,7 @@ class THW_Lesson_List {
 		}
 
 		ob_start();
-		include THW_PLUGIN_DIR . 'public/partials/lesson-list.php';
+		include HWBL_PLUGIN_DIR . 'public/partials/lesson-list.php';
 		return ob_get_clean();
 	}
 
@@ -187,10 +189,10 @@ class THW_Lesson_List {
 		foreach ( $rows as $row ) {
 			if ( 'testament' === $group ) {
 				$key = 'ot' === $row['testament']
-					? __( 'Old Testament', 'the-hidden-word' )
-					: __( 'New Testament', 'the-hidden-word' );
+					? __( 'Old Testament', 'hidden-word-bible-lessons' )
+					: __( 'New Testament', 'hidden-word-bible-lessons' );
 			} else {
-				$key = THW_Books::get_name( (int) $row['book_id'] );
+				$key = HWBL_Books::get_name( (int) $row['book_id'] );
 			}
 
 			if ( ! isset( $grouped[ $key ] ) ) {
@@ -215,10 +217,10 @@ class THW_Lesson_List {
 			return '';
 		}
 
-		$html = '<nav class="thw-lesson-list-pagination" aria-label="' . esc_attr__( 'Lesson list pages', 'the-hidden-word' ) . '"><ul>';
+		$html = '<nav class="hwbl-lesson-list-pagination" aria-label="' . esc_attr__( 'Lesson list pages', 'hidden-word-bible-lessons' ) . '"><ul>';
 
 		for ( $i = 1; $i <= $total_pages; $i++ ) {
-			$url = add_query_arg( 'thw_page', $i );
+			$url = add_query_arg( 'hwbl_page', $i );
 			$class     = $i === $page ? ' class="is-current"' : '';
 			$html     .= '<li' . $class . '><a href="' . esc_url( $url ) . '">' . esc_html( (string) $i ) . '</a></li>';
 		}

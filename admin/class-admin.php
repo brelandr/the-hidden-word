@@ -2,7 +2,7 @@
 /**
  * Admin functionality.
  *
- * @package The_Hidden_Word
+ * @package Hidden_Word_Bible_Lessons
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -10,9 +10,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Class THW_Admin
+ * Class HWBL_Admin
  */
-class THW_Admin {
+class HWBL_Admin {
 
 	/**
 	 * Constructor.
@@ -27,12 +27,12 @@ class THW_Admin {
 	 */
 	public function add_settings_submenu() {
 		add_submenu_page(
-			'edit.php?post_type=thw_lesson',
-			__( 'Settings', 'the-hidden-word' ),
-			__( 'Settings', 'the-hidden-word' ),
+			'edit.php?post_type=hwbl_lesson',
+			__( 'Settings', 'hidden-word-bible-lessons' ),
+			__( 'Settings', 'hidden-word-bible-lessons' ),
 			'manage_options',
-			'thw-settings',
-			array( 'THW_Settings', 'render_page' )
+			'hwbl-settings',
+			array( 'HWBL_Settings', 'render_page' )
 		);
 	}
 
@@ -42,15 +42,15 @@ class THW_Admin {
 	 * @param string $hook Current admin page hook.
 	 */
 	public function enqueue_admin_styles( $hook ) {
-		if ( false === strpos( $hook, 'thw_lesson' ) && 'thw_lesson_page_thw-settings' !== $hook ) {
+		if ( false === strpos( $hook, 'hwbl_lesson' ) && 'hwbl_lesson_page_hwbl-settings' !== $hook ) {
 			return;
 		}
 
 		wp_enqueue_style(
-			'thw-admin',
-			THW_PLUGIN_URL . 'admin/css/admin.css',
+			'hwbl-admin',
+			HWBL_PLUGIN_URL . 'admin/css/admin.css',
 			array(),
-			THW_VERSION
+			HWBL_VERSION
 		);
 	}
 }

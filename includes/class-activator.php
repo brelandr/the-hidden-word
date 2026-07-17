@@ -2,7 +2,7 @@
 /**
  * Plugin activation.
  *
- * @package The_Hidden_Word
+ * @package Hidden_Word_Bible_Lessons
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -10,14 +10,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Class THW_Activator
+ * Class HWBL_Activator
  *
  * Seeds the bundled curriculum in small background batches instead of
  * inserting all 500 lessons synchronously during activation, which risks a
  * PHP/webserver timeout on slower hosting. Activation runs one batch inline
  * (so the site has content immediately) and schedules the rest via wp-cron.
  */
-class THW_Activator {
+class HWBL_Activator {
 
 	/**
 	 * Lessons to insert per batch.
@@ -38,37 +38,140 @@ class THW_Activator {
 	 *
 	 * @var string
 	 */
-	const SEED_CRON_HOOK = 'thw_seed_curriculum_batch';
+	const SEED_CRON_HOOK = 'hwbl_seed_curriculum_batch';
 
 	/**
 	 * wp-cron hook used to backfill lesson content on curriculum updates.
 	 *
 	 * @var string
 	 */
-	const SYNC_CRON_HOOK = 'thw_sync_curriculum_content';
+	const SYNC_CRON_HOOK = 'hwbl_sync_curriculum_content';
 
 	/**
 	 * Activate plugin.
 	 */
 	public static function activate() {
 		self::validate_bundled_verse_count();
+		self::migrate_legacy_identifiers();
 
-		$cpt = new THW_CPT_Lesson();
+		$cpt = new HWBL_CPT_Lesson();
 		$cpt->register_post_type();
 		$cpt->register_meta();
 
 		flush_rewrite_rules();
 
-		if ( ! get_option( 'thw_schedule_mode' ) ) {
-			update_option( 'thw_schedule_mode', 'week' );
+		if ( ! get_option( 'hwbl_schedule_mode' ) ) {
+			update_option( 'hwbl_schedule_mode', 'week' );
 		}
 
-		if ( ! get_option( 'thw_active_translation' ) ) {
-			update_option( 'thw_active_translation', 'niv' );
+		if ( ! get_option( 'hwbl_active_translation' ) ) {
+			update_option( 'hwbl_active_translation', 'niv' );
 		}
 
 		self::maybe_upgrade_curriculum();
 		self::maybe_create_demo_page();
+	}
+
+	/**
+	 * Migrate legacy thw_* CPT / options / meta to hwbl_* once.
+	 */
+	public static function migrate_legacy_identifiers() {
+		if ( get_option( 'hwbl_migrated_from_thw', false ) ) {
+			return;
+		}
+
+		global $wpdb;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$wpdb->query(
+			$wpdb->prepare(
+				"UPDATE {$wpdb->posts} SET post_type = %s WHERE post_type = %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				'hwbl_lesson',
+				'thw_lesson'
+			)
+		);
+
+		$meta_map = array(
+			'_thw_book_id'               => '_hwbl_book_id',
+			'_thw_chapter'               => '_hwbl_chapter',
+			'_thw_verse_start'           => '_hwbl_verse_start',
+			'_thw_verse_end'             => '_hwbl_verse_end',
+			'_thw_lesson_number'         => '_hwbl_lesson_number',
+			'_thw_week_number'           => '_hwbl_week_number',
+			'_thw_day_number'            => '_hwbl_day_number',
+			'_thw_historical_context'    => '_hwbl_historical_context',
+			'_thw_preceding_narrative'   => '_hwbl_preceding_narrative',
+			'_thw_follow_on_verses'      => '_hwbl_follow_on_verses',
+			'_thw_discussion_questions'  => '_hwbl_discussion_questions',
+			'_thw_audio_url'             => '_hwbl_audio_url',
+		);
+
+		foreach ( $meta_map as $old => $new ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$wpdb->query(
+				$wpdb->prepare(
+					"UPDATE {$wpdb->postmeta} SET meta_key = %s WHERE meta_key = %s",
+					$new,
+					$old
+				)
+			);
+		}
+
+		$option_keys = array(
+			'thw_seeded',
+			'thw_schedule_mode',
+			'thw_active_translation',
+			'thw_ai_enabled',
+			'thw_copyright_displayed',
+			'thw_curriculum_version',
+			'thw_seed_queue',
+			'thw_seed_created_count',
+			'thw_sync_queue',
+			'thw_sync_updated_count',
+			'thw_demo_page_created',
+			'thw_lesson_lookup_map',
+		);
+
+		foreach ( $option_keys as $old_key ) {
+			$new_key = preg_replace( '/^thw_/', 'hwbl_', $old_key );
+			$old_val = get_option( $old_key, null );
+			if ( null === $old_val ) {
+				continue;
+			}
+			if ( false === get_option( $new_key, false ) && null === get_option( $new_key, null ) ) {
+				add_option( $new_key, $old_val );
+			} elseif ( '' === (string) get_option( $new_key, '' ) && '' !== (string) $old_val ) {
+				update_option( $new_key, $old_val );
+			}
+		}
+
+		$transients = array(
+			'thw_curriculum_upgraded'       => 'hwbl_curriculum_upgraded',
+			'thw_curriculum_content_synced' => 'hwbl_curriculum_content_synced',
+			'thw_lesson_index'              => 'hwbl_lesson_index',
+		);
+		foreach ( $transients as $old_t => $new_t ) {
+			$val = get_transient( $old_t );
+			if ( false !== $val ) {
+				set_transient( $new_t, $val, 5 * MINUTE_IN_SECONDS );
+				delete_transient( $old_t );
+			}
+		}
+
+		if ( wp_next_scheduled( 'thw_seed_curriculum_batch' ) ) {
+			wp_clear_scheduled_hook( 'thw_seed_curriculum_batch' );
+			if ( ! wp_next_scheduled( self::SEED_CRON_HOOK ) ) {
+				wp_schedule_single_event( time() + 15, self::SEED_CRON_HOOK );
+			}
+		}
+		if ( wp_next_scheduled( 'thw_sync_curriculum_content' ) ) {
+			wp_clear_scheduled_hook( 'thw_sync_curriculum_content' );
+			if ( ! wp_next_scheduled( self::SYNC_CRON_HOOK ) ) {
+				wp_schedule_single_event( time() + 15, self::SYNC_CRON_HOOK );
+			}
+		}
+
+		update_option( 'hwbl_migrated_from_thw', 1 );
 	}
 
 	/**
@@ -77,10 +180,13 @@ class THW_Activator {
 	 * is either finished or already queued and scheduled.
 	 */
 	public static function maybe_upgrade_curriculum() {
-		$installed  = get_option( 'thw_curriculum_version', '' );
-		$target     = THW_CURRICULUM_DB_VERSION;
-		$seed_queue = get_option( 'thw_seed_queue', false );
-		$sync_queue = get_option( 'thw_sync_queue', false );
+		self::migrate_legacy_identifiers();
+		self::migrate_day_numbers();
+
+		$installed  = get_option( 'hwbl_curriculum_version', '' );
+		$target     = HWBL_CURRICULUM_DB_VERSION;
+		$seed_queue = get_option( 'hwbl_seed_queue', false );
+		$sync_queue = get_option( 'hwbl_sync_queue', false );
 
 		if ( is_array( $sync_queue ) ) {
 			if ( empty( $sync_queue ) ) {
@@ -91,13 +197,13 @@ class THW_Activator {
 			return;
 		}
 
-		$fully_seeded = get_option( 'thw_seeded' ) && version_compare( $installed, $target, '>=' );
+		$fully_seeded = get_option( 'hwbl_seeded' ) && version_compare( $installed, $target, '>=' );
 
 		if ( $fully_seeded && false === $seed_queue ) {
 			return;
 		}
 
-		if ( get_option( 'thw_seeded' ) && $installed && version_compare( $installed, $target, '<' ) && false === $seed_queue ) {
+		if ( get_option( 'hwbl_seeded' ) && $installed && version_compare( $installed, $target, '<' ) && false === $seed_queue ) {
 			self::queue_content_sync();
 			self::process_sync_batch();
 			return;
@@ -107,6 +213,7 @@ class THW_Activator {
 			// First time we've seen this version bump: build the work queue and
 			// run one batch immediately so the site has content right away.
 			self::migrate_legacy_lesson_numbers();
+			self::migrate_day_numbers();
 			self::queue_pending_lessons();
 			self::process_seed_batch();
 			return;
@@ -123,25 +230,25 @@ class THW_Activator {
 	 * Queue all bundled lesson numbers for content backfill.
 	 */
 	private static function queue_content_sync() {
-		require_once THW_PLUGIN_DIR . 'includes/class-curriculum.php';
+		require_once HWBL_PLUGIN_DIR . 'includes/class-curriculum.php';
 
 		$queue = array();
-		foreach ( THW_Curriculum::load_niv() as $entry ) {
-			$lesson = THW_Curriculum::get_entry_lesson_number( $entry );
+		foreach ( HWBL_Curriculum::load_niv() as $entry ) {
+			$lesson = HWBL_Curriculum::get_entry_lesson_number( $entry );
 			if ( $lesson >= 1 ) {
 				$queue[] = $lesson;
 			}
 		}
 
-		update_option( 'thw_sync_queue', $queue, false );
-		update_option( 'thw_sync_updated_count', 0, false );
+		update_option( 'hwbl_sync_queue', $queue, false );
+		update_option( 'hwbl_sync_updated_count', 0, false );
 	}
 
 	/**
 	 * Backfill bundled lesson content for one batch.
 	 */
 	public static function process_sync_batch() {
-		$queue = get_option( 'thw_sync_queue', false );
+		$queue = get_option( 'hwbl_sync_queue', false );
 
 		if ( ! is_array( $queue ) ) {
 			return;
@@ -152,15 +259,15 @@ class THW_Activator {
 			return;
 		}
 
-		$batch_size = (int) apply_filters( 'thw_sync_batch_size', self::SEED_BATCH_SIZE );
+		$batch_size = (int) apply_filters( 'hwbl_sync_batch_size', self::SEED_BATCH_SIZE );
 		$batch      = array_splice( $queue, 0, max( 1, $batch_size ) );
 
-		update_option( 'thw_sync_queue', $queue, false );
+		update_option( 'hwbl_sync_queue', $queue, false );
 
 		$updated = self::sync_lesson_numbers( $batch );
 
-		$total_updated = (int) get_option( 'thw_sync_updated_count', 0 ) + $updated;
-		update_option( 'thw_sync_updated_count', $total_updated, false );
+		$total_updated = (int) get_option( 'hwbl_sync_updated_count', 0 ) + $updated;
+		update_option( 'hwbl_sync_updated_count', $total_updated, false );
 
 		if ( empty( $queue ) ) {
 			self::finish_content_sync();
@@ -177,15 +284,15 @@ class THW_Activator {
 	 * @return int Number of lessons updated.
 	 */
 	private static function sync_lesson_numbers( $lesson_numbers ) {
-		require_once THW_PLUGIN_DIR . 'includes/class-curriculum.php';
-		require_once THW_PLUGIN_DIR . 'includes/class-scheduler.php';
+		require_once HWBL_PLUGIN_DIR . 'includes/class-curriculum.php';
+		require_once HWBL_PLUGIN_DIR . 'includes/class-scheduler.php';
 
 		$updated = 0;
 
 		foreach ( $lesson_numbers as $lesson_number ) {
 			$lesson_number = (int) $lesson_number;
-			$entry         = THW_Curriculum::get_entry_by_lesson_number( $lesson_number );
-			$post_id       = THW_Scheduler::get_lesson_id_by_number( $lesson_number );
+			$entry         = HWBL_Curriculum::get_entry_by_lesson_number( $lesson_number );
+			$post_id       = HWBL_Scheduler::get_lesson_id_by_number( $lesson_number );
 
 			if ( ! $entry || ! $post_id ) {
 				continue;
@@ -193,23 +300,23 @@ class THW_Activator {
 
 			$changed = false;
 
-			if ( ! get_post_meta( $post_id, '_thw_historical_context', true ) && ! empty( $entry['historical_context'] ) ) {
-				update_post_meta( $post_id, '_thw_historical_context', wp_kses_post( $entry['historical_context'] ) );
+			if ( ! get_post_meta( $post_id, '_hwbl_historical_context', true ) && ! empty( $entry['historical_context'] ) ) {
+				update_post_meta( $post_id, '_hwbl_historical_context', wp_kses_post( $entry['historical_context'] ) );
 				$changed = true;
 			}
 
-			if ( ! get_post_meta( $post_id, '_thw_preceding_narrative', true ) && ! empty( $entry['preceding_narrative'] ) ) {
-				update_post_meta( $post_id, '_thw_preceding_narrative', wp_kses_post( $entry['preceding_narrative'] ) );
+			if ( ! get_post_meta( $post_id, '_hwbl_preceding_narrative', true ) && ! empty( $entry['preceding_narrative'] ) ) {
+				update_post_meta( $post_id, '_hwbl_preceding_narrative', wp_kses_post( $entry['preceding_narrative'] ) );
 				$changed = true;
 			}
 
-			if ( ! get_post_meta( $post_id, '_thw_discussion_questions', true ) && ! empty( $entry['discussion_questions'] ) ) {
-				update_post_meta( $post_id, '_thw_discussion_questions', wp_json_encode( $entry['discussion_questions'] ) );
+			if ( ! get_post_meta( $post_id, '_hwbl_discussion_questions', true ) && ! empty( $entry['discussion_questions'] ) ) {
+				update_post_meta( $post_id, '_hwbl_discussion_questions', wp_json_encode( $entry['discussion_questions'] ) );
 				$changed = true;
 			}
 
-			if ( ! get_post_meta( $post_id, '_thw_follow_on_verses', true ) && ! empty( $entry['follow_on_verses'] ) ) {
-				update_post_meta( $post_id, '_thw_follow_on_verses', wp_json_encode( $entry['follow_on_verses'] ) );
+			if ( ! get_post_meta( $post_id, '_hwbl_follow_on_verses', true ) && ! empty( $entry['follow_on_verses'] ) ) {
+				update_post_meta( $post_id, '_hwbl_follow_on_verses', wp_json_encode( $entry['follow_on_verses'] ) );
 				$changed = true;
 			}
 
@@ -225,7 +332,7 @@ class THW_Activator {
 	 * Schedule the next content sync batch if one isn't already pending.
 	 */
 	private static function ensure_sync_batch_scheduled() {
-		$queue = get_option( 'thw_sync_queue', false );
+		$queue = get_option( 'hwbl_sync_queue', false );
 
 		if ( is_array( $queue ) && ! empty( $queue ) && ! wp_next_scheduled( self::SYNC_CRON_HOOK ) ) {
 			wp_schedule_single_event( time() + 15, self::SYNC_CRON_HOOK );
@@ -236,15 +343,15 @@ class THW_Activator {
 	 * Finalize content sync once the queue is empty.
 	 */
 	private static function finish_content_sync() {
-		delete_option( 'thw_sync_queue' );
+		delete_option( 'hwbl_sync_queue' );
 
-		update_option( 'thw_curriculum_version', THW_CURRICULUM_DB_VERSION );
+		update_option( 'hwbl_curriculum_version', HWBL_CURRICULUM_DB_VERSION );
 
-		$updated = (int) get_option( 'thw_sync_updated_count', 0 );
-		delete_option( 'thw_sync_updated_count' );
+		$updated = (int) get_option( 'hwbl_sync_updated_count', 0 );
+		delete_option( 'hwbl_sync_updated_count' );
 
 		if ( $updated > 0 ) {
-			set_transient( 'thw_curriculum_content_synced', $updated, MINUTE_IN_SECONDS * 5 );
+			set_transient( 'hwbl_curriculum_content_synced', $updated, MINUTE_IN_SECONDS * 5 );
 		}
 	}
 
@@ -252,18 +359,18 @@ class THW_Activator {
 	 * Build the queue of lesson numbers that still need to be created.
 	 */
 	private static function queue_pending_lessons() {
-		require_once THW_PLUGIN_DIR . 'includes/class-curriculum.php';
+		require_once HWBL_PLUGIN_DIR . 'includes/class-curriculum.php';
 
 		$queue = array();
-		foreach ( THW_Curriculum::load_niv() as $entry ) {
-			$lesson = THW_Curriculum::get_entry_lesson_number( $entry );
+		foreach ( HWBL_Curriculum::load_niv() as $entry ) {
+			$lesson = HWBL_Curriculum::get_entry_lesson_number( $entry );
 			if ( $lesson >= 1 ) {
 				$queue[] = $lesson;
 			}
 		}
 
-		update_option( 'thw_seed_queue', $queue, false );
-		update_option( 'thw_seed_created_count', 0, false );
+		update_option( 'hwbl_seed_queue', $queue, false );
+		update_option( 'hwbl_seed_created_count', 0, false );
 	}
 
 	/**
@@ -271,7 +378,7 @@ class THW_Activator {
 	 * batch (work remains) or finalize (queue empty).
 	 */
 	public static function process_seed_batch() {
-		$queue = get_option( 'thw_seed_queue', false );
+		$queue = get_option( 'hwbl_seed_queue', false );
 
 		if ( ! is_array( $queue ) ) {
 			return; // Nothing queued — already finished, or never started.
@@ -282,15 +389,19 @@ class THW_Activator {
 			return;
 		}
 
-		$batch_size = (int) apply_filters( 'thw_seed_batch_size', self::SEED_BATCH_SIZE );
+		$batch_size = (int) apply_filters( 'hwbl_seed_batch_size', self::SEED_BATCH_SIZE );
 		$batch      = array_splice( $queue, 0, max( 1, $batch_size ) );
 
-		update_option( 'thw_seed_queue', $queue, false );
+		update_option( 'hwbl_seed_queue', $queue, false );
 
 		$created = self::seed_lesson_numbers( $batch );
 
-		$total_created = (int) get_option( 'thw_seed_created_count', 0 ) + $created;
-		update_option( 'thw_seed_created_count', $total_created, false );
+		$total_created = (int) get_option( 'hwbl_seed_created_count', 0 ) + $created;
+		update_option( 'hwbl_seed_created_count', $total_created, false );
+
+		if ( class_exists( 'HWBL_Scheduler' ) ) {
+			HWBL_Scheduler::rebuild_lookup_map();
+		}
 
 		if ( empty( $queue ) ) {
 			self::finish_seeding();
@@ -304,7 +415,7 @@ class THW_Activator {
 	 * Schedule the next background batch if one isn't already pending.
 	 */
 	private static function ensure_batch_scheduled() {
-		$queue = get_option( 'thw_seed_queue', false );
+		$queue = get_option( 'hwbl_seed_queue', false );
 
 		if ( is_array( $queue ) && ! empty( $queue ) && ! wp_next_scheduled( self::SEED_CRON_HOOK ) ) {
 			wp_schedule_single_event( time() + 15, self::SEED_CRON_HOOK );
@@ -316,18 +427,18 @@ class THW_Activator {
 	 * and surface a one-time admin notice with the total created.
 	 */
 	private static function finish_seeding() {
-		delete_option( 'thw_seed_queue' );
+		delete_option( 'hwbl_seed_queue' );
 
-		update_option( 'thw_seeded', true );
-		update_option( 'thw_curriculum_version', THW_CURRICULUM_DB_VERSION );
+		update_option( 'hwbl_seeded', true );
+		update_option( 'hwbl_curriculum_version', HWBL_CURRICULUM_DB_VERSION );
 
-		$created = (int) get_option( 'thw_seed_created_count', 0 );
-		delete_option( 'thw_seed_created_count' );
+		$created = (int) get_option( 'hwbl_seed_created_count', 0 );
+		delete_option( 'hwbl_seed_created_count' );
 
-		THW_Scheduler::rebuild_lookup_map();
+		HWBL_Scheduler::rebuild_lookup_map();
 
 		if ( $created > 0 ) {
-			set_transient( 'thw_curriculum_upgraded', $created, MINUTE_IN_SECONDS * 5 );
+			set_transient( 'hwbl_curriculum_upgraded', $created, MINUTE_IN_SECONDS * 5 );
 		}
 	}
 
@@ -337,7 +448,7 @@ class THW_Activator {
 	 * @return array{remaining:int,created:int}|null Null when no seeding is in progress.
 	 */
 	public static function get_seed_progress() {
-		$queue = get_option( 'thw_seed_queue', false );
+		$queue = get_option( 'hwbl_seed_queue', false );
 
 		if ( ! is_array( $queue ) ) {
 			return null;
@@ -345,7 +456,7 @@ class THW_Activator {
 
 		return array(
 			'remaining' => count( $queue ),
-			'created'   => (int) get_option( 'thw_seed_created_count', 0 ),
+			'created'   => (int) get_option( 'hwbl_seed_created_count', 0 ),
 		);
 	}
 
@@ -355,7 +466,7 @@ class THW_Activator {
 	public static function migrate_legacy_lesson_numbers() {
 		$lessons = get_posts(
 			array(
-				'post_type'      => 'thw_lesson',
+				'post_type'      => 'hwbl_lesson',
 				'posts_per_page' => -1,
 				'post_status'    => 'any',
 				'fields'         => 'ids',
@@ -363,44 +474,85 @@ class THW_Activator {
 		);
 
 		foreach ( $lessons as $lesson_id ) {
-			$week        = (int) get_post_meta( $lesson_id, '_thw_week_number', true );
-			$lesson_meta = (int) get_post_meta( $lesson_id, '_thw_lesson_number', true );
+			$week        = (int) get_post_meta( $lesson_id, '_hwbl_week_number', true );
+			$lesson_meta = (int) get_post_meta( $lesson_id, '_hwbl_lesson_number', true );
 
 			if ( $week > 0 && $lesson_meta < 1 ) {
-				update_post_meta( $lesson_id, '_thw_lesson_number', $week );
+				update_post_meta( $lesson_id, '_hwbl_lesson_number', $week );
 			}
 		}
+	}
+
+	/**
+	 * Map lesson numbers 1–366 to day-of-year slots for Verse of the Day mode.
+	 */
+	public static function migrate_day_numbers() {
+		if ( get_option( 'hwbl_day_numbers_migrated', false ) ) {
+			return;
+		}
+
+		$lessons = get_posts(
+			array(
+				'post_type'      => array( 'hwbl_lesson', 'thw_lesson' ),
+				'posts_per_page' => -1,
+				'post_status'    => 'any',
+				'fields'         => 'ids',
+			)
+		);
+
+		$updated = 0;
+		foreach ( $lessons as $lesson_id ) {
+			$day_number    = (int) get_post_meta( $lesson_id, '_hwbl_day_number', true );
+			$lesson_number = (int) get_post_meta( $lesson_id, '_hwbl_lesson_number', true );
+			if ( ! $lesson_number ) {
+				$lesson_number = (int) get_post_meta( $lesson_id, '_hwbl_week_number', true );
+			}
+
+			if ( $day_number > 0 || $lesson_number < 1 || $lesson_number > 366 ) {
+				continue;
+			}
+
+			update_post_meta( $lesson_id, '_hwbl_day_number', $lesson_number );
+			++$updated;
+		}
+
+		if ( $updated > 0 && class_exists( 'HWBL_Scheduler' ) ) {
+			HWBL_Scheduler::rebuild_lookup_map();
+		}
+
+		update_option( 'hwbl_day_numbers_migrated', 1 );
 	}
 
 	/**
 	 * Ensure bundled NIV verse count stays within Biblica fair-use limits.
 	 */
 	public static function validate_bundled_verse_count() {
-		require_once THW_PLUGIN_DIR . 'includes/class-curriculum.php';
+		require_once HWBL_PLUGIN_DIR . 'includes/interface-translation-provider.php';
+		require_once HWBL_PLUGIN_DIR . 'includes/class-curriculum.php';
 
-		$niv_verses = THW_Curriculum::count_verses();
-		if ( $niv_verses > THW_MAX_NIV_VERSES ) {
+		$niv_verses = HWBL_Curriculum::count_verses();
+		if ( $niv_verses > HWBL_MAX_NIV_VERSES ) {
 			wp_die(
 				esc_html(
 					sprintf(
 						/* translators: 1: bundled NIV verse count, 2: maximum allowed */
-						__( 'The Hidden Word: bundled NIV verse count (%1$d) exceeds the %2$d verse fair-use limit.', 'the-hidden-word' ),
+						__( 'Hidden Word Bible Lessons: bundled NIV verse count (%1$d) exceeds the %2$d verse fair-use limit.', 'hidden-word-bible-lessons' ),
 						$niv_verses,
-						THW_MAX_NIV_VERSES
+						HWBL_MAX_NIV_VERSES
 					)
 				)
 			);
 		}
 
-		$niv_count = THW_Curriculum::get_lesson_count();
-		foreach ( THW_Bundled_Provider::get_parity_slugs() as $slug ) {
-			$count = count( THW_Curriculum::load_translation( $slug ) );
+		$niv_count = HWBL_Curriculum::get_lesson_count();
+		foreach ( HWBL_Bundled_Provider::get_parity_slugs() as $slug ) {
+			$count = count( HWBL_Curriculum::load_translation( $slug ) );
 			if ( $count > 0 && $count !== $niv_count ) {
 				wp_die(
 					esc_html(
 						sprintf(
 							/* translators: 1: translation slug, 2: actual lesson count, 3: NIV lesson count */
-							__( 'The Hidden Word: %1$s curriculum (%2$d lessons) must match the NIV curriculum (%3$d lessons).', 'the-hidden-word' ),
+							__( 'Hidden Word Bible Lessons: %1$s curriculum (%2$d lessons) must match the NIV curriculum (%3$d lessons).', 'hidden-word-bible-lessons' ),
 							strtoupper( $slug ),
 							$count,
 							$niv_count
@@ -419,14 +571,14 @@ class THW_Activator {
 	 * @return int Number of lessons created.
 	 */
 	private static function seed_lesson_numbers( $lesson_numbers ) {
-		require_once THW_PLUGIN_DIR . 'includes/class-curriculum.php';
+		require_once HWBL_PLUGIN_DIR . 'includes/class-curriculum.php';
 
 		$by_lesson = array();
-		foreach ( THW_Curriculum::load_niv() as $entry ) {
-			$by_lesson[ THW_Curriculum::get_entry_lesson_number( $entry ) ] = $entry;
+		foreach ( HWBL_Curriculum::load_niv() as $entry ) {
+			$by_lesson[ HWBL_Curriculum::get_entry_lesson_number( $entry ) ] = $entry;
 		}
 
-		$books   = THW_Books::get_all();
+		$books   = HWBL_Books::get_all();
 		$created = 0;
 
 		foreach ( $lesson_numbers as $lesson ) {
@@ -450,10 +602,10 @@ class THW_Activator {
 
 			$post_id = wp_insert_post(
 				array(
-					'post_type'    => 'thw_lesson',
+					'post_type'    => 'hwbl_lesson',
 					'post_title'   => sprintf(
 						/* translators: 1: lesson number, 2: scripture reference */
-						__( 'Lesson %1$d: %2$s', 'the-hidden-word' ),
+						__( 'Lesson %1$d: %2$s', 'hidden-word-bible-lessons' ),
 						$lesson,
 						$ref
 					),
@@ -467,21 +619,24 @@ class THW_Activator {
 				continue;
 			}
 
-			update_post_meta( $post_id, '_thw_book_id', $book_id );
-			update_post_meta( $post_id, '_thw_chapter', (int) $entry['chapter'] );
-			update_post_meta( $post_id, '_thw_verse_start', (int) $entry['verse_start'] );
-			update_post_meta( $post_id, '_thw_verse_end', isset( $entry['verse_end'] ) ? (int) $entry['verse_end'] : (int) $entry['verse_start'] );
-			update_post_meta( $post_id, '_thw_lesson_number', $lesson );
-			update_post_meta( $post_id, '_thw_week_number', $lesson );
+			update_post_meta( $post_id, '_hwbl_book_id', $book_id );
+			update_post_meta( $post_id, '_hwbl_chapter', (int) $entry['chapter'] );
+			update_post_meta( $post_id, '_hwbl_verse_start', (int) $entry['verse_start'] );
+			update_post_meta( $post_id, '_hwbl_verse_end', isset( $entry['verse_end'] ) ? (int) $entry['verse_end'] : (int) $entry['verse_start'] );
+			update_post_meta( $post_id, '_hwbl_lesson_number', $lesson );
+			update_post_meta( $post_id, '_hwbl_week_number', $lesson );
+			if ( $lesson >= 1 && $lesson <= 366 ) {
+				update_post_meta( $post_id, '_hwbl_day_number', $lesson );
+			}
 
 			if ( ! empty( $entry['historical_context'] ) ) {
-				update_post_meta( $post_id, '_thw_historical_context', wp_kses_post( $entry['historical_context'] ) );
+				update_post_meta( $post_id, '_hwbl_historical_context', wp_kses_post( $entry['historical_context'] ) );
 			}
 			if ( ! empty( $entry['preceding_narrative'] ) ) {
-				update_post_meta( $post_id, '_thw_preceding_narrative', wp_kses_post( $entry['preceding_narrative'] ) );
+				update_post_meta( $post_id, '_hwbl_preceding_narrative', wp_kses_post( $entry['preceding_narrative'] ) );
 			}
 			if ( ! empty( $entry['discussion_questions'] ) ) {
-				update_post_meta( $post_id, '_thw_discussion_questions', wp_json_encode( $entry['discussion_questions'] ) );
+				update_post_meta( $post_id, '_hwbl_discussion_questions', wp_json_encode( $entry['discussion_questions'] ) );
 			}
 
 			self::mark_lesson_number_seeded( $lesson );
@@ -536,7 +691,7 @@ class THW_Activator {
 
 		$lesson_ids = get_posts(
 			array(
-				'post_type'      => 'thw_lesson',
+				'post_type'      => 'hwbl_lesson',
 				'posts_per_page' => -1,
 				'post_status'    => 'any',
 				'fields'         => 'ids',
@@ -544,13 +699,13 @@ class THW_Activator {
 		);
 
 		foreach ( $lesson_ids as $lesson_id ) {
-			$lesson_number = (int) get_post_meta( $lesson_id, '_thw_lesson_number', true );
+			$lesson_number = (int) get_post_meta( $lesson_id, '_hwbl_lesson_number', true );
 			if ( $lesson_number > 0 ) {
 				self::$seeded_lesson_numbers[ $lesson_number ] = true;
 				continue;
 			}
 
-			$week_number = (int) get_post_meta( $lesson_id, '_thw_week_number', true );
+			$week_number = (int) get_post_meta( $lesson_id, '_hwbl_week_number', true );
 			if ( $week_number > 0 ) {
 				self::$seeded_lesson_numbers[ $week_number ] = true;
 			}
@@ -558,57 +713,79 @@ class THW_Activator {
 	}
 
 	/**
-	 * Find the demo page by title (WP 6.2+ compatible).
+	 * Find the demo page by path or legacy/current titles.
 	 *
 	 * @return WP_Post|null
 	 */
 	public static function get_demo_page() {
-		$title = __( "Today's Lesson", 'the-hidden-word' );
-		$query = new WP_Query(
-			array(
-				'post_type'              => 'page',
-				'title'                  => $title,
-				'posts_per_page'         => 1,
-				'post_status'            => 'publish',
-				'no_found_rows'          => true,
-				'update_post_meta_cache' => false,
-				'update_post_term_cache' => false,
+		$by_path = get_page_by_path( 'todays-lesson' );
+		if ( $by_path instanceof WP_Post ) {
+			return $by_path;
+		}
+
+		$titles = array_unique(
+			array_filter(
+				array(
+					__( "Today's Lesson", 'hidden-word-bible-lessons' ),
+					class_exists( 'HWBL_Scheduler' ) ? HWBL_Scheduler::get_schedule_phrase( 'memorize' ) : '',
+					__( "Today's Verse to Memorize", 'hidden-word-bible-lessons' ),
+					__( "This Week's Verse to Memorize", 'hidden-word-bible-lessons' ),
+				)
 			)
 		);
 
-		if ( $query->have_posts() ) {
-			return $query->posts[0];
+		foreach ( $titles as $title ) {
+			$query = new WP_Query(
+				array(
+					'post_type'              => 'page',
+					'title'                  => $title,
+					'posts_per_page'         => 1,
+					'post_status'            => 'publish',
+					'no_found_rows'          => true,
+					'update_post_meta_cache' => false,
+					'update_post_term_cache' => false,
+				)
+			);
+
+			if ( $query->have_posts() ) {
+				return $query->posts[0];
+			}
 		}
 
 		return null;
 	}
 
 	/**
-	 * Create a starter front-end page with [thw_lesson] on first activation.
+	 * Create a starter front-end page with [hwbl_lesson] on first activation.
 	 */
 	private static function maybe_create_demo_page() {
-		if ( get_option( 'thw_demo_page_created' ) ) {
+		if ( get_option( 'hwbl_demo_page_created' ) ) {
 			return;
 		}
 
 		$existing = self::get_demo_page();
 		if ( $existing instanceof WP_Post ) {
-			update_option( 'thw_demo_page_created', true );
+			update_option( 'hwbl_demo_page_created', true );
 			return;
 		}
+
+		$title = class_exists( 'HWBL_Scheduler' )
+			? HWBL_Scheduler::get_schedule_phrase( 'memorize' )
+			: __( "Today's Verse to Memorize", 'hidden-word-bible-lessons' );
 
 		$page_id = wp_insert_post(
 			array(
 				'post_type'    => 'page',
-				'post_title'   => __( "Today's Lesson", 'the-hidden-word' ),
+				'post_title'   => $title,
+				'post_name'    => 'todays-lesson',
 				'post_status'  => 'publish',
-				'post_content' => "<!-- wp:shortcode -->\n[thw_lesson]\n<!-- /wp:shortcode -->",
+				'post_content' => "<!-- wp:shortcode -->\n[hwbl_lesson]\n<!-- /wp:shortcode -->",
 			),
 			true
 		);
 
 		if ( ! is_wp_error( $page_id ) && $page_id > 0 ) {
-			update_option( 'thw_demo_page_created', true );
+			update_option( 'hwbl_demo_page_created', true );
 		}
 	}
 }

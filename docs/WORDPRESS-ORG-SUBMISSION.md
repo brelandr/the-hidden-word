@@ -1,12 +1,12 @@
 # WordPress.org Submission & Screenshots
 
-Guide for submitting **The Hidden Word** v1.1.4 to the [WordPress Plugin Directory](https://wordpress.org/plugins/developers/).
+Guide for submitting **Hidden Word Bible Lessons** v1.3.0 to the [WordPress Plugin Directory](https://wordpress.org/plugins/developers/).
 
 ---
 
-## Assets already in the repo
+## Directory assets (SVN only — not in the plugin zip)
 
-Located in `assets/` (bundled in release zip):
+Icons and banners live in `docs/wordpress-org-assets/` for local reference. Upload them to the plugin SVN **`/assets/`** folder (sibling of `trunk/`). Do **not** put them inside the plugin zip or `trunk/`.
 
 | File | Size | Purpose |
 |------|------|---------|
@@ -17,33 +17,23 @@ Located in `assets/` (bundled in release zip):
 
 Palette: navy `#1a5276`, cream `#f5f0e6`, gold `#d4af37`.
 
-To regenerate lightweight placeholders:
-
-```bash
-python3 -c "
-from PIL import Image, ImageDraw
-from pathlib import Path
-assets = Path('assets')
-navy, cream, gold = (26,82,118), (245,240,230), (212,175,55)
-# ... see scripts in repo history or edit assets manually
-"
-```
+The release zip may include only `assets/index.php` (and optionally `assets/README.md` is excluded by the zip script).
 
 ---
 
 ## Screenshots (readme.txt)
 
-The readme already lists five screenshots. Capture these on a **clean WordPress 6.x install** with only The Hidden Word active (Twenty Twenty-Five theme is fine).
+The readme already lists five screenshots. Capture these on a **clean WordPress 6.x install** with only Hidden Word Bible Lessons active (Twenty Twenty-Five theme is fine).
 
 ### Screenshot 1 — Tabbed lesson view (front end)
 
 **Filename:** `screenshot-1.png`  
-**Shows:** Full `[thw_lesson]` output with tabs visible (Blueprint, Context, Narrative, Echo, Discussion).
+**Shows:** Full `[hwbl_lesson]` output with tabs visible (Blueprint, Context, Narrative, Echo, Discussion).
 
 **Steps:**
 
 1. Activate plugin (500 lessons seed in background batches; admin notice shows progress).
-2. Create page **“Today’s Lesson”** with block **Bible Lesson** or shortcode `[thw_lesson]`.
+2. Create page **“Today’s Lesson”** with block **Bible Lesson** or shortcode `[hwbl_lesson]`.
 3. View page on front end.
 4. Click through one tab so multiple panels are implied (Blueprint selected is fine).
 5. Capture at **1280×720** or wider; crop to **1200×900** max for WP.org.
@@ -62,22 +52,22 @@ The readme already lists five screenshots. Capture these on a **clean WordPress 
 ### Screenshot 3 — Verse of the Week (compact)
 
 **Filename:** `screenshot-3.png`  
-**Shows:** `[thw_verse_of_week]` or compact scheduled verse in a sidebar/widget area.
+**Shows:** `[hwbl_verse_of_week]` or compact scheduled verse in a sidebar/widget area.
 
 **Steps:**
 
-1. **Settings → The Hidden Word** → Schedule: **Verse of the Week**.
-2. Add shortcode `[thw_verse_of_week]` to a sidebar widget or footer template part.
+1. **Settings → Hidden Word Bible Lessons** → Schedule: **Verse of the Week**.
+2. Add shortcode `[hwbl_verse_of_week]` to a sidebar widget or footer template part.
 3. Capture front end showing reference + verse snippet.
 
 ### Screenshot 4 — Lesson editor (admin)
 
 **Filename:** `screenshot-4.png`  
-**Shows:** `thw_lesson` edit screen with meta boxes.
+**Shows:** `hwbl_lesson` edit screen with meta boxes.
 
 **Steps:**
 
-1. **The Hidden Word → Bible Lessons** → open **Lesson 1: John 3:16** (or similar).
+1. **Hidden Word Bible Lessons → Bible Lessons** → open **Lesson 1: John 3:16** (or similar).
 2. Ensure visible meta boxes:
    - Verse Reference (lesson number, book, chapter, verse)
    - Lesson Content (historical context / narrative editors)
@@ -87,7 +77,7 @@ The readme already lists five screenshots. Capture these on a **clean WordPress 
 ### Screenshot 5 — Plugin settings
 
 **Filename:** `screenshot-5.png`  
-**Shows:** **The Hidden Word → Settings** page.
+**Shows:** **Hidden Word Bible Lessons → Settings** page.
 
 **Steps:**
 
@@ -166,19 +156,19 @@ npx playwright screenshot https://yoursite.test/todays-lesson/ screenshot-1.png 
 
 ### 1. Request plugin slug (if new)
 
-Use [WordPress Plugin Directory](https://wordpress.org/plugins/developers/add/) — slug should be `the-hidden-word`.
+Use [WordPress Plugin Directory](https://wordpress.org/plugins/developers/add/) — slug should be `hidden-word-bible-lessons`.
 
 ### 2. Checkout SVN
 
 ```bash
-svn co https://plugins.svn.wordpress.org/the-hidden-word thw-svn
-cd thw-svn
+svn co https://plugins.svn.wordpress.org/hidden-word-bible-lessons hwbl-svn
+cd hwbl-svn
 ```
 
 Structure:
 
 ```text
-the-hidden-word/
+hidden-word-bible-lessons/
 ├── trunk/          # development copy
 ├── tags/1.1.4/     # immutable release
 └── assets/         # icons, banners, screenshots (NOT in trunk)
@@ -187,8 +177,8 @@ the-hidden-word/
 ### 3. Copy release into trunk
 
 ```bash
-# Unzip or rsync from Dist/the-hidden-word-1.1.4.zip contents into trunk/
-rsync -av --delete /path/to/the-hidden-word/ trunk/ \
+# Unzip or rsync from Dist/hidden-word-bible-lessons-1.1.4.zip contents into trunk/
+rsync -av --delete /path/to/hidden-word-bible-lessons/ trunk/ \
   --exclude='.git' --exclude='tests' --exclude='scripts' --exclude='data/curriculum-parts'
 ```
 
@@ -231,7 +221,7 @@ WordPress.org builds zip from `tags/1.1.4/` automatically.
 - [x] `create-plugin-zip.sh --free-only` succeeds
 - [x] Zip installs on clean WP 6.2+ / PHP 7.4+ (verified via `scripts/smoke-wp-env.sh` on WP 6.7 / PHP 8.2)
 - [x] 500 lessons seed on activate (batched cron; ~3 min in wp-env)
-- [x] `[thw_lesson]` renders without PHP notices (4299-char lesson UI on week 28)
+- [x] `[hwbl_lesson]` renders without PHP notices (4299-char lesson UI on week 28)
 
 ### Assets
 
@@ -270,8 +260,8 @@ Keep captions in sync with uploaded files:
 ## Local demo site setup (fast path)
 
 1. `wp core download` + `wp config create` + `wp db create`
-2. `wp plugin install` from `Dist/the-hidden-word-1.1.4.zip`
-3. `wp plugin activate the-hidden-word`
+2. `wp plugin install` from `Dist/hidden-word-bible-lessons-1.1.4.zip`
+3. `wp plugin activate hidden-word-bible-lessons`
 4. `wp post create --post_type=page --post_title="Today's Lesson" --post_status=publish`
 5. `wp post meta update <page_id> _wp_page_template` (or insert block via admin)
 6. Set permalink structure: **Post name**

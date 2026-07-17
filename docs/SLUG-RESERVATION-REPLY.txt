@@ -1,0 +1,18 @@
+# Slug reservation reply (plugins@wordpress.org)
+
+Subject: Requested slug: hidden-word-bible-lessons
+
+Hi Plugin Review Team,
+
+Thank you for the review notes. We are renaming the plugin to **Hidden Word Bible Lessons** and request reservation of the slug:
+
+`hidden-word-bible-lessons`
+
+We will resubmit with:
+- Display name / text domain / folder matching that slug
+- Prefixes updated to `hwbl_` / `HWBL_` (4+ characters)
+- Admin notices limited to plugin-relevant screens
+- Directory icons/banners removed from the plugin zip (SVN assets only)
+
+Thank you,
+Randy Breland

@@ -2,7 +2,7 @@
 /**
  * Lesson meta boxes and save handlers.
  *
- * @package The_Hidden_Word
+ * @package Hidden_Word_Bible_Lessons
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -10,16 +10,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Class THW_Lesson_Meta
+ * Class HWBL_Lesson_Meta
  */
-class THW_Lesson_Meta {
+class HWBL_Lesson_Meta {
 
 	/**
 	 * Constructor.
 	 */
 	public function __construct() {
 		add_action( 'add_meta_boxes', array( $this, 'add_meta_boxes' ) );
-		add_action( 'save_post_thw_lesson', array( $this, 'save_meta' ), 10, 2 );
+		add_action( 'save_post_hwbl_lesson', array( $this, 'save_meta' ), 10, 2 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
 	}
 
@@ -28,37 +28,37 @@ class THW_Lesson_Meta {
 	 */
 	public function add_meta_boxes() {
 		add_meta_box(
-			'thw_verse_reference',
-			__( 'Verse Reference', 'the-hidden-word' ),
+			'hwbl_verse_reference',
+			__( 'Verse Reference', 'hidden-word-bible-lessons' ),
 			array( $this, 'render_verse_reference' ),
-			'thw_lesson',
+			'hwbl_lesson',
 			'normal',
 			'high'
 		);
 
 		add_meta_box(
-			'thw_lesson_content',
-			__( 'Lesson Content', 'the-hidden-word' ),
+			'hwbl_lesson_content',
+			__( 'Lesson Content', 'hidden-word-bible-lessons' ),
 			array( $this, 'render_lesson_content' ),
-			'thw_lesson',
+			'hwbl_lesson',
 			'normal',
 			'default'
 		);
 
 		add_meta_box(
-			'thw_echo_verses',
-			__( 'The Echo — Follow-on Verses', 'the-hidden-word' ),
+			'hwbl_echo_verses',
+			__( 'The Echo — Follow-on Verses', 'hidden-word-bible-lessons' ),
 			array( $this, 'render_echo_verses' ),
-			'thw_lesson',
+			'hwbl_lesson',
 			'normal',
 			'default'
 		);
 
 		add_meta_box(
-			'thw_discussion',
-			__( 'Discussion Questions', 'the-hidden-word' ),
+			'hwbl_discussion',
+			__( 'Discussion Questions', 'hidden-word-bible-lessons' ),
 			array( $this, 'render_discussion' ),
-			'thw_lesson',
+			'hwbl_lesson',
 			'normal',
 			'default'
 		);
@@ -75,23 +75,23 @@ class THW_Lesson_Meta {
 		}
 
 		$screen = get_current_screen();
-		if ( ! $screen || 'thw_lesson' !== $screen->post_type ) {
+		if ( ! $screen || 'hwbl_lesson' !== $screen->post_type ) {
 			return;
 		}
 
 		wp_enqueue_script(
-			'thw-lesson-meta',
-			THW_PLUGIN_URL . 'admin/js/lesson-meta.js',
+			'hwbl-lesson-meta',
+			HWBL_PLUGIN_URL . 'admin/js/lesson-meta.js',
 			array( 'jquery' ),
-			THW_VERSION,
+			HWBL_VERSION,
 			true
 		);
 
 		wp_enqueue_style(
-			'thw-admin',
-			THW_PLUGIN_URL . 'admin/css/admin.css',
+			'hwbl-admin',
+			HWBL_PLUGIN_URL . 'admin/css/admin.css',
 			array(),
-			THW_VERSION
+			HWBL_VERSION
 		);
 	}
 
@@ -101,32 +101,32 @@ class THW_Lesson_Meta {
 	 * @param WP_Post $post Current post.
 	 */
 	public function render_verse_reference( $post ) {
-		wp_nonce_field( 'thw_save_lesson_meta', 'thw_lesson_meta_nonce' );
+		wp_nonce_field( 'hwbl_save_lesson_meta', 'hwbl_lesson_meta_nonce' );
 
-		$books       = THW_Books::get_all();
-		$book_id     = (int) get_post_meta( $post->ID, '_thw_book_id', true );
-		$chapter     = (int) get_post_meta( $post->ID, '_thw_chapter', true );
-		$verse_start = (int) get_post_meta( $post->ID, '_thw_verse_start', true );
-		$verse_end   = (int) get_post_meta( $post->ID, '_thw_verse_end', true );
-		$lesson_number = (int) get_post_meta( $post->ID, '_thw_lesson_number', true );
+		$books       = HWBL_Books::get_all();
+		$book_id     = (int) get_post_meta( $post->ID, '_hwbl_book_id', true );
+		$chapter     = (int) get_post_meta( $post->ID, '_hwbl_chapter', true );
+		$verse_start = (int) get_post_meta( $post->ID, '_hwbl_verse_start', true );
+		$verse_end   = (int) get_post_meta( $post->ID, '_hwbl_verse_end', true );
+		$lesson_number = (int) get_post_meta( $post->ID, '_hwbl_lesson_number', true );
 		if ( ! $lesson_number ) {
-			$lesson_number = (int) get_post_meta( $post->ID, '_thw_week_number', true );
+			$lesson_number = (int) get_post_meta( $post->ID, '_hwbl_week_number', true );
 		}
-		$max_lesson = THW_Curriculum::get_lesson_count() ?: 500;
+		$max_lesson = HWBL_Curriculum::get_lesson_count() ?: 500;
 		?>
-		<table class="form-table thw-meta-table">
+		<table class="form-table hwbl-meta-table">
 			<tr>
-				<th><label for="thw_lesson_number"><?php esc_html_e( 'Lesson Number', 'the-hidden-word' ); ?></label></th>
+				<th><label for="hwbl_lesson_number"><?php esc_html_e( 'Lesson Number', 'hidden-word-bible-lessons' ); ?></label></th>
 				<td>
-					<input type="number" id="thw_lesson_number" name="thw_lesson_number" value="<?php echo esc_attr( $lesson_number ); ?>" min="1" max="<?php echo esc_attr( $max_lesson ); ?>" />
-					<p class="description"><?php esc_html_e( 'Slot in the bundled curriculum (1–500).', 'the-hidden-word' ); ?></p>
+					<input type="number" id="hwbl_lesson_number" name="hwbl_lesson_number" value="<?php echo esc_attr( $lesson_number ); ?>" min="1" max="<?php echo esc_attr( $max_lesson ); ?>" />
+					<p class="description"><?php esc_html_e( 'Slot in the bundled curriculum (1–500).', 'hidden-word-bible-lessons' ); ?></p>
 				</td>
 			</tr>
 			<tr>
-				<th><label for="thw_book_id"><?php esc_html_e( 'Book', 'the-hidden-word' ); ?></label></th>
+				<th><label for="hwbl_book_id"><?php esc_html_e( 'Book', 'hidden-word-bible-lessons' ); ?></label></th>
 				<td>
-					<select id="thw_book_id" name="thw_book_id">
-						<option value=""><?php esc_html_e( 'Select book…', 'the-hidden-word' ); ?></option>
+					<select id="hwbl_book_id" name="hwbl_book_id">
+						<option value=""><?php esc_html_e( 'Select book…', 'hidden-word-bible-lessons' ); ?></option>
 						<?php foreach ( $books as $id => $name ) : ?>
 							<option value="<?php echo esc_attr( $id ); ?>" <?php selected( $book_id, (int) $id ); ?>><?php echo esc_html( $name ); ?></option>
 						<?php endforeach; ?>
@@ -134,18 +134,18 @@ class THW_Lesson_Meta {
 				</td>
 			</tr>
 			<tr>
-				<th><label for="thw_chapter"><?php esc_html_e( 'Chapter', 'the-hidden-word' ); ?></label></th>
-				<td><input type="number" id="thw_chapter" name="thw_chapter" value="<?php echo esc_attr( $chapter ); ?>" min="1" /></td>
+				<th><label for="hwbl_chapter"><?php esc_html_e( 'Chapter', 'hidden-word-bible-lessons' ); ?></label></th>
+				<td><input type="number" id="hwbl_chapter" name="hwbl_chapter" value="<?php echo esc_attr( $chapter ); ?>" min="1" /></td>
 			</tr>
 			<tr>
-				<th><label for="thw_verse_start"><?php esc_html_e( 'Verse Start', 'the-hidden-word' ); ?></label></th>
-				<td><input type="number" id="thw_verse_start" name="thw_verse_start" value="<?php echo esc_attr( $verse_start ); ?>" min="1" /></td>
+				<th><label for="hwbl_verse_start"><?php esc_html_e( 'Verse Start', 'hidden-word-bible-lessons' ); ?></label></th>
+				<td><input type="number" id="hwbl_verse_start" name="hwbl_verse_start" value="<?php echo esc_attr( $verse_start ); ?>" min="1" /></td>
 			</tr>
 			<tr>
-				<th><label for="thw_verse_end"><?php esc_html_e( 'Verse End', 'the-hidden-word' ); ?></label></th>
+				<th><label for="hwbl_verse_end"><?php esc_html_e( 'Verse End', 'hidden-word-bible-lessons' ); ?></label></th>
 				<td>
-					<input type="number" id="thw_verse_end" name="thw_verse_end" value="<?php echo esc_attr( $verse_end ); ?>" min="1" />
-					<p class="description"><?php esc_html_e( 'Leave same as start for a single verse.', 'the-hidden-word' ); ?></p>
+					<input type="number" id="hwbl_verse_end" name="hwbl_verse_end" value="<?php echo esc_attr( $verse_end ); ?>" min="1" />
+					<p class="description"><?php esc_html_e( 'Leave same as start for a single verse.', 'hidden-word-bible-lessons' ); ?></p>
 				</td>
 			</tr>
 		</table>
@@ -158,32 +158,32 @@ class THW_Lesson_Meta {
 	 * @param WP_Post $post Current post.
 	 */
 	public function render_lesson_content( $post ) {
-		$context  = get_post_meta( $post->ID, '_thw_historical_context', true );
-		$narrative = get_post_meta( $post->ID, '_thw_preceding_narrative', true );
+		$context  = get_post_meta( $post->ID, '_hwbl_historical_context', true );
+		$narrative = get_post_meta( $post->ID, '_hwbl_preceding_narrative', true );
 		?>
 		<p>
-			<label for="thw_historical_context"><strong><?php esc_html_e( 'The Context (Historical Background)', 'the-hidden-word' ); ?></strong></label>
+			<label for="hwbl_historical_context"><strong><?php esc_html_e( 'The Context (Historical Background)', 'hidden-word-bible-lessons' ); ?></strong></label>
 		</p>
 		<?php
 		wp_editor(
 			$context,
-			'thw_historical_context',
+			'hwbl_historical_context',
 			array(
-				'textarea_name' => 'thw_historical_context',
+				'textarea_name' => 'hwbl_historical_context',
 				'textarea_rows' => 6,
 				'media_buttons' => false,
 			)
 		);
 		?>
 		<p>
-			<label for="thw_preceding_narrative"><strong><?php esc_html_e( 'The Narrative (Lead-Up)', 'the-hidden-word' ); ?></strong></label>
+			<label for="hwbl_preceding_narrative"><strong><?php esc_html_e( 'The Narrative (Lead-Up)', 'hidden-word-bible-lessons' ); ?></strong></label>
 		</p>
 		<?php
 		wp_editor(
 			$narrative,
-			'thw_preceding_narrative',
+			'hwbl_preceding_narrative',
 			array(
-				'textarea_name' => 'thw_preceding_narrative',
+				'textarea_name' => 'hwbl_preceding_narrative',
 				'textarea_rows' => 6,
 				'media_buttons' => false,
 			)
@@ -196,30 +196,30 @@ class THW_Lesson_Meta {
 	 * @param WP_Post $post Current post.
 	 */
 	public function render_echo_verses( $post ) {
-		$follow_on = get_post_meta( $post->ID, '_thw_follow_on_verses', true );
+		$follow_on = get_post_meta( $post->ID, '_hwbl_follow_on_verses', true );
 		$entries   = $follow_on ? json_decode( $follow_on, true ) : array();
 		if ( empty( $entries ) ) {
 			$entries = array( array( 'book_id' => '', 'chapter' => '', 'verse' => '', 'note' => '' ) );
 		}
-		$books = THW_Books::get_all();
+		$books = HWBL_Books::get_all();
 		?>
-		<div id="thw-echo-repeater">
+		<div id="hwbl-echo-repeater">
 			<?php foreach ( $entries as $index => $entry ) : ?>
-				<div class="thw-echo-row">
-					<select name="thw_echo_book_id[]">
-						<option value=""><?php esc_html_e( 'Book', 'the-hidden-word' ); ?></option>
+				<div class="hwbl-echo-row">
+					<select name="hwbl_echo_book_id[]">
+						<option value=""><?php esc_html_e( 'Book', 'hidden-word-bible-lessons' ); ?></option>
 						<?php foreach ( $books as $id => $name ) : ?>
 							<option value="<?php echo esc_attr( $id ); ?>" <?php selected( isset( $entry['book_id'] ) ? (int) $entry['book_id'] : 0, (int) $id ); ?>><?php echo esc_html( $name ); ?></option>
 						<?php endforeach; ?>
 					</select>
-					<input type="number" name="thw_echo_chapter[]" placeholder="<?php esc_attr_e( 'Ch', 'the-hidden-word' ); ?>" value="<?php echo esc_attr( isset( $entry['chapter'] ) ? $entry['chapter'] : '' ); ?>" min="1" />
-					<input type="number" name="thw_echo_verse[]" placeholder="<?php esc_attr_e( 'Vs', 'the-hidden-word' ); ?>" value="<?php echo esc_attr( isset( $entry['verse'] ) ? $entry['verse'] : '' ); ?>" min="1" />
-					<input type="text" name="thw_echo_note[]" class="widefat" placeholder="<?php esc_attr_e( 'Connection note', 'the-hidden-word' ); ?>" value="<?php echo esc_attr( isset( $entry['note'] ) ? $entry['note'] : '' ); ?>" />
-					<button type="button" class="button thw-remove-echo"><?php esc_html_e( 'Remove', 'the-hidden-word' ); ?></button>
+					<input type="number" name="hwbl_echo_chapter[]" placeholder="<?php esc_attr_e( 'Ch', 'hidden-word-bible-lessons' ); ?>" value="<?php echo esc_attr( isset( $entry['chapter'] ) ? $entry['chapter'] : '' ); ?>" min="1" />
+					<input type="number" name="hwbl_echo_verse[]" placeholder="<?php esc_attr_e( 'Vs', 'hidden-word-bible-lessons' ); ?>" value="<?php echo esc_attr( isset( $entry['verse'] ) ? $entry['verse'] : '' ); ?>" min="1" />
+					<input type="text" name="hwbl_echo_note[]" class="widefat" placeholder="<?php esc_attr_e( 'Connection note', 'hidden-word-bible-lessons' ); ?>" value="<?php echo esc_attr( isset( $entry['note'] ) ? $entry['note'] : '' ); ?>" />
+					<button type="button" class="button hwbl-remove-echo"><?php esc_html_e( 'Remove', 'hidden-word-bible-lessons' ); ?></button>
 				</div>
 			<?php endforeach; ?>
 		</div>
-		<p><button type="button" class="button" id="thw-add-echo"><?php esc_html_e( 'Add Follow-on Verse', 'the-hidden-word' ); ?></button></p>
+		<p><button type="button" class="button" id="hwbl-add-echo"><?php esc_html_e( 'Add Follow-on Verse', 'hidden-word-bible-lessons' ); ?></button></p>
 		<?php
 	}
 
@@ -229,21 +229,21 @@ class THW_Lesson_Meta {
 	 * @param WP_Post $post Current post.
 	 */
 	public function render_discussion( $post ) {
-		$questions = get_post_meta( $post->ID, '_thw_discussion_questions', true );
+		$questions = get_post_meta( $post->ID, '_hwbl_discussion_questions', true );
 		$entries   = $questions ? json_decode( $questions, true ) : array();
 		if ( empty( $entries ) ) {
 			$entries = array( '' );
 		}
 		?>
-		<div id="thw-questions-repeater">
+		<div id="hwbl-questions-repeater">
 			<?php foreach ( $entries as $question ) : ?>
-				<div class="thw-question-row">
-					<input type="text" name="thw_discussion_question[]" class="widefat" value="<?php echo esc_attr( $question ); ?>" placeholder="<?php esc_attr_e( 'Reflection question', 'the-hidden-word' ); ?>" />
-					<button type="button" class="button thw-remove-question"><?php esc_html_e( 'Remove', 'the-hidden-word' ); ?></button>
+				<div class="hwbl-question-row">
+					<input type="text" name="hwbl_discussion_question[]" class="widefat" value="<?php echo esc_attr( $question ); ?>" placeholder="<?php esc_attr_e( 'Reflection question', 'hidden-word-bible-lessons' ); ?>" />
+					<button type="button" class="button hwbl-remove-question"><?php esc_html_e( 'Remove', 'hidden-word-bible-lessons' ); ?></button>
 				</div>
 			<?php endforeach; ?>
 		</div>
-		<p><button type="button" class="button" id="thw-add-question"><?php esc_html_e( 'Add Question', 'the-hidden-word' ); ?></button></p>
+		<p><button type="button" class="button" id="hwbl-add-question"><?php esc_html_e( 'Add Question', 'hidden-word-bible-lessons' ); ?></button></p>
 		<?php
 	}
 
@@ -256,7 +256,7 @@ class THW_Lesson_Meta {
 	public function save_meta( $post_id, $post ) {
 		unset( $post );
 
-		if ( ! isset( $_POST['thw_lesson_meta_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['thw_lesson_meta_nonce'] ) ), 'thw_save_lesson_meta' ) ) {
+		if ( ! isset( $_POST['hwbl_lesson_meta_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['hwbl_lesson_meta_nonce'] ) ), 'hwbl_save_lesson_meta' ) ) {
 			return;
 		}
 
@@ -269,12 +269,12 @@ class THW_Lesson_Meta {
 		}
 
 		$int_fields = array(
-			'thw_book_id'       => '_thw_book_id',
-			'thw_chapter'       => '_thw_chapter',
-			'thw_verse_start'   => '_thw_verse_start',
-			'thw_verse_end'     => '_thw_verse_end',
-			'thw_lesson_number' => '_thw_lesson_number',
-			'thw_week_number'   => '_thw_week_number',
+			'hwbl_book_id'       => '_hwbl_book_id',
+			'hwbl_chapter'       => '_hwbl_chapter',
+			'hwbl_verse_start'   => '_hwbl_verse_start',
+			'hwbl_verse_end'     => '_hwbl_verse_end',
+			'hwbl_lesson_number' => '_hwbl_lesson_number',
+			'hwbl_week_number'   => '_hwbl_week_number',
 		);
 
 		foreach ( $int_fields as $field => $meta_key ) {
@@ -283,24 +283,24 @@ class THW_Lesson_Meta {
 			}
 		}
 
-		if ( isset( $_POST['thw_lesson_number'] ) ) {
-			update_post_meta( $post_id, '_thw_week_number', absint( $_POST['thw_lesson_number'] ) );
+		if ( isset( $_POST['hwbl_lesson_number'] ) ) {
+			update_post_meta( $post_id, '_hwbl_week_number', absint( $_POST['hwbl_lesson_number'] ) );
 		}
 
-		if ( isset( $_POST['thw_historical_context'] ) ) {
-			update_post_meta( $post_id, '_thw_historical_context', wp_kses_post( wp_unslash( $_POST['thw_historical_context'] ) ) );
+		if ( isset( $_POST['hwbl_historical_context'] ) ) {
+			update_post_meta( $post_id, '_hwbl_historical_context', wp_kses_post( wp_unslash( $_POST['hwbl_historical_context'] ) ) );
 		}
 
-		if ( isset( $_POST['thw_preceding_narrative'] ) ) {
-			update_post_meta( $post_id, '_thw_preceding_narrative', wp_kses_post( wp_unslash( $_POST['thw_preceding_narrative'] ) ) );
+		if ( isset( $_POST['hwbl_preceding_narrative'] ) ) {
+			update_post_meta( $post_id, '_hwbl_preceding_narrative', wp_kses_post( wp_unslash( $_POST['hwbl_preceding_narrative'] ) ) );
 		}
 
 		$echo_entries = array();
-		if ( isset( $_POST['thw_echo_book_id'] ) && is_array( $_POST['thw_echo_book_id'] ) ) {
-			$book_ids = array_map( 'absint', wp_unslash( $_POST['thw_echo_book_id'] ) );
-			$chapters = isset( $_POST['thw_echo_chapter'] ) ? array_map( 'absint', wp_unslash( $_POST['thw_echo_chapter'] ) ) : array();
-			$verses   = isset( $_POST['thw_echo_verse'] ) ? array_map( 'absint', wp_unslash( $_POST['thw_echo_verse'] ) ) : array();
-			$notes    = isset( $_POST['thw_echo_note'] ) ? array_map( 'sanitize_text_field', wp_unslash( $_POST['thw_echo_note'] ) ) : array();
+		if ( isset( $_POST['hwbl_echo_book_id'] ) && is_array( $_POST['hwbl_echo_book_id'] ) ) {
+			$book_ids = array_map( 'absint', wp_unslash( $_POST['hwbl_echo_book_id'] ) );
+			$chapters = isset( $_POST['hwbl_echo_chapter'] ) ? array_map( 'absint', wp_unslash( $_POST['hwbl_echo_chapter'] ) ) : array();
+			$verses   = isset( $_POST['hwbl_echo_verse'] ) ? array_map( 'absint', wp_unslash( $_POST['hwbl_echo_verse'] ) ) : array();
+			$notes    = isset( $_POST['hwbl_echo_note'] ) ? array_map( 'sanitize_text_field', wp_unslash( $_POST['hwbl_echo_note'] ) ) : array();
 
 			foreach ( $book_ids as $i => $book ) {
 				if ( ! $book ) {
@@ -314,18 +314,18 @@ class THW_Lesson_Meta {
 				);
 			}
 		}
-		update_post_meta( $post_id, '_thw_follow_on_verses', wp_json_encode( $echo_entries ) );
+		update_post_meta( $post_id, '_hwbl_follow_on_verses', wp_json_encode( $echo_entries ) );
 
 		$questions = array();
-		if ( isset( $_POST['thw_discussion_question'] ) && is_array( $_POST['thw_discussion_question'] ) ) {
+		if ( isset( $_POST['hwbl_discussion_question'] ) && is_array( $_POST['hwbl_discussion_question'] ) ) {
 			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized via array_map( 'sanitize_text_field', ... ) below; the sniff can't see through array_map.
-			$raw_questions = array_map( 'sanitize_text_field', wp_unslash( $_POST['thw_discussion_question'] ) );
+			$raw_questions = array_map( 'sanitize_text_field', wp_unslash( $_POST['hwbl_discussion_question'] ) );
 			foreach ( $raw_questions as $q ) {
 				if ( $q ) {
 					$questions[] = $q;
 				}
 			}
 		}
-		update_post_meta( $post_id, '_thw_discussion_questions', wp_json_encode( $questions ) );
+		update_post_meta( $post_id, '_hwbl_discussion_questions', wp_json_encode( $questions ) );
 	}
 }

@@ -1,28 +1,28 @@
-/* The Hidden Word — Lesson front-end styles */
+/* Hidden Word Bible Lessons — Lesson front-end styles */
 
-.thw-lesson {
+.hwbl-lesson {
 	max-width: 48rem;
 	margin: 0 auto 2rem;
 	font-family: inherit;
 	line-height: 1.6;
 }
 
-.thw-lesson-header {
+.hwbl-lesson-header {
 	margin-bottom: 1.5rem;
 }
 
-.thw-lesson-title {
+.hwbl-lesson-title {
 	margin: 0 0 0.25rem;
 	font-size: 1.75rem;
 }
 
-.thw-lesson-reference {
+.hwbl-lesson-reference {
 	margin: 0;
 	color: #555;
 	font-style: italic;
 }
 
-.thw-lesson-tabs {
+.hwbl-lesson-tabs {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 0.25rem;
@@ -30,7 +30,7 @@
 	border-bottom: 2px solid #e2e2e2;
 }
 
-.thw-tab-button {
+.hwbl-tab-button {
 	background: none;
 	border: none;
 	border-bottom: 3px solid transparent;
@@ -41,34 +41,34 @@
 	margin-bottom: -2px;
 }
 
-.thw-tab-button:hover,
-.thw-tab-button:focus {
+.hwbl-tab-button:hover,
+.hwbl-tab-button:focus {
 	color: #1a5276;
 	outline: none;
 }
 
-.thw-tab-button.is-active {
+.hwbl-tab-button.is-active {
 	color: #1a5276;
 	border-bottom-color: #1a5276;
 	font-weight: 600;
 }
 
-.thw-tab-panel {
+.hwbl-tab-panel {
 	display: none;
 	padding: 1rem 0;
 }
 
-.thw-tab-panel.is-active {
+.hwbl-tab-panel.is-active {
 	display: block;
 }
 
-.thw-tab-panel h3 {
+.hwbl-tab-panel h3 {
 	margin-top: 0;
 	font-size: 1.25rem;
 	color: #1a5276;
 }
 
-.thw-verse-text {
+.hwbl-verse-text {
 	font-size: 1.2rem;
 	line-height: 1.8;
 	margin: 1rem 0;
@@ -78,62 +78,62 @@
 	font-style: italic;
 }
 
-.thw-copyright {
+.hwbl-copyright {
 	font-size: 0.75rem;
 	color: #777;
 	margin-top: 1rem;
 }
 
-.thw-empty {
+.hwbl-empty {
 	color: #888;
 	font-style: italic;
 }
 
-.thw-memorization {
+.hwbl-memorization {
 	margin-top: 1.5rem;
 	padding: 1rem;
 	background: #f0f4f8;
 	border-radius: 6px;
 }
 
-.thw-memorization h4 {
+.hwbl-memorization h4 {
 	margin: 0 0 0.5rem;
 }
 
-.thw-memorization-hint {
+.hwbl-memorization-hint {
 	font-size: 0.9rem;
 	color: #666;
 	margin: 0 0 0.75rem;
 }
 
-.thw-memorization-text {
+.hwbl-memorization-text {
 	font-size: 1.1rem;
 	line-height: 2;
 	margin-bottom: 0.75rem;
 }
 
-.thw-word {
+.hwbl-word {
 	display: inline;
 }
 
-.thw-word.is-clickable {
+.hwbl-word.is-clickable {
 	cursor: pointer;
 	border-bottom: 1px dashed #1a5276;
 }
 
-.thw-word.is-hidden {
+.hwbl-word.is-hidden {
 	color: #1a5276;
 	font-weight: 600;
 	cursor: pointer;
 }
 
-.thw-memorization-controls {
+.hwbl-memorization-controls {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 0.5rem;
 }
 
-.thw-btn {
+.hwbl-btn {
 	background: #1a5276;
 	color: #fff;
 	border: none;
@@ -143,55 +143,55 @@
 	font-size: 0.9rem;
 }
 
-.thw-btn:hover {
+.hwbl-btn:hover {
 	background: #154360;
 }
 
-.thw-echo-list {
+.hwbl-echo-list {
 	list-style: none;
 	padding: 0;
 	margin: 0;
 }
 
-.thw-echo-item {
+.hwbl-echo-item {
 	margin-bottom: 1.25rem;
 	padding-bottom: 1rem;
 	border-bottom: 1px solid #eee;
 }
 
-.thw-echo-item blockquote {
+.hwbl-echo-item blockquote {
 	margin: 0.5rem 0;
 	font-style: italic;
 	color: #333;
 }
 
-.thw-echo-note {
+.hwbl-echo-note {
 	margin: 0.25rem 0 0;
 	color: #555;
 }
 
-.thw-discussion-questions {
+.hwbl-discussion-questions {
 	padding-left: 1.25rem;
 }
 
-.thw-discussion-questions li {
+.hwbl-discussion-questions li {
 	margin-bottom: 0.75rem;
 }
 
-.thw-verse-of-week {
+.hwbl-verse-of-week {
 	padding: 1rem;
 	background: #f8f9fa;
 	border-radius: 6px;
 }
 
-.thw-notice {
+.hwbl-notice {
 	padding: 1rem;
 	background: #fff3cd;
 	border: 1px solid #ffc107;
 	border-radius: 4px;
 }
 
-.thw-lesson-toolbar {
+.hwbl-lesson-toolbar {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
@@ -199,50 +199,50 @@
 	margin: 0.75rem 0 0;
 }
 
-.thw-btn-secondary {
+.hwbl-btn-secondary {
 	background: #fff;
 	color: #1a5276;
 	border: 1px solid #1a5276;
 }
 
-.thw-btn-secondary:hover {
+.hwbl-btn-secondary:hover {
 	background: #eaf2f8;
 }
 
-.thw-copy-status {
+.hwbl-copy-status {
 	font-size: 0.85rem;
 	color: #1a5276;
 }
 
-.thw-memorization-streak {
+.hwbl-memorization-streak {
 	margin: 0 0 0.5rem;
 	font-weight: 600;
 	color: #1a5276;
 }
 
-.thw-streak-upsell {
+.hwbl-streak-upsell {
 	font-size: 0.85rem;
 	color: #666;
 	margin: 0 0 0.75rem;
 }
 
-.thw-echo-translation {
+.hwbl-echo-translation {
 	font-size: 0.8rem;
 	color: #777;
 	margin: 0.25rem 0 0;
 }
 
-.thw-lesson-list {
+.hwbl-lesson-list {
 	max-width: 48rem;
 	margin: 0 auto 2rem;
 }
 
-.thw-lesson-list-count {
+.hwbl-lesson-list-count {
 	color: #555;
 	margin-bottom: 1rem;
 }
 
-.thw-lesson-list-heading {
+.hwbl-lesson-list-heading {
 	margin: 1.5rem 0 0.5rem;
 	font-size: 1.2rem;
 	color: #1a5276;
@@ -250,18 +250,18 @@
 	padding-bottom: 0.25rem;
 }
 
-.thw-lesson-list-items {
+.hwbl-lesson-list-items {
 	list-style: none;
 	margin: 0;
 	padding: 0;
 }
 
-.thw-lesson-list-item {
+.hwbl-lesson-list-item {
 	margin: 0;
 	border-bottom: 1px solid #eee;
 }
 
-.thw-lesson-list-item a {
+.hwbl-lesson-list-item a {
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: space-between;
@@ -271,16 +271,16 @@
 	color: #222;
 }
 
-.thw-lesson-list-item a:hover {
+.hwbl-lesson-list-item a:hover {
 	background: #f8f9fa;
 }
 
-.thw-lesson-list-reference {
+.hwbl-lesson-list-reference {
 	color: #555;
 	font-style: italic;
 }
 
-.thw-lesson-list-pagination ul {
+.hwbl-lesson-list-pagination ul {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 0.35rem;
@@ -289,7 +289,7 @@
 	margin: 1.5rem 0 0;
 }
 
-.thw-lesson-list-pagination a {
+.hwbl-lesson-list-pagination a {
 	display: inline-block;
 	padding: 0.35rem 0.65rem;
 	border: 1px solid #ccc;
@@ -297,44 +297,104 @@
 	text-decoration: none;
 }
 
-.thw-lesson-list-pagination .is-current a {
+.hwbl-lesson-list-pagination .is-current a {
 	background: #1a5276;
 	color: #fff;
 	border-color: #1a5276;
 }
 
-.thw-archive-lessons {
+.hwbl-archive-lessons {
 	max-width: 48rem;
 	margin: 2rem auto;
 	padding: 0 1rem;
 }
 
+.hwbl-memorization-review-banner {
+	background: #eef6fb;
+	border-left: 4px solid #1a5276;
+	padding: 0.75rem 1rem;
+	margin: 0 0 1rem;
+}
+
+.hwbl-memorization-quality {
+	margin-top: 1rem;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	align-items: center;
+}
+
+.hwbl-memorize-reviews__list {
+	list-style: none;
+	padding: 0;
+	margin: 0 0 1.5rem;
+}
+
+.hwbl-memorize-reviews__link {
+	text-decoration: none;
+	font-weight: 600;
+}
+
+.hwbl-translation-compare {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 1rem;
+	margin: 1.5rem 0;
+}
+
+.hwbl-translation-compare__col blockquote {
+	margin: 0.5rem 0 0;
+}
+
+.hwbl-cohort-leaderboard__list {
+	padding-left: 1.25rem;
+}
+
+.hwbl-ai-assistant__thread {
+	border: 1px solid #ddd;
+	border-radius: 6px;
+	padding: 1rem;
+	min-height: 8rem;
+	max-height: 24rem;
+	overflow-y: auto;
+	margin: 1rem 0;
+}
+
+.hwbl-ai-assistant__form {
+	display: flex;
+	gap: 0.5rem;
+}
+
+.hwbl-ai-assistant__input {
+	flex: 1;
+}
+
 @media print {
-	.thw-lesson-tabs,
-	.thw-lesson-toolbar,
-	.thw-memorization,
-	.thw-memorization-controls,
-	.thw-translation-switcher,
-	.thw-comments,
-	.thw-btn {
+	.hwbl-lesson-tabs,
+	.hwbl-lesson-toolbar,
+	.hwbl-memorization,
+	.hwbl-memorization-controls,
+	.hwbl-translation-switcher,
+	.hwbl-comments,
+	.hwbl-btn {
 		display: none !important;
 	}
 
-	.thw-tab-panel {
+	.hwbl-tab-panel {
 		display: block !important;
 		page-break-inside: avoid;
 	}
 
-	.thw-tab-panel[hidden] {
+	.hwbl-tab-panel[hidden] {
 		display: block !important;
 	}
 
-	.thw-lesson {
+	.hwbl-lesson {
 		max-width: none;
 		color: #000;
 	}
 
-	.thw-verse-text {
+	.hwbl-verse-text {
 		background: none;
 		border-left-color: #000;
 	}

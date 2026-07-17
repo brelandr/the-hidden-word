@@ -1,13 +1,13 @@
 # WordPress.org — First-Time Plugin Application
 
-The SVN repository `https://plugins.svn.wordpress.org/the-hidden-word/` does **not exist yet**. You must apply and be approved before uploading.
+The SVN repository `https://plugins.svn.wordpress.org/hidden-word-bible-lessons/` does **not exist yet**. You must apply and be approved before uploading.
 
 ## Apply for the plugin slug
 
 1. Log in at https://wordpress.org/plugins/developers/add/
-2. Request slug: **`the-hidden-word`**
+2. Request slug: **`hidden-word-bible-lessons`**
 3. Paste the reviewer intro from `The-Hidden-Word/docs/REVIEWER-NOTES.md`
-4. Upload or link to the latest release zip: `Dist/the-hidden-word-1.1.4.zip`
+4. Upload or link to the latest release zip: `Dist/hidden-word-bible-lessons-1.1.4.zip`
 5. Wait for review (typically days to weeks)
 
 ## After approval
@@ -17,7 +17,7 @@ WordPress.org will email SVN credentials. Then:
 ```bash
 cd LearnTheBible
 bash scripts/deploy-wporg-svn.sh
-cd .svn-the-hidden-word
+cd .svn-hidden-word-bible-lessons
 svn status
 svn commit -m "Release 1.1.4"
 ```
@@ -31,7 +31,7 @@ svn commit -m "Release 1.1.4"
 - [x] `readme.txt` Contributors: `brelandr`
 - [x] External Services + NIV copyright in readme
 - [x] PHPUnit passes (6 tests)
-- [x] Release zip builds (`the-hidden-word-1.1.4.zip`)
+- [x] Release zip builds (`hidden-word-bible-lessons-1.1.4.zip`)
 - [x] Icons and banners in `assets/`
 - [x] Screenshots in `docs/screenshots/` (real wp-env captures)
 - [x] Reviewer notes in `docs/REVIEWER-NOTES.md`
@@ -41,11 +41,11 @@ svn commit -m "Release 1.1.4"
 On a local WP 6.2+ install:
 
 1. Install Plugin Check from wordpress.org
-2. Activate The Hidden Word from `Dist/the-hidden-word-1.1.4.zip`
+2. Activate Hidden Word Bible Lessons from `Dist/hidden-word-bible-lessons-1.1.4.zip`
 3. Run **Tools → Plugin Check** — confirm 0 errors
 
 ## Update Premium store after approval
 
 Change product copy to link to the live URL:
 
-`https://wordpress.org/plugins/the-hidden-word/`
+`https://wordpress.org/plugins/hidden-word-bible-lessons/`

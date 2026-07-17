@@ -2,7 +2,7 @@
 /**
  * Plugin deactivation.
  *
- * @package The_Hidden_Word
+ * @package Hidden_Word_Bible_Lessons
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -10,15 +10,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Class THW_Deactivator
+ * Class HWBL_Deactivator
  */
-class THW_Deactivator {
+class HWBL_Deactivator {
 
 	/**
 	 * Deactivate plugin.
 	 */
 	public static function deactivate() {
-		wp_clear_scheduled_hook( THW_Activator::SEED_CRON_HOOK );
+		wp_clear_scheduled_hook( HWBL_Activator::SEED_CRON_HOOK );
 		flush_rewrite_rules();
 	}
 }

@@ -2,7 +2,7 @@
 /**
  * Classic widget: Verse of the Week.
  *
- * @package The_Hidden_Word
+ * @package Hidden_Word_Bible_Lessons
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -10,20 +10,21 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Class THW_Widget_Verse_Of_Week
+ * Class HWBL_Widget_Verse_Of_Week
  */
-class THW_Widget_Verse_Of_Week extends WP_Widget {
+class HWBL_Widget_Verse_Of_Week extends WP_Widget {
 
 	/**
 	 * Constructor.
 	 */
 	public function __construct() {
+		$parent_args = array(
+			'description' => __( 'Displays the current scheduled Bible verse to memorize.', 'hidden-word-bible-lessons' ),
+		);
 		parent::__construct(
-			'thw_verse_of_week',
-			__( 'Verse of the Week', 'the-hidden-word' ),
-			array(
-				'description' => __( 'Displays the current scheduled Bible verse.', 'the-hidden-word' ),
-			)
+			'hwbl_verse_of_week',
+			HWBL_Scheduler::get_schedule_phrase( 'compact' ),
+			$parent_args
 		);
 	}
 
@@ -35,7 +36,10 @@ class THW_Widget_Verse_Of_Week extends WP_Widget {
 	 */
 	public function widget( $args, $instance ) {
 		$week = ! empty( $instance['week'] ) ? absint( $instance['week'] ) : 0;
-		$shortcode = $week ? '[thw_verse_of_week week="' . $week . '"]' : '[thw_verse_of_week]';
+		if ( ! $week ) {
+			HWBL_Cache::mark_page_uncacheable( 'hwbl_verse_widget' );
+		}
+		$shortcode = $week ? '[hwbl_verse_of_week week="' . $week . '"]' : '[hwbl_verse_of_week]';
 		$html = do_shortcode( $shortcode );
 
 		if ( ! $html ) {
@@ -56,15 +60,15 @@ class THW_Widget_Verse_Of_Week extends WP_Widget {
 	 * @param array $instance Widget instance.
 	 */
 	public function form( $instance ) {
-		$title = isset( $instance['title'] ) ? $instance['title'] : __( 'Verse of the Week', 'the-hidden-word' );
+		$title = isset( $instance['title'] ) ? $instance['title'] : HWBL_Scheduler::get_schedule_phrase( 'compact' );
 		$week  = isset( $instance['week'] ) ? absint( $instance['week'] ) : 0;
 		?>
 		<p>
-			<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"><?php esc_html_e( 'Title:', 'the-hidden-word' ); ?></label>
+			<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"><?php esc_html_e( 'Title:', 'hidden-word-bible-lessons' ); ?></label>
 			<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>" />
 		</p>
 		<p>
-			<label for="<?php echo esc_attr( $this->get_field_id( 'week' ) ); ?>"><?php esc_html_e( 'Lesson number (optional):', 'the-hidden-word' ); ?></label>
+			<label for="<?php echo esc_attr( $this->get_field_id( 'week' ) ); ?>"><?php esc_html_e( 'Curriculum number (optional):', 'hidden-word-bible-lessons' ); ?></label>
 			<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'week' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'week' ) ); ?>" type="number" min="0" value="<?php echo esc_attr( $week ); ?>" />
 		</p>
 		<?php

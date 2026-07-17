@@ -1,0 +1,1138 @@
+# Copyright (C) 2026 Land Tech Web Designs, Corp
+# This file is distributed under the GPL-2.0+.
+msgid ""
+msgstr ""
+"Project-Id-Version: Hidden Word Bible Lessons 1.6.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/The-Hidden-Word\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-07-17T02:26:21+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: hidden-word-bible-lessons\n"
+
+#. Plugin Name of the plugin
+#: hidden-word-bible-lessons.php
+#: includes/class-cpt-lesson.php:39
+msgid "Hidden Word Bible Lessons"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: hidden-word-bible-lessons.php
+msgid "https://wordpress.org/plugins/hidden-word-bible-lessons/"
+msgstr ""
+
+#. Description of the plugin
+#: hidden-word-bible-lessons.php
+msgid "A Bible discipleship plugin with up to 500 NIV verses, deep-dive lessons, historical context, memorization tools, and discussion prompts."
+msgstr ""
+
+#. Author of the plugin
+#: hidden-word-bible-lessons.php
+msgid "Land Tech Web Designs, Corp"
+msgstr ""
+
+#. Author URI of the plugin
+#: hidden-word-bible-lessons.php
+msgid "https://landtechwebdesigns.com"
+msgstr ""
+
+#: admin/class-admin.php:31
+#: admin/class-admin.php:32
+msgid "Settings"
+msgstr ""
+
+#. translators: 1: bundled NIV verse count, 2: maximum allowed
+#: includes/class-activator.php:539
+#, php-format
+msgid "Hidden Word Bible Lessons: bundled NIV verse count (%1$d) exceeds the %2$d verse fair-use limit."
+msgstr ""
+
+#. translators: 1: translation slug, 2: actual lesson count, 3: NIV lesson count
+#: includes/class-activator.php:555
+#, php-format
+msgid "Hidden Word Bible Lessons: %1$s curriculum (%2$d lessons) must match the NIV curriculum (%3$d lessons)."
+msgstr ""
+
+#. translators: 1: lesson number, 2: scripture reference
+#. translators: 1: lesson number, 2: lesson title
+#: includes/class-activator.php:608
+#: public/partials/lesson-list.php:52
+#, php-format
+msgid "Lesson %1$d: %2$s"
+msgstr ""
+
+#: includes/class-activator.php:729
+msgid "Today's Lesson"
+msgstr ""
+
+#: includes/class-activator.php:731
+#: includes/class-activator.php:774
+#: includes/class-plugin.php:155
+#: includes/class-scheduler.php:281
+msgid "Today's Verse to Memorize"
+msgstr ""
+
+#: includes/class-activator.php:732
+#: includes/class-scheduler.php:273
+msgid "This Week's Verse to Memorize"
+msgstr ""
+
+#: includes/class-ai-assistant-unified.php:65
+msgid "Use the verse explain panel for passage-specific explanations."
+msgstr ""
+
+#: includes/class-ai-assistant-unified.php:90
+msgid "AI assistant — use study search or verse explain on lesson pages."
+msgstr ""
+
+#: includes/class-bible-reader.php:647
+msgid "The Bible reader is disabled in settings."
+msgstr ""
+
+#: includes/class-bible-reader.php:663
+msgid "No Bible translations are available for the reader. Enable Hello AO or configure Premium Bible API keys."
+msgstr ""
+
+#: includes/class-bible-reader.php:700
+#: includes/class-frontend-i18n.php:64
+msgid "Save your streak across devices with Premium progress tracking."
+msgstr ""
+
+#: includes/class-bible-reader.php:717
+msgid "Loading chapter…"
+msgstr ""
+
+#: includes/class-bible-reader.php:718
+msgid "Could not load this chapter."
+msgstr ""
+
+#: includes/class-bible-reader.php:719
+#: includes/class-bible-reader.php:805
+msgid "Previous chapter"
+msgstr ""
+
+#: includes/class-bible-reader.php:720
+#: includes/class-bible-reader.php:806
+msgid "Next chapter"
+msgstr ""
+
+#: includes/class-bible-reader.php:721
+#: includes/class-bible-reader.php:797
+msgid "Audio narrator"
+msgstr ""
+
+#: includes/class-bible-reader.php:722
+#: includes/class-bible-reader.php:785
+#: includes/class-verse-memorize.php:849
+#: includes/class-verse-memorize.php:883
+msgid "Translation"
+msgstr ""
+
+#: includes/class-bible-reader.php:723
+#: includes/class-bible-reader.php:789
+#: includes/class-lesson-meta.php:126
+#: includes/class-lesson-meta.php:210
+#: blocks/lesson-list-block/index.js:35
+msgid "Book"
+msgstr ""
+
+#: includes/class-bible-reader.php:724
+#: includes/class-bible-reader.php:793
+#: includes/class-lesson-meta.php:137
+msgid "Chapter"
+msgstr ""
+
+#: includes/class-bible-reader.php:725
+#: includes/class-bible-reader.php:763
+msgid "Go to reference"
+msgstr ""
+
+#: includes/class-bible-reader.php:726
+#: includes/class-bible-reader.php:765
+msgid "e.g. John 3:16 or Genesis 3"
+msgstr ""
+
+#: includes/class-bible-reader.php:727
+#: includes/class-bible-reader.php:766
+msgid "Go"
+msgstr ""
+
+#: includes/class-bible-reader.php:728
+msgid "Could not understand that reference."
+msgstr ""
+
+#: includes/class-bible-reader.php:729
+#: includes/class-bible-reader.php:772
+msgid "Search the Bible"
+msgstr ""
+
+#: includes/class-bible-reader.php:730
+#: includes/class-bible-reader.php:775
+msgid "Search words or phrases…"
+msgstr ""
+
+#: includes/class-bible-reader.php:731
+#: includes/class-bible-reader.php:776
+msgid "Search"
+msgstr ""
+
+#: includes/class-bible-reader.php:732
+msgid "No results found."
+msgstr ""
+
+#: includes/class-bible-reader.php:733
+msgid "Search requires a Biblia.com API key in Premium settings."
+msgstr ""
+
+#: includes/class-bible-reader.php:734
+#: includes/class-bible-reader.php:811
+msgid "Memorize this verse"
+msgstr ""
+
+#: includes/class-bible-reader.php:735
+#: includes/class-bible-reader.php:810
+msgid "Click a verse, then start memorization practice."
+msgstr ""
+
+#: includes/class-bible-reader.php:736
+msgid "Loading memorization practice…"
+msgstr ""
+
+#: includes/class-bible-reader.php:737
+msgid "Could not load memorization practice."
+msgstr ""
+
+#: includes/class-bible-reader.php:738
+msgid "Research & explain"
+msgstr ""
+
+#: includes/class-bible-reader.php:739
+#: includes/class-bible-reader.php:820
+msgid "Explain"
+msgstr ""
+
+#: includes/class-bible-reader.php:740
+#: includes/class-bible-reader.php:822
+msgid "This verse"
+msgstr ""
+
+#: includes/class-bible-reader.php:741
+#: includes/class-bible-reader.php:823
+msgid "This chapter"
+msgstr ""
+
+#: includes/class-bible-reader.php:742
+#: includes/class-bible-reader.php:837
+msgid "Explain passage"
+msgstr ""
+
+#: includes/class-bible-reader.php:743
+msgid "Generating explanation…"
+msgstr ""
+
+#: includes/class-bible-reader.php:744
+msgid "Could not generate an explanation."
+msgstr ""
+
+#: includes/class-bible-reader.php:745
+msgid "Log in to generate an AI explanation."
+msgstr ""
+
+#: includes/class-bible-reader.php:746
+#: includes/class-bible-reader.php:838
+msgid "Open full lesson study"
+msgstr ""
+
+#: includes/class-bible-reader.php:747
+#: includes/class-bible-reader.php:817
+msgid "Click a verse to explain it, or explain the whole chapter."
+msgstr ""
+
+#: includes/class-bible-reader.php:748
+#: includes/class-bible-reader.php:844
+msgid "AI-generated explanation. Compare with Scripture and trusted teachers."
+msgstr ""
+
+#: includes/class-bible-reader.php:804
+msgid "Chapter navigation"
+msgstr ""
+
+#: includes/class-books.php:40
+msgid "Unknown"
+msgstr ""
+
+#: includes/class-bundled-provider.php:101
+msgid "New International Version (NIV)"
+msgstr ""
+
+#: includes/class-bundled-provider.php:102
+#: includes/class-helloao-provider.php:294
+msgid "King James Version (KJV)"
+msgstr ""
+
+#: includes/class-bundled-provider.php:103
+#: includes/class-helloao-provider.php:293
+msgid "World English Bible (WEB)"
+msgstr ""
+
+#: includes/class-bundled-provider.php:152
+msgid "Scripture quotations marked NIV are from THE HOLY BIBLE, NEW INTERNATIONAL VERSION®, NIV® Copyright © 1973, 1978, 1984, 2011 by Biblica, Inc.® Used by permission. All rights reserved worldwide."
+msgstr ""
+
+#: includes/class-cpt-lesson.php:37
+#: public/templates/archive-hwbl_lesson.php:18
+msgid "Bible Lessons"
+msgstr ""
+
+#: includes/class-cpt-lesson.php:38
+#: blocks/lesson-block/index.js:11
+msgid "Bible Lesson"
+msgstr ""
+
+#: includes/class-cpt-lesson.php:40
+msgid "Add Lesson"
+msgstr ""
+
+#: includes/class-cpt-lesson.php:41
+msgid "Add New Lesson"
+msgstr ""
+
+#: includes/class-cpt-lesson.php:42
+msgid "Edit Lesson"
+msgstr ""
+
+#: includes/class-cpt-lesson.php:43
+msgid "New Lesson"
+msgstr ""
+
+#: includes/class-cpt-lesson.php:44
+msgid "View Lesson"
+msgstr ""
+
+#: includes/class-cpt-lesson.php:45
+msgid "Search Lessons"
+msgstr ""
+
+#: includes/class-cpt-lesson.php:46
+msgid "No lessons found"
+msgstr ""
+
+#: includes/class-cpt-lesson.php:47
+msgid "No lessons found in trash"
+msgstr ""
+
+#. translators: 1: book name, 2: chapter, 3: verse
+#: includes/class-curriculum.php:130
+#, php-format
+msgid "Read the verse immediately before this lesson (%1$s %2$d:%3$d) to hear the lead-in to the passage."
+msgstr ""
+
+#. translators: 1: book name, 2: chapter, 3: verse
+#: includes/class-curriculum.php:145
+#, php-format
+msgid "Read the verse immediately after this lesson (%1$s %2$d:%3$d) to continue the passage."
+msgstr ""
+
+#: includes/class-frontend-i18n.php:24
+msgid "Day 1 streak — great start!"
+msgstr ""
+
+#: includes/class-frontend-i18n.php:25
+#, php-format
+msgid "Day %d streak — keep going!"
+msgstr ""
+
+#: includes/class-frontend-i18n.php:26
+#, php-format
+msgid "Hide word: %s"
+msgstr ""
+
+#: includes/class-frontend-i18n.php:27
+msgid "Reveal hidden word"
+msgstr ""
+
+#: includes/class-frontend-i18n.php:28
+msgid "Memorization practice"
+msgstr ""
+
+#: includes/class-frontend-i18n.php:29
+#: public/partials/lesson-tabs.php:78
+msgid "Hide words"
+msgstr ""
+
+#: includes/class-frontend-i18n.php:30
+#: public/partials/lesson-tabs.php:79
+msgid "Type from memory"
+msgstr ""
+
+#: includes/class-frontend-i18n.php:31
+#: public/partials/lesson-tabs.php:80
+msgid "First-letter hints"
+msgstr ""
+
+#: includes/class-frontend-i18n.php:32
+msgid "Type the verse from memory, then check your answer."
+msgstr ""
+
+#: includes/class-frontend-i18n.php:33
+#: public/partials/lesson-tabs.php:91
+msgid "Check answer"
+msgstr ""
+
+#: includes/class-frontend-i18n.php:34
+msgid "Great recall!"
+msgstr ""
+
+#: includes/class-frontend-i18n.php:35
+msgid "Keep practicing — some words differ."
+msgstr ""
+
+#: includes/class-frontend-i18n.php:36
+msgid "Click shuffled words in verse order."
+msgstr ""
+
+#: includes/class-frontend-i18n.php:37
+msgid "Correct order — well done!"
+msgstr ""
+
+#: includes/class-frontend-i18n.php:38
+msgid "Not quite — try reshuffling and practice again."
+msgstr ""
+
+#: includes/class-frontend-i18n.php:39
+#, php-format
+msgid "Add word: %s"
+msgstr ""
+
+#: includes/class-frontend-i18n.php:50
+msgid "Verse copied."
+msgstr ""
+
+#: includes/class-frontend-i18n.php:51
+msgid "Could not copy verse."
+msgstr ""
+
+#: includes/class-frontend-i18n.php:52
+msgid "Copy not supported in this browser."
+msgstr ""
+
+#. translators: %s: license URL
+#: includes/class-helloao-provider.php:91
+#, php-format
+msgid "License: %s"
+msgstr ""
+
+#: includes/class-helloao-provider.php:292
+msgid "Berean Standard Bible (BSB)"
+msgstr ""
+
+#: includes/class-helloao-provider.php:295
+msgid "American Standard Version (ASV)"
+msgstr ""
+
+#: includes/class-helloao-provider.php:296
+msgid "Bible in Basic English (BBE)"
+msgstr ""
+
+#: includes/class-helloao-provider.php:297
+msgid "Darby Translation (DARBY)"
+msgstr ""
+
+#: includes/class-helloao-provider.php:298
+msgid "Young's Literal Translation (YLT)"
+msgstr ""
+
+#: includes/class-helloao-provider.php:299
+msgid "Geneva Bible 1599 (GNV)"
+msgstr ""
+
+#: includes/class-helloao-provider.php:300
+msgid "Literal Standard Version (LSV)"
+msgstr ""
+
+#: includes/class-lesson-list.php:166
+#: public/partials/lesson-list.php:40
+msgid "All Lessons"
+msgstr ""
+
+#: includes/class-lesson-list.php:192
+#: blocks/lesson-list-block/index.js:51
+msgid "Old Testament"
+msgstr ""
+
+#: includes/class-lesson-list.php:193
+#: blocks/lesson-list-block/index.js:52
+msgid "New Testament"
+msgstr ""
+
+#: includes/class-lesson-list.php:220
+msgid "Lesson list pages"
+msgstr ""
+
+#: includes/class-lesson-meta.php:32
+msgid "Verse Reference"
+msgstr ""
+
+#: includes/class-lesson-meta.php:41
+msgid "Lesson Content"
+msgstr ""
+
+#: includes/class-lesson-meta.php:50
+#: public/partials/lesson-tabs.php:149
+msgid "The Echo — Follow-on Verses"
+msgstr ""
+
+#: includes/class-lesson-meta.php:59
+msgid "Discussion Questions"
+msgstr ""
+
+#: includes/class-lesson-meta.php:119
+msgid "Lesson Number"
+msgstr ""
+
+#: includes/class-lesson-meta.php:122
+msgid "Slot in the bundled curriculum (1–500)."
+msgstr ""
+
+#: includes/class-lesson-meta.php:129
+msgid "Select book…"
+msgstr ""
+
+#: includes/class-lesson-meta.php:141
+msgid "Verse Start"
+msgstr ""
+
+#: includes/class-lesson-meta.php:145
+msgid "Verse End"
+msgstr ""
+
+#: includes/class-lesson-meta.php:148
+msgid "Leave same as start for a single verse."
+msgstr ""
+
+#: includes/class-lesson-meta.php:165
+msgid "The Context (Historical Background)"
+msgstr ""
+
+#: includes/class-lesson-meta.php:179
+msgid "The Narrative (Lead-Up)"
+msgstr ""
+
+#: includes/class-lesson-meta.php:215
+msgid "Ch"
+msgstr ""
+
+#: includes/class-lesson-meta.php:216
+msgid "Vs"
+msgstr ""
+
+#: includes/class-lesson-meta.php:217
+msgid "Connection note"
+msgstr ""
+
+#: includes/class-lesson-meta.php:218
+#: includes/class-lesson-meta.php:242
+msgid "Remove"
+msgstr ""
+
+#: includes/class-lesson-meta.php:222
+msgid "Add Follow-on Verse"
+msgstr ""
+
+#: includes/class-lesson-meta.php:241
+msgid "Reflection question"
+msgstr ""
+
+#: includes/class-lesson-meta.php:246
+msgid "Add Question"
+msgstr ""
+
+#: includes/class-lesson-renderer.php:44
+msgid "No verse found for the current schedule."
+msgstr ""
+
+#: includes/class-lesson-renderer.php:49
+msgid "This lesson could not be loaded."
+msgstr ""
+
+#: includes/class-lesson-renderer.php:76
+#: includes/class-lesson-renderer.php:87
+msgid "The Blueprint"
+msgstr ""
+
+#: includes/class-lesson-renderer.php:77
+msgid "The Context"
+msgstr ""
+
+#: includes/class-lesson-renderer.php:78
+msgid "The Narrative"
+msgstr ""
+
+#: includes/class-lesson-renderer.php:79
+msgid "The Echo"
+msgstr ""
+
+#: includes/class-lesson-renderer.php:80
+#: public/partials/lesson-tabs.php:204
+msgid "Discussion"
+msgstr ""
+
+#: includes/class-memorization-audio.php:65
+msgid "Listen to verse"
+msgstr ""
+
+#: includes/class-memorization-srs.php:121
+msgid "Sign in to save memorization progress."
+msgstr ""
+
+#. translators: %d: number of memorization reviews due
+#: includes/class-personalized-digest.php:53
+#, php-format
+msgid "%d memorization review is due today."
+msgid_plural "%d memorization reviews are due today."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: number of lessons updated
+#: includes/class-plugin.php:118
+#, php-format
+msgid "Hidden Word Bible Lessons: added historical context, narrative background, and discussion questions to %d bundled lessons."
+msgstr ""
+
+#. translators: %d: number of new lessons seeded
+#: includes/class-plugin.php:144
+#, php-format
+msgid "Hidden Word Bible Lessons: added %d new bundled Bible lessons from the curriculum update."
+msgstr ""
+
+#. translators: %s: front-end demo page URL
+#: includes/class-plugin.php:154
+#, php-format
+msgid "View the starter page: %s"
+msgstr ""
+
+#. translators: 1: lessons added so far, 2: total lessons being seeded
+#: includes/class-plugin.php:183
+#, php-format
+msgid "Hidden Word Bible Lessons: adding the bundled Bible lesson curriculum in the background (%1$d of %2$d added so far). This happens gradually to avoid slowing down your site — no action needed."
+msgstr ""
+
+#: includes/class-rest-rate-limit.php:55
+msgid "Too many requests. Please wait a moment and try again."
+msgstr ""
+
+#: includes/class-scheduler.php:228
+#: includes/class-scheduler.php:275
+msgid "Verse of the Week"
+msgstr ""
+
+#: includes/class-scheduler.php:229
+#: includes/class-scheduler.php:283
+msgid "Verse of the Day"
+msgstr ""
+
+#: includes/class-scheduler.php:274
+msgid "This Week's Verse"
+msgstr ""
+
+#: includes/class-scheduler.php:276
+msgid "Read and memorize this week's scripture."
+msgstr ""
+
+#: includes/class-scheduler.php:277
+#: includes/class-scheduler.php:285
+#: includes/class-scheduler.php:293
+#: includes/class-scheduler.php:301
+#: includes/class-scheduler.php:309
+msgid "Verse Catalog"
+msgstr ""
+
+#: includes/class-scheduler.php:278
+#: includes/class-scheduler.php:286
+#: includes/class-scheduler.php:294
+#: includes/class-scheduler.php:302
+#: includes/class-scheduler.php:310
+msgid "Find a Verse"
+msgstr ""
+
+#: includes/class-scheduler.php:282
+msgid "Today's Verse"
+msgstr ""
+
+#: includes/class-scheduler.php:284
+msgid "Read and memorize today's scripture."
+msgstr ""
+
+#: includes/class-scheduler.php:289
+msgid "This Month's Verse to Memorize"
+msgstr ""
+
+#: includes/class-scheduler.php:290
+msgid "This Month's Verse"
+msgstr ""
+
+#: includes/class-scheduler.php:291
+msgid "Verse of the Month"
+msgstr ""
+
+#: includes/class-scheduler.php:292
+msgid "Read and memorize this month's scripture."
+msgstr ""
+
+#: includes/class-scheduler.php:297
+#: includes/class-scheduler.php:305
+msgid "Verse to Memorize"
+msgstr ""
+
+#: includes/class-scheduler.php:298
+#: includes/class-scheduler.php:299
+#: includes/class-scheduler.php:306
+msgid "Current Verse"
+msgstr ""
+
+#: includes/class-scheduler.php:300
+msgid "Read and memorize the selected scripture."
+msgstr ""
+
+#: includes/class-scheduler.php:307
+msgid "Track Verse"
+msgstr ""
+
+#: includes/class-scheduler.php:308
+msgid "Read and memorize the next verse on your reading track."
+msgstr ""
+
+#: includes/class-settings.php:118
+msgid "Hidden Word Bible Lessons Settings"
+msgstr ""
+
+#: includes/class-settings.php:125
+msgid "Schedule Mode"
+msgstr ""
+
+#: includes/class-settings.php:132
+msgid "How often the site rotates to a new lesson."
+msgstr ""
+
+#: includes/class-settings.php:136
+msgid "Active Translation"
+msgstr ""
+
+#. translators: %d: number of bundled translations
+#: includes/class-settings.php:148
+#, php-format
+msgid "%d bundled translation available offline."
+msgid_plural "%d bundled translations available offline."
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/class-settings.php:154
+msgid "Premium and API.Bible are configured — additional translations appear on the front-end switcher."
+msgstr ""
+
+#: includes/class-settings.php:156
+msgid "Premium is licensed. Add your API.Bible key under Bible Lessons → Premium to enable ESV, NLT, NASB, CSB, NKJV, AMP, and NET on the front-end switcher."
+msgstr ""
+
+#: includes/class-settings.php:158
+msgid "Activate Premium and add an API.Bible key to unlock seven more translations (ESV, NLT, NASB, CSB, NKJV, AMP, NET) on the front-end switcher."
+msgstr ""
+
+#: includes/class-settings.php:161
+msgid "Install The Hidden Word Premium and add an API.Bible key to unlock seven more translations on the front-end switcher."
+msgstr ""
+
+#: includes/class-settings.php:167
+msgid "Hello AO Bible API"
+msgstr ""
+
+#: includes/class-settings.php:172
+msgid "Enable Hello AO for verse text (no API key required)"
+msgstr ""
+
+#. translators: %s: Hello AO URL
+#: includes/class-settings.php:178
+#, php-format
+msgid "Fetches public-domain and open-license translations from <a href=\"%s\" target=\"_blank\" rel=\"noopener\">bible.helloao.org</a> for echo verses, out-of-curriculum references, and extra translations. Bundled NIV/KJV/WEB still load offline first."
+msgstr ""
+
+#: includes/class-settings.php:186
+msgid "Bible Reader"
+msgstr ""
+
+#: includes/class-settings.php:191
+msgid "Enable full chapter Bible reader shortcode"
+msgstr ""
+
+#: includes/class-settings.php:194
+msgid "Adds [hwbl_bible_reader] to read and listen to any book/chapter. Uses Hello AO text and audio; Premium Biblia/API.Bible keys unlock additional translations."
+msgstr ""
+
+#: includes/class-settings.php:197
+msgid "Default audio narrator"
+msgstr ""
+
+#: includes/class-settings.php:207
+msgid "Enable AI Features"
+msgstr ""
+
+#: includes/class-settings.php:212
+msgid "Allow AI-powered lesson explanations and keyword study search on the front end"
+msgstr ""
+
+#: includes/class-settings.php:215
+msgid "Requires Hidden Word Bible Lessons Premium with a valid license and an AI provider (WordPress 7.0 Connectors or BYOK keys). Configure rules under Bible Lessons → Premium."
+msgstr ""
+
+#: includes/class-settings.php:221
+msgid "Copyright Notice"
+msgstr ""
+
+#: includes/class-settings.php:231
+msgid "Shortcodes"
+msgstr ""
+
+#: includes/class-settings.php:232
+msgid "Full verse-to-memorize view for the current schedule."
+msgstr ""
+
+#: includes/class-settings.php:233
+msgid "Specific verse study by post ID."
+msgstr ""
+
+#: includes/class-settings.php:234
+msgid "Browse the verse catalog (group by book, testament, or flat list)."
+msgstr ""
+
+#: includes/class-settings.php:235
+msgid "Compact scheduled verse display."
+msgstr ""
+
+#: includes/class-settings.php:236
+msgid "Read and listen to any Bible chapter (translation, book, and chapter pickers)."
+msgstr ""
+
+#: includes/class-settings.php:237
+msgid "Pick any accessible verse reference and open memorization practice."
+msgstr ""
+
+#: includes/class-settings.php:238
+msgid "Keyword Bible study search (Premium)."
+msgstr ""
+
+#. translators: %s: schedule-aware widget label
+#: includes/class-settings.php:243
+#, php-format
+msgid "Widgets: add “%s” under Appearance → Widgets."
+msgstr ""
+
+#: includes/class-settings.php:248
+msgid "Verse catalog archive:"
+msgstr ""
+
+#: includes/class-settings.php:249
+msgid "Verse pages include Print and Copy verse buttons in the toolbar."
+msgstr ""
+
+#. translators: %s: premium plugin URL
+#: includes/class-settings.php:257
+#, php-format
+msgid "Want custom scheduling, PDF leader guides, multi-translation switching, and progress tracking? <a href=\"%s\" target=\"_blank\" rel=\"noopener\">Learn about Hidden Word Bible Lessons Premium</a>."
+msgstr ""
+
+#: includes/class-translation-service.php:172
+msgid "King James Version (KJV) — Public Domain."
+msgstr ""
+
+#: includes/class-translation-service.php:176
+msgid "World English Bible (WEB) — Public Domain."
+msgstr ""
+
+#: includes/class-verse-memorize.php:68
+msgid "King James Version"
+msgstr ""
+
+#: includes/class-verse-memorize.php:69
+msgid "World English Bible"
+msgstr ""
+
+#: includes/class-verse-memorize.php:400
+msgid "That verse is not available in the selected translation. Try another translation you have access to."
+msgstr ""
+
+#: includes/class-verse-memorize.php:415
+msgid "Sign in to memorize verses that are not already in the lesson catalog."
+msgstr ""
+
+#: includes/class-verse-memorize.php:423
+msgid "Could not prepare this verse for memorization."
+msgstr ""
+
+#: includes/class-verse-memorize.php:771
+#: includes/class-verse-memorize.php:783
+#: includes/class-verse-memorize.php:852
+msgid "Enter a verse reference like John 3:16."
+msgstr ""
+
+#: includes/class-verse-memorize.php:815
+msgid "No Bible translations are available. Enable Hello AO or configure Premium Bible API keys."
+msgstr ""
+
+#: includes/class-verse-memorize.php:847
+#: includes/class-verse-memorize.php:872
+msgid "Verse reference"
+msgstr ""
+
+#: includes/class-verse-memorize.php:848
+#: includes/class-verse-memorize.php:877
+msgid "e.g. John 3:16"
+msgstr ""
+
+#: includes/class-verse-memorize.php:850
+#: includes/class-verse-memorize.php:890
+msgid "Start memorizing"
+msgstr ""
+
+#: includes/class-verse-memorize.php:851
+msgid "Loading verse…"
+msgstr ""
+
+#: includes/class-verse-memorize.php:853
+msgid "That verse is not available in the selected translation."
+msgstr ""
+
+#: includes/class-verse-memorize.php:854
+msgid "Could not load that verse."
+msgstr ""
+
+#: includes/class-verse-memorize.php:855
+#: includes/class-verse-memorize.php:896
+msgid "Your verses to memorize"
+msgstr ""
+
+#: includes/class-verse-memorize.php:856
+#: includes/class-verse-memorize.php:904
+msgid "Open full lesson"
+msgstr ""
+
+#: includes/class-verse-memorize.php:857
+msgid "This verse is already in the lesson catalog."
+msgstr ""
+
+#: includes/class-widget-verse-of-week.php:22
+msgid "Displays the current scheduled Bible verse to memorize."
+msgstr ""
+
+#: includes/class-widget-verse-of-week.php:67
+msgid "Title:"
+msgstr ""
+
+#: includes/class-widget-verse-of-week.php:71
+msgid "Curriculum number (optional):"
+msgstr ""
+
+#. translators: %d: number of lessons
+#: public/partials/lesson-list.php:29
+#, php-format
+msgid "%d lesson"
+msgid_plural "%d lessons"
+msgstr[0] ""
+msgstr[1] ""
+
+#: public/partials/lesson-list.php:36
+msgid "No lessons found."
+msgstr ""
+
+#: public/partials/lesson-tabs.php:34
+msgid "Print verse"
+msgstr ""
+
+#: public/partials/lesson-tabs.php:36
+msgid "Copy verse"
+msgstr ""
+
+#: public/partials/lesson-tabs.php:43
+msgid "Verse study sections"
+msgstr ""
+
+#: public/partials/lesson-tabs.php:65
+msgid "The Blueprint — The Verse"
+msgstr ""
+
+#: public/partials/lesson-tabs.php:71
+msgid "Verse text not available for this reference."
+msgstr ""
+
+#: public/partials/lesson-tabs.php:76
+msgid "Memorization Practice"
+msgstr ""
+
+#: public/partials/lesson-tabs.php:77
+msgid "Practice mode"
+msgstr ""
+
+#: public/partials/lesson-tabs.php:81
+msgid "Word scramble"
+msgstr ""
+
+#: public/partials/lesson-tabs.php:84
+msgid "Click words to hide them and test your memory."
+msgstr ""
+
+#: public/partials/lesson-tabs.php:88
+msgid "Type the verse from memory"
+msgstr ""
+
+#: public/partials/lesson-tabs.php:95
+msgid "Shuffled words — click in verse order"
+msgstr ""
+
+#: public/partials/lesson-tabs.php:97
+msgid "Check order"
+msgstr ""
+
+#: public/partials/lesson-tabs.php:98
+msgid "Reshuffle"
+msgstr ""
+
+#: public/partials/lesson-tabs.php:102
+msgid "Hide Random Words"
+msgstr ""
+
+#: public/partials/lesson-tabs.php:103
+msgid "Reveal All"
+msgstr ""
+
+#: public/partials/lesson-tabs.php:104
+msgid "Reset"
+msgstr ""
+
+#: public/partials/lesson-tabs.php:119
+msgid "The Context — The History"
+msgstr ""
+
+#: public/partials/lesson-tabs.php:123
+msgid "Historical context has not been added yet."
+msgstr ""
+
+#: public/partials/lesson-tabs.php:134
+msgid "The Narrative — The Lead-Up"
+msgstr ""
+
+#: public/partials/lesson-tabs.php:138
+msgid "Narrative background has not been added yet."
+msgstr ""
+
+#. translators: %s: translation name
+#: public/partials/lesson-tabs.php:177
+#, php-format
+msgid "Shown in %s."
+msgstr ""
+
+#: public/partials/lesson-tabs.php:191
+msgid "No follow-on verses have been added yet."
+msgstr ""
+
+#: public/partials/lesson-tabs.php:212
+msgid "Discussion questions have not been added yet."
+msgstr ""
+
+#: public/templates/archive-hwbl_lesson.php:19
+msgid "Browse the full bundled curriculum by book."
+msgstr ""
+
+#: blocks/lesson-block/index.js:14
+msgid "Display a deep-dive Bible lesson with tabs for context, narrative, and memorization."
+msgstr ""
+
+#: blocks/lesson-block/index.js:28
+msgid "Lesson Settings"
+msgstr ""
+
+#: blocks/lesson-block/index.js:30
+msgid "Lesson"
+msgstr ""
+
+#: blocks/lesson-block/index.js:33
+msgid "Current schedule (auto)"
+msgstr ""
+
+#: blocks/lesson-block/index.js:38
+msgid "Show memorization widget"
+msgstr ""
+
+#: blocks/lesson-block/index.js:43
+msgid "Show discussion tab"
+msgstr ""
+
+#: blocks/lesson-block/index.js:51
+msgid "Hidden Word Bible Lessons — Bible Lesson"
+msgstr ""
+
+#: blocks/lesson-block/index.js:54
+msgid "Displays the current scheduled lesson."
+msgstr ""
+
+#: blocks/lesson-block/index.js:55
+msgid "Displays lesson ID: "
+msgstr ""
+
+#: blocks/lesson-list-block/index.js:11
+msgid "Bible Lesson Catalog"
+msgstr ""
+
+#: blocks/lesson-list-block/index.js:14
+msgid "Browse all bundled Bible lessons by book or testament."
+msgstr ""
+
+#: blocks/lesson-list-block/index.js:30
+msgid "Catalog Settings"
+msgstr ""
+
+#: blocks/lesson-list-block/index.js:32
+msgid "Group by"
+msgstr ""
+
+#: blocks/lesson-list-block/index.js:36
+msgid "Testament"
+msgstr ""
+
+#: blocks/lesson-list-block/index.js:37
+msgid "Flat list (paginated)"
+msgstr ""
+
+#: blocks/lesson-list-block/index.js:42
+msgid "Book ID filter (optional)"
+msgstr ""
+
+#: blocks/lesson-list-block/index.js:47
+msgid "Testament filter"
+msgstr ""
+
+#: blocks/lesson-list-block/index.js:50
+msgid "All"
+msgstr ""
+
+#: blocks/lesson-list-block/index.js:57
+msgid "Show"
+msgstr ""
+
+#: blocks/lesson-list-block/index.js:60
+msgid "Reference and title"
+msgstr ""
+
+#: blocks/lesson-list-block/index.js:61
+msgid "Reference only"
+msgstr ""
+
+#: blocks/lesson-list-block/index.js:62
+msgid "Title only"
+msgstr ""
+
+#: blocks/lesson-list-block/index.js:70
+msgid "Hidden Word Bible Lessons — Lesson Catalog"
+msgstr ""

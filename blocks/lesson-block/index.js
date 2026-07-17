@@ -7,11 +7,11 @@
 	var ToggleControl = components.ToggleControl;
 	var __ = i18n.__;
 
-	blocks.registerBlockType( 'thw/lesson', {
-		title: __( 'Bible Lesson', 'the-hidden-word' ),
+	blocks.registerBlockType( 'hwbl/lesson', {
+		title: __( 'Bible Lesson', 'hidden-word-bible-lessons' ),
 		icon: 'book-alt',
 		category: 'widgets',
-		description: __( 'Display a deep-dive Bible lesson with tabs for context, narrative, and memorization.', 'the-hidden-word' ),
+		description: __( 'Display a deep-dive Bible lesson with tabs for context, narrative, and memorization.', 'hidden-word-bible-lessons' ),
 		attributes: {
 			lessonId: { type: 'string', default: 'auto' },
 			showMemorization: { type: 'boolean', default: true },
@@ -23,36 +23,36 @@
 
 			return el(
 				'div',
-				useBlockProps( { className: 'thw-lesson-block-editor' } ),
+				useBlockProps( { className: 'hwbl-lesson-block-editor' } ),
 				el( InspectorControls, {},
-					el( PanelBody, { title: __( 'Lesson Settings', 'the-hidden-word' ) },
+					el( PanelBody, { title: __( 'Lesson Settings', 'hidden-word-bible-lessons' ) },
 						el( SelectControl, {
-							label: __( 'Lesson', 'the-hidden-word' ),
+							label: __( 'Lesson', 'hidden-word-bible-lessons' ),
 							value: attrs.lessonId,
 							options: [
-								{ label: __( 'Current schedule (auto)', 'the-hidden-word' ), value: 'auto' },
+								{ label: __( 'Current schedule (auto)', 'hidden-word-bible-lessons' ), value: 'auto' },
 							],
 							onChange: function ( val ) { setAttributes( { lessonId: val } ); },
 						} ),
 						el( ToggleControl, {
-							label: __( 'Show memorization widget', 'the-hidden-word' ),
+							label: __( 'Show memorization widget', 'hidden-word-bible-lessons' ),
 							checked: attrs.showMemorization,
 							onChange: function ( val ) { setAttributes( { showMemorization: val } ); },
 						} ),
 						el( ToggleControl, {
-							label: __( 'Show discussion tab', 'the-hidden-word' ),
+							label: __( 'Show discussion tab', 'hidden-word-bible-lessons' ),
 							checked: attrs.showDiscussion,
 							onChange: function ( val ) { setAttributes( { showDiscussion: val } ); },
 						} )
 					)
 				),
-				el( 'div', { className: 'thw-block-placeholder' },
+				el( 'div', { className: 'hwbl-block-placeholder' },
 					el( 'span', { className: 'dashicons dashicons-book-alt' } ),
-					el( 'p', {}, __( 'The Hidden Word — Bible Lesson', 'the-hidden-word' ) ),
+					el( 'p', {}, __( 'Hidden Word Bible Lessons — Bible Lesson', 'hidden-word-bible-lessons' ) ),
 					el( 'p', { className: 'description' },
 						attrs.lessonId === 'auto'
-							? __( 'Displays the current scheduled lesson.', 'the-hidden-word' )
-							: __( 'Displays lesson ID: ', 'the-hidden-word' ) + attrs.lessonId
+							? __( 'Displays the current scheduled lesson.', 'hidden-word-bible-lessons' )
+							: __( 'Displays lesson ID: ', 'hidden-word-bible-lessons' ) + attrs.lessonId
 					)
 				)
 			);

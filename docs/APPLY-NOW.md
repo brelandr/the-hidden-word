@@ -4,8 +4,8 @@ One-page checklist for your first submission. SVN is **not available** until app
 
 ## 1. Download the release zip
 
-Local: `LearnTheBible/Dist/the-hidden-word-1.1.4.zip`  
-GitHub: https://github.com/brelandr/the-hidden-word/releases/tag/v1.1.4
+Local: `LearnTheBible/Dist/hidden-word-bible-lessons-1.1.4.zip`  
+GitHub: https://github.com/brelandr/hidden-word-bible-lessons/releases/tag/v1.1.4
 
 ## 2. Open the application form
 
@@ -13,9 +13,9 @@ https://wordpress.org/plugins/developers/add/
 
 | Field | Value |
 |-------|-------|
-| Plugin name | The Hidden Word |
-| Slug | `the-hidden-word` |
-| URL | https://github.com/brelandr/the-hidden-word |
+| Plugin name | Hidden Word Bible Lessons |
+| Slug | `hidden-word-bible-lessons` |
+| URL | https://github.com/brelandr/hidden-word-bible-lessons |
 
 ## 3. Paste reviewer notes
 
@@ -23,7 +23,7 @@ From `docs/REVIEWER-NOTES.md` or `docs/PLUGIN-APPLY-FORM.txt`.
 
 ## 4. Attach zip
 
-`the-hidden-word-1.1.4.zip`
+`hidden-word-bible-lessons-1.1.4.zip`
 
 ## 5. Pre-submit verification (automated)
 
@@ -36,7 +36,7 @@ bash scripts/smoke-all.sh
 
 ```bash
 bash scripts/deploy-wporg-svn.sh
-cd .svn-the-hidden-word
+cd .svn-hidden-word-bible-lessons
 svn commit -m "Release 1.1.4"
 ```
 
@@ -46,4 +46,4 @@ Screenshots and banners upload to SVN `assets/` automatically via the deploy scr
 
 Change product copy to link to:
 
-`https://wordpress.org/plugins/the-hidden-word/`
+`https://wordpress.org/plugins/hidden-word-bible-lessons/`

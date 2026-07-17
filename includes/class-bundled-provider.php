@@ -2,17 +2,19 @@
 /**
  * Bundled NIV, KJV, and WEB translation provider.
  *
- * @package The_Hidden_Word
+ * @package Hidden_Word_Bible_Lessons
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+require_once HWBL_PLUGIN_DIR . 'includes/interface-translation-provider.php';
+
 /**
- * Class THW_Bundled_Provider
+ * Class HWBL_Bundled_Provider
  */
-class THW_Bundled_Provider implements THW_Translation_Provider {
+class HWBL_Bundled_Provider implements HWBL_Translation_Provider {
 
 	/**
 	 * Bundled curriculum files keyed by translation slug.
@@ -70,7 +72,7 @@ class THW_Bundled_Provider implements THW_Translation_Provider {
 		$curriculum = $this->load_curriculum( strtolower( $translation ) );
 
 		foreach ( $curriculum as $entry ) {
-			if ( THW_Curriculum::get_entry_lesson_number( $entry ) === (int) $lesson ) {
+			if ( HWBL_Curriculum::get_entry_lesson_number( $entry ) === (int) $lesson ) {
 				return isset( $entry['text'] ) ? $entry['text'] : null;
 			}
 		}
@@ -96,9 +98,9 @@ class THW_Bundled_Provider implements THW_Translation_Provider {
 	 */
 	public function get_supported_translations() {
 		return array(
-			'niv' => __( 'New International Version (NIV)', 'the-hidden-word' ),
-			'kjv' => __( 'King James Version (KJV)', 'the-hidden-word' ),
-			'web' => __( 'World English Bible (WEB)', 'the-hidden-word' ),
+			'niv' => __( 'New International Version (NIV)', 'hidden-word-bible-lessons' ),
+			'kjv' => __( 'King James Version (KJV)', 'hidden-word-bible-lessons' ),
+			'web' => __( 'World English Bible (WEB)', 'hidden-word-bible-lessons' ),
 		);
 	}
 
@@ -128,7 +130,7 @@ class THW_Bundled_Provider implements THW_Translation_Provider {
 			$this->cache[ $translation ] = array();
 			return array();
 		}
-		$path = THW_PLUGIN_DIR . 'data/' . $file;
+		$path = HWBL_PLUGIN_DIR . 'data/' . $file;
 
 		if ( ! is_readable( $path ) ) {
 			$this->cache[ $translation ] = array();
@@ -147,6 +149,6 @@ class THW_Bundled_Provider implements THW_Translation_Provider {
 	 * @return string
 	 */
 	public static function get_niv_copyright() {
-		return __( 'Scripture quotations marked NIV are from THE HOLY BIBLE, NEW INTERNATIONAL VERSION®, NIV® Copyright © 1973, 1978, 1984, 2011 by Biblica, Inc.® Used by permission. All rights reserved worldwide.', 'the-hidden-word' );
+		return __( 'Scripture quotations marked NIV are from THE HOLY BIBLE, NEW INTERNATIONAL VERSION®, NIV® Copyright © 1973, 1978, 1984, 2011 by Biblica, Inc.® Used by permission. All rights reserved worldwide.', 'hidden-word-bible-lessons' );
 	}
 }

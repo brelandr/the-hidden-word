@@ -2,24 +2,24 @@
 /**
  * Translation service facade.
  *
- * @package The_Hidden_Word
+ * @package Hidden_Word_Bible_Lessons
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-require_once THW_PLUGIN_DIR . 'includes/interface-translation-provider.php';
+require_once HWBL_PLUGIN_DIR . 'includes/interface-translation-provider.php';
 
 /**
- * Class THW_Translation_Service
+ * Class HWBL_Translation_Service
  */
-class THW_Translation_Service {
+class HWBL_Translation_Service {
 
 	/**
 	 * Registered providers.
 	 *
-	 * @var array<string, THW_Translation_Provider>
+	 * @var array<string, HWBL_Translation_Provider>
 	 */
 	private $providers = array();
 
@@ -27,8 +27,12 @@ class THW_Translation_Service {
 	 * Constructor.
 	 */
 	public function __construct() {
-		$this->providers['bundled'] = new THW_Bundled_Provider();
-		$this->providers            = apply_filters( 'thw_translation_providers', $this->providers );
+		if ( class_exists( 'HWBL_HelloAO_Provider' ) ) {
+			HWBL_HelloAO_Provider::init();
+		}
+		$this->providers['bundled'] = new HWBL_Bundled_Provider();
+		$this->providers['helloao']   = new HWBL_HelloAO_Provider();
+		$this->providers              = apply_filters( 'hwbl_translation_providers', $this->providers );
 	}
 
 	/**
@@ -42,7 +46,7 @@ class THW_Translation_Service {
 	 */
 	public function get_verse_text( $book_id, $chapter, $verse, $translation = '' ) {
 		if ( ! $translation ) {
-			$translation = get_option( 'thw_active_translation', 'niv' );
+			$translation = get_option( 'hwbl_active_translation', 'niv' );
 		}
 
 		$text = null;
@@ -54,9 +58,9 @@ class THW_Translation_Service {
 			}
 		}
 
-		$text = apply_filters( 'thw_get_verse_text', $text, $book_id, $chapter, $verse, $translation );
+		$text = apply_filters( 'hwbl_get_verse_text', $text, $book_id, $chapter, $verse, $translation );
 
-		return $text ? $text : '';
+		return HWBL_Http_Utils::sanitize_bible_text( $text );
 	}
 
 	/**
@@ -70,7 +74,7 @@ class THW_Translation_Service {
 	 */
 	public function get_echo_verse_text( $book_id, $chapter, $verse, $translation = '' ) {
 		if ( ! $translation ) {
-			$translation = get_option( 'thw_active_translation', 'niv' );
+			$translation = get_option( 'hwbl_active_translation', 'niv' );
 		}
 
 		$translation = strtolower( $translation );
@@ -83,13 +87,13 @@ class THW_Translation_Service {
 			);
 		}
 
-		$cached = THW_Curriculum::get_echo_verse_text( $book_id, $chapter, $verse, $translation );
+		$cached = HWBL_Curriculum::get_echo_verse_text( $book_id, $chapter, $verse, $translation );
 		if ( $cached ) {
 			return $cached;
 		}
 
 		if ( 'niv' === $translation ) {
-			$web = THW_Curriculum::get_echo_verse_text( $book_id, $chapter, $verse, 'web' );
+			$web = HWBL_Curriculum::get_echo_verse_text( $book_id, $chapter, $verse, 'web' );
 			if ( $web ) {
 				return $web;
 			}
@@ -121,10 +125,10 @@ class THW_Translation_Service {
 	 */
 	public function get_verse_by_week( $week, $translation = '' ) {
 		if ( ! $translation ) {
-			$translation = get_option( 'thw_active_translation', 'niv' );
+			$translation = get_option( 'hwbl_active_translation', 'niv' );
 		}
 
-		if ( isset( $this->providers['bundled'] ) && $this->providers['bundled'] instanceof THW_Bundled_Provider ) {
+		if ( isset( $this->providers['bundled'] ) && $this->providers['bundled'] instanceof HWBL_Bundled_Provider ) {
 			$text = $this->providers['bundled']->get_verse_by_week( $week, $translation );
 			if ( $text ) {
 				return $text;
@@ -146,7 +150,7 @@ class THW_Translation_Service {
 			$translations = array_merge( $translations, $provider->get_supported_translations() );
 		}
 
-		return apply_filters( 'thw_supported_translations', $translations );
+		return apply_filters( 'hwbl_supported_translations', $translations );
 	}
 
 	/**
@@ -157,22 +161,22 @@ class THW_Translation_Service {
 	 */
 	public function render_copyright( $translation = '' ) {
 		if ( ! $translation ) {
-			$translation = get_option( 'thw_active_translation', 'niv' );
+			$translation = get_option( 'hwbl_active_translation', 'niv' );
 		}
 
 		if ( 'niv' === $translation ) {
-			return '<p class="thw-copyright">' . esc_html( THW_Bundled_Provider::get_niv_copyright() ) . '</p>';
+			return '<p class="hwbl-copyright">' . esc_html( HWBL_Bundled_Provider::get_niv_copyright() ) . '</p>';
 		}
 
 		if ( 'kjv' === $translation ) {
-			return '<p class="thw-copyright">' . esc_html__( 'King James Version (KJV) — Public Domain.', 'the-hidden-word' ) . '</p>';
+			return '<p class="hwbl-copyright">' . esc_html__( 'King James Version (KJV) — Public Domain.', 'hidden-word-bible-lessons' ) . '</p>';
 		}
 
 		if ( 'web' === $translation ) {
-			return '<p class="thw-copyright">' . esc_html__( 'World English Bible (WEB) — Public Domain.', 'the-hidden-word' ) . '</p>';
+			return '<p class="hwbl-copyright">' . esc_html__( 'World English Bible (WEB) — Public Domain.', 'hidden-word-bible-lessons' ) . '</p>';
 		}
 
-		return apply_filters( 'thw_render_copyright', '', $translation );
+		return apply_filters( 'hwbl_render_copyright', '', $translation );
 	}
 
 	/**

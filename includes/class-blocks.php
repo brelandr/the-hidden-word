@@ -2,7 +2,7 @@
 /**
  * Gutenberg block registration.
  *
- * @package The_Hidden_Word
+ * @package Hidden_Word_Bible_Lessons
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -10,9 +10,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Class THW_Blocks
+ * Class HWBL_Blocks
  */
-class THW_Blocks {
+class HWBL_Blocks {
 
 	/**
 	 * Constructor.
@@ -30,17 +30,17 @@ class THW_Blocks {
 		}
 
 		wp_register_script(
-			'thw-lesson-block',
-			THW_PLUGIN_URL . 'blocks/lesson-block/index.js',
+			'hwbl-lesson-block',
+			HWBL_PLUGIN_URL . 'blocks/lesson-block/index.js',
 			array( 'wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-i18n' ),
-			THW_VERSION,
+			HWBL_VERSION,
 			true
 		);
 
 		register_block_type(
-			'thw/lesson',
+			'hwbl/lesson',
 			array(
-				'editor_script'   => 'thw-lesson-block',
+				'editor_script'   => 'hwbl-lesson-block',
 				'render_callback' => array( $this, 'render_lesson_block' ),
 				'attributes'      => array(
 					'lessonId'          => array(
@@ -60,17 +60,17 @@ class THW_Blocks {
 		);
 
 		wp_register_script(
-			'thw-lesson-list-block',
-			THW_PLUGIN_URL . 'blocks/lesson-list-block/index.js',
+			'hwbl-lesson-list-block',
+			HWBL_PLUGIN_URL . 'blocks/lesson-list-block/index.js',
 			array( 'wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-i18n' ),
-			THW_VERSION,
+			HWBL_VERSION,
 			true
 		);
 
 		register_block_type(
-			'thw/lesson-list',
+			'hwbl/lesson-list',
 			array(
-				'editor_script'   => 'thw-lesson-list-block',
+				'editor_script'   => 'hwbl-lesson-list-block',
 				'render_callback' => array( $this, 'render_lesson_list_block' ),
 				'attributes'      => array(
 					'group'     => array( 'type' => 'string', 'default' => 'book' ),
@@ -95,9 +95,10 @@ class THW_Blocks {
 			$lesson_id = absint( $lesson_id );
 		} else {
 			$lesson_id = 0;
+			HWBL_Cache::mark_page_uncacheable( 'hwbl_lesson_block' );
 		}
 
-		return THW_Lesson_Renderer::render(
+		return HWBL_Lesson_Renderer::render(
 			$lesson_id,
 			array(
 				'show_memorization' => ! empty( $attributes['showMemorization'] ),
@@ -113,7 +114,7 @@ class THW_Blocks {
 	 * @return string
 	 */
 	public function render_lesson_list_block( $attributes ) {
-		return THW_Lesson_List::render(
+		return HWBL_Lesson_List::render(
 			array(
 				'group'     => isset( $attributes['group'] ) ? $attributes['group'] : 'book',
 				'book'      => ! empty( $attributes['book'] ) ? absint( $attributes['book'] ) : 0,

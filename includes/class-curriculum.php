@@ -2,7 +2,7 @@
 /**
  * Bundled curriculum helpers.
  *
- * @package The_Hidden_Word
+ * @package Hidden_Word_Bible_Lessons
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -10,9 +10,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Class THW_Curriculum
+ * Class HWBL_Curriculum
  */
-class THW_Curriculum {
+class HWBL_Curriculum {
 
 	/**
 	 * Cached NIV curriculum rows keyed by lesson number.
@@ -20,6 +20,13 @@ class THW_Curriculum {
 	 * @var array<int, array<string, mixed>>|null
 	 */
 	private static $entries_by_lesson = null;
+
+	/**
+	 * In-request cache for bundled curriculum JSON.
+	 *
+	 * @var array<string, array<int, array<string, mixed>>>
+	 */
+	private static $translation_cache = array();
 
 	/**
 	 * Get a bundled curriculum row by lesson number.
@@ -109,7 +116,7 @@ class THW_Curriculum {
 			$verse_end = $verse_start;
 		}
 
-		$book_name = THW_Books::get_name( $book_id );
+		$book_name = HWBL_Books::get_name( $book_id );
 		$verses    = array();
 
 		if ( $verse_start > 1 ) {
@@ -120,7 +127,7 @@ class THW_Curriculum {
 				'verse'   => $before,
 				'note'    => sprintf(
 					/* translators: 1: book name, 2: chapter, 3: verse */
-					__( 'Read the verse immediately before this lesson (%1$s %2$d:%3$d) to hear the lead-in to the passage.', 'the-hidden-word' ),
+					__( 'Read the verse immediately before this lesson (%1$s %2$d:%3$d) to hear the lead-in to the passage.', 'hidden-word-bible-lessons' ),
 					$book_name,
 					$chapter,
 					$before
@@ -135,7 +142,7 @@ class THW_Curriculum {
 			'verse'   => $after,
 			'note'    => sprintf(
 				/* translators: 1: book name, 2: chapter, 3: verse */
-				__( 'Read the verse immediately after this lesson (%1$s %2$d:%3$d) to continue the passage.', 'the-hidden-word' ),
+				__( 'Read the verse immediately after this lesson (%1$s %2$d:%3$d) to continue the passage.', 'hidden-word-bible-lessons' ),
 				$book_name,
 				$chapter,
 				$after
@@ -162,7 +169,7 @@ class THW_Curriculum {
 			return self::$echo_verses;
 		}
 
-		$path = THW_PLUGIN_DIR . 'data/echo-verses.json';
+		$path = HWBL_PLUGIN_DIR . 'data/echo-verses.json';
 		if ( ! is_readable( $path ) ) {
 			self::$echo_verses = array();
 			return self::$echo_verses;
@@ -224,13 +231,7 @@ class THW_Curriculum {
 	 * @return array<int, array<string, mixed>>
 	 */
 	public static function load_niv() {
-		$path = THW_PLUGIN_DIR . 'data/niv-curriculum.json';
-		if ( ! is_readable( $path ) ) {
-			return array();
-		}
-
-		$data = json_decode( file_get_contents( $path ), true );
-		return is_array( $data ) ? $data : array();
+		return self::load_translation( 'niv' );
 	}
 
 	/**
@@ -258,7 +259,11 @@ class THW_Curriculum {
 	 * @return array<int, array<string, mixed>>
 	 */
 	public static function load_translation( $slug ) {
-		$slug = strtolower( $slug );
+		$slug = strtolower( sanitize_key( (string) $slug ) );
+		if ( isset( self::$translation_cache[ $slug ] ) ) {
+			return self::$translation_cache[ $slug ];
+		}
+
 		$files = array(
 			'niv' => 'niv-curriculum.json',
 			'kjv' => 'kjv-curriculum.json',
@@ -266,16 +271,20 @@ class THW_Curriculum {
 		);
 
 		if ( ! isset( $files[ $slug ] ) ) {
-			return array();
+			self::$translation_cache[ $slug ] = array();
+			return self::$translation_cache[ $slug ];
 		}
 
-		$path = THW_PLUGIN_DIR . 'data/' . $files[ $slug ];
+		$path = HWBL_PLUGIN_DIR . 'data/' . $files[ $slug ];
 		if ( ! is_readable( $path ) ) {
-			return array();
+			self::$translation_cache[ $slug ] = array();
+			return self::$translation_cache[ $slug ];
 		}
 
 		$data = json_decode( file_get_contents( $path ), true );
-		return is_array( $data ) ? $data : array();
+		self::$translation_cache[ $slug ] = is_array( $data ) ? $data : array();
+
+		return self::$translation_cache[ $slug ];
 	}
 
 	/**

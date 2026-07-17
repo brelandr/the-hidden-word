@@ -1,10 +1,10 @@
-=== The Hidden Word ===
+=== Hidden Word Bible Lessons ===
 Contributors: brelandr
 Tags: bible, scripture, discipleship, memorization, verse of the day
 Requires at least: 6.2
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.2.0
+Stable tag: 1.7.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,7 +12,7 @@ A Bible discipleship plugin with 500 NIV verses, deep-dive lessons, historical c
 
 == Description ==
 
-The Hidden Word helps your church or ministry teach Scripture through structured, engaging weekly lessons. Each lesson breaks down a single verse into five rich sections:
+Hidden Word Bible Lessons helps your church or ministry teach Scripture through structured, engaging weekly lessons. Each lesson breaks down a single verse into five rich sections:
 
 * **The Blueprint** — The core scripture with memorization practice
 * **The Context** — Historical and cultural background
@@ -29,7 +29,7 @@ The Hidden Word helps your church or ministry teach Scripture through structured
 * Fill-in-the-blanks memorization widget
 * Custom post type lesson builder with dedicated meta fields
 * Gutenberg block and shortcodes for easy placement
-* Lesson catalog at `/bible-lesson/` and `[thw_lesson_list]`
+* Lesson catalog at `/bible-lesson/` and `[hwbl_lesson_list]`
 * Print and copy verse buttons on lesson pages
 * Local memorization streak counter (browser storage)
 * Classic widget for Verse of the Week
@@ -37,10 +37,10 @@ The Hidden Word helps your church or ministry teach Scripture through structured
 
 = Shortcodes =
 
-* `[thw_lesson]` — Display the current scheduled lesson
-* `[thw_lesson id="123"]` — Display a specific lesson
-* `[thw_lesson_list]` — Browse all lessons by book or testament
-* `[thw_verse_of_week]` — Compact verse display
+* `[hwbl_lesson]` — Display the current scheduled lesson
+* `[hwbl_lesson id="123"]` — Display a specific lesson
+* `[hwbl_lesson_list]` — Browse all lessons by book or testament
+* `[hwbl_verse_of_week]` — Compact verse display
 
 = NIV Copyright =
 
@@ -58,11 +58,11 @@ This free plugin does not send data to third-party servers. Bundled NIV text is 
 
 == Installation ==
 
-1. Upload the plugin to `/wp-content/plugins/the-hidden-word/`
+1. Upload the plugin to `/wp-content/plugins/hidden-word-bible-lessons/`
 2. Activate through the 'Plugins' menu
-3. Go to **The Hidden Word** in the admin menu — 500 lessons seed in the background (progress notice while running). A **Today's Lesson** demo page is created on first activation.
-4. Add `[thw_lesson]` to any page or use the **Bible Lesson** Gutenberg block
-5. Configure schedule and translation under **The Hidden Word → Settings**
+3. Go to **Hidden Word Bible Lessons** in the admin menu — 500 lessons seed in the background (progress notice while running). A **Today's Lesson** demo page is created on first activation.
+4. Add `[hwbl_lesson]` to any page or use the **Bible Lesson** Gutenberg block
+5. Configure schedule and translation under **Hidden Word Bible Lessons → Settings**
 
 == Frequently Asked Questions ==
 
@@ -76,7 +76,7 @@ Yes. Create new Bible Lessons or edit the seeded 500-lesson curriculum.
 
 = Does this work with page builders? =
 
-Yes. Use the shortcode `[thw_lesson]` in any page builder text widget or the Gutenberg block.
+Yes. Use the shortcode `[hwbl_lesson]` in any page builder text widget or the Gutenberg block.
 
 == Screenshots ==
 
@@ -88,8 +88,47 @@ Yes. Use the shortcode `[thw_lesson]` in any page builder text widget or the Gut
 
 == Changelog ==
 
+= 1.7.0 =
+* SRS-first memorization: daily review mode, quality ratings, review queue dashboard shortcode `[hwbl_memorize_reviews]`
+* Lesson pages show due-review banner and auto-enroll verses in your SRS deck when logged in
+* Engagement: cohort leaderboard + weekly challenge, unified AI assistant, side-by-side translation compare
+* PWA offline pack caching for review queue; memorization audio via Hello AO
+* API.Bible FUMS script + attribution; merge-ready `hwbl_premium_features_enabled()` helper
+
+= 1.6.0 =
+* SM-2 spaced repetition with server-side progress (hwbl/v1/memorize/* REST)
+* Practice modes: hide words, type from memory, first-letter hints, word scramble
+* Server streak sync with one-time localStorage import on login
+* REST namespace bridge: hwbl/v1 primary, thw/v1 deprecated aliases
+* Engagement scaffolds: cohort leaderboard, AI assistant shell, personalized digests, translation compare, PWA offline pack
+
+= 1.5.0 =
+* Secure memorize-verse REST endpoint with rate limiting; custom verse posts require login
+* Memoize bundled KJV/WEB/NIV curriculum JSON loads for better performance
+* JavaScript i18n foundation for lesson tabs and memorization widget
+* Keyboard accessibility for word-hide memorization (Enter/Space, ARIA labels)
+* Align Premium streak claim with hwbl_mem_streak localStorage key
+
+= 1.3.1 =
+* Schedule-aware front-end labels: “Today’s / This Week’s / This Month’s Verse to Memorize” based on Bible Lessons → Settings schedule mode
+* Rename user-facing “lesson” CTAs/catalog/widget copy toward verse-to-memorize wording
+
+= 1.3.0 =
+* Renamed for WordPress.org: Hidden Word Bible Lessons (slug hidden-word-bible-lessons)
+* Prefix identifiers as hwbl_/HWBL_ (4+ characters) with legacy thw_* shortcode/block aliases
+* Scope curriculum admin notices to plugin screens (Guideline 11)
+* Migrate legacy thw_lesson CPT, options, and meta on upgrade
+
+= 1.2.2 =
+
+= 1.2.2 =
+* Add optional Enable AI Features setting (requires Premium for front-end AI explain and study search)
+
+= 1.2.1 =
+* Fix autoload for translation provider interface on plugin activation
+
 = 1.2.0 =
-* Add lesson catalog with `[thw_lesson_list]`, Gutenberg block, and `/bible-lesson/` archive
+* Add lesson catalog with `[hwbl_lesson_list]`, Gutenberg block, and `/bible-lesson/` archive
 * Add print and copy verse buttons on lesson pages
 * Add browser-local memorization streak counter with Premium upsell
 * Add classic Verse of the Week widget
@@ -109,7 +148,7 @@ Yes. Use the shortcode `[thw_lesson]` in any page builder text widget or the Gut
 * Update WordPress.org reviewer and submission documentation
 
 = 1.1.2 =
-* Create a "Today's Lesson" demo page with `[thw_lesson]` on first activation (does not change your homepage)
+* Create a "Today's Lesson" demo page with `[hwbl_lesson]` on first activation (does not change your homepage)
 * Add WordPress.org application form copy and plugin apply guide
 
 = 1.1.1 =
@@ -118,14 +157,14 @@ Yes. Use the shortcode `[thw_lesson]` in any page builder text widget or the Gut
 
 = 1.1.0 =
 * Expand bundled NIV curriculum from 52 to 500 verses (Biblica fair-use maximum)
-* Add THW_Curriculum helper for verse counting and lesson scheduling
+* Add HWBL_Curriculum helper for verse counting and lesson scheduling
 * Scheduler and lesson meta now support lesson numbers 1–500
 * Automatic upgrade seeding for existing installs
 * WordPress.org assets and GitHub Actions CI
 
 = 1.0.1 =
 * Complete 52-week NIV curriculum with historical context, narrative, and discussion questions
-* Update project .cursorrules for The Hidden Word
+* Update project .cursorrules for Hidden Word Bible Lessons
 
 = 1.0.0 =
 * Initial release
@@ -136,6 +175,9 @@ Yes. Use the shortcode `[thw_lesson]` in any page builder text widget or the Gut
 * Gutenberg block and shortcodes
 
 == Upgrade Notice ==
+
+= 1.6.0 =
+Adds SM-2 memorization, server streak sync, four practice modes, and hwbl/v1 REST as the primary API namespace.
 
 = 1.2.0 =
 Adds lesson catalog browsing, print/copy tools, local streak tracking, and the Verse of the Week widget.
@@ -156,4 +198,4 @@ Background batched seeding avoids activation timeouts on slower hosts. An admin 
 Expands the bundled curriculum to 500 NIV verses. Existing sites automatically receive new lessons on upgrade.
 
 = 1.0.0 =
-Initial release of The Hidden Word.
+Initial release of Hidden Word Bible Lessons.
