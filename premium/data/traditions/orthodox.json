@@ -1,0 +1,174 @@
+{
+  "slug": "orthodox",
+  "label": "Eastern Orthodox",
+  "version": "1.1.0",
+  "framing": "Frame for an Eastern Orthodox audience: emphasize Christ, Scripture, prayer, and the life of the Church with reverent, patristic-minded humility. Doctrine is received through the Nicene-Constantinopolitan Creed and the dogmatic decrees of the Ecumenical Councils—not a single modern handbook. Prefer Creed/Councils identifiers from the Cited references block. Do not invent canons, father quotations, or handbook dumps.",
+  "extends": null,
+  "general_gates": [
+    "Stay within the provided Bible text for verse claims; do not invent quotations.",
+    "Do not invent primary-source citations beyond the digests and Creed/Councils identifiers supplied in this pack.",
+    "When citing Orthodox doctrine, point only to the Nicene Creed, Ecumenical Councils, or Holy Mysteries digests listed in the Cited references block—never invent canon numbers or patristic quotes.",
+    "Do not map Roman Catholic Catechism/Canon Law citations onto Orthodoxy.",
+    "When a doctrinal stance gate matches, state the tradition, the stance (yes/no/conditional/pastoral/silence), and any required conditions clearly.",
+    "For sensitive life topics, encourage prayer and trusted pastoral or professional help; AI is not a substitute for counseling."
+  ],
+  "citation_map": [
+    {
+      "topics": ["scripture_authority", "church_authority", "salvation"],
+      "articles": ["Nicene-Constantinopolitan Creed"],
+      "confession": "Eastern Orthodox",
+      "note": "The Creed confesses one God, Father Almighty; one Lord Jesus Christ; and the Holy Spirit—the faith of the Ecumenical Councils. Cite the Nicene-Constantinopolitan Creed (paraphrase only)."
+    },
+    {
+      "topics": ["church_authority"],
+      "articles": ["Seven Ecumenical Councils"],
+      "confession": "Eastern Orthodox",
+      "note": "Dogmatic decrees of the Seven Ecumenical Councils bind the Church’s faith. Name the Councils as a body; do not invent specific canon numbers unless provided in this pack."
+    },
+    {
+      "topics": ["baptism", "confirmation", "eucharist", "lords_supper", "sacraments", "salvation"],
+      "articles": ["Holy Mysteries"],
+      "confession": "Eastern Orthodox",
+      "note": "Baptism, Chrismation, and Eucharist initiate and sustain life in Christ. The Eucharist is the true Body and Blood of Christ. Cite Holy Mysteries digest—not Western sacramental system jargon."
+    },
+    {
+      "topics": ["marriage", "divorce", "remarriage", "annulment", "sexuality"],
+      "articles": ["Holy Mystery of Marriage"],
+      "confession": "Eastern Orthodox",
+      "note": "Marriage is a holy mystery. Lifelong union is upheld; pastoral economia may address divorce/remarriage under bishop/priest guidance—not as a Roman annulment tribunal clone."
+    }
+  ],
+  "primary_sources": [
+    {
+      "id": "orthodox_creed_councils",
+      "title": "Nicene Creed & Ecumenical Councils (digest)",
+      "cite": "Nicene-Constantinopolitan Creed; Seven Ecumenical Councils (paraphrase)",
+      "excerpt": "Orthodox faith is confessed in the Creed and received through the dogmatic teaching of the Ecumenical Councils. Scripture is read within the living Tradition of the Church. Do not invent canons or father citations.",
+      "topics": ["scripture_authority", "church_authority", "salvation"]
+    },
+    {
+      "id": "orthodox_sacraments",
+      "title": "Holy Mysteries (digest)",
+      "cite": "Eastern Orthodox catechetical summary (paraphrase)",
+      "excerpt": "Baptism, Chrismation, and Eucharist initiate and sustain life in Christ. The Eucharist is the true Body and Blood of Christ offered in the Divine Liturgy.",
+      "topics": ["baptism", "confirmation", "eucharist", "lords_supper", "sacraments", "salvation"]
+    },
+    {
+      "id": "orthodox_marriage",
+      "title": "Orthodox marriage & divorce (digest)",
+      "cite": "Holy Mystery of Marriage / pastoral economia (paraphrase)",
+      "excerpt": "Marriage is a holy mystery. The Church strongly upholds lifelong union; in pastoral economia, divorce and possible remarriage may be considered with repentance and bishop/priest guidance—not as a Western annulment tribunal clone.",
+      "topics": ["marriage", "divorce", "remarriage", "annulment", "sexuality"]
+    },
+    {
+      "id": "orthodox_authority",
+      "title": "Scripture within Holy Tradition (digest)",
+      "cite": "Orthodox ethos — Scripture, Fathers, Councils (paraphrase)",
+      "excerpt": "Scripture is read within the living Tradition of the Church, Fathers, and Ecumenical Councils. Prefer Creed and Councils pointers; avoid inventing canons or father citations.",
+      "topics": ["scripture_authority", "church_authority"]
+    }
+  ],
+  "stances": [
+    {
+      "topic": "divorce",
+      "stance": "conditional",
+      "summary": "Divorce is a wound; pastoral economia may allow it after serious failure of the union, under Church guidance.",
+      "conditions": [
+        "priest/bishop counsel",
+        "repentance",
+        "care for children"
+      ],
+      "forbid": [
+        "present divorce as ideal or casual"
+      ]
+    },
+    {
+      "topic": "annulment",
+      "stance": "silence",
+      "summary": "Do not map Roman Catholic annulment procedure onto Orthodoxy; speak of economia and pastoral process instead.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "remarriage",
+      "stance": "conditional",
+      "summary": "A blessed remarriage may be possible after pastoral discernment; it is penitential in tone compared with first marriage.",
+      "conditions": [
+        "ecclesiastical blessing",
+        "pastoral approval"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "baptism",
+      "stance": "yes",
+      "summary": "Baptism (often with Chrismation) initiates into the Church; infant baptism is practiced.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "confirmation",
+      "stance": "yes",
+      "summary": "Chrismation seals the gift of the Holy Spirit, ordinarily with baptism.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "eucharist",
+      "stance": "yes",
+      "summary": "Affirm real presence in the Divine Liturgy.",
+      "conditions": [],
+      "forbid": [
+        "mere memorial only"
+      ]
+    },
+    {
+      "topic": "lords_supper",
+      "stance": "yes",
+      "summary": "Speak of Holy Communion / Eucharist in Orthodox terms.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "salvation",
+      "stance": "conditional",
+      "summary": "Salvation is theosis—life in Christ by grace through the Mysteries and ascetic struggle.",
+      "conditions": [
+        "avoid reducing salvation to a single moment formula alone"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "scripture_authority",
+      "stance": "conditional",
+      "summary": "Scripture within Holy Tradition (Creed and Councils).",
+      "conditions": [
+        "do not invent patristic quotes"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "church_authority",
+      "stance": "yes",
+      "summary": "Authority is conciliar and episcopal within Orthodoxy (Ecumenical Councils).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "sexuality",
+      "stance": "conditional",
+      "summary": "Chastity and marital faithfulness per Orthodox moral teaching; pastoral compassion for all.",
+      "conditions": [
+        "priestly guidance"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "marriage",
+      "stance": "yes",
+      "summary": "Marriage is a holy mystery ordered to mutual salvation and family life.",
+      "conditions": [],
+      "forbid": []
+    }
+  ]
+}

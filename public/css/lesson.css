@@ -133,6 +133,69 @@
 	gap: 0.5rem;
 }
 
+.hwbl-memorization-reference-prompt {
+	margin: 0 0 0.75rem;
+}
+
+.hwbl-memorization-reference-fields {
+	display: grid;
+	grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr);
+	gap: 0.75rem;
+	margin-bottom: 0.75rem;
+}
+
+.hwbl-memorization-reference-field {
+	display: flex;
+	flex-direction: column;
+	gap: 0.35rem;
+	font-size: 0.9rem;
+}
+
+.hwbl-memorization-reference-field--full {
+	margin-bottom: 0.75rem;
+}
+
+.hwbl-memorization-reference-field input {
+	width: 100%;
+	padding: 0.45rem 0.6rem;
+	border: 1px solid #c5d0da;
+	border-radius: 4px;
+}
+
+.hwbl-memorization-reference-result {
+	margin: 0.75rem 0 0;
+	font-weight: 600;
+}
+
+.hwbl-memorization-audio-wrap {
+	margin-top: 1rem;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.75rem;
+}
+
+.hwbl-memorization-audio-player {
+	max-width: 100%;
+}
+
+.hwbl-memorization-audio-status {
+	flex: 1 1 100%;
+	margin: 0;
+	font-size: 0.9rem;
+	color: #555;
+}
+
+.hwbl-memorization-audio-status.is-error {
+	color: #8a1f1f;
+}
+
+@media (max-width: 640px) {
+	.hwbl-memorization-reference-fields {
+		grid-template-columns: 1fr;
+	}
+}
+
 .hwbl-btn {
 	background: #1a5276;
 	color: #fff;

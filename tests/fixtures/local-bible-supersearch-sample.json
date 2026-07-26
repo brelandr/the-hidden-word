@@ -1,0 +1,30 @@
+{
+  "metadata": {
+    "name": "Authorized King James Version",
+    "shortname": "KJV",
+    "module": "kjv"
+  },
+  "verses": [
+    {
+      "book_name": "Genesis",
+      "book": 1,
+      "chapter": 1,
+      "verse": 1,
+      "text": "¶ In the beginning God created the heaven and the earth."
+    },
+    {
+      "book_name": "John",
+      "book": 43,
+      "chapter": 3,
+      "verse": 16,
+      "text": "For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life."
+    },
+    {
+      "book_name": "Ephesians",
+      "book": 49,
+      "chapter": 6,
+      "verse": 13,
+      "text": "Wherefore take unto you the whole armour of God, that ye may be able to withstand in the evil day, and having done all, to stand."
+    }
+  ]
+}

@@ -1,0 +1,288 @@
+{
+  "slug": "lds",
+  "label": "Latter-day Saints (Mormon)",
+  "version": "1.1.0",
+  "framing": "Frame for a Latter-day Saint audience: respectful, Christ- and family-oriented tone. Prefer LDS Articles of Faith Art. 1–13 identifiers (Joseph Smith, 1842). This tool supplies Christian Bible text only—do not invent Book of Mormon, D&C, or Pearl of Great Price quotations.",
+  "extends": null,
+  "general_gates": [
+    "Stay within the provided Bible text for verse claims; do not invent quotations.",
+    "Do not invent primary-source citations beyond the digests and LDS Articles of Faith Art. numbers supplied in this pack.",
+    "When citing LDS doctrine, use LDS Articles of Faith Art. 1–13 identifiers only—paraphrase. Never invent BoM/D&C/PoGP quotations or handbook dumps.",
+    "When a doctrinal stance gate matches, state the tradition, the stance (yes/no/conditional/pastoral/silence), and any required conditions clearly.",
+    "For sensitive life topics, encourage prayer and trusted pastoral or professional help; AI is not a substitute for counseling."
+  ],
+  "citation_map": [
+    {
+      "topics": [
+        "church_authority",
+        "salvation"
+      ],
+      "articles": [
+        "1"
+      ],
+      "confession": "LDS Articles of Faith",
+      "note": "God the Eternal Father; His Son Jesus Christ; the Holy Ghost. Cite Art. 1."
+    },
+    {
+      "topics": [
+        "salvation"
+      ],
+      "articles": [
+        "2",
+        "3",
+        "4"
+      ],
+      "confession": "LDS Articles of Faith",
+      "note": "Accountability; Atonement; first principles/ordinances (faith, repentance, baptism, gift of the Holy Ghost). Cite Arts. 2–4—do not invent temple details."
+    },
+    {
+      "topics": [
+        "baptism",
+        "spirit_baptism"
+      ],
+      "articles": [
+        "4"
+      ],
+      "confession": "LDS Articles of Faith",
+      "note": "Baptism by immersion for remission of sins; laying on of hands for the gift of the Holy Ghost. Cite Art. 4."
+    },
+    {
+      "topics": [
+        "church_authority",
+        "prophecy",
+        "healing"
+      ],
+      "articles": [
+        "5",
+        "6",
+        "7"
+      ],
+      "confession": "LDS Articles of Faith",
+      "note": "Priesthood calling; primitive church organization; spiritual gifts. Cite Arts. 5–7—no invented living-prophet directives."
+    },
+    {
+      "topics": [
+        "scripture_authority",
+        "additional_scripture"
+      ],
+      "articles": [
+        "8",
+        "9"
+      ],
+      "confession": "LDS Articles of Faith",
+      "note": "Bible as word of God as far as translated correctly; LDS also affirm additional scripture (Art. 8). This tool only supplies Bible text—do not invent BoM quotes. Continuing revelation (Art. 9)—do not invent new revelations."
+    },
+    {
+      "topics": [
+        "prophecy",
+        "mission"
+      ],
+      "articles": [
+        "10"
+      ],
+      "confession": "LDS Articles of Faith",
+      "note": "Gathering of Israel; Christ’s reign. Avoid date-setting. Cite Art. 10."
+    },
+    {
+      "topics": [
+        "holiness",
+        "mission"
+      ],
+      "articles": [
+        "11",
+        "12",
+        "13"
+      ],
+      "confession": "LDS Articles of Faith",
+      "note": "Worship freedom; honor law; seek after virtue (Art. 13). Cite Arts. 11–13."
+    },
+    {
+      "topics": [
+        "marriage",
+        "divorce",
+        "remarriage",
+        "sexuality"
+      ],
+      "articles": [
+        "13"
+      ],
+      "confession": "LDS Articles of Faith",
+      "note": "Virtue, honesty, and chastity ethos (Art. 13). Family faithfulness pastoral—do not invent sealing/handbook rules."
+    }
+  ],
+  "primary_sources": [
+    {
+      "id": "lds_aof_god",
+      "title": "LDS Articles of Faith — God & Christ (digest)",
+      "cite": "LDS Articles of Faith Art. 1 (paraphrase)",
+      "excerpt": "Belief in God the Eternal Father, His Son Jesus Christ, and the Holy Ghost.",
+      "topics": [
+        "church_authority",
+        "salvation"
+      ]
+    },
+    {
+      "id": "lds_aof_gospel",
+      "title": "LDS Articles of Faith — gospel ordinances (digest)",
+      "cite": "LDS Articles of Faith Arts. 3–4 (paraphrase)",
+      "excerpt": "Salvation through the Atonement of Christ; first principles include faith, repentance, baptism by immersion, and the gift of the Holy Ghost. Do not invent temple ordinance details.",
+      "topics": [
+        "salvation",
+        "baptism",
+        "spirit_baptism"
+      ]
+    },
+    {
+      "id": "lds_aof_scripture",
+      "title": "LDS Articles of Faith — Scripture boundary (digest)",
+      "cite": "LDS Articles of Faith Arts. 8–9 (paraphrase)",
+      "excerpt": "LDS affirm the Bible and additional scripture (Art. 8) and continuing revelation (Art. 9). This study tool provides Bible text only—never invent BoM/D&C quotations.",
+      "topics": [
+        "scripture_authority",
+        "additional_scripture"
+      ]
+    },
+    {
+      "id": "lds_aof_virtue",
+      "title": "LDS Articles of Faith — virtue & family (digest)",
+      "cite": "LDS Articles of Faith Art. 13 (paraphrase)",
+      "excerpt": "Seek after things virtuous, lovely, and of good report. Emphasize faith in Christ, repentance, and family devotion without inventing handbook sealing rules.",
+      "topics": [
+        "holiness",
+        "marriage",
+        "sexuality"
+      ]
+    }
+  ],
+  "stances": [
+    {
+      "topic": "additional_scripture",
+      "stance": "no",
+      "summary": "Do not invent or quote LDS unique scriptures in answers; stick to provided Bible text (Art. 8 noted as LDS belief only).",
+      "conditions": [],
+      "forbid": [
+        "fabricate BoM/D&C citations"
+      ]
+    },
+    {
+      "topic": "scripture_authority",
+      "stance": "conditional",
+      "summary": "Treat the provided Bible passage as the study text; LDS Arts. 8–9 acknowledged as identifiers only.",
+      "conditions": [
+        "no extra-canonical invention"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "salvation",
+      "stance": "pastoral",
+      "summary": "Faith in Jesus Christ and the Atonement (Arts. 3–4) without inventing ordinance requirements not in the provided text.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "baptism",
+      "stance": "pastoral",
+      "summary": "Immersion for remission of sins (Art. 4) discussed from Bible + Art. identifier; no temple invention.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "spirit_baptism",
+      "stance": "pastoral",
+      "summary": "Gift of the Holy Ghost (Art. 4)—stay pastoral.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "eucharist",
+      "stance": "pastoral",
+      "summary": "If discussing sacrament/Lord’s Supper, stay with Bible text.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "lords_supper",
+      "stance": "pastoral",
+      "summary": "Stay with biblical Lord’s Supper texts when present.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "marriage",
+      "stance": "pastoral",
+      "summary": "Affirm faithfulness (Art. 13); do not invent sealing doctrine.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "divorce",
+      "stance": "pastoral",
+      "summary": "Encourage pastoral/counseling support; no invented handbook rules.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "annulment",
+      "stance": "silence",
+      "summary": "Not applicable in this Bible-study context.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "remarriage",
+      "stance": "pastoral",
+      "summary": "Encourage wise pastoral counsel.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "sexuality",
+      "stance": "pastoral",
+      "summary": "Chastity and fidelity (Art. 13) without inventing handbook quotes.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "church_authority",
+      "stance": "silence",
+      "summary": "Do not invent living prophet directives; Arts. 5–6 as identifiers only.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "prophecy",
+      "stance": "conditional",
+      "summary": "Spiritual gifts / continuing revelation (Arts. 7, 9)—never invent new revelations or BoM quotes.",
+      "conditions": [
+        "no invented revelations"
+      ],
+      "forbid": [
+        "fabricate prophetic words"
+      ]
+    },
+    {
+      "topic": "healing",
+      "stance": "pastoral",
+      "summary": "Gifts include healing (Art. 7)—pray without guaranteeing miracles.",
+      "conditions": [],
+      "forbid": [
+        "guarantee miracles"
+      ]
+    },
+    {
+      "topic": "holiness",
+      "stance": "yes",
+      "summary": "Virtue and good report (Art. 13).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "mission",
+      "stance": "yes",
+      "summary": "Gathering and gospel witness (Art. 10) without date-setting.",
+      "conditions": [],
+      "forbid": []
+    }
+  ]
+}

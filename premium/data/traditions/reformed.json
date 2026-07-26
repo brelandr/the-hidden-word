@@ -1,0 +1,194 @@
+{
+  "slug": "reformed",
+  "label": "Presbyterian / Reformed",
+  "version": "1.1.0",
+  "framing": "Frame for a Presbyterian or Reformed audience (PCA-aware default): emphasize God’s sovereignty, covenant faithfulness, and careful Scripture exposition with pastoral humility. Prefer Westminster Confession of Faith chapter identifiers from the Cited references block. Do not paste full WCF chapters.",
+  "extends": null,
+  "general_gates": [
+    "Stay within the provided Bible text for verse claims; do not invent quotations.",
+    "Do not invent primary-source citations beyond the digests and Westminster Confession identifiers supplied in this pack.",
+    "When citing Reformed doctrine, use only the WCF chapter numbers listed in the Cited references block.",
+    "When a doctrinal stance gate matches, state the tradition, the stance (yes/no/conditional/pastoral/silence), and any required conditions clearly.",
+    "For sensitive life topics, encourage prayer and trusted pastoral or professional help; AI is not a substitute for counseling."
+  ],
+  "citation_map": [
+    {
+      "topics": ["scripture_authority", "church_authority"],
+      "articles": ["1"],
+      "confession": "Westminster Confession",
+      "note": "Of the Holy Scripture — Scripture is the only infallible rule of faith and life; councils and traditions are fallible and subordinate. Cite WCF 1."
+    },
+    {
+      "topics": ["salvation"],
+      "articles": ["11", "14", "17"],
+      "confession": "Westminster Confession",
+      "note": "Justification, saving faith, and perseverance of the saints map classic Reformed soteriology. Cite WCF 11, 14, 17 (paraphrase only)."
+    },
+    {
+      "topics": ["church_authority"],
+      "articles": ["25", "30", "31"],
+      "confession": "Westminster Confession",
+      "note": "Of the Church, Church censures, and Synods/Councils — elder-led Presbyterian order under Scripture. Cite WCF 25, 30–31."
+    },
+    {
+      "topics": ["baptism", "lords_supper", "eucharist", "sacraments"],
+      "articles": ["27", "28", "29"],
+      "confession": "Westminster Confession",
+      "note": "Sacraments are signs and seals of the covenant of grace. Baptism (including infants of believers) and the Lord’s Supper; spiritual presence to faith—not transubstantiation. Cite WCF 27–29."
+    },
+    {
+      "topics": ["marriage", "divorce", "remarriage", "sexuality"],
+      "articles": ["24"],
+      "confession": "Westminster Confession",
+      "note": "Of Marriage and Divorce — marriage is between one man and one woman; divorce only for adultery or such willful desertion as can no way be remedied. Cite WCF 24."
+    },
+    {
+      "topics": ["sabbath"],
+      "articles": ["21"],
+      "confession": "Westminster Confession",
+      "note": "Of Religious Worship and the Sabbath Day — the Lord’s Day is kept holy. Cite WCF 21."
+    },
+    {
+      "topics": ["prophecy"],
+      "articles": ["32", "33"],
+      "confession": "Westminster Confession",
+      "note": "Of the State of Men after Death and of the Resurrection; Of the Last Judgment. Avoid date-setting. Cite WCF 32–33."
+    }
+  ],
+  "primary_sources": [
+    {
+      "id": "wcf_scripture",
+      "title": "Westminster — Scripture (digest)",
+      "cite": "Westminster Confession Art. 1 (paraphrase)",
+      "excerpt": "Scripture is the only infallible rule of faith and life; councils and traditions are fallible and subordinate to the Word of God.",
+      "topics": ["scripture_authority", "church_authority"]
+    },
+    {
+      "id": "wcf_salvation",
+      "title": "Westminster — justification & faith (digest)",
+      "cite": "Westminster Confession Arts. 11, 14, 17 (paraphrase)",
+      "excerpt": "Sinners are justified by grace through faith in Christ alone. Saving faith receives and rests on Christ. Those whom God has accepted in the Beloved can never totally fall from grace.",
+      "topics": ["salvation"]
+    },
+    {
+      "id": "wcf_sacraments",
+      "title": "Westminster — sacraments (digest)",
+      "cite": "Westminster Confession Arts. 27–29 (paraphrase)",
+      "excerpt": "Baptism and the Lord’s Supper are signs and seals of the covenant of grace. Christ’s body and blood are spiritually present to faith in the Supper—not transubstantiation.",
+      "topics": ["baptism", "eucharist", "lords_supper", "sacraments", "salvation"]
+    },
+    {
+      "id": "wcf_marriage",
+      "title": "Westminster — marriage (digest)",
+      "cite": "Westminster Confession Art. 24 (paraphrase)",
+      "excerpt": "Marriage is between one man and one woman. Divorce is allowed only for adultery or such willful desertion as can no way be remedied by the Church or civil magistrate.",
+      "topics": ["marriage", "divorce", "remarriage", "sexuality"]
+    }
+  ],
+  "stances": [
+    {
+      "topic": "scripture_authority",
+      "stance": "yes",
+      "summary": "Sola Scriptura; confessions subordinate to Scripture (WCF 1).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "salvation",
+      "stance": "yes",
+      "summary": "By grace through faith; God’s sovereignty in salvation emphasized (WCF 11, 14, 17).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "baptism",
+      "stance": "yes",
+      "summary": "Covenant baptism including infants of believers is standard (WCF 28).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "eucharist",
+      "stance": "yes",
+      "summary": "Spiritual real presence to faith (WCF 29); reject both bare memorialism and transubstantiation as required.",
+      "conditions": [],
+      "forbid": [
+        "require transubstantiation"
+      ]
+    },
+    {
+      "topic": "lords_supper",
+      "stance": "yes",
+      "summary": "Covenant meal sealing gospel promises (WCF 29).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "divorce",
+      "stance": "conditional",
+      "summary": "Only for adultery or irremediable desertion per WCF 24.",
+      "conditions": [
+        "session/elder oversight",
+        "biblical grounds"
+      ],
+      "forbid": [
+        "easy divorce"
+      ]
+    },
+    {
+      "topic": "annulment",
+      "stance": "silence",
+      "summary": "Not the Reformed category; use biblical divorce/remarriage language.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "remarriage",
+      "stance": "conditional",
+      "summary": "May be permitted when divorce was on biblical grounds (WCF 24).",
+      "conditions": [
+        "eldership counsel"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "church_authority",
+      "stance": "yes",
+      "summary": "Elder-led (session/presbytery) under Scripture (WCF 25, 30–31).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "sexuality",
+      "stance": "conditional",
+      "summary": "Sexual intimacy reserved for marriage between man and woman (WCF 24).",
+      "conditions": [
+        "pastoral care"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "marriage",
+      "stance": "yes",
+      "summary": "Lifelong covenant between one man and one woman (WCF 24).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "sabbath",
+      "stance": "yes",
+      "summary": "The Lord’s Day is to be kept holy (WCF 21).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "prophecy",
+      "stance": "conditional",
+      "summary": "Affirm resurrection and final judgment (WCF 32–33); avoid date-setting.",
+      "conditions": [],
+      "forbid": [
+        "set dates for the Second Coming"
+      ]
+    }
+  ]
+}

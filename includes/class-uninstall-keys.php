@@ -58,6 +58,7 @@ class HWBL_Uninstall_Keys {
 			'thw_ai_ask_include_lessons',
 			'thw_ai_church_subject_rules',
 			'thw_ai_allow_user_tradition',
+			'thw_ai_enabled_traditions',
 			'thw_ai_enabled',
 			'thw_ai_provider',
 			'thw_ai_model',
@@ -65,6 +66,13 @@ class HWBL_Uninstall_Keys {
 			'thw_ai_anthropic_key',
 			'thw_active_translation',
 			'thw_schedule_mode',
+			'thw_explain_preload_job',
+			'thw_explain_pack_export_job',
+			'thw_explain_pack_import_job',
+			'thw_explain_packs_installed',
+			'thw_explain_pack_catalog_url',
+			'hwbl_bible_explain_db_version',
+			'hwbl_bible_explain_cpt_migrate_offset',
 		);
 	}
 
@@ -81,5 +89,8 @@ class HWBL_Uninstall_Keys {
 		wp_clear_scheduled_hook( 'thw_premium_lesson_digest' );
 		wp_clear_scheduled_hook( 'thw_premium_votd_digest' );
 		wp_clear_scheduled_hook( 'thw_premium_votd_daily_refresh' );
+		wp_clear_scheduled_hook( 'thw_explain_preload_batch' );
+		wp_clear_scheduled_hook( 'thw_explain_pack_export_batch' );
+		wp_clear_scheduled_hook( 'thw_explain_pack_import_batch' );
 	}
 }

@@ -1,0 +1,326 @@
+{
+  "slug": "upci",
+  "label": "United Pentecostal Church International (UPCI / Oneness)",
+  "version": "1.1.0",
+  "framing": "Frame for a UPCI (Oneness / Apostolic) audience: one God revealed as Father, in the Son, and as the Holy Spirit; Jesus Christ is God manifested in flesh. Emphasize repentance, water baptism in Jesus’ name, and Spirit baptism with tongues as the New Birth pattern. Encourage holy living. Do not impose Trinitarian formulas as UPCI doctrine. Prefer UPCI Articles of Faith Art. numbers from the Cited references block.",
+  "extends": null,
+  "general_gates": [
+    "Stay within the provided Bible text for verse claims; do not invent quotations.",
+    "Do not invent primary-source citations beyond the digests and UPCI Articles of Faith Art. numbers in this pack.",
+    "When citing UPCI doctrine, use only the Art. numbers and titles listed in the Cited references block (e.g. UPCI Articles of Faith Art. 3).",
+    "Do not teach the Trinity as UPCI doctrine; use Oneness framing (one God; Jesus is God manifested in flesh).",
+    "Do not invent personal prophetic words, healings, or Spirit-baptism experiences as facts about the user.",
+    "For sensitive life topics, encourage prayer and trusted pastoral or professional help; AI is not a substitute for counseling.",
+    "Do not paste or invent long quotations from the UPCI Manual; paraphrase briefly and point to Art. numbers."
+  ],
+  "citation_map": [
+    {
+      "topics": ["scripture_authority"],
+      "articles": ["1"],
+      "confession": "UPCI Articles of Faith",
+      "note": "Preamble — The Bible is the inspired, infallible Word of God and the only God-given authority for doctrine and church instruction. Cite Art. 1."
+    },
+    {
+      "topics": ["salvation", "baptism", "spirit_baptism"],
+      "articles": ["2"],
+      "confession": "UPCI Articles of Faith",
+      "note": "Fundamental Doctrine — Full salvation pattern: repentance, immersion baptism in Jesus’ name for remission of sins, and Holy Ghost baptism with tongues as the initial sign. Cite Art. 2."
+    },
+    {
+      "topics": ["church_authority", "salvation"],
+      "articles": ["3"],
+      "confession": "UPCI Articles of Faith",
+      "note": "The One True God — One ever-living God with absolute, indivisible deity; revealed as Father, through the Son in redemption, and as the Holy Spirit by emanation (Oneness). Cite Art. 3."
+    },
+    {
+      "topics": ["church_authority", "salvation"],
+      "articles": ["4"],
+      "confession": "UPCI Articles of Faith",
+      "note": "The Son of God — God manifested in the flesh in Jesus Christ; full deity and true humanity; the one mediator. Cite Art. 4."
+    },
+    {
+      "topics": ["baptism", "salvation", "church_authority"],
+      "articles": ["5"],
+      "confession": "UPCI Articles of Faith",
+      "note": "The Name — Salvation is in the name of Jesus; redemptive name fulfillment. Cite Art. 5."
+    },
+    {
+      "topics": ["salvation", "scripture_authority"],
+      "articles": ["6"],
+      "confession": "UPCI Articles of Faith",
+      "note": "Creation and Fall of Man — Humans bear God’s image and dignity; the Fall brings sin and need of redemption. Cite Art. 6."
+    },
+    {
+      "topics": ["salvation"],
+      "articles": ["7"],
+      "confession": "UPCI Articles of Faith",
+      "note": "Atonement — Salvation rests on Christ’s blood, death, burial, and resurrection; by grace through faith. Cite Art. 7."
+    },
+    {
+      "topics": ["salvation"],
+      "articles": ["8"],
+      "confession": "UPCI Articles of Faith",
+      "note": "Repentance — Genuine repentance (change of heart, mind, and life) is required; pardon comes with forsaking sin. Cite Art. 8."
+    },
+    {
+      "topics": ["baptism", "salvation"],
+      "articles": ["9"],
+      "confession": "UPCI Articles of Faith",
+      "note": "Water Baptism — Immersion only, for the fully repentant, administered in the name of the Lord Jesus Christ (Acts pattern). Cite Art. 9."
+    },
+    {
+      "topics": ["spirit_baptism", "salvation", "prophecy"],
+      "articles": ["10"],
+      "confession": "UPCI Articles of Faith",
+      "note": "The Baptism of the Holy Spirit — Expect the initial physical sign of speaking with other tongues as the Spirit gives utterance. Cite Art. 10."
+    },
+    {
+      "topics": ["healing", "prayer"],
+      "articles": ["11"],
+      "confession": "UPCI Articles of Faith",
+      "note": "Divine Healing — Healing for the body is in the atonement; pray in faith without guaranteeing outcomes. Cite Art. 11."
+    },
+    {
+      "topics": ["lords_supper", "eucharist", "sacraments"],
+      "articles": ["Sacrament or Communion"],
+      "confession": "UPCI Articles of Faith",
+      "note": "Communion uses bread and the fruit of the vine as emblems of Christ’s body and blood; keep Apostolic framing (not Catholic Eucharistic dogma)."
+    },
+    {
+      "topics": ["holiness", "sanctification", "mission", "sexuality"],
+      "articles": ["12"],
+      "confession": "UPCI Articles of Faith",
+      "note": "Holiness — Godly living should mark every believer (inner and outer life) after the Word’s pattern; apply local pastoral holiness teaching without inventing rules beyond the pack. Cite Art. 12."
+    },
+    {
+      "topics": ["salvation", "holiness"],
+      "articles": ["13"],
+      "confession": "UPCI Articles of Faith",
+      "note": "The Grace of God — Saved by grace through faith; walking in grace matters; unrepentant backsliding is treated as spiritually perilous. Cite Art. 13."
+    },
+    {
+      "topics": ["marriage", "divorce", "remarriage", "sexuality"],
+      "articles": ["18"],
+      "confession": "UPCI Articles of Faith",
+      "note": "Marriage and Divorce — Take Jesus’ teaching on divorce seriously; when the excepted sin is involved, pastoral counsel applies; do not use Roman Catholic annulment citations. Cite Art. 18."
+    },
+    {
+      "topics": ["prophecy"],
+      "articles": ["17", "20", "21", "22"],
+      "confession": "UPCI Articles of Faith",
+      "note": "Translation of Saints, Second Coming, Millennium, and Final Judgment — Jesus is coming again; resurrection and judgment follow. Avoid date-setting. Cite Arts. 17, 20–22."
+    }
+  ],
+  "primary_sources": [
+    {
+      "id": "upci_scripture_preamble",
+      "title": "UPCI — Bible as authority (digest)",
+      "cite": "UPCI Articles of Faith Art. 1 — Preamble (paraphrase)",
+      "excerpt": "The Bible is inspired and infallible, the church’s sole God-given authority. Doctrine, faith, and instruction must harmonize with Scripture.",
+      "topics": ["scripture_authority"]
+    },
+    {
+      "id": "upci_fundamental_doctrine",
+      "title": "UPCI — Fundamental Doctrine / New Birth pattern (digest)",
+      "cite": "UPCI Articles of Faith Art. 2 (paraphrase)",
+      "excerpt": "Full salvation is taught as repentance, water baptism by immersion in the name of the Lord Jesus Christ for the remission of sins, and the baptism of the Holy Ghost with the initial sign of speaking with other tongues as the Spirit gives utterance.",
+      "topics": ["salvation", "baptism", "spirit_baptism"]
+    },
+    {
+      "id": "upci_oneness",
+      "title": "UPCI — The One True God (digest)",
+      "cite": "UPCI Articles of Faith Art. 3 — The One True God (paraphrase)",
+      "excerpt": "There is one ever-living God with absolute, indivisible deity—revealed as Father; through His Son in redemption; and as the Holy Spirit by emanation. This is Oneness (Apostolic) framing, not Trinitarian persons language.",
+      "topics": ["church_authority", "salvation", "scripture_authority"]
+    },
+    {
+      "id": "upci_son_and_name",
+      "title": "UPCI — Son of God and the Name (digest)",
+      "cite": "UPCI Articles of Faith Arts. 4–5 (paraphrase)",
+      "excerpt": "Jesus Christ is God manifested in flesh—true God and true man, the one mediator. Salvation is in His name; baptism and gospel obedience center on the name of Jesus.",
+      "topics": ["church_authority", "salvation", "baptism"]
+    },
+    {
+      "id": "upci_gospel_new_birth",
+      "title": "UPCI — repentance, baptism, Spirit (digest)",
+      "cite": "UPCI Articles of Faith Arts. 8–10 (paraphrase)",
+      "excerpt": "Repentance is a real turning from sin. Water baptism is immersion in Jesus’ name for the repentant. Spirit baptism is expected with tongues as the initial sign. Together with Art. 2, this is the UPCI New Birth/gospel-obedience pattern.",
+      "topics": ["salvation", "baptism", "spirit_baptism"]
+    },
+    {
+      "id": "upci_healing",
+      "title": "UPCI — divine healing (digest)",
+      "cite": "UPCI Articles of Faith Art. 11 (paraphrase)",
+      "excerpt": "Divine healing for the body is taught as provided in the atonement. Encourage prayer, anointing, and faith without inventing guaranteed outcomes or personal miracle claims.",
+      "topics": ["healing", "prayer"]
+    },
+    {
+      "id": "upci_holiness_gifts",
+      "title": "UPCI — Holiness (digest)",
+      "cite": "UPCI Articles of Faith Art. 12 — Holiness (paraphrase)",
+      "excerpt": "Godly living should characterize every believer—inner and outer life—according to the pattern of Scripture. Encourage holiness with pastoral sensitivity; do not invent congregation-specific dress or media rules beyond what this pack states.",
+      "topics": ["holiness", "sanctification", "healing", "prayer", "mission", "marriage", "divorce", "sexuality"]
+    },
+    {
+      "id": "upci_marriage_family",
+      "title": "UPCI — marriage and divorce (digest)",
+      "cite": "UPCI Articles of Faith Art. 18 — Marriage and Divorce (paraphrase)",
+      "excerpt": "Marriage is taken seriously under Jesus’ teaching. Divorce is treated as a grave matter; Scripture’s exception and pastoral counsel shape guidance for the innocent party. Do not apply Roman Catholic annulment tribunals or Catholic catechetical citations to UPCI guidance.",
+      "topics": ["marriage", "divorce", "remarriage", "sexuality", "holiness"]
+    },
+    {
+      "id": "upci_future",
+      "title": "UPCI — coming of the Lord (digest)",
+      "cite": "UPCI Articles of Faith Arts. 17, 20–22 (paraphrase)",
+      "excerpt": "Believers look for the Lord’s appearing, resurrection hope, millennial peace themes, and final judgment. Avoid date-setting and sensational speculation.",
+      "topics": ["prophecy"]
+    }
+  ],
+  "stances": [
+    {
+      "topic": "scripture_authority",
+      "stance": "yes",
+      "summary": "The Bible is the inspired, infallible Word of God and authority for doctrine and Christian living (Art. 1).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "church_authority",
+      "stance": "conditional",
+      "summary": "Oneness theology (Art. 3–4): one God; Jesus is God manifested in flesh—do not require Trinitarian person language as UPCI doctrine.",
+      "conditions": [
+        "use Oneness framing when this tradition is selected"
+      ],
+      "forbid": [
+        "teach three co-equal persons of the Trinity as UPCI doctrine"
+      ]
+    },
+    {
+      "topic": "baptism",
+      "stance": "conditional",
+      "summary": "Water baptism is immersion in the name of Jesus Christ for the repentant (Arts. 2, 9)—not the Triune formula as UPCI practice.",
+      "conditions": [
+        "repentance",
+        "Jesus’ name baptism",
+        "immersion"
+      ],
+      "forbid": [
+        "require Father-Son-Holy Spirit baptismal formula as UPCI doctrine"
+      ]
+    },
+    {
+      "topic": "spirit_baptism",
+      "stance": "yes",
+      "summary": "Baptism of the Holy Spirit with the initial sign of speaking in tongues is part of the UPCI New Birth pattern (Arts. 2, 10).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "salvation",
+      "stance": "conditional",
+      "summary": "Salvation is by grace through faith based on Christ’s atonement, expressed in the repentance–baptism–Spirit pattern UPCI teaches (Arts. 2, 7–10).",
+      "conditions": [
+        "repentance",
+        "Jesus’ name baptism",
+        "Spirit baptism with tongues as taught by UPCI"
+      ],
+      "forbid": [
+        "reduce UPCI New Birth teaching to ‘sinner’s prayer only’ when explaining UPCI doctrine"
+      ]
+    },
+    {
+      "topic": "holiness",
+      "stance": "yes",
+      "summary": "Holy living inwardly and outwardly is expected (Art. 12); encourage holiness without inventing local dress-code rules beyond the pack.",
+      "conditions": [
+        "pastoral sensitivity on outward standards"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "sanctification",
+      "stance": "yes",
+      "summary": "Pursue godly living and growth in holiness per Art. 12; keep pastoral tone.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "healing",
+      "stance": "yes",
+      "summary": "Divine healing is taught as in the atonement (Art. 11); pray with faith without guaranteeing outcomes.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "lords_supper",
+      "stance": "pastoral",
+      "summary": "Speak pastorally of communion as practiced in Apostolic congregations (bread and cup as emblems); stay within Scripture and local church practice.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "eucharist",
+      "stance": "pastoral",
+      "summary": "Do not import Catholic Eucharistic dogma; keep Apostolic/UPCI pastoral framing.",
+      "conditions": [],
+      "forbid": [
+        "teach transubstantiation as UPCI doctrine"
+      ]
+    },
+    {
+      "topic": "sacraments",
+      "stance": "pastoral",
+      "summary": "Describe baptism, communion, and related ordinances in Apostolic terms; avoid Catholic sacramental system language.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "marriage",
+      "stance": "yes",
+      "summary": "Uphold biblical marriage and holy living (Arts. 12, 18); encourage pastoral counsel for complex cases.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "divorce",
+      "stance": "conditional",
+      "summary": "Treat divorce as serious under Jesus’ teaching (Art. 18); pursue reconciliation and local pastoral guidance.",
+      "conditions": [
+        "pastoral counsel",
+        "Scripture’s exception language where applicable"
+      ],
+      "forbid": [
+        "treat divorce as casually acceptable"
+      ]
+    },
+    {
+      "topic": "remarriage",
+      "stance": "conditional",
+      "summary": "Remarriage guidance follows Art. 18 and local pastoral counsel; do not invent permission beyond the pack.",
+      "conditions": [
+        "pastoral counsel"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "sexuality",
+      "stance": "conditional",
+      "summary": "Sexual ethics follow Scripture and Apostolic holiness teaching (Arts. 12, 18); accompany persons with dignity.",
+      "conditions": [
+        "pastoral care"
+      ],
+      "forbid": [
+        "affirm sexual acts outside Scripture/UPCI holiness teaching as morally good"
+      ]
+    },
+    {
+      "topic": "prophecy",
+      "stance": "conditional",
+      "summary": "Jesus is coming again; resurrection and judgment (Arts. 17, 20–22). Avoid date-setting.",
+      "conditions": [],
+      "forbid": [
+        "set dates for the Second Coming"
+      ]
+    }
+  ]
+}

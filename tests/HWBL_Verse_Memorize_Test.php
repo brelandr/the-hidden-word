@@ -38,4 +38,20 @@ class HWBL_Verse_Memorize_Test extends TestCase {
 		$this->assertSame( '43-3-16-18', HWBL_Verse_Memorize::verse_key( 43, 3, 16, 18 ) );
 		$this->assertSame( '43-3-16-16-kjv', HWBL_Verse_Memorize::verse_key( 43, 3, 16, 16, 'kjv' ) );
 	}
+
+	/**
+	 * Companion detection uses the X-HWBL-Client header.
+	 */
+	public function test_is_companion_request() {
+		unset( $_SERVER['HTTP_X_HWBL_CLIENT'] );
+		$this->assertFalse( HWBL_Verse_Memorize::is_companion_request() );
+
+		$_SERVER['HTTP_X_HWBL_CLIENT'] = 'companion';
+		$this->assertTrue( HWBL_Verse_Memorize::is_companion_request() );
+
+		$_SERVER['HTTP_X_HWBL_CLIENT'] = 'website';
+		$this->assertFalse( HWBL_Verse_Memorize::is_companion_request() );
+
+		unset( $_SERVER['HTTP_X_HWBL_CLIENT'] );
+	}
 }

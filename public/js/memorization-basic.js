@@ -314,11 +314,32 @@
 			});
 		}
 
+		function hidePracticePanels() {
+			var recall = widget.querySelector('.hwbl-memorization-recall');
+			var scramble = widget.querySelector('.hwbl-memorization-scramble');
+			var reference = widget.querySelector('.hwbl-memorization-reference');
+			var controls = widget.querySelector('.hwbl-memorization-controls');
+			container.hidden = true;
+			if (controls) {
+				controls.hidden = true;
+			}
+			if (recall) {
+				recall.hidden = true;
+			}
+			if (scramble) {
+				scramble.hidden = true;
+			}
+			if (reference) {
+				reference.hidden = true;
+			}
+		}
+
 		function setMode(mode) {
 			widget.dataset.mode = mode;
 			var hint = widget.querySelector('.hwbl-memorization-hint');
 			var recall = widget.querySelector('.hwbl-memorization-recall');
 			var scramble = widget.querySelector('.hwbl-memorization-scramble');
+			var reference = widget.querySelector('.hwbl-memorization-reference');
 			var controls = widget.querySelector('.hwbl-memorization-controls');
 			var modeBtns = widget.querySelectorAll('.hwbl-mode-btn');
 
@@ -329,13 +350,7 @@
 			});
 
 			if (mode === 'recall') {
-				container.hidden = true;
-				if (scramble) {
-					scramble.hidden = true;
-				}
-				if (controls) {
-					controls.hidden = true;
-				}
+				hidePracticePanels();
 				if (recall) {
 					recall.hidden = false;
 				}
@@ -345,14 +360,19 @@
 				return;
 			}
 
+			if (mode === 'reference') {
+				hidePracticePanels();
+				if (reference) {
+					reference.hidden = false;
+				}
+				if (hint) {
+					hint.textContent = i18n('modeReference', 'Enter the book, chapter, and verse (for example Romans chapter 1, verse 1).');
+				}
+				return;
+			}
+
 			if (mode === 'scramble') {
-				container.hidden = true;
-				if (recall) {
-					recall.hidden = true;
-				}
-				if (controls) {
-					controls.hidden = true;
-				}
+				hidePracticePanels();
 				if (scramble) {
 					scramble.hidden = false;
 				}
@@ -364,13 +384,7 @@
 			}
 
 			if (mode === 'review') {
-				container.hidden = true;
-				if (scramble) {
-					scramble.hidden = true;
-				}
-				if (controls) {
-					controls.hidden = true;
-				}
+				hidePracticePanels();
 				if (recall) {
 					recall.hidden = false;
 				}
@@ -380,15 +394,10 @@
 				return;
 			}
 
+			hidePracticePanels();
 			container.hidden = false;
 			if (controls) {
 				controls.hidden = false;
-			}
-			if (recall) {
-				recall.hidden = true;
-			}
-			if (scramble) {
-				scramble.hidden = true;
 			}
 
 			if (mode === 'first-letter') {
@@ -402,6 +411,101 @@
 					hint.textContent = i18n('modeHide', 'Click words to hide them and test your memory.');
 				}
 			}
+		}
+
+		function normalizeBookName(value) {
+			return String(value || '')
+				.toLowerCase()
+				.replace(/^(the)\s+/, '')
+				.replace(/[^a-z0-9\s]/g, ' ')
+				.replace(/\s+/g, ' ')
+				.trim();
+		}
+
+		function parseTypedReference(value) {
+			var raw = String(value || '').trim();
+			if (!raw) {
+				return null;
+			}
+
+			var chapterVerse = raw.match(/^(.+?)\s+(\d+)\s*:\s*(\d+)\s*$/i);
+			if (chapterVerse) {
+				return {
+					book: chapterVerse[1].trim(),
+					chapter: parseInt(chapterVerse[2], 10),
+					verse: parseInt(chapterVerse[3], 10)
+				};
+			}
+
+			var spoken = raw.match(/^(.+?)\s+chapter\s+(\d+)\s*,?\s*verse\s+(\d+)\s*$/i);
+			if (spoken) {
+				return {
+					book: spoken[1].trim(),
+					chapter: parseInt(spoken[2], 10),
+					verse: parseInt(spoken[3], 10)
+				};
+			}
+
+			return null;
+		}
+
+		function getExpectedReference() {
+			return {
+				book: widget.getAttribute('data-book-name') || '',
+				chapter: parseInt(widget.getAttribute('data-chapter') || '0', 10),
+				verse: parseInt(widget.getAttribute('data-verse-num') || '0', 10),
+				reference: widget.getAttribute('data-reference') || ''
+			};
+		}
+
+		function checkReferenceAnswer() {
+			var result = widget.querySelector('.hwbl-memorization-reference-result');
+			var bookInput = widget.querySelector('.hwbl-memorization-reference-book');
+			var chapterInput = widget.querySelector('.hwbl-memorization-reference-chapter');
+			var verseInput = widget.querySelector('.hwbl-memorization-reference-verse');
+			var fullInput = widget.querySelector('.hwbl-memorization-reference-full');
+			var expected = getExpectedReference();
+
+			if (!expected.book || !expected.chapter || !expected.verse) {
+				if (result) {
+					result.textContent = i18n('referenceEmpty', 'Enter a book, chapter, and verse to check.');
+				}
+				return;
+			}
+
+			var typed = parseTypedReference(fullInput ? fullInput.value : '');
+			var book = typed ? typed.book : (bookInput ? bookInput.value : '');
+			var chapter = typed ? typed.chapter : parseInt(chapterInput && chapterInput.value ? chapterInput.value : '0', 10);
+			var verseNum = typed ? typed.verse : parseInt(verseInput && verseInput.value ? verseInput.value : '0', 10);
+
+			if (!book || !chapter || !verseNum) {
+				if (result) {
+					result.textContent = i18n('referenceEmpty', 'Enter a book, chapter, and verse to check.');
+				}
+				return;
+			}
+
+			var bookOk = normalizeBookName(book) === normalizeBookName(expected.book);
+			var chapterOk = chapter === expected.chapter;
+			var verseOk = verseNum === expected.verse;
+			var quality = 1;
+
+			if (bookOk && chapterOk && verseOk) {
+				quality = 5;
+				if (result) {
+					result.textContent = i18n('referenceGood', 'Correct — you know the reference!');
+				}
+			} else if (bookOk || (chapterOk && verseOk)) {
+				quality = 3;
+				if (result) {
+					result.textContent = i18n('referencePartial', 'Close — check the book, chapter, and verse again.');
+				}
+			} else if (result) {
+				result.textContent = i18n('referencePartial', 'Close — check the book, chapter, and verse again.');
+			}
+
+			recordPractice(widget);
+			promptQuality('reference', quality);
 		}
 
 		function normalizeText(value) {
@@ -538,6 +642,11 @@
 			scrambleReset.addEventListener('click', function () {
 				resetScramble();
 			});
+		}
+
+		var referenceCheck = widget.querySelector('.hwbl-memorization-reference-check');
+		if (referenceCheck) {
+			referenceCheck.addEventListener('click', checkReferenceAnswer);
 		}
 
 		var hideBtn = widget.querySelector('.hwbl-hide-random');

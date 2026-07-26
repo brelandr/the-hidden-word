@@ -257,14 +257,25 @@ Keep captions in sync with uploaded files:
 
 ---
 
+## Live Preview (WordPress Playground)
+
+Blueprint path on SVN: `assets/blueprints/blueprint.json`  
+Local copy: `docs/blueprints/blueprint.json`
+
+The blueprint installs:
+
+1. This plugin from wordpress.org
+2. Marketing theme from https://github.com/brelandr/the-hidden-word-theme
+3. Demo hub seeder from https://github.com/brelandr/the-hidden-word-demo-hub
+
+After committing the blueprint, open the plugin’s **Advanced** page on WordPress.org and set Live Preview to **public**. Committers can test with `?preview=1` on the plugin page before enabling public preview.
+
 ## Local demo site setup (fast path)
 
-1. `wp core download` + `wp config create` + `wp db create`
-2. `wp plugin install` from `Dist/hidden-word-bible-lessons-1.1.4.zip`
-3. `wp plugin activate hidden-word-bible-lessons`
-4. `wp post create --post_type=page --post_title="Today's Lesson" --post_status=publish`
-5. `wp post meta update <page_id> _wp_page_template` (or insert block via admin)
-6. Set permalink structure: **Post name**
-7. Capture screenshots listed above
+1. From the LearnTheBible root: ensure `.wp-env.json` mounts `The-Hidden-Word`, `the-hidden-word-theme`, and `the-hidden-word-demo-hub`
+2. `npx @wordpress/env start` (or `bash scripts/smoke-wp-env.sh`)
+3. Activate theme + Demo Hub if needed; Demo Hub seeds full feature pages
+4. Set permalink structure: **Post name**
+5. Capture screenshots listed above
 
 Using **WP-CLI** saves time if you already have a local `@wordpress` environment (Local, DevKinsta, wp-env, etc.).

@@ -1,0 +1,69 @@
+.thw-explain-packs .notice.inline {
+	max-width: 920px;
+}
+
+.thw-explain-pack-scopes label {
+	margin-right: 16px;
+}
+
+.thw-explain-pack-job {
+	margin: 16px 0 24px;
+	max-width: 720px;
+	padding: 14px 16px;
+	border: 1px solid #c3c4c7;
+	background: #fff;
+}
+
+.thw-pack-progress {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin: 8px 0;
+}
+
+.thw-pack-progress progress {
+	width: 220px;
+	height: 12px;
+}
+
+.thw-pack-export-error,
+.thw-pack-import-error {
+	color: #b32d2e;
+}
+
+.thw-pack-catalog-snippet-wrap {
+	display: block;
+	margin-top: 12px;
+}
+
+.thw-pack-catalog-snippet-wrap textarea {
+	margin-top: 6px;
+	font-family: Consolas, Monaco, monospace;
+	font-size: 12px;
+}
+
+.thw-explain-pack-catalog {
+	margin: 12px 0 20px;
+	max-width: 960px;
+}
+
+.thw-explain-packs-hub-panel {
+	max-width: 920px;
+	margin: 16px 0 8px;
+	padding: 16px 18px;
+	border: 1px solid #c3c4c7;
+	border-left: 4px solid #2271b1;
+	background: #f6f7f7;
+}
+
+.thw-pack-publish-result {
+	margin: 10px 0 0;
+}
+
+.thw-pack-publish-result.is-ok {
+	color: #057f3e;
+}
+
+.thw-pack-publish-result.is-error {
+	color: #b32d2e;
+}

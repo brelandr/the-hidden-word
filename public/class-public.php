@@ -143,8 +143,7 @@ class HWBL_Public {
 		if ( ! $post instanceof WP_Post ) {
 			return false;
 		}
-		return has_shortcode( $post->post_content, 'hwbl_memorize_reviews' )
-			|| has_shortcode( $post->post_content, 'thw_memorize_reviews' );
+		return has_shortcode( $post->post_content, 'hwbl_memorize_reviews' );
 	}
 
 	/**
@@ -182,10 +181,8 @@ class HWBL_Public {
 			return false;
 		}
 		return has_shortcode( $post->post_content, 'hwbl_lesson' )
-			|| has_shortcode( $post->post_content, 'thw_lesson' )
 			|| has_shortcode( $post->post_content, 'hwbl_memorize_verse' )
-			|| has_shortcode( $post->post_content, 'thw_memorize_verse' )
-			|| ( function_exists( 'has_block' ) && ( has_block( 'hwbl/lesson', $post ) || has_block( 'thw/lesson', $post ) ) );
+			|| ( function_exists( 'has_block' ) && has_block( 'hwbl/lesson', $post ) );
 	}
 
 	/**
@@ -198,8 +195,7 @@ class HWBL_Public {
 		if ( ! $post ) {
 			return false;
 		}
-		return has_shortcode( $post->post_content, 'hwbl_verse_of_week' )
-			|| has_shortcode( $post->post_content, 'thw_verse_of_week' );
+		return has_shortcode( $post->post_content, 'hwbl_verse_of_week' );
 	}
 
 	/**
@@ -213,8 +209,7 @@ class HWBL_Public {
 			return false;
 		}
 		return has_shortcode( $post->post_content, 'hwbl_lesson_list' )
-			|| has_shortcode( $post->post_content, 'thw_lesson_list' )
-			|| ( function_exists( 'has_block' ) && ( has_block( 'hwbl/lesson-list', $post ) || has_block( 'thw/lesson-list', $post ) ) );
+			|| ( function_exists( 'has_block' ) && has_block( 'hwbl/lesson-list', $post ) );
 	}
 
 	/**

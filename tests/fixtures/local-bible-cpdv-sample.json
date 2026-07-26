@@ -1,0 +1,47 @@
+{
+  "translation": "CPDV: Catholic Public Domain Version",
+  "books": [
+    {
+      "name": "I Samuel",
+      "chapters": [
+        {
+          "chapter": 1,
+          "verses": [
+            {
+              "verse": 1,
+              "text": "There was a certain man from Ramathaim of Zophim."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Tobit",
+      "chapters": [
+        {
+          "chapter": 1,
+          "verses": [
+            {
+              "verse": 1,
+              "text": "Tobit of the tribe and city of Naphtali."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Revelation of John",
+      "chapters": [
+        {
+          "chapter": 1,
+          "verses": [
+            {
+              "verse": 1,
+              "text": "The Revelation of Jesus Christ, which God gave to him."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

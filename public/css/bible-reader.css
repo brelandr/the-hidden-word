@@ -236,6 +236,25 @@
 	color: #1b3a4b;
 }
 
-.hwbl-bible-reader__research-lesson {
+.hwbl-bible-reader__research-tradition-badge {
+	display: inline-block;
+	margin: 0 0 0.85rem;
+	padding: 0.3rem 0.65rem;
+	border-radius: 999px;
+	background: rgba(201, 162, 39, 0.18);
+	color: #8a6d1a;
+	font-size: 0.75rem;
+	font-weight: 700;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+}
+
+.hwbl-bible-reader__research-lesson,
+.hwbl-bible-reader__research-saved,
+.hwbl-bible-reader__research-post {
 	text-decoration: none;
+}
+
+.hwbl-bible-reader__research-post-wrap {
+	margin: 0.75rem 0 0;
 }

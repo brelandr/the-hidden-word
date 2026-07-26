@@ -49,9 +49,23 @@ class HWBL_Translation_Service {
 			$translation = get_option( 'hwbl_active_translation', 'niv' );
 		}
 
-		$text = null;
+		$book_id     = (int) $book_id;
+		$chapter     = (int) $chapter;
+		$verse       = (int) $verse;
+		$translation = sanitize_key( (string) $translation );
+		$text        = null;
 
-		foreach ( $this->providers as $provider ) {
+		/*
+		 * Re-apply the provider filter each call. Premium Biblia/YouVersion/API.Bible
+		 * register on plugins_loaded:20, after the free plugin may already have built
+		 * the singleton provider list.
+		 */
+		$providers = apply_filters( 'hwbl_translation_providers', $this->providers );
+
+		foreach ( $providers as $provider ) {
+			if ( ! is_object( $provider ) || ! method_exists( $provider, 'get_verse' ) ) {
+				continue;
+			}
 			$text = $provider->get_verse( $book_id, $chapter, $verse, $translation );
 			if ( $text ) {
 				break;
@@ -60,7 +74,42 @@ class HWBL_Translation_Service {
 
 		$text = apply_filters( 'hwbl_get_verse_text', $text, $book_id, $chapter, $verse, $translation );
 
+		// Same chapter pipeline the Bible reader uses (Hello AO / Biblia / YouVersion / API.Bible).
+		if ( ! $text ) {
+			$text = $this->get_verse_text_from_reader( $book_id, $chapter, $verse, $translation );
+		}
+
 		return HWBL_Http_Utils::sanitize_bible_text( $text );
+	}
+
+	/**
+	 * Pull a single verse out of a Bible-reader chapter payload.
+	 *
+	 * @param int    $book_id     Book ID.
+	 * @param int    $chapter     Chapter.
+	 * @param int    $verse       Verse.
+	 * @param string $translation Translation slug.
+	 * @return string|null
+	 */
+	private function get_verse_text_from_reader( $book_id, $chapter, $verse, $translation ) {
+		if ( ! class_exists( 'HWBL_Bible_Reader' ) || ! HWBL_Bible_Reader::is_enabled() ) {
+			return null;
+		}
+
+		$payload = HWBL_Bible_Reader::get_chapter( $book_id, $chapter, $translation );
+		if ( ! is_array( $payload ) || empty( $payload['verses'] ) || ! is_array( $payload['verses'] ) ) {
+			return null;
+		}
+
+		foreach ( $payload['verses'] as $row ) {
+			if ( (int) ( $row['number'] ?? 0 ) !== $verse ) {
+				continue;
+			}
+			$text = trim( (string) ( $row['text'] ?? '' ) );
+			return '' !== $text ? $text : null;
+		}
+
+		return null;
 	}
 
 	/**
@@ -176,7 +225,7 @@ class HWBL_Translation_Service {
 			return '<p class="hwbl-copyright">' . esc_html__( 'World English Bible (WEB) — Public Domain.', 'hidden-word-bible-lessons' ) . '</p>';
 		}
 
-		return apply_filters( 'hwbl_render_copyright', '', $translation );
+		return wp_kses_post( apply_filters( 'hwbl_render_copyright', '', $translation ) );
 	}
 
 	/**

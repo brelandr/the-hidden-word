@@ -1,0 +1,335 @@
+{
+  "slug": "adventist",
+  "label": "Seventh-day Adventist",
+  "version": "1.1.0",
+  "framing": "Frame for a Seventh-day Adventist audience: Scripture alone is the creed (Sola Scriptura); the 28 Fundamental Beliefs are the church’s official corporate statement of faith—not a rival creed. Emphasize hope in Christ, the Great Controversy worldview, seventh-day Sabbath, and whole-life discipleship. Prefer SDA 28 Fundamental Beliefs Art. numbers from the Cited references block. Do not invent Ellen G. White quotations or paste full belief-statement text.",
+  "extends": null,
+  "general_gates": [
+    "Stay within the provided Bible text for verse claims; do not invent quotations.",
+    "Do not invent primary-source citations beyond the digests and SDA 28 Fundamental Beliefs identifiers supplied in this pack.",
+    "When citing Adventist doctrine, use only the Fundamental Belief Art. numbers listed in the Cited references block. Do not dump the full 28-belief document.",
+    "Seventh-day Adventists accept the Bible as their only creed; present the 28 beliefs as the church’s official expression of Scripture—not as a human creed that replaces the Bible.",
+    "When a doctrinal stance gate matches, state the tradition, the stance (yes/no/conditional/pastoral/silence), and any required conditions clearly.",
+    "For sensitive life topics, encourage prayer and trusted pastoral or professional help; AI is not a substitute for counseling.",
+    "Never invent Ellen G. White quotations or new prophecies. The gift of prophecy (Art. 18) identifies her writings as a continuing authoritative witness that must never contradict Scripture."
+  ],
+  "citation_map": [
+    {
+      "topics": ["scripture_authority"],
+      "articles": ["1"],
+      "confession": "SDA 28 Fundamental Beliefs",
+      "note": "The Holy Scriptures — Bible alone as rule of faith; Sola Scriptura. Cite Art. 1 (Doctrine of God)."
+    },
+    {
+      "topics": ["church_authority", "salvation"],
+      "articles": ["2", "3", "4", "5"],
+      "confession": "SDA 28 Fundamental Beliefs",
+      "note": "Trinity; the Father; the Son; the Holy Spirit. Cite Arts. 2–5 (Doctrine of God)."
+    },
+    {
+      "topics": ["salvation", "holiness"],
+      "articles": ["6", "7"],
+      "confession": "SDA 28 Fundamental Beliefs",
+      "note": "Creation and the nature of humanity—literal creation; fallen humanity. Cite Arts. 6–7 (Doctrine of Humanity)."
+    },
+    {
+      "topics": ["salvation", "sanctification", "holiness"],
+      "articles": ["8", "9", "10", "11"],
+      "confession": "SDA 28 Fundamental Beliefs",
+      "note": "Great Controversy; life/death/resurrection of Christ; experience of salvation; growing in Christ. Cite Arts. 8–11 (Doctrine of Salvation)."
+    },
+    {
+      "topics": ["church_authority", "mission"],
+      "articles": ["12", "13", "14"],
+      "confession": "SDA 28 Fundamental Beliefs",
+      "note": "The Church; the Remnant and its Mission; Unity in the Body of Christ. Cite Arts. 12–14 (Doctrine of the Church)."
+    },
+    {
+      "topics": ["baptism"],
+      "articles": ["15"],
+      "confession": "SDA 28 Fundamental Beliefs",
+      "note": "Baptism by immersion following faith in Christ. Cite Art. 15."
+    },
+    {
+      "topics": ["lords_supper", "eucharist", "sacraments"],
+      "articles": ["16"],
+      "confession": "SDA 28 Fundamental Beliefs",
+      "note": "The Lord’s Supper (with foot-washing / ordinance of humility in Adventist practice). Cite Art. 16."
+    },
+    {
+      "topics": ["prophecy", "spirit_baptism", "healing", "prayer"],
+      "articles": ["17", "18"],
+      "confession": "SDA 28 Fundamental Beliefs",
+      "note": "Spiritual gifts and ministries; the Gift of Prophecy (Ellen G. White writings as a continuing witness subordinate to Scripture). Cite Arts. 17–18. Never invent EGW quotes."
+    },
+    {
+      "topics": ["sabbath", "holiness"],
+      "articles": ["19", "20"],
+      "confession": "SDA 28 Fundamental Beliefs",
+      "note": "The Law of God (Ten Commandments) and the Seventh-day Sabbath. Cite Arts. 19–20 (Doctrine of Living Daily)."
+    },
+    {
+      "topics": ["holiness", "mission"],
+      "articles": ["21", "22"],
+      "confession": "SDA 28 Fundamental Beliefs",
+      "note": "Stewardship and Christian Behavior (lifestyle, including dietary/health emphases). Cite Arts. 21–22—paraphrase only; do not invent GC policy dumps."
+    },
+    {
+      "topics": ["marriage", "divorce", "remarriage", "sexuality"],
+      "articles": ["23"],
+      "confession": "SDA 28 Fundamental Beliefs",
+      "note": "Marriage and the Family — lifelong covenant of man and woman. Divorce/remarriage follow biblical and church counsel. Cite Art. 23."
+    },
+    {
+      "topics": ["prophecy", "salvation", "church_authority"],
+      "articles": ["24", "25", "26", "27", "28"],
+      "confession": "SDA 28 Fundamental Beliefs",
+      "note": "Heavenly Sanctuary (investigative judgment); Second Coming; death and resurrection (conditional immortality / soul sleep); Millennium; New Earth. Cite Arts. 24–28 (Last Things). Avoid date-setting."
+    }
+  ],
+  "primary_sources": [
+    {
+      "id": "sda_scripture",
+      "title": "SDA Beliefs — Holy Scriptures (digest)",
+      "cite": "SDA 28 Fundamental Beliefs Art. 1 (paraphrase)",
+      "excerpt": "The Holy Scriptures, Old and New Testaments, are the written Word of God and the sole rule of faith and practice. The 28 Fundamental Beliefs express the church’s understanding of Scripture; they are not a creed that replaces the Bible. Extra-biblical prophetic guidance must never contradict Scripture.",
+      "topics": ["scripture_authority", "prophecy"]
+    },
+    {
+      "id": "sda_god_trinity",
+      "title": "SDA Beliefs — Doctrine of God (digest)",
+      "cite": "SDA 28 Fundamental Beliefs Arts. 2–5 (paraphrase)",
+      "excerpt": "There is one God: Father, Son, and Holy Spirit—a unity of three co-eternal Persons. God is Creator, Redeemer, and Sustainer.",
+      "topics": ["church_authority", "salvation"]
+    },
+    {
+      "id": "sda_salvation_controversy",
+      "title": "SDA Beliefs — Great Controversy & salvation (digest)",
+      "cite": "SDA 28 Fundamental Beliefs Arts. 8–11 (paraphrase)",
+      "excerpt": "All humanity is involved in a great controversy between Christ and Satan. Christ’s life, death, and resurrection provide the only means of atonement. Salvation is by grace through faith; growing in Christ includes victory over evil through the Spirit.",
+      "topics": ["salvation", "holiness", "sanctification"]
+    },
+    {
+      "id": "sda_church_remnant",
+      "title": "SDA Beliefs — Church & remnant (digest)",
+      "cite": "SDA 28 Fundamental Beliefs Arts. 12–14 (paraphrase)",
+      "excerpt": "The Church is the community of believers who confess Jesus. Adventists affirm a remnant called to keep God’s commandments and the faith of Jesus, with a worldwide mission, while seeking unity in the body of Christ.",
+      "topics": ["church_authority", "mission"]
+    },
+    {
+      "id": "sda_baptism_supper",
+      "title": "SDA Beliefs — Baptism & Lord’s Supper (digest)",
+      "cite": "SDA 28 Fundamental Beliefs Arts. 15–16 (paraphrase)",
+      "excerpt": "Baptism by immersion follows repentance and faith in Jesus. The Lord’s Supper is a participation in the emblems of Christ’s body and blood; Adventist practice commonly includes the ordinance of humility (foot-washing).",
+      "topics": ["baptism", "eucharist", "lords_supper", "sacraments", "salvation"]
+    },
+    {
+      "id": "sda_gift_of_prophecy",
+      "title": "SDA Beliefs — Gift of Prophecy (digest)",
+      "cite": "SDA 28 Fundamental Beliefs Arts. 17–18 (paraphrase)",
+      "excerpt": "God bestows spiritual gifts on the church. The gift of prophecy is identified in Adventist teaching with the ministry of Ellen G. White—a continuing and authoritative source of truth that leads to Scripture and must never contradict it. Never invent EGW quotations.",
+      "topics": ["prophecy", "scripture_authority", "church_authority"]
+    },
+    {
+      "id": "sda_sabbath",
+      "title": "SDA Beliefs — Law & Sabbath (digest)",
+      "cite": "SDA 28 Fundamental Beliefs Arts. 19–20 (paraphrase)",
+      "excerpt": "The great principles of God’s law are embodied in the Ten Commandments. The seventh-day Sabbath is a memorial of Creation and redemption, observed from sunset Friday to sunset Saturday as a day of rest, worship, and ministry.",
+      "topics": ["sabbath", "holiness"]
+    },
+    {
+      "id": "sda_living",
+      "title": "SDA Beliefs — Christian living (digest)",
+      "cite": "SDA 28 Fundamental Beliefs Arts. 21–22 (paraphrase)",
+      "excerpt": "Stewardship covers time, abilities, and possessions. Christian behavior calls for lives of integrity, health-minded temperance, and dress/lifestyle that honor God—present pastorally; do not invent detailed GC policy text.",
+      "topics": ["holiness", "mission"]
+    },
+    {
+      "id": "sda_marriage",
+      "title": "SDA Beliefs — Marriage & family (digest)",
+      "cite": "SDA 28 Fundamental Beliefs Art. 23 (paraphrase)",
+      "excerpt": "Marriage was divinely established as a lifelong union between a man and a woman. Divorce and remarriage are handled carefully under biblical grounds and church counsel; sexual intimacy belongs within that marriage covenant.",
+      "topics": ["marriage", "divorce", "remarriage", "sexuality"]
+    },
+    {
+      "id": "sda_last_things",
+      "title": "SDA Beliefs — Sanctuary & last things (digest)",
+      "cite": "SDA 28 Fundamental Beliefs Arts. 24–28 (paraphrase)",
+      "excerpt": "Christ ministers in the heavenly sanctuary (including the Adventist teaching of investigative judgment). He will return visibly; the dead sleep until resurrection; a millennium precedes the final end of sin; God will create a new earth. Avoid date-setting and speculative timelines beyond the pack.",
+      "topics": ["prophecy", "salvation", "church_authority"]
+    }
+  ],
+  "stances": [
+    {
+      "topic": "scripture_authority",
+      "stance": "yes",
+      "summary": "Bible alone as creed; Art. 1 — Holy Scriptures are the sole rule of faith (28 Fundamental Beliefs express Scripture, they do not replace it).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "sabbath",
+      "stance": "yes",
+      "summary": "Seventh-day Sabbath observance (Art. 20) as Adventist teaching—memorial of creation and redemption.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "prophecy",
+      "stance": "conditional",
+      "summary": "Gift of prophecy affirmed (Art. 18); Scripture first; never invent Ellen White quotes or new prophecies.",
+      "conditions": [
+        "Scripture first",
+        "cite Art. 18 only as identifier—no fabricated EGW text"
+      ],
+      "forbid": [
+        "fabricate Ellen White citations",
+        "treat EGW as equal to or above Scripture"
+      ]
+    },
+    {
+      "topic": "additional_scripture",
+      "stance": "no",
+      "summary": "Adventists do not add a second canon; EGW writings (Art. 18) are a prophetic gift subordinate to the Bible (Art. 1).",
+      "conditions": [],
+      "forbid": [
+        "present EGW as additional Scripture on par with the Bible"
+      ]
+    },
+    {
+      "topic": "baptism",
+      "stance": "yes",
+      "summary": "Believer’s baptism by immersion (Art. 15).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "salvation",
+      "stance": "yes",
+      "summary": "Salvation by grace through faith in Christ’s life, death, and resurrection (Arts. 8–11).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "holiness",
+      "stance": "yes",
+      "summary": "Growing in Christ, Law of God, and Christian behavior (Arts. 11, 19, 22).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "sanctification",
+      "stance": "yes",
+      "summary": "Growing in Christ by the Spirit (Art. 11)—present pastorally, not as sinless perfection caricature.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "eucharist",
+      "stance": "yes",
+      "summary": "Lord’s Supper as Adventist ordinance (Art. 16).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "lords_supper",
+      "stance": "yes",
+      "summary": "Lord’s Supper observed as Adventist ordinance (Art. 16), often with ordinance of humility.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "sacraments",
+      "stance": "conditional",
+      "summary": "Adventists typically speak of ordinances (baptism, Lord’s Supper) rather than a Catholic sacramental system.",
+      "conditions": [
+        "prefer ordinance language; cite Arts. 15–16"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "divorce",
+      "stance": "conditional",
+      "summary": "Serious pastoral process under biblical grounds and church policy (Art. 23).",
+      "conditions": [
+        "pastoral/church counsel"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "annulment",
+      "stance": "silence",
+      "summary": "Not an SDA doctrinal category.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "remarriage",
+      "stance": "conditional",
+      "summary": "Follow church policy and Scripture (Art. 23).",
+      "conditions": [
+        "pastoral guidance"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "sexuality",
+      "stance": "conditional",
+      "summary": "Sexual intimacy within marriage of man and woman (Art. 23).",
+      "conditions": [
+        "compassion"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "marriage",
+      "stance": "yes",
+      "summary": "Lifelong man-woman covenant (Art. 23).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "church_authority",
+      "stance": "conditional",
+      "summary": "Church, remnant mission, and unity under Scripture (Arts. 12–14); do not invent GC policy text.",
+      "conditions": [
+        "do not invent GC policy text"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "mission",
+      "stance": "yes",
+      "summary": "Remnant mission and worldwide evangelism (Art. 13).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "healing",
+      "stance": "conditional",
+      "summary": "Pray for healing and healthful living (Arts. 17, 22) without guaranteeing miracles or denying medical care.",
+      "conditions": [
+        "pastoral humility"
+      ],
+      "forbid": [
+        "guarantee miracles"
+      ]
+    },
+    {
+      "topic": "prayer",
+      "stance": "yes",
+      "summary": "Prayer is central to growing in Christ (Art. 11).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "spirit_baptism",
+      "stance": "conditional",
+      "summary": "Spiritual gifts for ministry (Art. 17)—present carefully; do not invent tongues-as-evidence requirements foreign to this pack.",
+      "conditions": [
+        "cite Art. 17; stay within pack"
+      ],
+      "forbid": []
+    }
+  ]
+}

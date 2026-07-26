@@ -20,6 +20,9 @@ class HWBL_Books_Test extends TestCase {
 		$this->assertSame( 'ot', HWBL_Books::get_testament( 39 ) );
 		$this->assertSame( 'nt', HWBL_Books::get_testament( 40 ) );
 		$this->assertSame( 'nt', HWBL_Books::get_testament( 66 ) );
+		$this->assertSame( 'ot', HWBL_Books::get_testament( 67 ) );
+		$this->assertSame( 'ot', HWBL_Books::get_testament( 73 ) );
+		$this->assertSame( 'ot', HWBL_Books::get_testament( 85 ) );
 		$this->assertSame( '', HWBL_Books::get_testament( 0 ) );
 	}
 
@@ -74,7 +77,23 @@ class HWBL_Books_Test extends TestCase {
 	public function test_get_id_by_usfm() {
 		$this->assertSame( 43, HWBL_Books::get_id_by_usfm( 'JHN' ) );
 		$this->assertSame( 47, HWBL_Books::get_id_by_usfm( '2CO' ) );
+		$this->assertSame( 67, HWBL_Books::get_id_by_usfm( 'TOB' ) );
+		$this->assertSame( 72, HWBL_Books::get_id_by_usfm( '1MA' ) );
+		$this->assertSame( 74, HWBL_Books::get_id_by_usfm( '1ES' ) );
+		$this->assertSame( 78, HWBL_Books::get_id_by_usfm( '3MA' ) );
 		$this->assertSame( 0, HWBL_Books::get_id_by_usfm( 'ZZZ' ) );
+	}
+
+	/**
+	 * Catholic / scrollmapper book names resolve.
+	 */
+	public function test_resolve_catholic_book_names() {
+		$this->assertSame( 9, HWBL_Books::resolve_book_query( 'I Samuel' ) );
+		$this->assertSame( 67, HWBL_Books::resolve_book_query( 'Tobit' ) );
+		$this->assertSame( 70, HWBL_Books::resolve_book_query( 'Ecclesiasticus' ) );
+		$this->assertSame( 66, HWBL_Books::resolve_book_query( 'Revelation of John' ) );
+		$this->assertTrue( HWBL_Books::is_deuterocanonical( 67 ) );
+		$this->assertFalse( HWBL_Books::is_deuterocanonical( 1 ) );
 	}
 
 	/**

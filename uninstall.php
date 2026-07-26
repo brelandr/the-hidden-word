@@ -63,8 +63,46 @@ function hwbl_run_uninstall() {
 
 	wp_clear_scheduled_hook( 'hwbl_seed_curriculum_batch' );
 	wp_clear_scheduled_hook( 'hwbl_sync_curriculum_content' );
+	wp_clear_scheduled_hook( 'hwbl_local_bible_import_batch' );
+	wp_clear_scheduled_hook( 'thw_explain_preload_batch' );
+	wp_clear_scheduled_hook( 'thw_explain_pack_export_batch' );
+	wp_clear_scheduled_hook( 'thw_explain_pack_import_batch' );
 	wp_clear_scheduled_hook( 'thw_seed_curriculum_batch' );
 	wp_clear_scheduled_hook( 'thw_sync_curriculum_content' );
+
+	delete_option( 'hwbl_local_bible_import_queue' );
+	delete_option( 'thw_explain_preload_job' );
+	delete_option( 'thw_explain_pack_export_job' );
+	delete_option( 'thw_explain_pack_import_job' );
+	delete_option( 'thw_explain_packs_installed' );
+	delete_option( 'thw_explain_pack_catalog_url' );
+	delete_option( 'hwbl_local_bible_db_version' );
+	delete_option( 'hwbl_bible_explain_db_version' );
+	delete_option( 'hwbl_bible_explain_cpt_migrate_offset' );
+	foreach ( array(
+		'kjv', 'asv', 'web', 'bsb', 'bbe', 'ylt', 'dby', 'gnv', 'lsv', 'dra', 'cpdv',
+		'jps', 'brenton', 'webo', 'erv',
+		'rv1909', 'se1865', 'torresamat', 'spablm', 'vulgate', 'crampon', 'segond', 'luther1912', 'luther1545',
+		'cuvs', 'cuvt', 'almeida', 'synodal', 'diodati',
+		'wlc', 'lxx', 'tr', 'byz',
+	) as $hwbl_local_slug ) {
+		delete_option( 'hwbl_local_bible_job_' . $hwbl_local_slug );
+	}
+
+	if ( is_readable( plugin_dir_path( __FILE__ ) . 'includes/class-local-bible-store.php' ) ) {
+		require_once plugin_dir_path( __FILE__ ) . 'includes/class-local-bible-store.php';
+		if ( class_exists( 'HWBL_Local_Bible_Store' ) ) {
+			HWBL_Local_Bible_Store::drop_tables();
+		}
+	}
+
+	$explain_store = plugin_dir_path( __FILE__ ) . 'premium/includes/class-bible-reader-explain-store.php';
+	if ( is_readable( $explain_store ) ) {
+		require_once $explain_store;
+		if ( class_exists( 'THW_Premium_Bible_Reader_Explain_Store' ) ) {
+			THW_Premium_Bible_Reader_Explain_Store::drop_table();
+		}
+	}
 
 	$lessons = get_posts(
 		array(

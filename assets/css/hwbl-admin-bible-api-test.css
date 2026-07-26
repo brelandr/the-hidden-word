@@ -1,0 +1,29 @@
+.thw-bible-api-test__tests,
+.thw-bible-api-test__steps {
+	margin: 0.75em 0 0 1.25em;
+}
+
+.thw-bible-api-test__test.is-ok,
+.thw-bible-api-test__step.is-ok {
+	color: #007017;
+}
+
+.thw-bible-api-test__test.is-fail,
+.thw-bible-api-test__step.is-fail {
+	color: #b32d2e;
+}
+
+.thw-bible-api-test__error {
+	font-weight: 600;
+}
+
+.thw-bible-api-test__result code {
+	display: inline-block;
+	margin-top: 0.35em;
+	word-break: break-all;
+}
+
+.thw-bible-api-test {
+	margin: 0 0 1.5em;
+	max-width: 48rem;
+}

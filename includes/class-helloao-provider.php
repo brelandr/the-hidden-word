@@ -267,7 +267,7 @@ class HWBL_HelloAO_Provider implements HWBL_Translation_Provider {
 
 		$url      = self::API_BASE . rawurlencode( $ao_id ) . '/books.json';
 		$response = wp_remote_get( $url, array( 'timeout' => 15 ) );
-		if ( is_wp_error( $response ) ) {
+		if ( ! HWBL_Http_Utils::response_ok( $response ) ) {
 			return array();
 		}
 
@@ -414,7 +414,7 @@ class HWBL_HelloAO_Provider implements HWBL_Translation_Provider {
 		$catalog     = get_transient( $catalog_key );
 		if ( false === $catalog ) {
 			$response = wp_remote_get( self::API_BASE . 'available_translations.json', array( 'timeout' => 15 ) );
-			if ( ! is_wp_error( $response ) ) {
+			if ( HWBL_Http_Utils::response_ok( $response ) ) {
 				$decoded = json_decode( wp_remote_retrieve_body( $response ), true );
 				$catalog = is_array( $decoded ) && isset( $decoded['translations'] ) ? $decoded['translations'] : array();
 				set_transient( $catalog_key, $catalog, DAY_IN_SECONDS );

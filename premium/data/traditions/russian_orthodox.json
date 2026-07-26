@@ -1,0 +1,66 @@
+{
+  "slug": "russian_orthodox",
+  "label": "Russian Orthodox",
+  "version": "1.1.0",
+  "framing": "Frame for a Russian Orthodox audience: same Eastern Orthodox dogma—Nicene Creed and Seven Ecumenical Councils—with Russian liturgical and cultural life (e.g. OCA/ROC contexts). Prefer Eastern Orthodox Creed/Councils identifiers; jurisdiction differs in administration, not dogma.",
+  "extends": "orthodox",
+  "general_gates": [
+    "Stay within the provided Bible text for verse claims; do not invent quotations.",
+    "Do not invent primary-source citations beyond the digests and Eastern Orthodox Creed/Councils identifiers supplied in this pack.",
+    "Dogma matches Eastern Orthodoxy (Nicene Creed; Seven Ecumenical Councils). Do not invent Russian-only dogmatic variance.",
+    "When a doctrinal stance gate matches, state the tradition, the stance (yes/no/conditional/pastoral/silence), and any required conditions clearly.",
+    "For sensitive life topics, encourage prayer and trusted pastoral or professional help; AI is not a substitute for counseling."
+  ],
+  "citation_map": [
+    {
+      "topics": [
+        "scripture_authority",
+        "church_authority",
+        "salvation"
+      ],
+      "articles": [
+        "Nicene-Constantinopolitan Creed"
+      ],
+      "confession": "Eastern Orthodox",
+      "note": "Same Creed as Eastern Orthodoxy; Russian Orthodox jurisdiction. Cite Nicene-Constantinopolitan Creed."
+    },
+    {
+      "topics": [
+        "church_authority"
+      ],
+      "articles": [
+        "Seven Ecumenical Councils"
+      ],
+      "confession": "Eastern Orthodox",
+      "note": "Seven Ecumenical Councils bind the faith—no invented Russian doctrinal variance. Cite Seven Ecumenical Councils."
+    },
+    {
+      "topics": [
+        "baptism",
+        "confirmation",
+        "eucharist",
+        "lords_supper",
+        "sacraments"
+      ],
+      "articles": [
+        "Holy Mysteries"
+      ],
+      "confession": "Eastern Orthodox",
+      "note": "Holy Mysteries as in Eastern Orthodoxy within Russian liturgical life. Cite Holy Mysteries."
+    }
+  ],
+  "primary_sources": [
+    {
+      "id": "oca_faith",
+      "title": "Russian Orthodox — essential teachings (digest)",
+      "cite": "Eastern Orthodox — Creed & Seven Councils; OCA Essential Teachings (paraphrase)",
+      "excerpt": "Russian Orthodox Christians confess the Nicene Creed and the Seven Ecumenical Councils with the wider Eastern Orthodox Church. Differences from other Orthodox jurisdictions are administrative and cultural, not dogmatic inventions.",
+      "topics": [
+        "scripture_authority",
+        "church_authority",
+        "salvation"
+      ]
+    }
+  ],
+  "stances": []
+}

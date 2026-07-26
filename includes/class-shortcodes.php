@@ -23,12 +23,6 @@ class HWBL_Shortcodes {
 		add_shortcode( 'hwbl_lesson_list', array( $this, 'render_lesson_list' ) );
 		add_shortcode( 'hwbl_bible_reader', array( $this, 'render_bible_reader' ) );
 		add_shortcode( 'hwbl_memorize_verse', array( $this, 'render_memorize_verse' ) );
-		// Legacy shortcodes from pre-1.3.0 installs.
-		add_shortcode( 'thw_lesson', array( $this, 'render_lesson' ) );
-		add_shortcode( 'thw_verse_of_week', array( $this, 'render_verse_of_week' ) );
-		add_shortcode( 'thw_lesson_list', array( $this, 'render_lesson_list' ) );
-		add_shortcode( 'thw_bible_reader', array( $this, 'render_bible_reader' ) );
-		add_shortcode( 'thw_memorize_verse', array( $this, 'render_memorize_verse' ) );
 	}
 
 	/**
@@ -105,7 +99,7 @@ class HWBL_Shortcodes {
 		$html  = '<div class="hwbl-verse-of-week">';
 		$html .= '<p class="hwbl-verse-reference"><strong>' . esc_html( $lesson['reference'] ) . '</strong></p>';
 		$html .= '<blockquote class="hwbl-verse-text">' . esc_html( $verse_text ) . '</blockquote>';
-		$html .= $trans_svc->render_copyright( $translation );
+		$html .= wp_kses_post( $trans_svc->render_copyright( $translation ) );
 		$html .= '</div>';
 
 		return $html;

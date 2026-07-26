@@ -27,8 +27,21 @@
 		var cfg = window.hwblBibleReader || {};
 		var i18n = cfg.i18n || {};
 		var features = cfg.features || {};
+		var prefs = window.hwblUserPreferences || null;
+		var preferred =
+			(prefs && prefs.getPreferredTranslation && prefs.getPreferredTranslation()) ||
+			cfg.preferredTranslation ||
+			'';
+		var initialTranslation = root.dataset.translation || cfg.translation || 'bsb';
+		if (
+			preferred &&
+			cfg.translations &&
+			Object.prototype.hasOwnProperty.call(cfg.translations, preferred)
+		) {
+			initialTranslation = preferred;
+		}
 		var state = {
-			translation: root.dataset.translation || cfg.translation || 'bsb',
+			translation: initialTranslation,
 			bookId: parseInt(root.dataset.book || cfg.bookId || '1', 10),
 			chapter: parseInt(root.dataset.chapter || cfg.chapter || '1', 10),
 			verse: parseInt(root.dataset.verse || cfg.verse || '0', 10),
@@ -37,6 +50,7 @@
 			audioMap: {},
 			navigation: {},
 		};
+		root.dataset.translation = state.translation;
 
 		var elTranslation = qs(root, '.hwbl-bible-reader__translation');
 		var elBook = qs(root, '.hwbl-bible-reader__book');
@@ -320,7 +334,11 @@
 		if (elTranslation) {
 			elTranslation.addEventListener('change', function () {
 				state.translation = elTranslation.value;
+				root.dataset.translation = state.translation;
 				state.verse = 0;
+				if (prefs && prefs.saveTranslation) {
+					prefs.saveTranslation(state.translation);
+				}
 				loadBooks().then(loadChapter);
 			});
 		}

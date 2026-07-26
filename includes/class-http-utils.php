@@ -17,8 +17,8 @@ class HWBL_Http_Utils {
 	/**
 	 * Whether a wp_remote_* response succeeded with a 2xx status.
 	 *
-	 * @param array|WP_Error $response HTTP response.
-	 * @return bool
+	 * @param array|WP_Error $response HTTP response from the WordPress HTTP API.
+	 * @return bool True when the transport succeeded and the status is 2xx.
 	 */
 	public static function response_ok( $response ) {
 		if ( is_wp_error( $response ) ) {
@@ -28,6 +28,32 @@ class HWBL_Http_Utils {
 		$code = (int) wp_remote_retrieve_response_code( $response );
 
 		return $code >= 200 && $code < 300;
+	}
+
+	/**
+	 * Normalize a failed HTTP API response into a WP_Error.
+	 *
+	 * @param array|WP_Error $response HTTP response.
+	 * @param string         $code     Error code prefix (default hwbl_http_error).
+	 * @return WP_Error|null WP_Error when the response is not OK; null when OK.
+	 */
+	public static function response_error( $response, $code = 'hwbl_http_error' ) {
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		if ( self::response_ok( $response ) ) {
+			return null;
+		}
+
+		$http_code = (int) wp_remote_retrieve_response_code( $response );
+		$message   = sprintf(
+			/* translators: %d: HTTP status code */
+			__( 'Remote API request failed with HTTP status %d.', 'hidden-word-bible-lessons' ),
+			$http_code
+		);
+
+		return new WP_Error( $code, $message, array( 'status' => $http_code ) );
 	}
 
 	/**

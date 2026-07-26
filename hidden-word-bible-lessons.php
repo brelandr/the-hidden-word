@@ -2,8 +2,8 @@
 /**
  * Plugin Name: Hidden Word Bible Lessons
  * Plugin URI: https://wordpress.org/plugins/hidden-word-bible-lessons/
- * Description: A Bible discipleship plugin with up to 500 NIV verses, deep-dive lessons, historical context, memorization tools, and discussion prompts.
- * Version: 1.7.0
+ * Description: Bible discipleship with 500 NIV lessons, memorization (SM-2), Bible reader, verse of the day, digests, AI study tools (BYOK), multi-translation APIs, PDF guides, and more — all free.
+ * Version: 2.1.0
  * Author: Land Tech Web Designs, Corp
  * Author URI: https://landtechwebdesigns.com
  * License: GPL-2.0+
@@ -25,7 +25,7 @@ if ( defined( 'HWBL_BOOTSTRAP_DONE' ) ) {
 }
 
 define( 'HWBL_BOOTSTRAP_DONE', true );
-define( 'HWBL_VERSION', '1.7.0' );
+define( 'HWBL_VERSION', '2.1.0' );
 define( 'HWBL_PLUGIN_FILE', __FILE__ );
 define( 'HWBL_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'HWBL_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -33,34 +33,8 @@ define( 'HWBL_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 define( 'HWBL_MAX_NIV_VERSES', 500 );
 define( 'HWBL_MAX_BUNDLED_VERSES', 500 );
 define( 'HWBL_CURRICULUM_DB_VERSION', '1.3.0' );
-
-// Legacy constant aliases for older Premium builds during transition. Names
-// are intentionally unprefixed with HWBL_ — older Premium builds read these
-// exact constant names, so renaming them would break upgrades.
-if ( ! defined( 'THW_VERSION' ) ) {
-	define( 'THW_VERSION', HWBL_VERSION ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound
-}
-if ( ! defined( 'THW_PLUGIN_FILE' ) ) {
-	define( 'THW_PLUGIN_FILE', HWBL_PLUGIN_FILE ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound
-}
-if ( ! defined( 'THW_PLUGIN_DIR' ) ) {
-	define( 'THW_PLUGIN_DIR', HWBL_PLUGIN_DIR ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound
-}
-if ( ! defined( 'THW_PLUGIN_URL' ) ) {
-	define( 'THW_PLUGIN_URL', HWBL_PLUGIN_URL ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound
-}
-if ( ! defined( 'THW_PLUGIN_BASENAME' ) ) {
-	define( 'THW_PLUGIN_BASENAME', HWBL_PLUGIN_BASENAME ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound
-}
-if ( ! defined( 'THW_MAX_NIV_VERSES' ) ) {
-	define( 'THW_MAX_NIV_VERSES', HWBL_MAX_NIV_VERSES ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound
-}
-if ( ! defined( 'THW_MAX_BUNDLED_VERSES' ) ) {
-	define( 'THW_MAX_BUNDLED_VERSES', HWBL_MAX_BUNDLED_VERSES ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound
-}
-if ( ! defined( 'THW_CURRICULUM_DB_VERSION' ) ) {
-	define( 'THW_CURRICULUM_DB_VERSION', HWBL_CURRICULUM_DB_VERSION ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound
-}
+// Former Premium add-on is bundled under premium/ and always enabled.
+define( 'HWBL_INTEGRATED_PREMIUM', true );
 
 require_once HWBL_PLUGIN_DIR . 'includes/class-activator.php';
 require_once HWBL_PLUGIN_DIR . 'includes/class-deactivator.php';
@@ -154,26 +128,4 @@ function hwbl_is_ai_enabled() {
 		$enabled = get_option( 'thw_ai_enabled', false );
 	}
 	return (bool) apply_filters( 'hwbl_ai_enabled', (bool) $enabled );
-}
-
-/**
- * Legacy alias for Premium and older code. Name is intentionally unprefixed
- * with hwbl_/HWBL_ — older Premium builds call this exact global function
- * name, so renaming it would break upgrades.
- *
- * @return bool
- */
-function thw_is_ai_enabled() { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound
-	return hwbl_is_ai_enabled();
-}
-
-/**
- * Legacy alias for Premium and older code. Name is intentionally unprefixed
- * with hwbl_/HWBL_ — older Premium builds call this exact global function
- * name, so renaming it would break upgrades.
- *
- * @return bool
- */
-function thw_is_premium_active() { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound
-	return hwbl_is_premium_active();
 }

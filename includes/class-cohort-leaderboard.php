@@ -24,7 +24,6 @@ class HWBL_Cohort_Leaderboard {
 
 		add_action( 'rest_api_init', array( __CLASS__, 'register_routes' ) );
 		add_shortcode( 'hwbl_cohort_leaderboard', array( __CLASS__, 'render_shortcode' ) );
-		add_shortcode( 'thw_cohort_leaderboard', array( __CLASS__, 'render_shortcode' ) );
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
 	}
 
@@ -39,7 +38,7 @@ class HWBL_Cohort_Leaderboard {
 		if ( ! $post instanceof WP_Post ) {
 			return;
 		}
-		if ( ! has_shortcode( $post->post_content, 'hwbl_cohort_leaderboard' ) && ! has_shortcode( $post->post_content, 'thw_cohort_leaderboard' ) ) {
+		if ( ! has_shortcode( $post->post_content, 'hwbl_cohort_leaderboard' ) ) {
 			return;
 		}
 		wp_enqueue_script(
@@ -69,8 +68,8 @@ class HWBL_Cohort_Leaderboard {
 			array(
 				'methods'             => 'GET',
 				'callback'            => array( __CLASS__, 'rest_leaderboard' ),
-				'permission_callback' => function () {
-					return is_user_logged_in();
+				'permission_callback' => static function () {
+					return current_user_can( 'read' );
 				},
 			)
 		);
@@ -81,8 +80,8 @@ class HWBL_Cohort_Leaderboard {
 			array(
 				'methods'             => 'GET',
 				'callback'            => array( __CLASS__, 'rest_weekly_challenge' ),
-				'permission_callback' => function () {
-					return is_user_logged_in();
+				'permission_callback' => static function () {
+					return current_user_can( 'read' );
 				},
 			)
 		);
@@ -94,7 +93,8 @@ class HWBL_Cohort_Leaderboard {
 	 * @return WP_REST_Response
 	 */
 	public static function rest_leaderboard() {
-		return new WP_REST_Response( array( 'leaderboard' => self::get_leaderboard_rows() ) );
+		$payload = self::get_leaderboard_payload();
+		return new WP_REST_Response( $payload );
 	}
 
 	/**
@@ -117,15 +117,22 @@ class HWBL_Cohort_Leaderboard {
 	}
 
 	/**
-	 * @return array<int, array<string, mixed>>
+	 * Build ranked leaderboard payload including the current member's rank.
+	 *
+	 * @return array<string, mixed>
 	 */
-	private static function get_leaderboard_rows() {
+	private static function get_leaderboard_payload() {
 		$user_id   = get_current_user_id();
-		$rows      = array();
 		$cohort_id = (int) get_user_meta( $user_id, THW_Premium_Cohort::MEMBER_META, true );
 
 		if ( $cohort_id < 1 ) {
-			return $rows;
+			return array(
+				'leaderboard'  => array(),
+				'your_rank'    => null,
+				'your_streak'  => 0,
+				'member_count' => 0,
+				'cohort_id'    => 0,
+			);
 		}
 
 		$members = THW_Premium_Cohort::get_member_user_ids( $cohort_id );
@@ -133,14 +140,16 @@ class HWBL_Cohort_Leaderboard {
 			$members[] = $user_id;
 		}
 
+		$rows = array();
 		foreach ( $members as $member_id ) {
 			$streak = class_exists( 'HWBL_Memorization_SRS' )
 				? HWBL_Memorization_SRS::get_streak( (int) $member_id )
 				: array( 'current' => 0 );
 			$user   = get_userdata( (int) $member_id );
+			$name   = $user ? wp_strip_all_tags( (string) $user->display_name ) : '';
 			$rows[] = array(
 				'user_id' => (int) $member_id,
-				'name'    => $user ? $user->display_name : '',
+				'name'    => $name,
 				'streak'  => (int) ( $streak['current'] ?? 0 ),
 				'is_you'  => (int) $member_id === (int) $user_id,
 			);
@@ -149,11 +158,52 @@ class HWBL_Cohort_Leaderboard {
 		usort(
 			$rows,
 			static function ( $a, $b ) {
+				if ( $a['streak'] === $b['streak'] ) {
+					return $a['user_id'] <=> $b['user_id'];
+				}
 				return $b['streak'] <=> $a['streak'];
 			}
 		);
 
-		return $rows;
+		$your_rank   = null;
+		$your_streak = 0;
+		$rank        = 0;
+		foreach ( $rows as &$row ) {
+			$rank++;
+			$row['rank'] = $rank;
+			if ( ! empty( $row['is_you'] ) ) {
+				$your_rank   = $rank;
+				$your_streak = (int) $row['streak'];
+			}
+		}
+		unset( $row );
+
+		/**
+		 * Cap listed rows for clients/shortcodes while keeping your_rank accurate
+		 * against the full cohort.
+		 */
+		$limit = (int) apply_filters( 'hwbl_cohort_leaderboard_limit', 50 );
+		if ( $limit > 0 && count( $rows ) > $limit ) {
+			$rows = array_slice( $rows, 0, $limit );
+		}
+
+		return array(
+			'leaderboard'  => array_values( $rows ),
+			'your_rank'    => $your_rank,
+			'your_streak'  => $your_streak,
+			'member_count' => count( $members ),
+			'cohort_id'    => $cohort_id,
+		);
+	}
+
+	/**
+	 * @return array<int, array<string, mixed>>
+	 */
+	private static function get_leaderboard_rows() {
+		$payload = self::get_leaderboard_payload();
+		return isset( $payload['leaderboard'] ) && is_array( $payload['leaderboard'] )
+			? $payload['leaderboard']
+			: array();
 	}
 
 	/**
@@ -171,6 +221,7 @@ class HWBL_Cohort_Leaderboard {
 		<div class="hwbl-cohort-leaderboard" data-hwbl-cohort-leaderboard>
 			<h2><?php esc_html_e( 'Cohort memorization streaks', 'hidden-word-bible-lessons' ); ?></h2>
 			<div class="hwbl-cohort-weekly-challenge" aria-live="polite"></div>
+			<div class="hwbl-cohort-leaderboard__you" aria-live="polite"></div>
 			<ol class="hwbl-cohort-leaderboard__list"></ol>
 		</div>
 		<?php

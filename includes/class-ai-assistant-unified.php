@@ -23,7 +23,6 @@ class HWBL_AI_Assistant_Unified {
 		}
 
 		add_shortcode( 'hwbl_ai_assistant', array( __CLASS__, 'render_shortcode' ) );
-		add_shortcode( 'thw_ai_assistant', array( __CLASS__, 'render_shortcode' ) );
 		add_action( 'rest_api_init', array( __CLASS__, 'register_routes' ) );
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
 	}
@@ -39,7 +38,7 @@ class HWBL_AI_Assistant_Unified {
 		if ( ! $post instanceof WP_Post ) {
 			return;
 		}
-		if ( ! has_shortcode( $post->post_content, 'hwbl_ai_assistant' ) && ! has_shortcode( $post->post_content, 'thw_ai_assistant' ) ) {
+		if ( ! has_shortcode( $post->post_content, 'hwbl_ai_assistant' ) ) {
 			return;
 		}
 
@@ -67,7 +66,11 @@ class HWBL_AI_Assistant_Unified {
 	}
 
 	/**
-	 * Register assistant session route.
+	 * Register unified AI assistant REST route.
+	 *
+	 * POST /hwbl/v1/ai/assistant routes a free-text prompt to study search
+	 * (or a fallback message). Requires a logged-in user with the read capability;
+	 * cookie authentication supplies the REST nonce.
 	 */
 	public static function register_routes() {
 		register_rest_route(
@@ -76,9 +79,22 @@ class HWBL_AI_Assistant_Unified {
 			array(
 				'methods'             => 'POST',
 				'callback'            => array( __CLASS__, 'rest_assistant' ),
-				'permission_callback' => function () {
-					return is_user_logged_in();
+				'permission_callback' => static function () {
+					return current_user_can( 'read' );
 				},
+				'args'                => array(
+					'message' => array(
+						'type'              => 'string',
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_textarea_field',
+					),
+					'mode'    => array(
+						'type'              => 'string',
+						'required'          => false,
+						'default'           => 'study',
+						'sanitize_callback' => 'sanitize_key',
+					),
+				),
 			)
 		);
 	}
@@ -90,9 +106,11 @@ class HWBL_AI_Assistant_Unified {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public static function rest_assistant( $request ) {
-		$params  = $request->get_json_params();
-		$message = is_array( $params ) && ! empty( $params['message'] ) ? sanitize_text_field( (string) $params['message'] ) : '';
-		$mode    = is_array( $params ) && ! empty( $params['mode'] ) ? sanitize_key( (string) $params['mode'] ) : 'study';
+		$message = sanitize_textarea_field( (string) $request->get_param( 'message' ) );
+		$mode    = sanitize_key( (string) $request->get_param( 'mode' ) );
+		if ( '' === $mode ) {
+			$mode = 'study';
+		}
 
 		if ( '' === $message ) {
 			return new WP_REST_Response( array( 'error' => 'empty_message' ), 400 );

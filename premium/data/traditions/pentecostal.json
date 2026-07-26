@@ -1,0 +1,139 @@
+{
+  "slug": "pentecostal",
+  "label": "Pentecostal / Charismatic",
+  "version": "1.2.0",
+  "framing": "Frame for a Pentecostal or Charismatic audience: Spirit-led living grounded in Scripture. Prefer Pentecostal World Fellowship Statement of Faith as a thin global consensus, plus classical Pentecostal distinctives (Spirit baptism, healing, Second Coming). Avoid sensational claims.",
+  "extends": "pentecostal_classical",
+  "general_gates": [
+    "Stay within the provided Bible text for verse claims; do not invent quotations.",
+    "Do not invent primary-source citations beyond the digests and PWF Statement of Faith identifiers supplied in this pack.",
+    "When citing broad Pentecostal/Charismatic doctrine, prefer Pentecostal World Fellowship Statement of Faith themes—paraphrase; do not invent org dumps.",
+    "Do not invent personal prophetic words, healings, or Spirit-baptism experiences as facts about the user.",
+    "When a doctrinal stance gate matches, state the tradition, the stance (yes/no/conditional/pastoral/silence), and any required conditions clearly.",
+    "For sensitive life topics, encourage prayer and trusted pastoral or professional help; AI is not a substitute for counseling."
+  ],
+  "citation_map": [
+    {
+      "topics": [
+        "scripture_authority",
+        "salvation"
+      ],
+      "articles": [
+        "Scripture",
+        "Salvation"
+      ],
+      "confession": "PWF Statement of Faith",
+      "note": "Bible inspired; salvation in Christ. Cite PWF Statement of Faith."
+    },
+    {
+      "topics": [
+        "church_authority",
+        "salvation"
+      ],
+      "articles": [
+        "God",
+        "Jesus Christ",
+        "Holy Spirit"
+      ],
+      "confession": "PWF Statement of Faith",
+      "note": "Trinity; deity of Christ; Holy Spirit. Cite PWF Statement of Faith."
+    },
+    {
+      "topics": [
+        "spirit_baptism",
+        "holiness",
+        "mission"
+      ],
+      "articles": [
+        "Baptism in the Holy Spirit"
+      ],
+      "confession": "PWF Statement of Faith",
+      "note": "Spirit baptism for empowered witness; tongues commonly as initial evidence in classical streams. Cite PWF Statement of Faith."
+    },
+    {
+      "topics": [
+        "healing",
+        "prayer"
+      ],
+      "articles": [
+        "Divine Healing"
+      ],
+      "confession": "PWF Statement of Faith",
+      "note": "Divine healing affirmed with prayer—no guaranteed outcomes. Cite PWF Statement of Faith."
+    },
+    {
+      "topics": [
+        "baptism",
+        "lords_supper",
+        "eucharist",
+        "sacraments"
+      ],
+      "articles": [
+        "Ordinances"
+      ],
+      "confession": "PWF Statement of Faith",
+      "note": "Water baptism and Lord’s Supper. Cite PWF Statement of Faith."
+    },
+    {
+      "topics": [
+        "prophecy"
+      ],
+      "articles": [
+        "Second Coming"
+      ],
+      "confession": "PWF Statement of Faith",
+      "note": "Christ will return—avoid date-setting. Cite PWF Statement of Faith."
+    },
+    {
+      "topics": [
+        "marriage",
+        "divorce",
+        "remarriage",
+        "sexuality"
+      ],
+      "articles": [
+        "Christian Living"
+      ],
+      "confession": "PWF Statement of Faith",
+      "note": "Holy living; pastoral care for marriage/divorce."
+    }
+  ],
+  "primary_sources": [
+    {
+      "id": "pwf_core",
+      "title": "PWF — core faith (digest)",
+      "cite": "PWF Statement of Faith (paraphrase)",
+      "excerpt": "Pentecostal World Fellowship affirms Scripture, the Triune God, salvation in Christ, and Spirit-empowered life as a global consensus baseline—not a binding legal code on every fellowship.",
+      "topics": [
+        "scripture_authority",
+        "salvation",
+        "church_authority"
+      ]
+    },
+    {
+      "id": "pwf_spirit",
+      "title": "PWF — Spirit baptism & healing (digest)",
+      "cite": "PWF Statement of Faith (paraphrase)",
+      "excerpt": "Baptism in the Holy Spirit empowers witness; divine healing is sought in prayer without guaranteeing outcomes. Test experiences by Scripture.",
+      "topics": [
+        "spirit_baptism",
+        "healing",
+        "holiness",
+        "mission",
+        "prayer"
+      ]
+    },
+    {
+      "id": "pwf_hope",
+      "title": "PWF — ordinances & hope (digest)",
+      "cite": "PWF Statement of Faith (paraphrase)",
+      "excerpt": "Water baptism and the Lord’s Supper are practiced. Christ will return—avoid date-setting.",
+      "topics": [
+        "baptism",
+        "lords_supper",
+        "prophecy"
+      ]
+    }
+  ],
+  "stances": []
+}

@@ -1,0 +1,78 @@
+{
+  "slug": "destiny_leaders",
+  "label": "Non-denominational — Destiny Leaders",
+  "version": "1.0.0",
+  "framing": "Frame for a Destiny Leaders / Destiny Ministries affiliated non-denominational audience. Prefer Destiny Leaders What We Believe identifiers (destinyleaders.com/about) with the shared non-denominational evangelical baseline—paraphrase only. Emphasize covenant relationships among leaders, Scripture authority, Spirit-empowered gifts today, local church ordinances, and biblical teaching on marriage, gender, and the sanctity of life.",
+  "extends": "nondenom",
+  "general_gates": [
+    "Stay within the provided Bible text for verse claims; do not invent quotations.",
+    "Do not invent Destiny Ministries handbook citations beyond the digests supplied in this pack.",
+    "When citing Destiny doctrine, use Destiny Leaders What We Believe themes only—paraphrase.",
+    "When a doctrinal stance gate matches, state Destiny Leaders, the stance, and any required conditions clearly.",
+    "For sensitive life topics, encourage prayer and trusted pastoral or professional help; AI is not a substitute for counseling."
+  ],
+  "citation_map": [
+    {
+      "topics": ["scripture_authority"],
+      "articles": ["The Authority Of Scripture"],
+      "confession": "Destiny Leaders What We Believe",
+      "note": "Old and New Testaments inspired, infallible, God-breathed, and authoritative for doctrine and life."
+    },
+    {
+      "topics": ["salvation", "church_authority"],
+      "articles": ["God", "The Lord Jesus Christ", "Our Doctrine Of Man"],
+      "confession": "Destiny Leaders What We Believe",
+      "note": "Triune God; Jesus’ sinless life, atoning death, bodily resurrection, ascension, imminent return; humanity lost in sin and saved through faith in Christ’s blood."
+    },
+    {
+      "topics": ["spirit_baptism", "holiness"],
+      "articles": ["The Work Of The Holy Spirit"],
+      "confession": "Destiny Leaders What We Believe",
+      "note": "Holy Spirit reveals truth, empowers holy living and witness, and provides gifts for the Church today."
+    },
+    {
+      "topics": ["baptism", "lords_supper", "marriage", "church_authority"],
+      "articles": ["In The Church"],
+      "confession": "Destiny Leaders What We Believe",
+      "note": "Church is all regenerated believers; ordinances include water baptism, holy matrimony, and the Lord’s Supper."
+    },
+    {
+      "topics": ["marriage", "sexuality", "holiness"],
+      "articles": ["Christian Conduct", "marriage"],
+      "confession": "Destiny Leaders What We Believe",
+      "note": "Marriage one man and one woman; sexual intimacy only within that covenant; compassion and dignity for every person; sanctity of human life."
+    }
+  ],
+  "primary_sources": [
+    {
+      "id": "destiny_about_believe",
+      "title": "Destiny Leaders — What We Believe overview",
+      "cite": "destinyleaders.com/about (paraphrase)",
+      "excerpt": "Destiny Leaders publishes a full What We Believe section covering God, Scripture, Jesus Christ, doctrine of man, Holy Spirit, Church ordinances, Christian conduct, sanctity of life, and final spiritual authority in Scripture with board interpretation for Destiny Ministries policy.",
+      "topics": ["scripture_authority", "salvation", "spirit_baptism", "church_authority", "marriage", "holiness"]
+    }
+  ],
+  "stances": [
+    {
+      "topic": "spirit_baptism",
+      "stance": "yes",
+      "summary": "Holy Spirit gifts available today for victorious living and mission (Destiny Leaders).",
+      "conditions": [],
+      "forbid": ["deny present-day gifts as a Destiny Leaders requirement"]
+    },
+    {
+      "topic": "marriage",
+      "stance": "yes",
+      "summary": "Marriage defined as one man and one woman (Destiny Leaders).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "sexuality",
+      "stance": "conditional",
+      "summary": "Sexual intimacy only in biblical marriage; every person owed compassion and dignity.",
+      "conditions": ["pastoral care"],
+      "forbid": ["endorse sexual immorality as Christian discipleship"]
+    }
+  ]
+}

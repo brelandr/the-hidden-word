@@ -1,0 +1,242 @@
+{
+  "general": {
+    "label": "General Protestant",
+    "file": "general.json",
+    "version": "1.1.0",
+    "extends": "evangelical"
+  },
+  "catholic": {
+    "label": "Catholic",
+    "file": "catholic.json",
+    "version": "1.1.0",
+    "extends": null
+  },
+  "orthodox": {
+    "label": "Eastern Orthodox",
+    "file": "orthodox.json",
+    "version": "1.1.0",
+    "extends": null
+  },
+  "greek_orthodox": {
+    "label": "Greek Orthodox",
+    "file": "greek_orthodox.json",
+    "version": "1.1.0",
+    "extends": "orthodox"
+  },
+  "russian_orthodox": {
+    "label": "Russian Orthodox",
+    "file": "russian_orthodox.json",
+    "version": "1.1.0",
+    "extends": "orthodox"
+  },
+  "oriental_orthodox": {
+    "label": "Oriental Orthodox",
+    "file": "oriental_orthodox.json",
+    "version": "1.1.0",
+    "extends": null
+  },
+  "coptic": {
+    "label": "Coptic Orthodox",
+    "file": "coptic.json",
+    "version": "1.1.0",
+    "extends": "oriental_orthodox"
+  },
+  "ethiopian_orthodox": {
+    "label": "Ethiopian Orthodox",
+    "file": "ethiopian_orthodox.json",
+    "version": "1.1.0",
+    "extends": "oriental_orthodox"
+  },
+  "armenian": {
+    "label": "Armenian Apostolic (Oriental Orthodox)",
+    "file": "armenian.json",
+    "version": "1.1.0",
+    "extends": "oriental_orthodox"
+  },
+  "anglican": {
+    "label": "Anglican / Episcopal",
+    "file": "anglican.json",
+    "version": "1.1.0",
+    "extends": null
+  },
+  "sbc": {
+    "label": "Southern Baptist Convention",
+    "file": "sbc.json",
+    "version": "1.1.0",
+    "extends": "evangelical"
+  },
+  "baptist": {
+    "label": "Baptist (general)",
+    "file": "baptist.json",
+    "version": "1.1.0",
+    "extends": "evangelical"
+  },
+  "lutheran": {
+    "label": "Lutheran",
+    "file": "lutheran.json",
+    "version": "1.1.0",
+    "extends": null
+  },
+  "methodist": {
+    "label": "United Methodist Church (UMC)",
+    "file": "methodist.json",
+    "version": "1.1.0",
+    "extends": null
+  },
+  "ame": {
+    "label": "African Methodist Episcopal (AME) Church",
+    "file": "ame.json",
+    "version": "1.1.0",
+    "extends": null
+  },
+  "reformed": {
+    "label": "Presbyterian / Reformed",
+    "file": "reformed.json",
+    "version": "1.1.0",
+    "extends": null
+  },
+  "pentecostal": {
+    "label": "Pentecostal / Charismatic",
+    "file": "pentecostal.json",
+    "version": "1.2.0",
+    "extends": "pentecostal_classical"
+  },
+  "assemblies_god": {
+    "label": "Assemblies of God",
+    "file": "assemblies_god.json",
+    "version": "1.2.0",
+    "extends": "pentecostal_classical"
+  },
+  "church_of_god": {
+    "label": "Church of God (Cleveland, TN)",
+    "file": "church_of_god.json",
+    "version": "1.0.0",
+    "extends": "pentecostal_classical"
+  },
+  "iphc": {
+    "label": "International Pentecostal Holiness Church (IPHC)",
+    "file": "iphc.json",
+    "version": "1.0.0",
+    "extends": "pentecostal_classical"
+  },
+  "upci": {
+    "label": "United Pentecostal Church International (UPCI / Oneness)",
+    "file": "upci.json",
+    "version": "1.1.0",
+    "extends": null
+  },
+  "nondenom": {
+    "label": "Non-denominational church",
+    "file": "nondenom.json",
+    "version": "1.2.0",
+    "extends": "evangelical"
+  },
+  "destiny_leaders": {
+    "label": "Non-denominational — Destiny Leaders",
+    "file": "destiny_leaders.json",
+    "version": "1.0.0",
+    "extends": "nondenom"
+  },
+  "arc_churches": {
+    "label": "Non-denominational — ARC (Association of Related Churches)",
+    "file": "arc_churches.json",
+    "version": "1.0.0",
+    "extends": "nondenom"
+  },
+  "churches_in_covenant": {
+    "label": "Non-denominational — Churches In Covenant",
+    "file": "churches_in_covenant.json",
+    "version": "1.0.0",
+    "extends": "nondenom"
+  },
+  "evangelical_free": {
+    "label": "Evangelical Free",
+    "file": "evangelical_free.json",
+    "version": "1.1.0",
+    "extends": "evangelical"
+  },
+  "calvary_chapel": {
+    "label": "Calvary Chapel",
+    "file": "calvary_chapel.json",
+    "version": "1.1.0",
+    "extends": "evangelical"
+  },
+  "vineyard": {
+    "label": "Vineyard",
+    "file": "vineyard.json",
+    "version": "1.1.0",
+    "extends": "evangelical"
+  },
+  "adventist": {
+    "label": "Seventh-day Adventist",
+    "file": "adventist.json",
+    "version": "1.1.0",
+    "extends": null
+  },
+  "lds": {
+    "label": "Latter-day Saints (Mormon)",
+    "file": "lds.json",
+    "version": "1.1.0",
+    "extends": null
+  },
+  "jehovah_witnesses": {
+    "label": "Jehovah’s Witnesses",
+    "file": "jehovah_witnesses.json",
+    "version": "1.1.0",
+    "extends": null
+  },
+  "church_of_christ": {
+    "label": "Churches of Christ",
+    "file": "church_of_christ.json",
+    "version": "1.1.0",
+    "extends": "evangelical"
+  },
+  "disciples_christ": {
+    "label": "Christian Church (Disciples of Christ)",
+    "file": "disciples_christ.json",
+    "version": "1.1.0",
+    "extends": "evangelical"
+  },
+  "holiness": {
+    "label": "Church of the Nazarene",
+    "file": "holiness.json",
+    "version": "1.1.0",
+    "extends": null
+  },
+  "mennonite": {
+    "label": "Mennonite / Anabaptist",
+    "file": "mennonite.json",
+    "version": "1.1.0",
+    "extends": "evangelical"
+  },
+  "quaker": {
+    "label": "Quaker / Friends",
+    "file": "quaker.json",
+    "version": "1.1.0",
+    "extends": null
+  },
+  "congregational": {
+    "label": "Congregational / United Church of Christ",
+    "file": "congregational.json",
+    "version": "1.1.0",
+    "extends": "evangelical"
+  },
+  "salvation_army": {
+    "label": "Salvation Army",
+    "file": "salvation_army.json",
+    "version": "1.1.0",
+    "extends": "evangelical"
+  },
+  "christian_science": {
+    "label": "Christian Science",
+    "file": "christian_science.json",
+    "version": "1.1.0",
+    "extends": null
+  },
+  "messianic": {
+    "label": "Messianic Jewish",
+    "file": "messianic.json",
+    "version": "1.1.0",
+    "extends": null
+  }
+}

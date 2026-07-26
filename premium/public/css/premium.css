@@ -1,0 +1,526 @@
+/**
+ * Premium front-end styles.
+ */
+
+.thw-subscribe-form {
+	max-width: 28rem;
+	margin: 1rem 0;
+}
+
+.thw-subscribe-form label {
+	display: block;
+	margin-bottom: 0.35rem;
+	font-weight: 600;
+}
+
+.thw-subscribe-form input[type="email"] {
+	margin-bottom: 0.75rem;
+}
+
+.thw-notice {
+	padding: 0.75rem 1rem;
+	border-radius: 4px;
+	margin: 1rem 0;
+}
+
+.thw-notice-success {
+	background: #eafaf1;
+	border: 1px solid #27ae60;
+	color: #1e8449;
+}
+
+.thw-notice-info {
+	background: #eaf2f8;
+	border: 1px solid #1a5276;
+	color: #1a5276;
+}
+
+.thw-cohort-roster {
+	width: 100%;
+	border-collapse: collapse;
+	margin: 1rem 0;
+}
+
+.thw-cohort-roster th,
+.thw-cohort-roster td {
+	border: 1px solid #ddd;
+	padding: 0.5rem 0.75rem;
+	text-align: left;
+}
+
+.thw-cohort-roster th {
+	background: #f4f6f7;
+}
+
+.thw-streak-badge {
+	font-weight: 600;
+	color: #1a5276;
+}
+
+.thw-badges {
+	list-style: none;
+	padding: 0;
+	margin: 0.5rem 0 1rem;
+}
+
+.thw-badges li {
+	display: inline-block;
+	margin: 0 0.35rem 0.35rem 0;
+	padding: 0.25rem 0.6rem;
+	background: #eaf2f8;
+	border-radius: 999px;
+	font-size: 0.85rem;
+}
+
+.thw-video-embed {
+	margin: 1rem 0;
+	max-width: 100%;
+}
+
+.thw-video-embed iframe {
+	max-width: 100%;
+}
+
+.thw-audio-player {
+	margin: 1rem 0;
+}
+
+.thw-ai-explain-controls {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	align-items: center;
+	margin: 0.75rem 0 0;
+}
+
+.thw-ai-tradition-label {
+	display: inline-flex;
+	flex-direction: column;
+	gap: 0.2rem;
+	font-size: 0.85rem;
+	color: #444;
+}
+
+.thw-ai-tradition-label-text {
+	font-weight: 600;
+}
+
+.thw-ai-tradition-select,
+.thw-ai-explain-scope {
+	min-width: 12rem;
+	max-width: 100%;
+}
+
+.thw-study-finder__form .thw-ai-tradition-label {
+	flex: 1 1 14rem;
+}
+
+.thw-ai-explain-scope {
+	min-width: 10rem;
+}
+
+.thw-ai-explain-panel {
+	margin-top: 1rem;
+	padding: 1rem;
+	background: #f8f9fa;
+	border: 1px solid #dde2e6;
+	border-radius: 4px;
+}
+
+/* Not a lesson tab: show whenever the hidden attribute is removed. */
+.thw-ai-explain-panel[hidden] {
+	display: none !important;
+}
+
+.thw-ai-explain-panel:not([hidden]),
+.thw-tab-panel.thw-ai-explain-panel:not([hidden]),
+.thw-ai-explain-panel.is-active {
+	display: block !important;
+}
+
+.thw-ai-explain-disclaimer,
+.thw-study-finder__disclaimer {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.5rem;
+	margin-top: 1rem;
+	padding: 0.6rem 0.85rem;
+	font-size: 0.9rem;
+	line-height: 1.4;
+	color: #664d03;
+	background: #fff8e6;
+	border: 1px solid #f0dca0;
+	border-left: 4px solid #d4af37;
+	border-radius: 3px;
+}
+
+.thw-ai-explain-disclaimer::before,
+.thw-study-finder__disclaimer::before {
+	content: "⚠";
+	flex: 0 0 auto;
+	line-height: 1.4;
+}
+
+/* Stronger styling when the compliance check couldn't confirm the response
+   follows the selected tradition's rules — same layout, more urgent color. */
+.thw-ai-compliance-flagged {
+	color: #842029;
+	background: #fdeeee;
+	border-color: #f1c2c2;
+	border-left-color: #b3261e;
+	font-weight: 600;
+}
+
+.thw-study-finder {
+	max-width: 40rem;
+	margin: 1.5rem 0;
+}
+
+.thw-study-finder__title {
+	margin-bottom: 0.75rem;
+}
+
+.thw-study-finder__form {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	align-items: flex-end;
+	margin-bottom: 1rem;
+}
+
+.thw-study-finder__input {
+	flex: 1 1 14rem;
+	min-width: 0;
+}
+
+.thw-study-finder__results-list {
+	margin: 0;
+	padding-left: 1.25rem;
+	list-style: decimal;
+}
+
+.thw-study-finder__result {
+	margin-bottom: 1.25rem;
+}
+
+.thw-study-finder__reference {
+	margin: 0 0 0.35rem;
+	font-size: 1.1rem;
+	color: #1a5276;
+}
+
+.thw-study-finder__summary {
+	margin: 0.25rem 0 0.5rem;
+	font-weight: 600;
+	color: #333;
+}
+
+.thw-study-finder__citations {
+	margin: 0 0 0.5rem;
+	font-size: 0.92em;
+	color: #444;
+}
+
+.thw-study-finder__citations-label {
+	font-weight: 600;
+}
+
+.thw-study-finder__citation-link {
+	color: #1a5276;
+	text-decoration: underline;
+	text-underline-offset: 0.12em;
+}
+
+.thw-study-finder__citation-link:hover,
+.thw-study-finder__citation-link:focus {
+	color: #0e3a56;
+}
+
+.thw-study-finder__excerpt,
+.thw-study-finder__rationale,
+.thw-study-finder__commentary {
+	margin: 0.35rem 0 0;
+	color: #444;
+}
+
+.thw-study-finder__commentary p {
+	margin: 0 0 0.5rem;
+}
+
+.thw-study-finder__commentary p:last-child {
+	margin-bottom: 0;
+}
+
+.thw-study-finder__source {
+	margin: 0 0 0.75rem;
+	font-size: 0.95rem;
+	color: #555;
+}
+
+.thw-study-finder__source {
+	font-size: 0.9rem;
+	color: #555;
+	margin-bottom: 0.5rem;
+}
+
+.thw-study-finder__lessons,
+.thw-ask-question__lessons {
+	margin-top: 1.25rem;
+}
+
+.thw-study-finder__lessons-heading,
+.thw-ask-question__lessons-heading {
+	font-size: 1.05rem;
+	margin: 0 0 0.5rem;
+}
+
+.thw-study-finder__lessons-list,
+.thw-ask-question__lessons-list {
+	margin: 0;
+	padding-left: 1.25rem;
+}
+
+.thw-study-finder__lesson,
+.thw-ask-question__lesson {
+	margin-bottom: 0.5rem;
+}
+
+.thw-ask-question__lesson-excerpt {
+	margin: 0.25rem 0 0;
+	font-size: 0.92rem;
+	color: #555;
+}
+
+.thw-ask-question {
+	margin: 1.5rem 0;
+}
+
+.thw-ask-question__title {
+	margin-top: 0;
+}
+
+.thw-ask-question__form {
+	display: grid;
+	gap: 0.75rem;
+	margin-bottom: 1rem;
+}
+
+.thw-ask-question__form .thw-ai-tradition-label {
+	display: block;
+	font-weight: 600;
+	margin-bottom: 0.25rem;
+}
+
+.thw-ask-question__input {
+	width: 100%;
+	min-height: 6rem;
+	padding: 0.75rem 1rem;
+	border: 1px solid #ccd0d4;
+	border-radius: 6px;
+	font: inherit;
+}
+
+.thw-ask-question__status {
+	min-height: 1.25rem;
+	margin-bottom: 0.75rem;
+	color: #555;
+}
+
+.thw-ask-question__source {
+	margin: 0 0 0.75rem;
+	font-size: 0.9rem;
+	color: #555;
+}
+
+.thw-ask-question__content p {
+	margin: 0 0 0.85rem;
+}
+
+.thw-ask-question__content p:last-child {
+	margin-bottom: 0;
+}
+
+.thw-ask-question__citations {
+	margin: 1rem 0 0;
+	font-size: 0.92rem;
+}
+
+.thw-ask-question__citations-label {
+	font-weight: 600;
+}
+
+.thw-ask-question__disclaimer {
+	margin-top: 1rem;
+	font-size: 0.9rem;
+	color: #555;
+}
+
+.thw-ask-question__disclaimer.thw-ai-compliance-flagged {
+	color: #8a6d3b;
+}
+
+/* Bible.com Verse of the Day */
+.thw-votd {
+	margin: 1.25rem 0;
+	padding: 1.25rem 1.35rem;
+	border: 1px solid #d9e2ec;
+	background: linear-gradient(180deg, #f8fbfd 0%, #ffffff 70%);
+	max-width: 40rem;
+}
+
+.thw-votd__eyebrow {
+	margin: 0 0 0.75rem;
+	font-size: 0.8rem;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: #5b6b7c;
+}
+
+.thw-votd__figure {
+	margin: 0 0 1rem;
+}
+
+.thw-votd__image {
+	display: block;
+	width: 100%;
+	height: auto;
+	border-radius: 2px;
+}
+
+.thw-votd__quote {
+	margin: 0;
+}
+
+.thw-votd__text {
+	margin: 0 0 0.75rem;
+	font-size: 1.15rem;
+	line-height: 1.55;
+	color: #1c2833;
+}
+
+.thw-votd__footer {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem 1rem;
+	align-items: baseline;
+}
+
+.thw-votd__ref {
+	font-style: normal;
+	font-weight: 700;
+	color: #1a5276;
+}
+
+.thw-votd__translation {
+	font-size: 0.85rem;
+	color: #667788;
+}
+
+.thw-votd__credit {
+	margin: 0.85rem 0 0;
+	font-size: 0.85rem;
+}
+
+.thw-votd__credit a {
+	color: #1a5276;
+}
+
+.thw-votd__explain {
+	margin-top: 1rem;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.65rem;
+	align-items: center;
+}
+
+.thw-votd__translation-select {
+	min-width: 12rem;
+	max-width: 100%;
+}
+
+.thw-votd__explain-link {
+	display: inline-flex;
+	align-items: center;
+	font-weight: 600;
+	color: #1a5276;
+	text-decoration: underline;
+	text-underline-offset: 0.18em;
+	cursor: pointer;
+}
+
+.thw-votd__explain-link:hover,
+.thw-votd__explain-link:focus-visible {
+	color: #0e3a56;
+}
+
+.thw-votd__explain-link.is-loading {
+	opacity: 0.65;
+	pointer-events: none;
+}
+
+.thw-votd__explain-hint {
+	margin: 0.85rem 0 0;
+	font-size: 0.95rem;
+}
+
+.thw-votd__explain-panel {
+	flex: 1 1 100%;
+	margin-top: 0.35rem;
+	padding: 0.85rem 1rem;
+	background: #fff;
+	border: 1px solid #e5ebf0;
+}
+
+.thw-votd__explain-panel[hidden] {
+	display: none;
+}
+
+.thw-votd__disclaimer {
+	color: #8a6d3b;
+	font-size: 0.9rem;
+}
+
+.thw-votd__error,
+.thw-votd__loading {
+	margin: 0;
+	color: #555;
+}
+
+/* Saved VOTD explanation posts (plugin fallback when theme has no entry-content styles) */
+.entry-content.thw-votd-explain blockquote.thw-votd-explain__verse {
+	font-family: Georgia, "Times New Roman", serif;
+	font-size: 1.2rem;
+	line-height: 1.6;
+	margin: 0 0 1.5rem;
+	padding: 0 0 0 1rem;
+	border-left: 4px solid #c9a227;
+	color: #1a1a1a;
+}
+
+.entry-content.thw-votd-explain blockquote.thw-votd-explain__verse cite {
+	display: block;
+	font-size: 0.95rem;
+	font-style: normal;
+	font-weight: 600;
+	color: #1b3a4b;
+	margin-top: 0.5rem;
+}
+
+.thw-votd-explain-output h3,
+.entry-content.thw-votd-explain .thw-votd-explain__body h3 {
+	margin: 1.1rem 0 0.4rem;
+	font-size: 1.05rem;
+	color: #1b3a4b;
+	font-family: Georgia, "Times New Roman", serif;
+}
+
+.thw-votd-explain-output h3:first-child,
+.entry-content.thw-votd-explain .thw-votd-explain__body h3:first-child {
+	margin-top: 0;
+}
+
+.thw-votd-explain-output p,
+.entry-content.thw-votd-explain .thw-votd-explain__body p {
+	margin: 0 0 0.75rem;
+	line-height: 1.55;
+}

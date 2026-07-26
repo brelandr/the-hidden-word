@@ -18,7 +18,7 @@ class HWBL_Personalized_Digest {
 	 * Initialize digest personalization hooks.
 	 */
 	public static function init() {
-		add_filter( 'thw_digest_email_sections', array( __CLASS__, 'append_srs_section' ), 10, 2 );
+		add_filter( 'hwbl_digest_email_sections', array( __CLASS__, 'append_srs_section' ), 10, 2 );
 	}
 
 	/**

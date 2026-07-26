@@ -27,24 +27,93 @@ class HWBL_CPT_Lesson {
 	public function __construct() {
 		add_action( 'init', array( $this, 'register_post_type' ) );
 		add_action( 'init', array( $this, 'register_meta' ) );
+		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
+	}
+
+	/**
+	 * Public lesson curriculum for the companion app / PWA.
+	 */
+	public function register_rest_routes() {
+		$args = array(
+			'methods'             => 'GET',
+			'callback'            => array( $this, 'rest_get_lesson' ),
+			'permission_callback' => '__return_true',
+			'args'                => array(
+				'id' => array(
+					'type'              => 'integer',
+					'required'          => true,
+					'sanitize_callback' => 'absint',
+				),
+			),
+		);
+
+		register_rest_route( 'hwbl/v1', '/lessons/(?P<id>\d+)', $args );
+		register_rest_route( 'thw/v1', '/lessons/(?P<id>\d+)', $args );
+	}
+
+	/**
+	 * GET hwbl/v1/lessons/{id} — published curriculum fields for readers.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function rest_get_lesson( $request ) {
+		$lesson_id = (int) $request['id'];
+		$post      = get_post( $lesson_id );
+
+		if ( ! $post || ! self::is_lesson_post_type( $post->post_type ) ) {
+			return new WP_Error(
+				'hwbl_lesson_not_found',
+				__( 'Lesson not found.', 'hidden-word-bible-lessons' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		if ( 'publish' !== $post->post_status && ! current_user_can( 'read_post', $lesson_id ) ) {
+			return new WP_Error(
+				'hwbl_lesson_forbidden',
+				__( 'You cannot view this lesson.', 'hidden-word-bible-lessons' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		$lesson = self::get_lesson_data( $lesson_id );
+		if ( ! self::is_valid_lesson_data( $lesson ) ) {
+			return new WP_Error(
+				'hwbl_lesson_not_found',
+				__( 'Lesson not found.', 'hidden-word-bible-lessons' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		$lesson['excerpt'] = has_excerpt( $lesson_id )
+			? get_the_excerpt( $lesson_id )
+			: wp_trim_words( wp_strip_all_tags( (string) $post->post_content ), 40 );
+		$lesson['link']      = get_permalink( $lesson_id );
+		$video_url           = (string) get_post_meta( $lesson_id, '_hwbl_video_url', true );
+		$lesson['video_url'] = (string) apply_filters( 'hwbl_lesson_video_url', $video_url, $lesson_id );
+
+		return rest_ensure_response( $lesson );
 	}
 
 	/**
 	 * Register hwbl_lesson post type.
 	 */
 	public function register_post_type() {
-		$labels = array(
-			'name'               => __( 'Bible Lessons', 'hidden-word-bible-lessons' ),
-			'singular_name'      => __( 'Bible Lesson', 'hidden-word-bible-lessons' ),
-			'menu_name'          => __( 'Hidden Word Bible Lessons', 'hidden-word-bible-lessons' ),
-			'add_new'            => __( 'Add Lesson', 'hidden-word-bible-lessons' ),
-			'add_new_item'       => __( 'Add New Lesson', 'hidden-word-bible-lessons' ),
-			'edit_item'          => __( 'Edit Lesson', 'hidden-word-bible-lessons' ),
-			'new_item'           => __( 'New Lesson', 'hidden-word-bible-lessons' ),
-			'view_item'          => __( 'View Lesson', 'hidden-word-bible-lessons' ),
-			'search_items'       => __( 'Search Lessons', 'hidden-word-bible-lessons' ),
-			'not_found'          => __( 'No lessons found', 'hidden-word-bible-lessons' ),
-			'not_found_in_trash' => __( 'No lessons found in trash', 'hidden-word-bible-lessons' ),
+		// Activation calls this before init; keep English until translations are allowed.
+		$can_translate = (bool) did_action( 'init' );
+		$labels        = array(
+			'name'               => $can_translate ? __( 'Bible Lessons', 'hidden-word-bible-lessons' ) : 'Bible Lessons',
+			'singular_name'      => $can_translate ? __( 'Bible Lesson', 'hidden-word-bible-lessons' ) : 'Bible Lesson',
+			'menu_name'          => $can_translate ? __( 'Hidden Word Bible Lessons', 'hidden-word-bible-lessons' ) : 'Hidden Word Bible Lessons',
+			'add_new'            => $can_translate ? __( 'Add Lesson', 'hidden-word-bible-lessons' ) : 'Add Lesson',
+			'add_new_item'       => $can_translate ? __( 'Add New Lesson', 'hidden-word-bible-lessons' ) : 'Add New Lesson',
+			'edit_item'          => $can_translate ? __( 'Edit Lesson', 'hidden-word-bible-lessons' ) : 'Edit Lesson',
+			'new_item'           => $can_translate ? __( 'New Lesson', 'hidden-word-bible-lessons' ) : 'New Lesson',
+			'view_item'          => $can_translate ? __( 'View Lesson', 'hidden-word-bible-lessons' ) : 'View Lesson',
+			'search_items'       => $can_translate ? __( 'Search Lessons', 'hidden-word-bible-lessons' ) : 'Search Lessons',
+			'not_found'          => $can_translate ? __( 'No lessons found', 'hidden-word-bible-lessons' ) : 'No lessons found',
+			'not_found_in_trash' => $can_translate ? __( 'No lessons found in trash', 'hidden-word-bible-lessons' ) : 'No lessons found in trash',
 		);
 
 		register_post_type(

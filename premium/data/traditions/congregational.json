@@ -1,0 +1,209 @@
+{
+  "slug": "congregational",
+  "label": "Congregational / United Church of Christ",
+  "version": "1.1.0",
+  "framing": "Frame for a Congregational / UCC audience: Scripture, thoughtful faith, local autonomy, justice-minded compassion, and ecumenical progress. Prefer the UCC Statement of Faith (often prayed). Paraphrase only—do not invent General Synod dumps.",
+  "extends": "evangelical",
+  "general_gates": [
+    "Stay within the provided Bible text for verse claims; do not invent quotations.",
+    "Do not invent primary-source citations beyond the digests and UCC Statement of Faith identifiers supplied in this pack.",
+    "When citing UCC doctrine, use UCC Statement of Faith themes only—paraphrase; local congregations vary widely.",
+    "When a doctrinal stance gate matches, state the tradition, the stance (yes/no/conditional/pastoral/silence), and any required conditions clearly.",
+    "For sensitive life topics, encourage prayer and trusted pastoral or professional help; AI is not a substitute for counseling."
+  ],
+  "citation_map": [
+    {
+      "topics": [
+        "scripture_authority",
+        "salvation",
+        "church_authority"
+      ],
+      "articles": [
+        "God",
+        "Christ",
+        "Holy Spirit"
+      ],
+      "confession": "UCC Statement of Faith",
+      "note": "Statement of Faith as prayer/confession of the Triune God and Christ’s reconciling work. Cite UCC Statement of Faith."
+    },
+    {
+      "topics": [
+        "church_authority",
+        "mission"
+      ],
+      "articles": [
+        "Church",
+        "Kingdom"
+      ],
+      "confession": "UCC Statement of Faith",
+      "note": "Church as people of God; local autonomy; mission of justice and peace. Cite UCC Statement of Faith."
+    },
+    {
+      "topics": [
+        "baptism",
+        "lords_supper",
+        "eucharist",
+        "sacraments"
+      ],
+      "articles": [
+        "Sacraments"
+      ],
+      "confession": "UCC Statement of Faith",
+      "note": "Baptism and communion practiced; forms vary by congregation. Cite UCC Statement of Faith."
+    },
+    {
+      "topics": [
+        "holiness",
+        "mission"
+      ],
+      "articles": [
+        "Promise"
+      ],
+      "confession": "UCC Statement of Faith",
+      "note": "God’s promise and call to costly discipleship and justice-minded love. Cite UCC Statement of Faith."
+    },
+    {
+      "topics": [
+        "marriage",
+        "divorce",
+        "remarriage",
+        "sexuality"
+      ],
+      "articles": [
+        "Covenant"
+      ],
+      "confession": "UCC Statement of Faith",
+      "note": "Pastoral care under local autonomy—congregations differ; do not invent a single UCC decree beyond the pack."
+    }
+  ],
+  "primary_sources": [
+    {
+      "id": "ucc_faith",
+      "title": "UCC Statement of Faith (digest)",
+      "cite": "UCC Statement of Faith (paraphrase)",
+      "excerpt": "Often formatted as a prayer: God creates, Jesus redeems, the Spirit empowers; the Church is called to faith, justice, and hope. Local congregations remain autonomous.",
+      "topics": [
+        "scripture_authority",
+        "salvation",
+        "church_authority",
+        "mission"
+      ]
+    },
+    {
+      "id": "ucc_church",
+      "title": "UCC — church & sacraments (digest)",
+      "cite": "UCC Statement of Faith (paraphrase)",
+      "excerpt": "Baptism and communion are celebrated. Worship and ethics are discerned in congregational life with ecumenical openness.",
+      "topics": [
+        "baptism",
+        "lords_supper",
+        "eucharist",
+        "church_authority"
+      ]
+    }
+  ],
+  "stances": [
+    {
+      "topic": "scripture_authority",
+      "stance": "conditional",
+      "summary": "Scripture central within UCC Statement of Faith; interpretation is thoughtful and congregationally discerned.",
+      "conditions": [
+        "local autonomy"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "salvation",
+      "stance": "yes",
+      "summary": "Christ’s reconciling work (UCC Statement of Faith).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "church_authority",
+      "stance": "yes",
+      "summary": "Local congregation autonomy with covenantal UCC life.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "baptism",
+      "stance": "yes",
+      "summary": "Baptism practiced; mode/age practices vary.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "lords_supper",
+      "stance": "yes",
+      "summary": "Communion practiced; open welcome common.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "eucharist",
+      "stance": "yes",
+      "summary": "Speak as communion/Lord’s Supper.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "mission",
+      "stance": "yes",
+      "summary": "Justice-minded compassion and ecumenical progress.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "holiness",
+      "stance": "yes",
+      "summary": "Costly discipleship and love.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "marriage",
+      "stance": "conditional",
+      "summary": "Pastoral; congregations differ—no invented universal UCC decree.",
+      "conditions": [
+        "local congregational awareness"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "divorce",
+      "stance": "conditional",
+      "summary": "Pastoral care under local autonomy.",
+      "conditions": [
+        "pastoral counsel"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "annulment",
+      "stance": "silence",
+      "summary": "Not UCC tribunal category.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "remarriage",
+      "stance": "conditional",
+      "summary": "Local pastoral discernment.",
+      "conditions": [
+        "pastoral guidance"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "sexuality",
+      "stance": "conditional",
+      "summary": "Congregations differ widely; be pastoral; do not invent a single UCC decree beyond the pack.",
+      "conditions": [
+        "local awareness",
+        "compassion"
+      ],
+      "forbid": []
+    }
+  ]
+}

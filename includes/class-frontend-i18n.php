@@ -22,7 +22,9 @@ class HWBL_Frontend_I18n {
 	public static function memorization_strings() {
 		return array(
 			'streakDayOne'   => __( 'Day 1 streak — great start!', 'hidden-word-bible-lessons' ),
+			/* translators: %d: streak day count */
 			'streakDays'     => __( 'Day %d streak — keep going!', 'hidden-word-bible-lessons' ),
+			/* translators: %s: word being hidden */
 			'hideWord'       => __( 'Hide word: %s', 'hidden-word-bible-lessons' ),
 			'revealWord'     => __( 'Reveal hidden word', 'hidden-word-bible-lessons' ),
 			'practiceRegion' => __( 'Memorization practice', 'hidden-word-bible-lessons' ),
@@ -36,14 +38,25 @@ class HWBL_Frontend_I18n {
 			'modeScramble'   => __( 'Click shuffled words in verse order.', 'hidden-word-bible-lessons' ),
 			'scrambleGood'   => __( 'Correct order — well done!', 'hidden-word-bible-lessons' ),
 			'scramblePartial'=> __( 'Not quite — try reshuffling and practice again.', 'hidden-word-bible-lessons' ),
+			/* translators: %s: word to add in scramble mode */
 			'scrambleWord'   => __( 'Add word: %s', 'hidden-word-bible-lessons' ),
 			'reviewPrompt'   => __( 'Daily review: type the verse from memory, then rate your recall.', 'hidden-word-bible-lessons' ),
+			/* translators: %s: next review due date */
 			'reviewSaved'    => __( 'Review saved — next due %s.', 'hidden-word-bible-lessons' ),
 			'dueBannerOne'   => __( '1 review due today — start with recall practice below.', 'hidden-word-bible-lessons' ),
+			/* translators: %d: number of reviews due today */
 			'dueBannerMany'  => __( '%d reviews due today — start with recall practice below.', 'hidden-word-bible-lessons' ),
 			'queueEmpty'     => __( 'No reviews due — great work! Open a lesson to add verses to your deck.', 'hidden-word-bible-lessons' ),
 			'dueHeading'     => __( 'Due today', 'hidden-word-bible-lessons' ),
 			'newHeading'     => __( 'New cards', 'hidden-word-bible-lessons' ),
+			'modeReference'  => __( 'Enter the book, chapter, and verse (for example Romans chapter 1, verse 1).', 'hidden-word-bible-lessons' ),
+			'referenceGood'  => __( 'Correct — you know the reference!', 'hidden-word-bible-lessons' ),
+			'referencePartial'=> __( 'Close — check the book, chapter, and verse again.', 'hidden-word-bible-lessons' ),
+			'referenceEmpty' => __( 'Enter a book, chapter, and verse to check.', 'hidden-word-bible-lessons' ),
+			'audioLoading'   => __( 'Loading chapter audio…', 'hidden-word-bible-lessons' ),
+			'audioPlaying'   => __( 'Playing chapter audio for this verse.', 'hidden-word-bible-lessons' ),
+			'audioUnavailable'=> __( 'Audio is not available right now.', 'hidden-word-bible-lessons' ),
+			'audioBlocked'   => __( 'Tap play on the audio player to listen.', 'hidden-word-bible-lessons' ),
 		);
 	}
 
@@ -86,6 +99,7 @@ class HWBL_Frontend_I18n {
 			'restUrl'      => rest_url( 'hwbl/v1/' ),
 			'nonce'        => wp_create_nonce( 'wp_rest' ),
 			'loggedIn'     => is_user_logged_in(),
+			'narrator'     => class_exists( 'HWBL_Bible_Reader' ) ? HWBL_Bible_Reader::get_default_narrator() : 'david',
 		);
 	}
 }

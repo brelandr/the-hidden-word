@@ -1,0 +1,230 @@
+{
+  "slug": "church_of_christ",
+  "label": "Churches of Christ",
+  "version": "1.1.0",
+  "framing": "Frame for a Churches of Christ audience: no creed but Christ, no book but the Bible; restore New Testament patterns. Prefer Churches of Christ Teaching identifiers (baptism for remission of sins, weekly Lord’s Supper, a cappella worship, congregational autonomy). Do not invent a human confession dump—point to Scripture and restoration teaching summaries.",
+  "extends": "evangelical",
+  "general_gates": [
+    "Stay within the provided Bible text for verse claims; do not invent quotations.",
+    "Do not invent primary-source citations beyond the digests and Churches of Christ Teaching identifiers supplied in this pack.",
+    "Churches of Christ are non-creedal—cite Scripture and Churches of Christ Teaching topic identifiers only; never invent a formal confession text.",
+    "When a doctrinal stance gate matches, state the tradition, the stance (yes/no/conditional/pastoral/silence), and any required conditions clearly.",
+    "For sensitive life topics, encourage prayer and trusted pastoral or professional help; AI is not a substitute for counseling."
+  ],
+  "citation_map": [
+    {
+      "topics": [
+        "scripture_authority"
+      ],
+      "articles": [
+        "Scripture Alone"
+      ],
+      "confession": "Churches of Christ Teaching",
+      "note": "No creed but Christ, no book but the Bible—speak where the Bible speaks. Cite Churches of Christ Teaching — Scripture Alone."
+    },
+    {
+      "topics": [
+        "baptism",
+        "salvation"
+      ],
+      "articles": [
+        "Baptism"
+      ],
+      "confession": "Churches of Christ Teaching",
+      "note": "Immersion of penitent believers for forgiveness of sins (Acts pattern). Cite Churches of Christ Teaching — Baptism."
+    },
+    {
+      "topics": [
+        "lords_supper",
+        "eucharist",
+        "sacraments"
+      ],
+      "articles": [
+        "Lord’s Supper"
+      ],
+      "confession": "Churches of Christ Teaching",
+      "note": "Weekly Lord’s Supper as memorial commonly practiced. Cite Churches of Christ Teaching — Lord’s Supper."
+    },
+    {
+      "topics": [
+        "church_authority"
+      ],
+      "articles": [
+        "Congregational Autonomy"
+      ],
+      "confession": "Churches of Christ Teaching",
+      "note": "Autonomous local congregations under NT elders/pattern; no synods/papacy. Cite Churches of Christ Teaching — Congregational Autonomy."
+    },
+    {
+      "topics": [
+        "holiness",
+        "mission"
+      ],
+      "articles": [
+        "Worship"
+      ],
+      "confession": "Churches of Christ Teaching",
+      "note": "Simple NT worship; a cappella singing is common in many congregations—acknowledge local variation without inventing a worldwide decree."
+    },
+    {
+      "topics": [
+        "marriage",
+        "divorce",
+        "remarriage",
+        "sexuality"
+      ],
+      "articles": [
+        "Christian Living"
+      ],
+      "confession": "Churches of Christ Teaching",
+      "note": "Biblical marriage ethics; divorce/remarriage handled with Scripture and congregational counsel."
+    }
+  ],
+  "primary_sources": [
+    {
+      "id": "coc_scripture",
+      "title": "Churches of Christ — Scripture alone (digest)",
+      "cite": "Churches of Christ Teaching — Scripture Alone (paraphrase)",
+      "excerpt": "No creed but Christ, no book but the Bible. Seek to restore simple New Testament faith and practice without inventing a human confession.",
+      "topics": [
+        "scripture_authority",
+        "church_authority"
+      ]
+    },
+    {
+      "id": "coc_baptism",
+      "title": "Churches of Christ — baptism (digest)",
+      "cite": "Churches of Christ Teaching — Baptism (paraphrase)",
+      "excerpt": "Immersion of penitent believers for the forgiveness of sins is strongly emphasized from the Acts pattern.",
+      "topics": [
+        "baptism",
+        "salvation"
+      ]
+    },
+    {
+      "id": "coc_supper",
+      "title": "Churches of Christ — Lord’s Supper (digest)",
+      "cite": "Churches of Christ Teaching — Lord’s Supper (paraphrase)",
+      "excerpt": "Weekly Lord’s Supper is commonly observed as a memorial of Christ’s death—not a sacrificial Mass.",
+      "topics": [
+        "lords_supper",
+        "eucharist",
+        "sacraments"
+      ]
+    },
+    {
+      "id": "coc_worship",
+      "title": "Churches of Christ — worship & autonomy (digest)",
+      "cite": "Churches of Christ Teaching — Worship & Autonomy (paraphrase)",
+      "excerpt": "Local congregational autonomy under NT pattern; many congregations practice a cappella worship—acknowledge variation without inventing universal decrees.",
+      "topics": [
+        "church_authority",
+        "holiness",
+        "mission"
+      ]
+    }
+  ],
+  "stances": [
+    {
+      "topic": "baptism",
+      "stance": "conditional",
+      "summary": "Immersion of penitent believers for forgiveness of sins (Churches of Christ Teaching — Baptism).",
+      "conditions": [
+        "belief",
+        "repentance",
+        "immersion"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "lords_supper",
+      "stance": "yes",
+      "summary": "Weekly Lord’s Supper commonly practiced as memorial.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "eucharist",
+      "stance": "yes",
+      "summary": "Speak as Lord’s Supper/ordinance, not sacrificial Mass.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "church_authority",
+      "stance": "yes",
+      "summary": "Autonomous local congregations under NT pattern.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "scripture_authority",
+      "stance": "yes",
+      "summary": "No creed but the Bible—speak where Scripture speaks.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "salvation",
+      "stance": "yes",
+      "summary": "Salvation in Christ with obedient faith including baptism as commonly taught.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "marriage",
+      "stance": "yes",
+      "summary": "Biblical lifelong marriage.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "divorce",
+      "stance": "conditional",
+      "summary": "Serious under Scripture; congregational counsel.",
+      "conditions": [
+        "pastoral counsel"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "annulment",
+      "stance": "silence",
+      "summary": "Not a CoC tribunal category.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "remarriage",
+      "stance": "conditional",
+      "summary": "Follow Scripture and congregational guidance.",
+      "conditions": [
+        "pastoral guidance"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "sexuality",
+      "stance": "conditional",
+      "summary": "Sexual ethics per Scripture; compassion.",
+      "conditions": [
+        "compassion"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "holiness",
+      "stance": "yes",
+      "summary": "Simple NT discipleship and worship.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "mission",
+      "stance": "yes",
+      "summary": "Evangelism and congregational faithfulness.",
+      "conditions": [],
+      "forbid": []
+    }
+  ]
+}

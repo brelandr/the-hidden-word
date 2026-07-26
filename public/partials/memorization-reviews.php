@@ -9,9 +9,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$user_id = get_current_user_id();
-$stats   = HWBL_Memorization_SRS::get_progress_stats( $user_id );
-$streak  = HWBL_Memorization_SRS::get_streak( $user_id );
+$hwbl_user_id = get_current_user_id();
+$hwbl_stats   = HWBL_Memorization_SRS::get_progress_stats( $hwbl_user_id );
+$hwbl_streak  = HWBL_Memorization_SRS::get_streak( $hwbl_user_id );
 ?>
 <div class="hwbl-memorize-reviews" data-hwbl-memorize-reviews>
 	<header class="hwbl-memorize-reviews__header">
@@ -21,9 +21,9 @@ $streak  = HWBL_Memorization_SRS::get_streak( $user_id );
 			printf(
 				/* translators: 1: due count, 2: total cards, 3: streak days */
 				esc_html__( '%1$d due today · %2$d in your deck · %3$d-day streak', 'hidden-word-bible-lessons' ),
-				(int) $stats['due'],
-				(int) $stats['total'],
-				(int) $streak['current']
+				(int) $hwbl_stats['due'],
+				(int) $hwbl_stats['total'],
+				(int) $hwbl_streak['current']
 			);
 			?>
 		</p>

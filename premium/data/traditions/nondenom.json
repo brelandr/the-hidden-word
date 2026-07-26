@@ -1,0 +1,217 @@
+{
+  "slug": "nondenom",
+  "label": "Non-denominational church",
+  "version": "1.2.0",
+  "framing": "Frame for a non-denominational church audience: accessible, Christ-centered discipleship with local-church autonomy. Prefer a shared evangelical baseline (NAE Statement of Faith) plus common network affirmations used by many independent churches (e.g. ARC Statement of Faith; Destiny Leaders / Destiny Ministries What We Believe)—paraphrase only; do not invent a denominational handbook.",
+  "extends": "evangelical",
+  "general_gates": [
+    "Stay within the provided Bible text for verse claims; do not invent quotations.",
+    "Do not invent primary-source citations beyond the digests and identifiers supplied in this pack (NAE, ARC Statement of Faith, Destiny Leaders What We Believe).",
+    "When citing doctrine, prefer those published statements—paraphrase only.",
+    "When a doctrinal stance gate matches, state the tradition, the stance (yes/no/conditional/pastoral/silence), and any required conditions clearly.",
+    "Note that many non-denominational churches are legally autonomous; local practice may vary on secondary issues.",
+    "For sensitive life topics, encourage prayer and trusted pastoral or professional help; AI is not a substitute for counseling."
+  ],
+  "citation_map": [
+    {
+      "topics": ["scripture_authority"],
+      "articles": ["We believe the Bible", "Bible"],
+      "confession": "NAE / ARC / Destiny Leaders",
+      "note": "Bible as inspired, infallible, authoritative Word of God. Cite NAE Statement of Faith; ARC Statement of Faith; Destiny Leaders — Authority of Scripture."
+    },
+    {
+      "topics": ["church_authority", "salvation"],
+      "articles": ["We believe in one God", "Trinity", "God"],
+      "confession": "NAE / ARC / Destiny Leaders",
+      "note": "One God eternally existent as Father, Son, and Holy Spirit. Cite NAE; ARC; Destiny Leaders — God."
+    },
+    {
+      "topics": ["salvation"],
+      "articles": ["We believe in Jesus Christ", "Jesus Christ", "salvation"],
+      "confession": "NAE / ARC / Destiny Leaders",
+      "note": "Jesus Christ true God and true man; virgin birth, sinless life, atoning death, bodily resurrection, return; salvation only in His name by grace through faith. Cite NAE; ARC; Destiny Leaders — Lord Jesus Christ / Doctrine of Man."
+    },
+    {
+      "topics": ["spirit_baptism", "holiness"],
+      "articles": ["Holy Spirit", "We believe in the Holy Spirit"],
+      "confession": "NAE / ARC / Destiny Leaders",
+      "note": "Holy Spirit convicts, regenerates, indwells, gifts, and empowers; Destiny and ARC affirm baptism with the Holy Spirit for empowerment and gifts available today—avoid inventing local evidence rules. Cite ARC Statement of Faith; Destiny Leaders — Work of the Holy Spirit."
+    },
+    {
+      "topics": ["baptism", "lords_supper", "eucharist", "sacraments", "church_authority"],
+      "articles": ["We believe in the Church", "local church", "ordinances"],
+      "confession": "NAE / ARC / Destiny Leaders",
+      "note": "Local church gathers for Word, fellowship, gifts, and care. Ordinances include water baptism and the Lord’s Supper; Destiny also affirms holy matrimony as an ordinance. Cite NAE; ARC — local church; Destiny Leaders — In the Church."
+    },
+    {
+      "topics": ["marriage", "divorce", "remarriage", "sexuality", "holiness"],
+      "articles": ["matrimony", "Christian Conduct", "marriage"],
+      "confession": "ARC / Destiny Leaders",
+      "note": "Marriage as holy monogamous union of one man and one woman; sexual intimacy reserved for that covenant; compassion and dignity for every person. Cite ARC Statement of Faith — matrimony; Destiny Leaders — Marriage / Christian Conduct."
+    },
+    {
+      "topics": ["prophecy"],
+      "articles": ["We believe in the personal return", "return of Christ"],
+      "confession": "NAE / ARC / Destiny Leaders",
+      "note": "Personal return of Christ in power and glory—avoid date-setting. Cite NAE; ARC; Destiny Leaders — Lord Jesus Christ."
+    }
+  ],
+  "primary_sources": [
+    {
+      "id": "nae_bible_god",
+      "title": "NAE — Bible & God (digest)",
+      "cite": "NAE Statement of Faith (paraphrase)",
+      "excerpt": "The Bible is the inspired Word of God and final authority. Evangelicals confess one God eternally existing in three persons—Father, Son, and Holy Spirit.",
+      "topics": ["scripture_authority", "church_authority", "salvation"]
+    },
+    {
+      "id": "nae_salvation",
+      "title": "NAE — salvation & Spirit (digest)",
+      "cite": "NAE Statement of Faith (paraphrase)",
+      "excerpt": "Salvation is by grace through faith in Jesus Christ. The Holy Spirit indwells and empowers believers for holy living and witness.",
+      "topics": ["salvation", "holiness", "spirit_baptism"]
+    },
+    {
+      "id": "nae_church_hope",
+      "title": "NAE — Church & hope (digest)",
+      "cite": "NAE Statement of Faith (paraphrase)",
+      "excerpt": "The Church is the body of Christ. Local churches practice baptism and the Lord’s Supper under Scripture. Christ will return personally—avoid date-setting.",
+      "topics": ["church_authority", "baptism", "lords_supper", "prophecy"]
+    },
+    {
+      "id": "arc_sof_core",
+      "title": "ARC — Statement of Faith core (digest)",
+      "cite": "ARC Statement of Faith (paraphrase); arcchurches.com/about/statement-of-faith",
+      "excerpt": "ARC affirms the inspired, infallible Bible; one God in three coequal persons; Jesus’ virgin birth, sinless life, miracles, crucifixion, burial, resurrection, and return; salvation only in Jesus’ name; mankind sinful apart from the gospel; Holy Spirit’s convicting, regenerating, gifting work and baptism with the Holy Spirit for empowerment; and the local church for Word, fellowship, gifts, correction, and care. ARC churches remain legally autonomous.",
+      "topics": ["scripture_authority", "salvation", "spirit_baptism", "church_authority", "prophecy"]
+    },
+    {
+      "id": "arc_sof_marriage",
+      "title": "ARC — marriage (digest)",
+      "cite": "ARC Statement of Faith (paraphrase)",
+      "excerpt": "Matrimony is a holy monogamous marriage between one man and one woman—two distinct genders reflecting God’s image and nature.",
+      "topics": ["marriage", "sexuality"]
+    },
+    {
+      "id": "destiny_believe_core",
+      "title": "Destiny Leaders — What We Believe (digest)",
+      "cite": "Destiny Leaders / Destiny Ministries What We Believe (paraphrase); destinyleaders.com/about",
+      "excerpt": "Destiny Leaders confesses one true God revealed as Father, Son Jesus, and Holy Spirit; Scripture as inspired, infallible, and authoritative; Jesus’ sinless life, miracles, atoning death, bodily resurrection, ascension, and imminent return; humanity created in God’s image yet lost in sin and saved only through faith in Christ’s blood; the Holy Spirit empowering holy living, witness, and gifts for today; and the Church as all who believe and are regenerated by grace.",
+      "topics": ["scripture_authority", "salvation", "spirit_baptism", "church_authority", "holiness", "prophecy"]
+    },
+    {
+      "id": "destiny_believe_life",
+      "title": "Destiny Leaders — marriage, life, compassion (digest)",
+      "cite": "Destiny Leaders What We Believe (paraphrase)",
+      "excerpt": "Destiny Leaders teaches male and female as complementary creations reflecting God’s image; marriage as one man and one woman; sexual intimacy only within that covenant; every person owed compassion, love, kindness, respect, and dignity; and the sanctity of human life from conception through natural death. The Bible remains final authority for faith and practice.",
+      "topics": ["marriage", "sexuality", "holiness"]
+    },
+    {
+      "id": "cic_network_note",
+      "title": "Churches In Covenant — network posture (digest)",
+      "cite": "Churches In Covenant public mission/vision (paraphrase); churchesincovenant.org",
+      "excerpt": "Churches In Covenant presents itself as a relationship-based community strengthening pastors and ministries through mentoring, peer coaching, gatherings, and decentralized delivery of biblical doctrine and spiritual leadership—not as a creedal denomination. When a visitor identifies with CIC, keep Scripture-first non-denominational evangelical framing and point sensitive questions to pastoral counsel rather than inventing a CIC confession.",
+      "topics": ["church_authority"]
+    }
+  ],
+  "stances": [
+    {
+      "topic": "scripture_authority",
+      "stance": "yes",
+      "summary": "Bible as inspired, infallible, final written authority (NAE / ARC / Destiny).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "salvation",
+      "stance": "yes",
+      "summary": "Salvation by grace through faith in Christ alone; Jesus the only Savior.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "baptism",
+      "stance": "conditional",
+      "summary": "Water baptism as ordinance following faith; local church administration.",
+      "conditions": ["profession of faith"],
+      "forbid": []
+    },
+    {
+      "topic": "lords_supper",
+      "stance": "yes",
+      "summary": "Lord’s Supper as ordinance/memorial with spiritual communion by faith.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "eucharist",
+      "stance": "yes",
+      "summary": "Speak as Lord’s Supper/ordinance, not transubstantiation.",
+      "conditions": [],
+      "forbid": ["teach transubstantiation as required doctrine"]
+    },
+    {
+      "topic": "marriage",
+      "stance": "yes",
+      "summary": "Lifelong covenant of one man and one woman (ARC / Destiny).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "divorce",
+      "stance": "conditional",
+      "summary": "Serious; pursue reconciliation and pastoral counsel.",
+      "conditions": ["pastoral counsel"],
+      "forbid": ["treat divorce as casually acceptable"]
+    },
+    {
+      "topic": "annulment",
+      "stance": "silence",
+      "summary": "Not this tradition’s tribunal process.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "remarriage",
+      "stance": "conditional",
+      "summary": "Depends on biblical grounds and church guidance.",
+      "conditions": ["pastoral review"],
+      "forbid": []
+    },
+    {
+      "topic": "sexuality",
+      "stance": "conditional",
+      "summary": "Faithfulness in marriage; chastity otherwise; compassion and dignity for all.",
+      "conditions": ["pastoral care"],
+      "forbid": []
+    },
+    {
+      "topic": "church_authority",
+      "stance": "yes",
+      "summary": "Local congregation under Scripture; many networks leave churches autonomous.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "prophecy",
+      "stance": "conditional",
+      "summary": "Personal return of Christ—no date-setting.",
+      "conditions": ["avoid date-setting"],
+      "forbid": []
+    },
+    {
+      "topic": "holiness",
+      "stance": "yes",
+      "summary": "Spirit-empowered holy living and witness.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "spirit_baptism",
+      "stance": "conditional",
+      "summary": "Holy Spirit baptism/empowerment affirmed in ARC and Destiny; local evidence teaching may vary—do not invent tongues-as-required rules unless the selected network pack says so.",
+      "conditions": ["pastoral teaching of the local church"],
+      "forbid": ["invent a universal tongues-only evidence rule for all non-denom churches"]
+    }
+  ]
+}

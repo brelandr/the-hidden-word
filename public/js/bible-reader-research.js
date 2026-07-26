@@ -35,6 +35,10 @@
 		if (select && select.value) {
 			return select.value;
 		}
+		var prefs = window.hwblUserPreferences;
+		if (prefs && prefs.userTraditionAllowed && prefs.userTraditionAllowed()) {
+			return prefs.readStoredTradition() || '';
+		}
 		var explainCfg = getExplainConfig();
 		if (explainCfg && explainCfg.userTradition) {
 			try {
@@ -44,6 +48,37 @@
 			}
 		}
 		return '';
+	}
+
+	function setSavedLink(elSaved, url, label) {
+		if (!elSaved) {
+			return;
+		}
+		if (url) {
+			elSaved.href = url;
+			if (label) {
+				elSaved.textContent = label;
+			}
+			elSaved.hidden = false;
+		} else {
+			elSaved.hidden = true;
+			elSaved.removeAttribute('href');
+		}
+	}
+
+	function setPostLink(elWrap, elPost, url, label) {
+		if (!elWrap || !elPost) {
+			return;
+		}
+		if (url) {
+			elPost.href = url;
+			elPost.textContent = label || 'Read saved explanation';
+			elWrap.hidden = false;
+		} else {
+			elWrap.hidden = true;
+			elPost.removeAttribute('href');
+			elPost.textContent = '';
+		}
 	}
 
 	function initResearch(root) {
@@ -59,11 +94,34 @@
 
 		var elScope = qs(root, '.hwbl-bible-reader__research-scope');
 		var elBtn = qs(root, '.hwbl-bible-reader__research-btn');
+		var elSaved = qs(root, '.hwbl-bible-reader__research-saved');
 		var elLesson = qs(root, '.hwbl-bible-reader__research-lesson');
 		var elPanel = qs(root, '.hwbl-bible-reader__research-panel');
 		var elTitle = qs(root, '.hwbl-bible-reader__research-title');
 		var elOutput = qs(root, '.hwbl-bible-reader__research-output');
+		var elPostWrap = qs(root, '.hwbl-bible-reader__research-post-wrap');
+		var elPost = qs(root, '.hwbl-bible-reader__research-post');
 		var elContent = qs(root, '.hwbl-bible-reader__content');
+		var elTradition = qs(root, '.hwbl-bible-reader__research-tradition');
+
+		(function syncTraditionSelect() {
+			if (!elTradition) {
+				return;
+			}
+			var prefs = window.hwblUserPreferences;
+			var stored = '';
+			if (prefs && prefs.userTraditionAllowed && prefs.userTraditionAllowed()) {
+				stored = prefs.readStoredTradition() || '';
+			}
+			if (
+				stored &&
+				[].some.call(elTradition.options || [], function (opt) {
+					return opt.value === stored;
+				})
+			) {
+				elTradition.value = stored;
+			}
+		})();
 
 		function updateResearchMeta() {
 			if (!cfg.restUrl) {
@@ -72,6 +130,7 @@
 			var bookId = parseInt(root.dataset.book || '0', 10);
 			var chapter = parseInt(root.dataset.chapter || '0', 10);
 			var verse = selectedVerse || parseInt(root.dataset.verse || '0', 10);
+			var scope = elScope ? elScope.value : 'verse';
 			var url =
 				cfg.restUrl +
 				'bible/research?book_id=' +
@@ -79,7 +138,13 @@
 				'&chapter=' +
 				encodeURIComponent(String(chapter)) +
 				'&verse=' +
-				encodeURIComponent(String(verse));
+				encodeURIComponent(String(verse)) +
+				'&translation=' +
+				encodeURIComponent(String(root.dataset.translation || cfg.translation || '')) +
+				'&scope=' +
+				encodeURIComponent(String(scope)) +
+				'&tradition=' +
+				encodeURIComponent(String(getTradition(root)));
 
 			fetchJson(url)
 				.then(function (data) {
@@ -89,11 +154,13 @@
 					} else if (elLesson) {
 						elLesson.hidden = true;
 					}
+					setSavedLink(elSaved, data.explain_url || '', i18n.researchSaved || 'Read saved explanation');
 				})
 				.catch(function () {
 					if (elLesson) {
 						elLesson.hidden = true;
 					}
+					setSavedLink(elSaved, '', '');
 				});
 		}
 
@@ -101,6 +168,8 @@
 			var msg = i18n.researchError || 'Could not generate an explanation.';
 			if (err && err.code === 'thw_ai_rate_limit') {
 				msg = (explainCfg && explainCfg.rateLimit) || msg;
+			} else if (err && err.code === 'thw_ai_login') {
+				msg = i18n.researchLogin || msg;
 			} else if (err && err.message) {
 				msg = err.message;
 			} else if (err && err.data && err.data.message) {
@@ -109,26 +178,15 @@
 			if (elOutput) {
 				elOutput.innerHTML = '<p class="hwbl-bible-reader__research-error">' + msg + '</p>';
 			}
+			setPostLink(elPostWrap, elPost, '', '');
 		}
 
 		function runExplain() {
 			if (!cfg.explainRestUrl) {
-				if (!cfg.loggedIn) {
-					showError({ message: i18n.researchLogin || 'Log in to generate an AI explanation.' });
-				} else {
-					showError({ message: i18n.researchError });
-				}
+				showError({ message: i18n.researchError });
 				if (elPanel) {
 					elPanel.hidden = false;
 				}
-				return;
-			}
-
-			if (!cfg.loggedIn) {
-				if (elPanel) {
-					elPanel.hidden = false;
-				}
-				showError({ message: i18n.researchLogin || 'Log in to generate an AI explanation.' });
 				return;
 			}
 
@@ -149,8 +207,12 @@
 				elTitle.textContent = scope === 'chapter' ? i18n.researchChapter || 'This chapter' : i18n.researchVerse || 'This verse';
 			}
 			if (elOutput) {
-				elOutput.innerHTML = '<p class="hwbl-bible-reader__research-loading">' + (i18n.researchLoading || 'Generating explanation…') + '</p>';
+				elOutput.innerHTML =
+					'<p class="hwbl-bible-reader__research-loading">' +
+					(i18n.researchLoading || 'Generating explanation…') +
+					'</p>';
 			}
+			setPostLink(elPostWrap, elPost, '', '');
 
 			fetchJson(cfg.explainRestUrl, {
 				method: 'POST',
@@ -176,6 +238,17 @@
 							showError({ message: i18n.researchError || 'Could not generate an explanation.' });
 							return;
 						}
+						if (payload.hasTraditionDiff) {
+							var label =
+								payload.traditionLabel ||
+								payload.tradition ||
+								(i18n.researchTraditionDiff || 'Tradition variation');
+							html =
+								'<p class="hwbl-bible-reader__research-tradition-badge">' +
+								label +
+								'</p>' +
+								html;
+						}
 						if (payload.complianceFlagged && explainCfg && explainCfg.complianceFlagged) {
 							html = '<p class="hwbl-bible-reader__research-flag">' + explainCfg.complianceFlagged + '</p>' + html;
 						}
@@ -184,6 +257,15 @@
 					if (elLesson && payload.lessonUrl) {
 						elLesson.href = payload.lessonUrl;
 						elLesson.hidden = false;
+					}
+					if (payload.postUrl) {
+						setSavedLink(elSaved, payload.postUrl, i18n.researchSaved || 'Read saved explanation');
+						setPostLink(
+							elPostWrap,
+							elPost,
+							payload.postUrl,
+							i18n.researchSaved || 'Read saved explanation'
+						);
 					}
 				})
 				.catch(showError);
@@ -212,6 +294,17 @@
 				if (elPanel && elScope.value === 'chapter') {
 					elPanel.hidden = true;
 				}
+				updateResearchMeta();
+			});
+		}
+
+		if (elTradition) {
+			elTradition.addEventListener('change', function () {
+				var prefs = window.hwblUserPreferences;
+				if (prefs && prefs.saveTradition && elTradition.value) {
+					prefs.saveTradition(elTradition.value);
+				}
+				updateResearchMeta();
 			});
 		}
 
@@ -219,7 +312,10 @@
 			selectedVerse = parseInt(root.dataset.verse || '0', 10);
 			updateResearchMeta();
 		});
-		observer.observe(root, { attributes: true, attributeFilter: ['data-verse', 'data-book', 'data-chapter'] });
+		observer.observe(root, {
+			attributes: true,
+			attributeFilter: ['data-verse', 'data-book', 'data-chapter', 'data-translation'],
+		});
 
 		updateResearchMeta();
 	}

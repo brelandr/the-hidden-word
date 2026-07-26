@@ -49,7 +49,14 @@ class HWBL_Lesson_Renderer {
 			return '<p class="hwbl-notice">' . esc_html__( 'This lesson could not be loaded.', 'hidden-word-bible-lessons' ) . '</p>';
 		}
 
-		$translation = $args['translation'] ? sanitize_key( (string) $args['translation'] ) : get_option( 'hwbl_active_translation', 'niv' );
+		if ( ! empty( $args['translation'] ) ) {
+			$translation = sanitize_key( (string) $args['translation'] );
+		} elseif ( class_exists( 'HWBL_User_Preferences' ) ) {
+			$supported   = HWBL_Translation_Service::instance()->get_supported_translations();
+			$translation = HWBL_User_Preferences::resolve_translation( $supported );
+		} else {
+			$translation = sanitize_key( (string) get_option( 'hwbl_active_translation', 'niv' ) );
+		}
 		$trans_svc    = HWBL_Translation_Service::instance();
 		$verse_text   = '';
 

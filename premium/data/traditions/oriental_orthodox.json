@@ -1,0 +1,231 @@
+{
+  "slug": "oriental_orthodox",
+  "label": "Oriental Orthodox",
+  "version": "1.1.0",
+  "framing": "Frame for an Oriental Orthodox audience (Coptic, Syriac, Armenian, Ethiopian, and related): Nicene faith and the First Three Ecumenical Councils; Miaphysite Christology (one united nature of the incarnate Word—divine and human united without separation or confusion). Prefer Oriental Orthodox / First Three Councils identifiers. Do NOT cite Councils 4–7 or Chalcedon as Oriental dogma.",
+  "extends": null,
+  "general_gates": [
+    "Stay within the provided Bible text for verse claims; do not invent quotations.",
+    "Do not invent primary-source citations beyond the digests and Oriental Orthodox identifiers supplied in this pack.",
+    "When citing Oriental Orthodox doctrine, prefer the Nicene Creed, First Three Ecumenical Councils, and Miaphysite Christology digests—never invent canons or father quotes.",
+    "Do NOT present Councils 4–7 or Chalcedonian dyophysite formulas as Oriental Orthodox dogma.",
+    "Do not map Roman Catholic Catechism/Canon Law citations onto Oriental Orthodoxy.",
+    "When a doctrinal stance gate matches, state the tradition, the stance (yes/no/conditional/pastoral/silence), and any required conditions clearly.",
+    "For sensitive life topics, encourage prayer and trusted pastoral or professional help; AI is not a substitute for counseling."
+  ],
+  "citation_map": [
+    {
+      "topics": [
+        "scripture_authority",
+        "church_authority",
+        "salvation"
+      ],
+      "articles": [
+        "Nicene Creed"
+      ],
+      "confession": "Oriental Orthodox",
+      "note": "The Nicene Creed confesses the Trinity and incarnation. Cite Nicene Creed (Oriental Orthodox)."
+    },
+    {
+      "topics": [
+        "church_authority",
+        "salvation"
+      ],
+      "articles": [
+        "First Three Ecumenical Councils"
+      ],
+      "confession": "Oriental Orthodox",
+      "note": "Dogmatic decrees of the First Three Ecumenical Councils. Do not cite Councils after the first three as binding Oriental dogma. Cite First Three Ecumenical Councils."
+    },
+    {
+      "topics": [
+        "church_authority",
+        "salvation"
+      ],
+      "articles": [
+        "Miaphysite Christology"
+      ],
+      "confession": "Oriental Orthodox",
+      "note": "One united nature of the incarnate Word—divine and human united without separation, confusion, or change. Present pastorally, not as a polemical slogan dump."
+    },
+    {
+      "topics": [
+        "baptism",
+        "confirmation",
+        "eucharist",
+        "lords_supper",
+        "sacraments",
+        "salvation"
+      ],
+      "articles": [
+        "Holy Mysteries"
+      ],
+      "confession": "Oriental Orthodox",
+      "note": "Baptism, Chrismation, and Eucharist initiate and sustain life in Christ. Cite Oriental Orthodox Holy Mysteries digest."
+    },
+    {
+      "topics": [
+        "marriage",
+        "divorce",
+        "remarriage",
+        "annulment",
+        "sexuality"
+      ],
+      "articles": [
+        "Holy Mystery of Marriage"
+      ],
+      "confession": "Oriental Orthodox",
+      "note": "Marriage as holy mystery; pastoral economia for divorce/remarriage under bishop/priest guidance."
+    }
+  ],
+  "primary_sources": [
+    {
+      "id": "oo_creed_councils",
+      "title": "Oriental Orthodox — Creed & Three Councils (digest)",
+      "cite": "Nicene Creed; First Three Ecumenical Councils (paraphrase)",
+      "excerpt": "Oriental Orthodox faith is confessed in the Nicene Creed and received through the First Three Ecumenical Councils. Do not invent canons or claim Councils 4–7 as Oriental dogma.",
+      "topics": [
+        "scripture_authority",
+        "church_authority",
+        "salvation"
+      ]
+    },
+    {
+      "id": "oo_miaphysite",
+      "title": "Oriental Orthodox — Miaphysite Christology (digest)",
+      "cite": "Oriental Orthodox — Miaphysite Christology (paraphrase)",
+      "excerpt": "In the incarnation, the divine and human are united in the one nature of the incarnate Word—without separation, confusion, or change. Present with reverence; avoid inventing council transcripts.",
+      "topics": [
+        "church_authority",
+        "salvation"
+      ]
+    },
+    {
+      "id": "oo_mysteries",
+      "title": "Oriental Orthodox — Holy Mysteries (digest)",
+      "cite": "Oriental Orthodox — Holy Mysteries (paraphrase)",
+      "excerpt": "Baptism, Chrismation, and the Eucharist (true Body and Blood of Christ) initiate and sustain life in the Church.",
+      "topics": [
+        "baptism",
+        "confirmation",
+        "eucharist",
+        "lords_supper",
+        "sacraments",
+        "salvation"
+      ]
+    },
+    {
+      "id": "oo_marriage",
+      "title": "Oriental Orthodox — marriage (digest)",
+      "cite": "Oriental Orthodox — Holy Mystery of Marriage (paraphrase)",
+      "excerpt": "Marriage is a holy mystery. Lifelong union is upheld; pastoral economia may address divorce/remarriage under bishop/priest guidance.",
+      "topics": [
+        "marriage",
+        "divorce",
+        "remarriage",
+        "sexuality"
+      ]
+    }
+  ],
+  "stances": [
+    {
+      "topic": "scripture_authority",
+      "stance": "conditional",
+      "summary": "Scripture read within the living Tradition of the Church.",
+      "conditions": [
+        "no invented canons or father quotes"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "church_authority",
+      "stance": "yes",
+      "summary": "Faith received through Creed and Councils of this communion.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "salvation",
+      "stance": "yes",
+      "summary": "Life in Christ through the Church’s mysteries and repentance.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "baptism",
+      "stance": "yes",
+      "summary": "Baptism initiates into Christ and the Church.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "confirmation",
+      "stance": "yes",
+      "summary": "Chrismation with baptism in Orthodox practice.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "eucharist",
+      "stance": "yes",
+      "summary": "Eucharist is the true Body and Blood of Christ.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "lords_supper",
+      "stance": "yes",
+      "summary": "Holy Eucharist as communion in Christ’s Body and Blood.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "sacraments",
+      "stance": "yes",
+      "summary": "Holy Mysteries sustain life in Christ.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "marriage",
+      "stance": "yes",
+      "summary": "Marriage is a holy mystery; lifelong union upheld.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "divorce",
+      "stance": "conditional",
+      "summary": "Pastoral economia under bishop/priest guidance.",
+      "conditions": [
+        "pastoral/episcopal guidance"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "annulment",
+      "stance": "silence",
+      "summary": "Not a Roman annulment tribunal clone.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "remarriage",
+      "stance": "conditional",
+      "summary": "May be addressed under pastoral economia.",
+      "conditions": [
+        "pastoral guidance"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "sexuality",
+      "stance": "conditional",
+      "summary": "Chastity and fidelity within Orthodox moral teaching; compassion.",
+      "conditions": [
+        "pastoral care"
+      ],
+      "forbid": []
+    }
+  ]
+}

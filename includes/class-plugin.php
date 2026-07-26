@@ -24,15 +24,25 @@ class HWBL_Plugin {
 		add_action( 'admin_notices', array( $this, 'curriculum_upgrade_notice' ) );
 		add_action( 'admin_notices', array( $this, 'curriculum_content_sync_notice' ) );
 		add_action( 'admin_notices', array( $this, 'curriculum_seeding_notice' ) );
+		add_action( 'admin_notices', array( $this, 'duplicate_premium_plugin_notice' ) );
 
 		new HWBL_CPT_Lesson();
 		new HWBL_Lesson_Meta();
 		new HWBL_Settings();
 		new HWBL_Scheduler();
+		HWBL_Local_Bible_Importer::init();
+		HWBL_Local_Bible_Provider::init();
 		HWBL_Bible_Reader::init();
+		HWBL_User_Preferences::init();
 		HWBL_Verse_Memorize::init();
 		HWBL_Memorization_SRS::init();
 		HWBL_REST_Namespace_Bridge::init();
+		HWBL_App_Config::init();
+		HWBL_Church_Network::init();
+		HWBL_App_Connect::init();
+		HWBL_Community_Safety::init();
+		HWBL_Account::init();
+		HWBL_Email_Verification::init();
 		new HWBL_Translation_Service();
 		new HWBL_Shortcodes();
 		new HWBL_Blocks();
@@ -41,9 +51,8 @@ class HWBL_Plugin {
 
 		if ( is_admin() ) {
 			new HWBL_Admin();
+			new HWBL_Local_Bibles_Admin();
 		}
-
-		HWBL_Compat::init();
 
 		$this->init_engagement_modules();
 
@@ -98,6 +107,47 @@ class HWBL_Plugin {
 	}
 
 	/**
+	 * Warn if the separate Premium plugin is still active alongside the merge.
+	 */
+	public function duplicate_premium_plugin_notice() {
+		if ( ! current_user_can( 'activate_plugins' ) ) {
+			return;
+		}
+
+		if ( ! defined( 'HWBL_INTEGRATED_PREMIUM' ) || ! HWBL_INTEGRATED_PREMIUM ) {
+			return;
+		}
+
+		if ( ! function_exists( 'is_plugin_active' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
+		$legacy = 'the-hidden-word-premium/the-hidden-word-premium.php';
+		$just_deactivated = (bool) get_transient( 'hwbl_legacy_premium_deactivated' );
+		if ( $just_deactivated ) {
+			delete_transient( 'hwbl_legacy_premium_deactivated' );
+			echo '<div class="notice notice-warning is-dismissible"><p>';
+			echo esc_html__(
+				'Hidden Word Bible Lessons already includes former Premium features, so the separate “The Hidden Word Premium” plugin was deactivated. You can delete it from the Plugins screen.',
+				'hidden-word-bible-lessons'
+			);
+			echo '</p></div>';
+			return;
+		}
+
+		if ( ! is_plugin_active( $legacy ) ) {
+			return;
+		}
+
+		echo '<div class="notice notice-warning"><p>';
+		echo esc_html__(
+			'Hidden Word Bible Lessons now includes all former Premium features. Please deactivate and delete the separate “The Hidden Word Premium” plugin to avoid conflicts.',
+			'hidden-word-bible-lessons'
+		);
+		echo '</p></div>';
+	}
+
+	/**
 	 * Notify admins when bundled lesson content was backfilled.
 	 */
 	public function curriculum_content_sync_notice() {
@@ -149,11 +199,22 @@ class HWBL_Plugin {
 
 		$demo_page = HWBL_Activator::get_demo_page();
 		if ( $demo_page instanceof WP_Post ) {
+			$link_label = class_exists( 'HWBL_Scheduler' )
+				? HWBL_Scheduler::get_schedule_phrase( 'memorize' )
+				: __( "Today's Verse to Memorize", 'hidden-word-bible-lessons' );
 			echo ' ';
-			printf(
-				/* translators: %s: front-end demo page URL */
-				esc_html__( 'View the starter page: %s', 'hidden-word-bible-lessons' ),
-				'<a href="' . esc_url( get_permalink( $demo_page ) ) . '">' . esc_html( class_exists( 'HWBL_Scheduler' ) ? HWBL_Scheduler::get_schedule_phrase( 'memorize' ) : __( "Today's Verse to Memorize", 'hidden-word-bible-lessons' ) ) . '</a>'
+			echo wp_kses(
+				sprintf(
+					/* translators: 1: starter page URL, 2: link label */
+					__( 'View the starter page: <a href="%1$s">%2$s</a>', 'hidden-word-bible-lessons' ),
+					esc_url( get_permalink( $demo_page ) ),
+					esc_html( $link_label )
+				),
+				array(
+					'a' => array(
+						'href' => true,
+					),
+				)
 			);
 		}
 

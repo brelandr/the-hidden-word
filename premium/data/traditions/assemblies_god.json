@@ -1,0 +1,129 @@
+{
+  "slug": "assemblies_god",
+  "label": "Assemblies of God",
+  "version": "1.2.0",
+  "framing": "Frame for an Assemblies of God audience using the 16 Fundamental Truths: emphasize Scripture, the four cardinal doctrines (Salvation, Baptism in the Holy Spirit, Divine Healing, and the Second Coming), Spirit-empowered discipleship, and missions. Keep Trinitarian language. Avoid inventing spiritual experiences.",
+  "extends": "pentecostal_classical",
+  "general_gates": [
+    "Stay within the provided Bible text for verse claims; do not invent quotations.",
+    "Do not invent primary-source citations beyond the digests and AG Fundamental Truth identifiers supplied in this pack.",
+    "When citing AG doctrine, use only the Fundamental Truth numbers listed in the Cited references block.",
+    "Keep Trinitarian framing (Father, Son, and Holy Spirit as one God in three persons).",
+    "Do not invent personal prophetic words, healings, or Spirit-baptism experiences as facts about the user.",
+    "For sensitive life topics, encourage prayer and trusted pastoral or professional help; AI is not a substitute for counseling."
+  ],
+  "citation_map": [
+    {
+      "topics": ["scripture_authority"],
+      "articles": ["1"],
+      "confession": "AG 16 Fundamental Truths",
+      "note": "The Scriptures are verbally inspired and the infallible, authoritative rule of faith and conduct. Cite only Truth 1."
+    },
+    {
+      "topics": ["church_authority", "salvation"],
+      "articles": ["2", "3"],
+      "confession": "AG 16 Fundamental Truths",
+      "note": "One true God revealed as Trinity (Father, Son, Holy Spirit); the Lord Jesus Christ is true God and true man. Cite Truths 2–3."
+    },
+    {
+      "topics": ["salvation"],
+      "articles": ["4", "5"],
+      "confession": "AG 16 Fundamental Truths",
+      "note": "Humanity fell; salvation is received through repentance toward God and faith in the Lord Jesus Christ (cardinal doctrine). Cite Truths 4–5."
+    },
+    {
+      "topics": ["baptism", "lords_supper", "eucharist", "sacraments"],
+      "articles": ["6"],
+      "confession": "AG 16 Fundamental Truths",
+      "note": "Water baptism by immersion and the Lord’s Supper are ordinances. Cite Truth 6."
+    },
+    {
+      "topics": ["spirit_baptism"],
+      "articles": ["7", "8"],
+      "confession": "AG 16 Fundamental Truths",
+      "note": "Baptism in the Holy Spirit is a distinct experience subsequent to the new birth; the initial physical evidence is speaking in other tongues as the Spirit gives utterance (cardinal doctrine). Cite Truths 7–8."
+    },
+    {
+      "topics": ["holiness", "sanctification"],
+      "articles": ["9"],
+      "confession": "AG 16 Fundamental Truths",
+      "note": "Sanctification is an act of separation from evil and dedication to God; progressive by the Spirit’s work. Cite Truth 9."
+    },
+    {
+      "topics": ["healing"],
+      "articles": ["12"],
+      "confession": "AG 16 Fundamental Truths",
+      "note": "Divine healing is an integral part of the gospel (cardinal doctrine). Cite Truth 12."
+    },
+    {
+      "topics": ["prophecy", "mission"],
+      "articles": ["10", "13", "14"],
+      "confession": "AG 16 Fundamental Truths",
+      "note": "The Church’s mission, the Blessed Hope of Christ’s return, and the millennial reign are affirmed (Second Coming is a cardinal doctrine). Cite Truths 10, 13–14."
+    }
+  ],
+  "primary_sources": [
+    {
+      "id": "ag_cardinal_doctrines",
+      "title": "Assemblies of God — four cardinal doctrines (digest)",
+      "cite": "AG 16 Fundamental Truths (paraphrase)",
+      "excerpt": "AG highlights four cardinal doctrines: Salvation, Baptism in the Holy Spirit, Divine Healing, and the Second Coming of Christ. These sit within the broader 16 Fundamental Truths and a Trinitarian confession of God.",
+      "topics": ["salvation", "spirit_baptism", "healing", "prophecy"]
+    },
+    {
+      "id": "ag_spirit_baptism",
+      "title": "Assemblies of God — Spirit baptism and tongues (digest)",
+      "cite": "AG Fundamental Truths 7–8 (paraphrase)",
+      "excerpt": "All believers are entitled to and should earnestly seek the baptism in the Holy Spirit. The initial physical evidence is speaking with other tongues as the Spirit of God gives them utterance.",
+      "topics": ["spirit_baptism", "holiness", "prayer", "mission"]
+    },
+    {
+      "id": "ag_healing",
+      "title": "Assemblies of God — divine healing (digest)",
+      "cite": "AG Fundamental Truth 12 (paraphrase)",
+      "excerpt": "Divine healing is an integral part of the gospel. Deliverance from sickness is provided for in the atonement and is the privilege of all believers, practiced with prayer without denying medical wisdom.",
+      "topics": ["healing", "prayer", "salvation"]
+    }
+  ],
+  "stances": [
+    {
+      "topic": "spirit_baptism",
+      "stance": "yes",
+      "summary": "Per AG Truths 7–8, baptism in the Holy Spirit is subsequent to salvation; tongues is the initial physical evidence.",
+      "conditions": [
+        "Trinitarian framing",
+        "test claims by Scripture"
+      ],
+      "forbid": [
+        "treat tongues as optional to AG’s stated initial-evidence teaching when explaining AG doctrine"
+      ]
+    },
+    {
+      "topic": "healing",
+      "stance": "yes",
+      "summary": "Per AG Truth 12, divine healing is integral to the gospel; pray with faith without guaranteeing outcomes.",
+      "conditions": [
+        "encourage medical care as appropriate"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "salvation",
+      "stance": "yes",
+      "summary": "Salvation by grace through faith in Jesus Christ is a cardinal AG doctrine.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "baptism",
+      "stance": "conditional",
+      "summary": "Per AG Truth 6, water baptism is by immersion for believers in the name of the Father, Son, and Holy Spirit.",
+      "conditions": [
+        "credible profession of faith"
+      ],
+      "forbid": [
+        "teach Oneness/Jesus’-name-only baptism as Assemblies of God doctrine"
+      ]
+    }
+  ]
+}

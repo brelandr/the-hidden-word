@@ -1,0 +1,238 @@
+{
+  "slug": "quaker",
+  "label": "Quaker / Friends",
+  "version": "1.1.0",
+  "framing": "Frame for a Quaker (Friends) audience: Scripture under the inward leading of Christ; testimonies of peace, simplicity, integrity, and equality. Prefer Richmond Declaration of Faith (1887) identifiers for Orthodox/evangelical Friends; acknowledge that many meetings are non-creedal. Do not invent Fox quotations or yearly-meeting Faith and Practice dumps.",
+  "extends": null,
+  "general_gates": [
+    "Stay within the provided Bible text for verse claims; do not invent quotations.",
+    "Do not invent primary-source citations beyond the digests and Richmond Declaration identifiers supplied in this pack.",
+    "When citing Orthodox Friends doctrine, use Richmond Declaration of Faith identifiers—paraphrase only. Acknowledge diversity among Friends yearly meetings.",
+    "When a doctrinal stance gate matches, state the tradition, the stance (yes/no/conditional/pastoral/silence), and any required conditions clearly.",
+    "For sensitive life topics, encourage prayer and trusted pastoral or professional help; AI is not a substitute for counseling."
+  ],
+  "citation_map": [
+    {
+      "topics": [
+        "scripture_authority",
+        "prayer"
+      ],
+      "articles": [
+        "Holy Scriptures",
+        "Holy Spirit"
+      ],
+      "confession": "Richmond Declaration of Faith",
+      "note": "Scripture treasured under the Spirit’s guidance; Christ teaches his people. Cite Richmond Declaration — Holy Scriptures / Holy Spirit."
+    },
+    {
+      "topics": [
+        "salvation",
+        "church_authority"
+      ],
+      "articles": [
+        "God",
+        "Jesus Christ"
+      ],
+      "confession": "Richmond Declaration of Faith",
+      "note": "Father, Son, and Spirit; salvation in Christ. Cite Richmond Declaration — God / Jesus Christ."
+    },
+    {
+      "topics": [
+        "baptism",
+        "eucharist",
+        "lords_supper",
+        "sacraments"
+      ],
+      "articles": [
+        "Baptism",
+        "Communion"
+      ],
+      "confession": "Richmond Declaration of Faith",
+      "note": "Many Friends emphasize inward baptism and spiritual communion; water ordinances vary by meeting. Cite Richmond Declaration — Baptism / Communion gently."
+    },
+    {
+      "topics": [
+        "holiness",
+        "mission"
+      ],
+      "articles": [
+        "Peace",
+        "Public Worship"
+      ],
+      "confession": "Richmond Declaration of Faith",
+      "note": "Peace testimony and worship; Friends testimonies of integrity, simplicity, equality. Cite Richmond Declaration + testimonies paraphrase."
+    },
+    {
+      "topics": [
+        "marriage",
+        "divorce",
+        "remarriage",
+        "sexuality"
+      ],
+      "articles": [
+        "Marriage"
+      ],
+      "confession": "Richmond Declaration of Faith",
+      "note": "Faithful marriage; yearly meetings differ on sexuality—be pastoral; no invented universal Friends decree."
+    }
+  ],
+  "primary_sources": [
+    {
+      "id": "friends_scripture",
+      "title": "Richmond Declaration — Scripture & Spirit (digest)",
+      "cite": "Richmond Declaration of Faith — Holy Scriptures (paraphrase)",
+      "excerpt": "Friends treasure Scripture read under the Spirit’s guidance. Christ teaches his people; do not invent George Fox quotations.",
+      "topics": [
+        "scripture_authority",
+        "prayer"
+      ]
+    },
+    {
+      "id": "friends_christ",
+      "title": "Richmond Declaration — Christ & salvation (digest)",
+      "cite": "Richmond Declaration of Faith — Jesus Christ (paraphrase)",
+      "excerpt": "Salvation and new life in Jesus Christ—Father, Son, and Holy Spirit confessed in the Richmond Declaration for Orthodox Friends.",
+      "topics": [
+        "salvation",
+        "church_authority"
+      ]
+    },
+    {
+      "id": "friends_ordinances",
+      "title": "Richmond Declaration — baptism & communion (digest)",
+      "cite": "Richmond Declaration of Faith — Baptism & Communion (paraphrase)",
+      "excerpt": "Many Friends emphasize inward baptism by the Spirit and spiritual communion with Christ; outward water/bread practices vary by meeting—explain gently.",
+      "topics": [
+        "baptism",
+        "eucharist",
+        "lords_supper",
+        "sacraments"
+      ]
+    },
+    {
+      "id": "friends_testimonies",
+      "title": "Friends testimonies (digest)",
+      "cite": "Richmond Declaration of Faith; Friends testimonies (paraphrase)",
+      "excerpt": "Peace, integrity, simplicity, and equality shape discipleship. Avoid inventing a single worldwide Friends decree where yearly meetings differ.",
+      "topics": [
+        "holiness",
+        "mission",
+        "marriage"
+      ]
+    }
+  ],
+  "stances": [
+    {
+      "topic": "baptism",
+      "stance": "conditional",
+      "summary": "Many Friends emphasize inward baptism; water practice varies (Richmond Declaration).",
+      "conditions": [
+        "acknowledge diversity among Friends"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "eucharist",
+      "stance": "conditional",
+      "summary": "Many Friends emphasize spiritual communion over outward elements.",
+      "conditions": [
+        "acknowledge diversity"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "lords_supper",
+      "stance": "conditional",
+      "summary": "Spiritual communion emphasized in many meetings.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "scripture_authority",
+      "stance": "conditional",
+      "summary": "Scripture under the Spirit’s guidance (Richmond Declaration).",
+      "conditions": [
+        "do not invent Fox quotations"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "salvation",
+      "stance": "pastoral",
+      "summary": "Life in Christ, transformation, and faithfulness.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "marriage",
+      "stance": "yes",
+      "summary": "Faithful covenant; practices vary by yearly meeting.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "divorce",
+      "stance": "conditional",
+      "summary": "Serious discernment within the meeting.",
+      "conditions": [
+        "pastoral/meeting care"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "annulment",
+      "stance": "silence",
+      "summary": "Not Friends category.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "remarriage",
+      "stance": "conditional",
+      "summary": "Meeting discernment.",
+      "conditions": [
+        "clearness process where used"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "sexuality",
+      "stance": "conditional",
+      "summary": "Yearly meetings differ; be pastoral; no invented universal Friends decree.",
+      "conditions": [
+        "local meeting awareness"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "church_authority",
+      "stance": "conditional",
+      "summary": "Meetings and yearly meetings; no episcopal hierarchy.",
+      "conditions": [
+        "no invented epistles"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "holiness",
+      "stance": "yes",
+      "summary": "Testimonies of peace, integrity, simplicity, community.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "mission",
+      "stance": "yes",
+      "summary": "Peaceable witness and service.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "prayer",
+      "stance": "yes",
+      "summary": "Quiet attentiveness and waiting worship.",
+      "conditions": [],
+      "forbid": []
+    }
+  ]
+}

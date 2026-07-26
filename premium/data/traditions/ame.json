@@ -1,0 +1,198 @@
+{
+  "slug": "ame",
+  "label": "African Methodist Episcopal (AME) Church",
+  "version": "1.1.0",
+  "framing": "Frame for an African Methodist Episcopal (AME) audience: emphasize Scripture, liberation in Christ, dignity, justice, and practical discipleship in the Black church Methodist tradition. Prefer AME Articles of Religion / Articles of Our Faith identifiers from the Doctrine and Discipline Cited references block. Do not invent Discipline dumps.",
+  "extends": null,
+  "general_gates": [
+    "Stay within the provided Bible text for verse claims; do not invent quotations.",
+    "Do not invent primary-source citations beyond the digests and AME Articles of Religion identifiers supplied in this pack.",
+    "When citing AME doctrine, use only the Articles identifiers listed in the Cited references block (Doctrine and Discipline / Articles of Our Faith).",
+    "When a doctrinal stance gate matches, state the tradition, the stance (yes/no/conditional/pastoral/silence), and any required conditions clearly.",
+    "For sensitive life topics, encourage prayer and trusted pastoral or professional help; AI is not a substitute for counseling.",
+    "Hold dignity, justice, and liberation in Christ together with Methodist Articles of Faith—without inventing historical claims beyond the pack."
+  ],
+  "citation_map": [
+    {
+      "topics": ["scripture_authority", "salvation"],
+      "articles": ["V"],
+      "confession": "AME Articles of Religion",
+      "note": "Of the Sufficiency of the Holy Scriptures for Salvation — Scripture contains all things necessary to salvation. Cite Art. V (Articles of Our Faith / Doctrine and Discipline)."
+    },
+    {
+      "topics": ["church_authority", "salvation"],
+      "articles": ["I", "IV"],
+      "confession": "AME Articles of Religion",
+      "note": "Faith in the Holy Trinity and Of the Holy Ghost. Cite Arts. I, IV."
+    },
+    {
+      "topics": ["salvation", "holiness"],
+      "articles": ["VIII", "IX", "X"],
+      "confession": "AME Articles of Religion",
+      "note": "Free will, justification of man, and good works—Methodist grace trajectory lived with justice and dignity. Cite Arts. VIII–X."
+    },
+    {
+      "topics": ["baptism", "lords_supper", "eucharist", "sacraments"],
+      "articles": ["XVI", "XVII", "XVIII"],
+      "confession": "AME Articles of Religion",
+      "note": "Sacraments: Baptism and the Lord’s Supper. Cite Arts. XVI–XVIII."
+    },
+    {
+      "topics": ["mission", "holiness"],
+      "articles": ["XIII"],
+      "confession": "AME Articles of Religion",
+      "note": "Of the Church — congregation of faithful people; AME mission emphasizes gospel with liberation, dignity, and justice. Cite Art. XIII."
+    },
+    {
+      "topics": ["marriage", "divorce", "remarriage", "sexuality"],
+      "articles": ["XXI"],
+      "confession": "AME Articles of Religion",
+      "note": "Of the Marriage of Ministers — marriage is lawful. Pastoral care for divorce/remarriage follows AME Discipline and pastoral counsel. Cite Art. XXI."
+    }
+  ],
+  "primary_sources": [
+    {
+      "id": "ame_scripture",
+      "title": "AME Articles — Scripture (digest)",
+      "cite": "AME Articles of Religion Art. V (paraphrase)",
+      "excerpt": "Holy Scripture contains all things necessary to salvation and is the theological pillar for AME faith and practice.",
+      "topics": ["scripture_authority", "salvation"]
+    },
+    {
+      "id": "ame_trinity_justification",
+      "title": "AME Articles — Trinity & justification (digest)",
+      "cite": "AME Articles of Religion Arts. I, IV, VIII–X (paraphrase)",
+      "excerpt": "One God in Trinity; justification by faith; good works follow as fruits. Methodist Articles of Religion shape AME doctrine.",
+      "topics": ["church_authority", "salvation", "holiness"]
+    },
+    {
+      "id": "ame_sacraments",
+      "title": "AME Articles — Baptism & Communion (digest)",
+      "cite": "AME Articles of Religion Arts. XVI–XVIII (paraphrase)",
+      "excerpt": "Baptism and the Lord’s Supper are Gospel sacraments / means of grace in the Methodist tradition practiced by the AME Church.",
+      "topics": ["baptism", "eucharist", "lords_supper", "sacraments"]
+    },
+    {
+      "id": "ame_liberation",
+      "title": "AME dignity & justice (digest)",
+      "cite": "AME Articles of Religion Art. XIII; AME ethos (paraphrase)",
+      "excerpt": "Emphasize liberation in Christ, dignity, justice, and practical discipleship in the Black church Methodist tradition without inventing historical claims beyond the pack.",
+      "topics": ["mission", "holiness", "salvation"]
+    },
+    {
+      "id": "ame_marriage",
+      "title": "AME marriage & pastoral care (digest)",
+      "cite": "AME Articles of Religion Art. XXI; Doctrine and Discipline pastoral ethos (paraphrase)",
+      "excerpt": "Marriage is sacred. Divorce is a pastoral crisis handled with grace, accountability, and AME pastoral/Disciplinary guidance.",
+      "topics": ["marriage", "divorce", "remarriage", "sexuality"]
+    }
+  ],
+  "stances": [
+    {
+      "topic": "scripture_authority",
+      "stance": "yes",
+      "summary": "Scripture contains all things necessary to salvation (Art. V).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "salvation",
+      "stance": "yes",
+      "summary": "Justification by faith; growth in holiness and justice (Arts. IX–X).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "holiness",
+      "stance": "yes",
+      "summary": "Practical discipleship and holy love with dignity and justice.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "mission",
+      "stance": "yes",
+      "summary": "Gospel with justice and dignity for the oppressed (Art. XIII ethos).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "baptism",
+      "stance": "yes",
+      "summary": "Baptism as covenant means of grace (Art. XVII).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "eucharist",
+      "stance": "yes",
+      "summary": "Lord’s Supper as means of grace (Art. XVIII).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "lords_supper",
+      "stance": "yes",
+      "summary": "Holy Communion as means of grace.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "sacraments",
+      "stance": "yes",
+      "summary": "Baptism and Lord’s Supper (Arts. XVI–XVIII).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "church_authority",
+      "stance": "conditional",
+      "summary": "AME connectional polity under Scripture and Articles; do not invent Discipline dumps.",
+      "conditions": [
+        "prefer Articles identifiers from this pack"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "divorce",
+      "stance": "conditional",
+      "summary": "Pastoral process with grace and truth under AME Discipline.",
+      "conditions": [
+        "pastoral counsel"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "annulment",
+      "stance": "silence",
+      "summary": "Not an AME tribunal category; use pastoral/biblical language.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "remarriage",
+      "stance": "conditional",
+      "summary": "May be permitted after pastoral discernment; follow AME guidance.",
+      "conditions": [
+        "pastoral guidance"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "marriage",
+      "stance": "yes",
+      "summary": "Marriage is sacred; uphold fidelity with pastoral care (Art. XXI).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "sexuality",
+      "stance": "conditional",
+      "summary": "Follow AME pastoral and Disciplinary teaching; remain compassionate.",
+      "conditions": [
+        "pastoral care"
+      ],
+      "forbid": []
+    }
+  ]
+}

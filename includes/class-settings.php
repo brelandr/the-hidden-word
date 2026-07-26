@@ -60,6 +60,12 @@ class HWBL_Settings {
 			'sanitize_callback' => array( $this, 'sanitize_bible_reader_narrator' ),
 			'default'           => 'david',
 		) );
+
+		register_setting( 'hwbl_settings', 'hwbl_companion_self_signup', array(
+			'type'              => 'boolean',
+			'sanitize_callback' => 'rest_sanitize_boolean',
+			'default'           => false,
+		) );
 	}
 
 	/**
@@ -110,9 +116,11 @@ class HWBL_Settings {
 		$helloao_enabled  = (bool) get_option( 'hwbl_helloao_enabled', true );
 		$reader_enabled   = (bool) get_option( 'hwbl_bible_reader_enabled', true );
 		$reader_narrator  = sanitize_key( (string) get_option( 'hwbl_bible_reader_narrator', 'david' ) );
+		$self_signup      = (bool) get_option( 'hwbl_companion_self_signup', false );
 		$modes         = HWBL_Scheduler::get_schedule_modes();
 		$translations  = HWBL_Translation_Service::instance()->get_supported_translations();
 		$trans_svc     = HWBL_Translation_Service::instance();
+		$connect_url   = class_exists( 'HWBL_App_Connect' ) ? HWBL_App_Connect::connect_url() : home_url( '/app/connect' );
 		?>
 		<div class="wrap">
 			<h1><?php esc_html_e( 'Hidden Word Bible Lessons Settings', 'hidden-word-bible-lessons' ); ?></h1>
@@ -149,16 +157,10 @@ class HWBL_Settings {
 									absint( $count )
 								);
 								?>
-								<?php if ( class_exists( 'THW_Premium_License' ) ) : ?>
-									<?php if ( THW_Premium_License::is_licensed() && class_exists( 'THW_Premium_API_Bible' ) && THW_Premium_API_Bible::get_api_key() ) : ?>
-										<?php esc_html_e( 'Premium and API.Bible are configured — additional translations appear on the front-end switcher.', 'hidden-word-bible-lessons' ); ?>
-									<?php elseif ( THW_Premium_License::is_licensed() ) : ?>
-										<?php esc_html_e( 'Premium is licensed. Add your API.Bible key under Bible Lessons → Premium to enable ESV, NLT, NASB, CSB, NKJV, AMP, and NET on the front-end switcher.', 'hidden-word-bible-lessons' ); ?>
-									<?php else : ?>
-										<?php esc_html_e( 'Activate Premium and add an API.Bible key to unlock seven more translations (ESV, NLT, NASB, CSB, NKJV, AMP, NET) on the front-end switcher.', 'hidden-word-bible-lessons' ); ?>
-									<?php endif; ?>
+								<?php if ( class_exists( 'THW_Premium_API_Bible' ) && THW_Premium_API_Bible::get_api_key() ) : ?>
+									<?php esc_html_e( 'API.Bible is configured — additional translations appear on the front-end switcher.', 'hidden-word-bible-lessons' ); ?>
 								<?php else : ?>
-									<?php esc_html_e( 'Install The Hidden Word Premium and add an API.Bible key to unlock seven more translations on the front-end switcher.', 'hidden-word-bible-lessons' ); ?>
+									<?php esc_html_e( 'Optional: add your API.Bible key under Bible Lessons → Advanced to enable ESV, NLT, NASB, CSB, NKJV, AMP, and NET on the front-end switcher.', 'hidden-word-bible-lessons' ); ?>
 								<?php endif; ?>
 							</p>
 						</td>
@@ -191,7 +193,7 @@ class HWBL_Settings {
 								<?php esc_html_e( 'Enable full chapter Bible reader shortcode', 'hidden-word-bible-lessons' ); ?>
 							</label>
 							<p class="description">
-								<?php esc_html_e( 'Adds [hwbl_bible_reader] to read and listen to any book/chapter. Uses Hello AO text and audio; Premium Biblia/API.Bible keys unlock additional translations.', 'hidden-word-bible-lessons' ); ?>
+								<?php esc_html_e( 'Adds [hwbl_bible_reader] to read and listen to any book/chapter. Uses Hello AO text and audio; optional Biblia/API.Bible keys enable additional translations.', 'hidden-word-bible-lessons' ); ?>
 							</p>
 							<p>
 								<label for="hwbl_bible_reader_narrator"><?php esc_html_e( 'Default audio narrator', 'hidden-word-bible-lessons' ); ?></label>
@@ -216,11 +218,33 @@ class HWBL_Settings {
 							</p>
 						</td>
 					</tr>
+					<tr>
+						<th scope="row"><?php esc_html_e( 'Companion App Sign-up', 'hidden-word-bible-lessons' ); ?></th>
+						<td>
+							<input type="hidden" name="hwbl_companion_self_signup" value="0" />
+							<label>
+								<input type="checkbox" name="hwbl_companion_self_signup" value="1" <?php checked( $self_signup ); ?> />
+								<?php esc_html_e( 'Allow members to create a WordPress account from the companion connect page', 'hidden-word-bible-lessons' ); ?>
+							</label>
+							<p class="description">
+								<?php
+								printf(
+									/* translators: %s: connect URL */
+									esc_html__( 'Members open %s in a browser, sign in (or create an account when enabled), then return to the app with a one-time connect code. New accounts are Subscribers.', 'hidden-word-bible-lessons' ),
+									esc_html( $connect_url )
+								);
+								?>
+							</p>
+							<p class="description">
+								<code><?php echo esc_html( $connect_url ); ?></code>
+							</p>
+						</td>
+					</tr>
 				</table>
 
 				<h2><?php esc_html_e( 'Copyright Notice', 'hidden-word-bible-lessons' ); ?></h2>
 				<div class="hwbl-copyright-preview">
-					<?php echo $trans_svc->render_copyright( $translation ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+					<?php echo wp_kses_post( $trans_svc->render_copyright( $translation ) ); ?>
 				</div>
 
 				<?php submit_button(); ?>
@@ -235,7 +259,11 @@ class HWBL_Settings {
 			<p><code>[hwbl_verse_of_week]</code> — <?php esc_html_e( 'Compact scheduled verse display.', 'hidden-word-bible-lessons' ); ?></p>
 			<p><code>[hwbl_bible_reader]</code> — <?php esc_html_e( 'Read and listen to any Bible chapter (translation, book, and chapter pickers).', 'hidden-word-bible-lessons' ); ?></p>
 			<p><code>[hwbl_memorize_verse]</code> — <?php esc_html_e( 'Pick any accessible verse reference and open memorization practice.', 'hidden-word-bible-lessons' ); ?></p>
-			<p><code>[thw_study_finder]</code> — <?php esc_html_e( 'Keyword Bible study search (Premium).', 'hidden-word-bible-lessons' ); ?></p>
+			<p><code>[hwbl_study_finder]</code> — <?php esc_html_e( 'Keyword Bible study search (AI / curriculum; configure under Advanced Settings).', 'hidden-word-bible-lessons' ); ?></p>
+			<p><code>[hwbl_ask_question]</code> — <?php esc_html_e( 'Ask a Bible question (configure AI under Advanced Settings).', 'hidden-word-bible-lessons' ); ?></p>
+			<p><code>[hwbl_verse_of_the_day]</code> — <?php esc_html_e( 'Verse of the Day display.', 'hidden-word-bible-lessons' ); ?></p>
+			<p><code>[hwbl_my_progress]</code> — <?php esc_html_e( 'Memorization progress and streaks.', 'hidden-word-bible-lessons' ); ?></p>
+			<p><code>[hwbl_memorize_reviews]</code> — <?php esc_html_e( 'Spaced-repetition review queue.', 'hidden-word-bible-lessons' ); ?></p>
 			<p>
 				<?php
 				printf(
@@ -247,18 +275,7 @@ class HWBL_Settings {
 			</p>
 			<p><?php esc_html_e( 'Verse catalog archive:', 'hidden-word-bible-lessons' ); ?> <code>/bible-lesson/</code></p>
 			<p><?php esc_html_e( 'Verse pages include Print and Copy verse buttons in the toolbar.', 'hidden-word-bible-lessons' ); ?></p>
-
-			<hr />
-
-			<p class="hwbl-premium-upsell">
-				<?php
-				printf(
-					/* translators: %s: premium plugin URL */
-					wp_kses_post( __( 'Want custom scheduling, PDF leader guides, multi-translation switching, and progress tracking? <a href="%s" target="_blank" rel="noopener">Learn about Hidden Word Bible Lessons Premium</a>.', 'hidden-word-bible-lessons' ) ),
-					esc_url( 'https://landtechwebdesigns.com/product/the-hidden-word-premium/' )
-				);
-				?>
-			</p>
+			<p><?php esc_html_e( 'API keys, digests, AI, and scheduling extras: Bible Lessons → Advanced.', 'hidden-word-bible-lessons' ); ?></p>
 		</div>
 		<?php
 	}

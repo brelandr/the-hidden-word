@@ -1,0 +1,211 @@
+{
+  "slug": "disciples_christ",
+  "label": "Christian Church (Disciples of Christ)",
+  "version": "1.1.0",
+  "framing": "Frame for a Disciples of Christ audience: radically non-creedal (“no creed but Christ”), unity in Christ, open table fellowship, and the Preamble to the Design as a worship confession—not a rigid rulebook. Prefer Disciples Preamble identifiers.",
+  "extends": "evangelical",
+  "general_gates": [
+    "Stay within the provided Bible text for verse claims; do not invent quotations.",
+    "Do not invent primary-source citations beyond the digests and Disciples Preamble identifiers supplied in this pack.",
+    "Disciples are non-creedal—cite the Preamble to the Design and Scripture; never invent a legal confession dump.",
+    "When a doctrinal stance gate matches, state the tradition, the stance (yes/no/conditional/pastoral/silence), and any required conditions clearly.",
+    "For sensitive life topics, encourage prayer and trusted pastoral or professional help; AI is not a substitute for counseling."
+  ],
+  "citation_map": [
+    {
+      "topics": [
+        "scripture_authority",
+        "church_authority",
+        "salvation"
+      ],
+      "articles": [
+        "Preamble"
+      ],
+      "confession": "Disciples Preamble to the Design",
+      "note": "As members of the Christian Church, we confess Jesus Christ is Lord and Savior; Scripture is authoritative for life and faith within covenant community. Cite Disciples Preamble to the Design."
+    },
+    {
+      "topics": [
+        "lords_supper",
+        "eucharist",
+        "sacraments",
+        "baptism"
+      ],
+      "articles": [
+        "Preamble",
+        "Open Table"
+      ],
+      "confession": "Disciples Preamble to the Design",
+      "note": "Open table fellowship commonly emphasized; baptism practiced as discipleship. Cite Disciples Preamble / open table ethos."
+    },
+    {
+      "topics": [
+        "mission",
+        "holiness"
+      ],
+      "articles": [
+        "Preamble"
+      ],
+      "confession": "Disciples Preamble to the Design",
+      "note": "Unity, justice-minded mission, and discipleship in Christ. Cite Disciples Preamble."
+    },
+    {
+      "topics": [
+        "marriage",
+        "divorce",
+        "remarriage",
+        "sexuality"
+      ],
+      "articles": [
+        "Covenant Community"
+      ],
+      "confession": "Disciples Preamble to the Design",
+      "note": "Pastoral covenant care; congregations vary—be pastoral; do not invent a single DOC decree beyond the pack."
+    }
+  ],
+  "primary_sources": [
+    {
+      "id": "doc_preamble",
+      "title": "Disciples Preamble (digest)",
+      "cite": "Disciples Preamble to the Design (paraphrase)",
+      "excerpt": "A single confession paragraph recited in worship: Jesus Christ is Lord and Savior; we are a movement for wholeness in a fragmented world. Non-creedal—Scripture and this Preamble guide, not a thick law code.",
+      "topics": [
+        "scripture_authority",
+        "salvation",
+        "church_authority",
+        "mission"
+      ]
+    },
+    {
+      "id": "doc_table",
+      "title": "Disciples — open table (digest)",
+      "cite": "Disciples Preamble / communion practice (paraphrase)",
+      "excerpt": "The Lord’s Supper is central; open welcome at the table is a hallmark. Baptism marks discipleship in Christ.",
+      "topics": [
+        "lords_supper",
+        "eucharist",
+        "baptism",
+        "sacraments"
+      ]
+    }
+  ],
+  "stances": [
+    {
+      "topic": "scripture_authority",
+      "stance": "yes",
+      "summary": "Bible as final written authority.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "salvation",
+      "stance": "yes",
+      "summary": "Salvation by grace through faith in Christ alone.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "baptism",
+      "stance": "conditional",
+      "summary": "Baptism follows personal faith; local church administration.",
+      "conditions": [
+        "profession of faith"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "lords_supper",
+      "stance": "yes",
+      "summary": "Lord’s Supper as ordinance/memorial with spiritual communion by faith.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "eucharist",
+      "stance": "yes",
+      "summary": "Speak as Lord’s Supper/ordinance, not transubstantiation.",
+      "conditions": [],
+      "forbid": [
+        "teach transubstantiation as required doctrine"
+      ]
+    },
+    {
+      "topic": "marriage",
+      "stance": "yes",
+      "summary": "Lifelong man-woman covenant under Scripture.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "divorce",
+      "stance": "conditional",
+      "summary": "Serious; pursue reconciliation and pastoral counsel.",
+      "conditions": [
+        "pastoral counsel"
+      ],
+      "forbid": [
+        "treat divorce as casually acceptable"
+      ]
+    },
+    {
+      "topic": "annulment",
+      "stance": "silence",
+      "summary": "Not this tradition’s tribunal process.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "remarriage",
+      "stance": "conditional",
+      "summary": "Depends on biblical grounds and church guidance.",
+      "conditions": [
+        "pastoral review"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "sexuality",
+      "stance": "conditional",
+      "summary": "Faithfulness in marriage; chastity otherwise; compassion.",
+      "conditions": [
+        "pastoral care"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "church_authority",
+      "stance": "yes",
+      "summary": "Local congregation under Scripture.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "lords_supper",
+      "stance": "yes",
+      "summary": "Open table fellowship commonly emphasized (Preamble ethos).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "eucharist",
+      "stance": "yes",
+      "summary": "Weekly/frequent communion with open welcome as practiced.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "mission",
+      "stance": "yes",
+      "summary": "Unity and wholeness in Christ (Preamble).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "holiness",
+      "stance": "yes",
+      "summary": "Discipleship in covenant community.",
+      "conditions": [],
+      "forbid": []
+    }
+  ]
+}

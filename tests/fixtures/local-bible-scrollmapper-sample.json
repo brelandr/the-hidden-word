@@ -1,0 +1,51 @@
+{
+  "translation": "Bible in Basic English",
+  "books": [
+    {
+      "name": "Genesis",
+      "chapters": [
+        {
+          "chapter": 1,
+          "verses": [
+            {
+              "verse": 1,
+              "text": "At the first God made the heaven and the earth."
+            },
+            {
+              "verse": 2,
+              "text": "And the earth was waste and without form."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "John",
+      "chapters": [
+        {
+          "chapter": 3,
+          "verses": [
+            {
+              "verse": 16,
+              "text": "For God had such love for the world that he gave his only Son."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Romans",
+      "chapters": [
+        {
+          "chapter": 8,
+          "verses": [
+            {
+              "verse": 28,
+              "text": "And we are conscious that all things are working together for good."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

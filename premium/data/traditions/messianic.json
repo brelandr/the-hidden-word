@@ -1,0 +1,245 @@
+{
+  "slug": "messianic",
+  "label": "Messianic Jewish",
+  "version": "1.1.0",
+  "framing": "Frame for a Messianic Jewish audience: Yeshua (Jesus) as Messiah of Israel; Tanakh and Brit Hadasha as Scripture; Torah-shaped Jewish life renewed in the New Covenant. Prefer UMJC Statement of Faith identifiers. Do not invent rabbinic or MJAA dumps.",
+  "extends": null,
+  "general_gates": [
+    "Stay within the provided Bible text for verse claims; do not invent quotations.",
+    "Do not invent primary-source citations beyond the digests and UMJC Statement of Faith identifiers supplied in this pack.",
+    "When citing Messianic doctrine, prefer UMJC Statement of Faith topics/identifiers—paraphrase only; do not invent binding halakha.",
+    "When a doctrinal stance gate matches, state the tradition, the stance (yes/no/conditional/pastoral/silence), and any required conditions clearly.",
+    "For sensitive life topics, encourage prayer and trusted pastoral or professional help; AI is not a substitute for counseling."
+  ],
+  "citation_map": [
+    {
+      "topics": [
+        "scripture_authority"
+      ],
+      "articles": [
+        "Scripture"
+      ],
+      "confession": "UMJC Statement of Faith",
+      "note": "Tanakh and Brit Hadasha are divinely inspired and of supreme authority in faith and practice."
+    },
+    {
+      "topics": [
+        "salvation",
+        "church_authority"
+      ],
+      "articles": [
+        "God",
+        "Yeshua"
+      ],
+      "confession": "UMJC Statement of Faith",
+      "note": "One God; Yeshua is Messiah, Lord, and Redeemer of Israel and the nations."
+    },
+    {
+      "topics": [
+        "holiness",
+        "sabbath",
+        "scripture_authority"
+      ],
+      "articles": [
+        "Torah"
+      ],
+      "confession": "UMJC Statement of Faith",
+      "note": "Torah is God’s gift to Israel and shapes Messianic Jewish life under the New Covenant—practices vary; do not invent binding calendar rules."
+    },
+    {
+      "topics": [
+        "baptism",
+        "lords_supper",
+        "eucharist",
+        "sacraments"
+      ],
+      "articles": [
+        "Congregational Life"
+      ],
+      "confession": "UMJC Statement of Faith",
+      "note": "Immersion/mikveh identification with Messiah; Lord’s Supper/Passover connections vary by congregation."
+    },
+    {
+      "topics": [
+        "marriage",
+        "divorce",
+        "remarriage",
+        "sexuality"
+      ],
+      "articles": [
+        "Family"
+      ],
+      "confession": "UMJC Statement of Faith",
+      "note": "Godly family units and covenant faithfulness; divorce treated seriously under Scripture and congregational care."
+    },
+    {
+      "topics": [
+        "mission",
+        "church_authority"
+      ],
+      "articles": [
+        "Israel",
+        "Congregation"
+      ],
+      "confession": "UMJC Statement of Faith",
+      "note": "Ongoing calling of the Jewish people; Messianic congregations within Israel’s story and the one Body of Messiah."
+    }
+  ],
+  "primary_sources": [
+    {
+      "id": "messianic_scripture",
+      "title": "UMJC — Scripture (digest)",
+      "cite": "UMJC Statement of Faith — Scripture (paraphrase)",
+      "excerpt": "Tanakh and Brit Hadasha are inspired and fully trustworthy—supreme authority for faith and practice. Do not invent rabbinic quotations as if they were Scripture.",
+      "topics": [
+        "scripture_authority"
+      ]
+    },
+    {
+      "id": "messianic_yeshua",
+      "title": "UMJC — Yeshua the Messiah (digest)",
+      "cite": "UMJC Statement of Faith — God & Yeshua (paraphrase)",
+      "excerpt": "Yeshua is the promised Messiah of Israel—fully God and fully human—through whom salvation comes to Jews and Gentiles.",
+      "topics": [
+        "salvation",
+        "church_authority"
+      ]
+    },
+    {
+      "id": "messianic_torah",
+      "title": "UMJC — Torah (digest)",
+      "cite": "UMJC Statement of Faith — Torah (paraphrase)",
+      "excerpt": "Torah is God’s gift to Israel and remains central for Messianic Jewish identity under the New Covenant. Application varies by congregation—do not invent binding halakha.",
+      "topics": [
+        "holiness",
+        "sabbath",
+        "scripture_authority"
+      ]
+    },
+    {
+      "id": "messianic_family",
+      "title": "UMJC — family & congregation (digest)",
+      "cite": "UMJC Statement of Faith — Family & Congregation (paraphrase)",
+      "excerpt": "Spiritual life is grounded in godly families within congregations. Marriage fidelity is covenantal; divorce requires serious biblical and congregational care.",
+      "topics": [
+        "marriage",
+        "divorce",
+        "remarriage",
+        "sexuality",
+        "church_authority"
+      ]
+    }
+  ],
+  "stances": [
+    {
+      "topic": "salvation",
+      "stance": "yes",
+      "summary": "Trust in Yeshua the Messiah for salvation (UMJC).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "scripture_authority",
+      "stance": "yes",
+      "summary": "Tanakh and Apostolic Writings as Scripture; no invented rabbinic quotes.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "sabbath",
+      "stance": "conditional",
+      "summary": "Sabbath/feasts may be honored; practices vary (UMJC Torah).",
+      "conditions": [
+        "do not invent binding calendar rules"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "baptism",
+      "stance": "yes",
+      "summary": "Immersion (mikveh/baptism) as identification with Messiah.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "eucharist",
+      "stance": "conditional",
+      "summary": "Messianic Lord’s Supper/Passover connections vary.",
+      "conditions": [
+        "avoid inventing liturgy"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "lords_supper",
+      "stance": "yes",
+      "summary": "Remember Messiah’s death in the meal as Scripture teaches.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "marriage",
+      "stance": "yes",
+      "summary": "Covenantal faithfulness (UMJC Family).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "divorce",
+      "stance": "conditional",
+      "summary": "Serious biblical/pastoral process.",
+      "conditions": [
+        "congregational counsel"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "annulment",
+      "stance": "silence",
+      "summary": "Not a Messianic tribunal category.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "remarriage",
+      "stance": "conditional",
+      "summary": "Depends on biblical grounds and congregational guidance.",
+      "conditions": [
+        "pastoral counsel"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "sexuality",
+      "stance": "conditional",
+      "summary": "Sexual ethics per Scripture; compassion.",
+      "conditions": [
+        "pastoral care"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "church_authority",
+      "stance": "conditional",
+      "summary": "Messianic congregational leadership under Scripture (UMJC).",
+      "conditions": [
+        "no invented rabbinic authority claims"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "holiness",
+      "stance": "yes",
+      "summary": "Torah-shaped discipleship under Messiah.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "mission",
+      "stance": "yes",
+      "summary": "Witness to Israel and the nations in Messiah.",
+      "conditions": [],
+      "forbid": []
+    }
+  ]
+}

@@ -1,0 +1,149 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://thehiddenword.example/schemas/tradition-pack.json",
+  "title": "THW Premium tradition doctrine pack",
+  "description": "Curated, copyright-safe digests and stance gates for AI tradition routing. Digests must be original paraphrases plus public citation pointers—never copied copyrighted paragraphs.",
+  "type": "object",
+  "required": ["slug", "label", "framing", "primary_sources", "stances", "general_gates"],
+  "additionalProperties": false,
+  "properties": {
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]+$",
+      "description": "Must match the filename (slug.json) and index.json key."
+    },
+    "label": {
+      "type": "string",
+      "minLength": 1
+    },
+    "version": {
+      "type": "string",
+      "description": "Pack content version; included in transient cache keys."
+    },
+    "extends": {
+      "type": ["string", "null"],
+      "description": "Optional parent pack slug. Child framing/gates replace parent when set; primary_sources append; stances merge by topic (child wins)."
+    },
+    "framing": {
+      "type": "string",
+      "description": "Always injected into the AI digest."
+    },
+    "general_gates": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Always-on rules for every request."
+    },
+    "citation_map": {
+      "type": "array",
+      "description": "Preferred topic→citation map (CIC/CCC numbers and/or confession articles + short paraphrase notes). Cite identifiers only; never ship full primary text.",
+      "items": {
+        "type": "object",
+        "required": ["topics", "note"],
+        "additionalProperties": false,
+        "properties": {
+          "topics": {
+            "type": "array",
+            "items": { "type": "string" },
+            "minItems": 1
+          },
+          "canons": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Code of Canon Law numbers (CIC), e.g. \"1055\"."
+          },
+          "ccc": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Catechism paragraph numbers, e.g. \"1650\"."
+          },
+          "articles": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Confession article identifiers, e.g. \"VII\" for BF&M."
+          },
+          "confession": {
+            "type": "string",
+            "description": "Confession label for articles (default BF&M 2000)."
+          },
+          "note": {
+            "type": "string",
+            "description": "Short original paraphrase tied to the listed identifiers."
+          }
+        }
+      }
+    },
+    "canon_map": {
+      "type": "array",
+      "description": "Legacy alias for citation_map (Catholic packs). Prefer citation_map for new packs.",
+      "items": {
+        "type": "object",
+        "required": ["topics", "note"],
+        "additionalProperties": false,
+        "properties": {
+          "topics": {
+            "type": "array",
+            "items": { "type": "string" },
+            "minItems": 1
+          },
+          "canons": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "ccc": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "articles": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "confession": { "type": "string" },
+          "note": { "type": "string" }
+        }
+      }
+    },
+    "primary_sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "cite", "excerpt", "topics"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string" },
+          "title": { "type": "string" },
+          "cite": { "type": "string" },
+          "excerpt": { "type": "string", "description": "Short original paraphrase only." },
+          "topics": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Intersected with detected topics for inclusion (capped)."
+          }
+        }
+      }
+    },
+    "stances": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["topic", "stance", "summary"],
+        "additionalProperties": false,
+        "properties": {
+          "topic": { "type": "string" },
+          "stance": {
+            "type": "string",
+            "enum": ["yes", "no", "conditional", "pastoral", "silence"]
+          },
+          "summary": { "type": "string" },
+          "conditions": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "forbid": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    }
+  }
+}

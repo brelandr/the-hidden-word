@@ -1,0 +1,245 @@
+{
+  "slug": "jehovah_witnesses",
+  "label": "Jehovah’s Witnesses",
+  "version": "1.1.0",
+  "framing": "Frame for a Jehovah’s Witness audience: respectful, Scripture-focused tone. Prefer JW Beliefs page topic identifiers (jw.org). Do not invent Watchtower/Awake article citations or Governing Body directives. Stay within the provided Bible text for verse claims.",
+  "extends": null,
+  "general_gates": [
+    "Stay within the provided Bible text for verse claims; do not invent quotations.",
+    "Do not invent primary-source citations beyond the digests and JW Beliefs identifiers supplied in this pack.",
+    "When citing JW doctrine, use JW Beliefs topic identifiers only—paraphrase. Never invent Watchtower magazine citations or org policy dumps.",
+    "When a doctrinal stance gate matches, state the tradition, the stance (yes/no/conditional/pastoral/silence), and any required conditions clearly.",
+    "For sensitive life topics, encourage prayer and trusted pastoral or professional help; AI is not a substitute for counseling."
+  ],
+  "citation_map": [
+    {
+      "topics": [
+        "scripture_authority"
+      ],
+      "articles": [
+        "Bible"
+      ],
+      "confession": "JW Beliefs",
+      "note": "The Bible is God’s Word and the basis for belief—use provided Bible text only; do not invent NWT-only wording not supplied."
+    },
+    {
+      "topics": [
+        "church_authority",
+        "salvation"
+      ],
+      "articles": [
+        "God",
+        "Jesus"
+      ],
+      "confession": "JW Beliefs",
+      "note": "Jehovah as the one true God; Jesus as His Son and Messiah—paraphrase JW framing carefully without inventing org charts."
+    },
+    {
+      "topics": [
+        "salvation",
+        "baptism"
+      ],
+      "articles": [
+        "Salvation",
+        "Baptism"
+      ],
+      "confession": "JW Beliefs",
+      "note": "Faith and obedience; baptism as dedication—discuss from Bible + JW Beliefs identifiers only."
+    },
+    {
+      "topics": [
+        "lords_supper",
+        "eucharist",
+        "sacraments"
+      ],
+      "articles": [
+        "Memorial"
+      ],
+      "confession": "JW Beliefs",
+      "note": "Lord’s Evening Meal / Memorial—stay within Scripture and JW Beliefs paraphrase; do not invent attendance rules."
+    },
+    {
+      "topics": [
+        "prophecy",
+        "mission"
+      ],
+      "articles": [
+        "Kingdom",
+        "Future"
+      ],
+      "confession": "JW Beliefs",
+      "note": "God’s Kingdom hope—avoid date-setting and inventing chronology charts."
+    },
+    {
+      "topics": [
+        "marriage",
+        "divorce",
+        "remarriage",
+        "sexuality",
+        "holiness"
+      ],
+      "articles": [
+        "Christian Living"
+      ],
+      "confession": "JW Beliefs",
+      "note": "Moral purity and family faithfulness—pastoral; no invented org discipline policies."
+    }
+  ],
+  "primary_sources": [
+    {
+      "id": "jw_bible",
+      "title": "JW Beliefs — Bible (digest)",
+      "cite": "JW Beliefs — Bible (paraphrase)",
+      "excerpt": "Jehovah’s Witnesses base teaching on the Bible as God’s Word. This tool uses only the provided Bible text—do not invent Watchtower citations or alternate verse wordings not supplied.",
+      "topics": [
+        "scripture_authority",
+        "additional_scripture"
+      ]
+    },
+    {
+      "id": "jw_god_jesus",
+      "title": "JW Beliefs — God & Jesus (digest)",
+      "cite": "JW Beliefs — God & Jesus (paraphrase)",
+      "excerpt": "Jehovah is the one true God; Jesus is His Son, the Messiah and appointed King. Present JW framing respectfully without inventing organizational diagrams.",
+      "topics": [
+        "church_authority",
+        "salvation"
+      ]
+    },
+    {
+      "id": "jw_kingdom",
+      "title": "JW Beliefs — Kingdom hope (digest)",
+      "cite": "JW Beliefs — Kingdom (paraphrase)",
+      "excerpt": "Hope centers on God’s Kingdom. Avoid date-setting and invented chronology. Encourage careful reading of the provided Scripture.",
+      "topics": [
+        "prophecy",
+        "mission",
+        "salvation"
+      ]
+    },
+    {
+      "id": "jw_living",
+      "title": "JW Beliefs — Christian living (digest)",
+      "cite": "JW Beliefs — Christian Living (paraphrase)",
+      "excerpt": "Emphasize honesty, moral purity, and family faithfulness from biblical ethics—without inventing congregation judicial policies.",
+      "topics": [
+        "holiness",
+        "marriage",
+        "sexuality"
+      ]
+    }
+  ],
+  "stances": [
+    {
+      "topic": "additional_scripture",
+      "stance": "no",
+      "summary": "Do not invent Watchtower/Awake citations.",
+      "conditions": [],
+      "forbid": [
+        "fabricate org publications"
+      ]
+    },
+    {
+      "topic": "scripture_authority",
+      "stance": "conditional",
+      "summary": "Stick to provided Bible wording; JW Beliefs—Bible as identifier.",
+      "conditions": [
+        "no invented NWT-only claims beyond provided text"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "salvation",
+      "stance": "pastoral",
+      "summary": "Faith and obedience from the passage + JW Beliefs paraphrase—no inventing org charts.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "baptism",
+      "stance": "pastoral",
+      "summary": "Discuss baptism as the Bible text presents it; JW Beliefs—Baptism as identifier.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "eucharist",
+      "stance": "pastoral",
+      "summary": "Memorial / Lord’s Evening Meal themes—stay within passage + JW Beliefs.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "lords_supper",
+      "stance": "pastoral",
+      "summary": "Stay within provided Scripture and JW Beliefs—Memorial.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "marriage",
+      "stance": "pastoral",
+      "summary": "Encourage fidelity; no invented org rules.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "divorce",
+      "stance": "pastoral",
+      "summary": "Encourage careful counsel; no invented policies.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "annulment",
+      "stance": "silence",
+      "summary": "Not applicable.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "remarriage",
+      "stance": "pastoral",
+      "summary": "Encourage careful spiritual counsel.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "sexuality",
+      "stance": "pastoral",
+      "summary": "Encourage moral purity in biblical terms only.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "church_authority",
+      "stance": "silence",
+      "summary": "Do not invent Governing Body directives.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "prophecy",
+      "stance": "conditional",
+      "summary": "Kingdom hope (JW Beliefs)—no date-setting or invented chronology.",
+      "conditions": [
+        "avoid date-setting"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "mission",
+      "stance": "yes",
+      "summary": "Public witness emphasized—stay pastoral.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "holiness",
+      "stance": "yes",
+      "summary": "Christian living purity (JW Beliefs).",
+      "conditions": [],
+      "forbid": []
+    }
+  ]
+}

@@ -1,0 +1,173 @@
+{
+  "slug": "lutheran",
+  "label": "Lutheran",
+  "version": "1.1.0",
+  "framing": "Frame for a Lutheran audience (LCMS-aware default): highlight Law and Gospel, grace alone through faith, and Christ-centered reading of Scripture. Prefer Augsburg Confession and LCMS Brief Statement identifiers from the Cited references block. Do not invent Book of Concord paragraph dumps.",
+  "extends": null,
+  "general_gates": [
+    "Stay within the provided Bible text for verse claims; do not invent quotations.",
+    "Do not invent primary-source citations beyond the digests and Augsburg/Brief Statement identifiers supplied in this pack.",
+    "When citing Lutheran doctrine, use only the Augsburg Confession Art. numbers and Brief Statement pointers listed in the Cited references block.",
+    "When a doctrinal stance gate matches, state the tradition, the stance (yes/no/conditional/pastoral/silence), and any required conditions clearly.",
+    "For sensitive life topics, encourage prayer and trusted pastoral or professional help; AI is not a substitute for counseling."
+  ],
+  "citation_map": [
+    {
+      "topics": ["scripture_authority", "church_authority"],
+      "articles": ["Of the Holy Scriptures", "Of the Confessions"],
+      "confession": "LCMS Brief Statement",
+      "note": "Scripture is the sole source and norm of doctrine; the Lutheran Confessions (Book of Concord) confess Scripture’s teaching and do not add a second rule of faith. Cite Brief Statement — Holy Scriptures / Confessions."
+    },
+    {
+      "topics": ["salvation"],
+      "articles": ["IV"],
+      "confession": "Augsburg Confession",
+      "note": "Justification: humans are justified freely for Christ’s sake through faith, not by works of the law. Cite AC IV; Brief Statement Of Justification."
+    },
+    {
+      "topics": ["baptism", "sacraments", "salvation"],
+      "articles": ["IX"],
+      "confession": "Augsburg Confession",
+      "note": "Baptism is necessary and offers grace; children are to be baptized. Cite AC IX; Small Catechism on Baptism (paraphrase only)."
+    },
+    {
+      "topics": ["lords_supper", "eucharist", "sacraments"],
+      "articles": ["X"],
+      "confession": "Augsburg Confession",
+      "note": "Of the Lord’s Supper: the body and blood of Christ are truly present and distributed. Cite AC X (sacramental union; not bare memorial)."
+    },
+    {
+      "topics": ["church_authority", "confession"],
+      "articles": ["Of the Church"],
+      "confession": "LCMS Brief Statement",
+      "note": "The Church is the communion of believers; Word and Sacraments are marks of the Church. Cite Brief Statement Of the Church; AC VII–VIII in spirit without inventing quotes."
+    },
+    {
+      "topics": ["marriage", "divorce", "remarriage", "sexuality"],
+      "articles": ["Of Marriage"],
+      "confession": "LCMS Brief Statement",
+      "note": "Marriage is a divine institution. Divorce is discouraged; pastoral care applies biblical grounds carefully; remarriage policies vary by synod. Prefer Brief Statement / pastoral theology—not Roman annulment language."
+    }
+  ],
+  "primary_sources": [
+    {
+      "id": "augsburg_justification",
+      "title": "Augsburg Confession — justification (digest)",
+      "cite": "Augsburg Confession Art. IV (paraphrase)",
+      "excerpt": "Humans are justified freely for Christ’s sake through faith, not by works of the law. Law and Gospel must be distinguished carefully.",
+      "topics": ["salvation", "scripture_authority"]
+    },
+    {
+      "id": "lcms_brief_scripture",
+      "title": "LCMS Brief Statement — Scripture (digest)",
+      "cite": "LCMS Brief Statement — Of the Holy Scriptures (paraphrase)",
+      "excerpt": "Holy Scripture is given by God as the foundation of faith and is the sole source and norm by which all teachers and doctrines must be examined. The Confessions confess Scripture; they do not replace it.",
+      "topics": ["scripture_authority", "church_authority"]
+    },
+    {
+      "id": "lutheran_sacraments",
+      "title": "Baptism & Lord’s Supper (digest)",
+      "cite": "Augsburg Confession Arts. IX–X; Small Catechism (paraphrase)",
+      "excerpt": "Baptism works forgiveness of sins and delivers from death and the devil as God’s Word with water; infant baptism is practiced. In the Supper, Christ’s body and blood are truly present in, with, and under bread and wine (sacramental union).",
+      "topics": ["baptism", "eucharist", "lords_supper", "sacraments", "salvation"]
+    },
+    {
+      "id": "lutheran_marriage",
+      "title": "Marriage & divorce (digest)",
+      "cite": "LCMS Brief Statement / Lutheran pastoral theology (paraphrase)",
+      "excerpt": "Marriage is a divine institution. Divorce is discouraged; pastoral care applies biblical grounds carefully; remarriage policies vary by synod. Do not import Roman Catholic annulment tribunals.",
+      "topics": ["marriage", "divorce", "remarriage", "sexuality"]
+    }
+  ],
+  "stances": [
+    {
+      "topic": "salvation",
+      "stance": "yes",
+      "summary": "Justification by grace alone through faith alone in Christ alone (AC IV).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "baptism",
+      "stance": "yes",
+      "summary": "Baptism is a means of grace; infant baptism is practiced (AC IX).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "eucharist",
+      "stance": "yes",
+      "summary": "Affirm real presence / sacramental union (AC X), not mere memorial.",
+      "conditions": [],
+      "forbid": [
+        "deny real presence",
+        "require transubstantiation terminology"
+      ]
+    },
+    {
+      "topic": "lords_supper",
+      "stance": "yes",
+      "summary": "Lord’s Supper is Christ’s body and blood for forgiveness (AC X).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "scripture_authority",
+      "stance": "yes",
+      "summary": "Sola Scriptura as norma normans (Brief Statement).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "divorce",
+      "stance": "conditional",
+      "summary": "Serious pastoral process; limited biblical grounds.",
+      "conditions": [
+        "pastoral counsel"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "annulment",
+      "stance": "silence",
+      "summary": "Not a Lutheran tribunal category; use pastoral/biblical language.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "remarriage",
+      "stance": "conditional",
+      "summary": "Depends on synod practice and biblical grounds.",
+      "conditions": [
+        "pastoral guidance"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "church_authority",
+      "stance": "conditional",
+      "summary": "Word and Confessions; congregational/synodical structures.",
+      "conditions": [
+        "do not invent confessional quotes beyond digest"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "sexuality",
+      "stance": "conditional",
+      "summary": "Follow historic Lutheran sexual ethics unless the user’s synod is known to teach otherwise; remain pastoral.",
+      "conditions": [
+        "compassion",
+        "local synod awareness"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "marriage",
+      "stance": "yes",
+      "summary": "Marriage is God’s institution for lifelong fidelity.",
+      "conditions": [],
+      "forbid": []
+    }
+  ]
+}

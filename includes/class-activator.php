@@ -70,6 +70,13 @@ class HWBL_Activator {
 
 		self::maybe_upgrade_curriculum();
 		self::maybe_create_demo_page();
+
+		if ( class_exists( 'HWBL_Local_Bible_Store' ) ) {
+			HWBL_Local_Bible_Store::maybe_install_schema();
+		} elseif ( is_readable( HWBL_PLUGIN_DIR . 'includes/class-local-bible-store.php' ) ) {
+			require_once HWBL_PLUGIN_DIR . 'includes/class-local-bible-store.php';
+			HWBL_Local_Bible_Store::maybe_install_schema();
+		}
 	}
 
 	/**
@@ -532,11 +539,11 @@ class HWBL_Activator {
 
 		$niv_verses = HWBL_Curriculum::count_verses();
 		if ( $niv_verses > HWBL_MAX_NIV_VERSES ) {
+			// Activation runs before init; avoid __() so translations are not loaded too early.
 			wp_die(
 				esc_html(
 					sprintf(
-						/* translators: 1: bundled NIV verse count, 2: maximum allowed */
-						__( 'Hidden Word Bible Lessons: bundled NIV verse count (%1$d) exceeds the %2$d verse fair-use limit.', 'hidden-word-bible-lessons' ),
+						'Hidden Word Bible Lessons: bundled NIV verse count (%1$d) exceeds the %2$d verse fair-use limit.',
 						$niv_verses,
 						HWBL_MAX_NIV_VERSES
 					)
@@ -551,8 +558,7 @@ class HWBL_Activator {
 				wp_die(
 					esc_html(
 						sprintf(
-							/* translators: 1: translation slug, 2: actual lesson count, 3: NIV lesson count */
-							__( 'Hidden Word Bible Lessons: %1$s curriculum (%2$d lessons) must match the NIV curriculum (%3$d lessons).', 'hidden-word-bible-lessons' ),
+							'Hidden Word Bible Lessons: %1$s curriculum (%2$d lessons) must match the NIV curriculum (%3$d lessons).',
 							strtoupper( $slug ),
 							$count,
 							$niv_count
@@ -600,15 +606,14 @@ class HWBL_Activator {
 				$ref .= '-' . $entry['verse_end'];
 			}
 
+			$title_template = did_action( 'init' )
+				? /* translators: 1: lesson number, 2: scripture reference */ __( 'Lesson %1$d: %2$s', 'hidden-word-bible-lessons' )
+				: 'Lesson %1$d: %2$s';
+
 			$post_id = wp_insert_post(
 				array(
 					'post_type'    => 'hwbl_lesson',
-					'post_title'   => sprintf(
-						/* translators: 1: lesson number, 2: scripture reference */
-						__( 'Lesson %1$d: %2$s', 'hidden-word-bible-lessons' ),
-						$lesson,
-						$ref
-					),
+					'post_title'   => sprintf( $title_template, $lesson, $ref ),
 					'post_status'  => 'publish',
 					'post_content' => '',
 				),
@@ -723,13 +728,14 @@ class HWBL_Activator {
 			return $by_path;
 		}
 
-		$titles = array_unique(
+		$can_translate = (bool) did_action( 'init' );
+		$titles        = array_unique(
 			array_filter(
 				array(
-					__( "Today's Lesson", 'hidden-word-bible-lessons' ),
-					class_exists( 'HWBL_Scheduler' ) ? HWBL_Scheduler::get_schedule_phrase( 'memorize' ) : '',
-					__( "Today's Verse to Memorize", 'hidden-word-bible-lessons' ),
-					__( "This Week's Verse to Memorize", 'hidden-word-bible-lessons' ),
+					$can_translate ? __( "Today's Lesson", 'hidden-word-bible-lessons' ) : "Today's Lesson",
+					( $can_translate && class_exists( 'HWBL_Scheduler' ) ) ? HWBL_Scheduler::get_schedule_phrase( 'memorize' ) : '',
+					$can_translate ? __( "Today's Verse to Memorize", 'hidden-word-bible-lessons' ) : "Today's Verse to Memorize",
+					$can_translate ? __( "This Week's Verse to Memorize", 'hidden-word-bible-lessons' ) : "This Week's Verse to Memorize",
 				)
 			)
 		);
@@ -769,9 +775,8 @@ class HWBL_Activator {
 			return;
 		}
 
-		$title = class_exists( 'HWBL_Scheduler' )
-			? HWBL_Scheduler::get_schedule_phrase( 'memorize' )
-			: __( "Today's Verse to Memorize", 'hidden-word-bible-lessons' );
+		// Activation runs before init; use English title (page is found later by slug).
+		$title = "Today's Verse to Memorize";
 
 		$page_id = wp_insert_post(
 			array(

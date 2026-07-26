@@ -1,0 +1,203 @@
+{
+  "slug": "methodist",
+  "label": "United Methodist Church (UMC)",
+  "version": "1.1.0",
+  "framing": "Frame for a United Methodist audience: emphasize prevenient, justifying, and sanctifying grace; Scripture primary within the Wesleyan quadrilateral (Scripture, tradition, reason, experience); holiness of heart and life; and loving service. Prefer UMC Articles of Religion identifiers from the Book of Discipline Cited references block. Do not invent ¶ paragraph dumps from the full Discipline.",
+  "extends": null,
+  "general_gates": [
+    "Stay within the provided Bible text for verse claims; do not invent quotations.",
+    "Do not invent primary-source citations beyond the digests and UMC Articles of Religion identifiers supplied in this pack.",
+    "When citing UMC doctrine, use only the Articles of Religion Art. numbers listed in the Cited references block (Book of Discipline). Do not invent Social Principles ¶ numbers unless listed here.",
+    "When a doctrinal stance gate matches, state the tradition, the stance (yes/no/conditional/pastoral/silence), and any required conditions clearly.",
+    "For sensitive life topics, encourage prayer and trusted pastoral or professional help; AI is not a substitute for counseling.",
+    "UMC teaching on marriage and sexuality has been contested across conferences—prefer pastoral care and local/conference guidance; do not invent a single global UMC decree beyond this pack."
+  ],
+  "citation_map": [
+    {
+      "topics": ["scripture_authority", "salvation"],
+      "articles": ["V"],
+      "confession": "UMC Articles of Religion",
+      "note": "Of the Sufficiency of the Holy Scriptures for Salvation — Scripture contains all things necessary to salvation. Cite Art. V (Book of Discipline)."
+    },
+    {
+      "topics": ["church_authority"],
+      "articles": ["I", "IV", "XIII"],
+      "confession": "UMC Articles of Religion",
+      "note": "Trinity, Holy Ghost, and the Church. Cite Arts. I, IV, XIII. Connectional polity is UMC practice; do not invent Discipline ¶ dumps."
+    },
+    {
+      "topics": ["salvation", "holiness", "sanctification"],
+      "articles": ["VIII", "IX", "X", "XII"],
+      "confession": "UMC Articles of Religion",
+      "note": "Free will, justification by faith, good works as fruits of faith, and sin after justification—Wesleyan grace trajectory. Cite Arts. VIII–X, XII."
+    },
+    {
+      "topics": ["baptism", "lords_supper", "eucharist", "sacraments"],
+      "articles": ["XVI", "XVII", "XVIII"],
+      "confession": "UMC Articles of Religion",
+      "note": "Sacraments: Baptism and the Lord’s Supper as means of grace. Cite Arts. XVI–XVIII."
+    },
+    {
+      "topics": ["marriage", "divorce", "remarriage", "sexuality"],
+      "articles": ["XXI"],
+      "confession": "UMC Articles of Religion",
+      "note": "Of the Marriage of Ministers affirms marriage as lawful. Pastoral care for divorce/remarriage follows conference/local guidance—do not invent universal UMC Sexual Ethics beyond this pack. Cite Art. XXI + pastoral Discipline ethos (paraphrase only)."
+    },
+    {
+      "topics": ["mission"],
+      "articles": ["XIII"],
+      "confession": "UMC Articles of Religion",
+      "note": "The Church is a congregation of faithful people; UMC connectional mission emphasizes making disciples. Cite Art. XIII."
+    }
+  ],
+  "primary_sources": [
+    {
+      "id": "umc_scripture",
+      "title": "UMC Articles — Scripture (digest)",
+      "cite": "UMC Articles of Religion Art. V (paraphrase)",
+      "excerpt": "Holy Scripture contains all things necessary to salvation. The Wesleyan quadrilateral keeps Scripture primary while tradition, reason, and experience assist faithful reading.",
+      "topics": ["scripture_authority", "salvation", "church_authority"]
+    },
+    {
+      "id": "umc_grace",
+      "title": "UMC / Wesleyan grace (digest)",
+      "cite": "UMC Articles of Religion Arts. VIII–X, XII (paraphrase)",
+      "excerpt": "Prevenient, justifying, and sanctifying grace. Humans are justified by faith; good works follow as fruits. Growth in holiness of heart and life is expected.",
+      "topics": ["salvation", "holiness", "sanctification"]
+    },
+    {
+      "id": "umc_sacraments",
+      "title": "UMC Articles — Baptism & Communion (digest)",
+      "cite": "UMC Articles of Religion Arts. XVI–XVIII (paraphrase)",
+      "excerpt": "Baptism initiates into the covenant (including infants). Holy Communion is a means of grace with Christ’s real spiritual presence; open table is common UMC practice.",
+      "topics": ["baptism", "eucharist", "lords_supper", "sacraments"]
+    },
+    {
+      "id": "umc_marriage",
+      "title": "UMC marriage & pastoral care (digest)",
+      "cite": "UMC Articles of Religion Art. XXI; Book of Discipline pastoral ethos (paraphrase)",
+      "excerpt": "Marriage is treated as sacred. Divorce is a pastoral crisis handled with grace and accountability. Remarriage and sexuality guidance vary by conference—prefer local pastoral counsel; do not invent a single worldwide UMC decree.",
+      "topics": ["marriage", "divorce", "remarriage", "sexuality"]
+    }
+  ],
+  "stances": [
+    {
+      "topic": "salvation",
+      "stance": "yes",
+      "summary": "Justification by faith and growth in holiness by grace (Arts. IX–X).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "holiness",
+      "stance": "yes",
+      "summary": "Pursue sanctification and holy love.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "sanctification",
+      "stance": "yes",
+      "summary": "Sanctifying grace continues after justification; pursue holiness of heart and life.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "baptism",
+      "stance": "yes",
+      "summary": "Infant and believer baptism as covenant means of grace (Art. XVII).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "eucharist",
+      "stance": "yes",
+      "summary": "Open table commonly practiced; means of grace (Art. XVIII).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "lords_supper",
+      "stance": "yes",
+      "summary": "Holy Communion as means of grace (Art. XVIII).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "sacraments",
+      "stance": "yes",
+      "summary": "Baptism and Lord’s Supper are the two Gospel sacraments (Art. XVI).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "scripture_authority",
+      "stance": "conditional",
+      "summary": "Scripture primary within Wesleyan quadrilateral (Art. V).",
+      "conditions": [
+        "do not invent Wesley or Discipline quotes beyond digest"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "divorce",
+      "stance": "conditional",
+      "summary": "Pastoral process with grace and truth; follow conference guidance.",
+      "conditions": [
+        "pastoral counsel"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "annulment",
+      "stance": "silence",
+      "summary": "Not a UMC tribunal category; use pastoral/biblical language.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "remarriage",
+      "stance": "conditional",
+      "summary": "Often permitted after pastoral discernment; follow local/conference Discipline.",
+      "conditions": [
+        "pastoral guidance"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "church_authority",
+      "stance": "conditional",
+      "summary": "UMC connectional polity under Scripture and Articles; do not invent ¶ dumps.",
+      "conditions": [
+        "prefer Articles identifiers from this pack"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "sexuality",
+      "stance": "conditional",
+      "summary": "Teachings have been contested across UMC contexts; be pastoral and avoid inventing a single global decree.",
+      "conditions": [
+        "prefer local/conference teaching when known",
+        "compassion"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "marriage",
+      "stance": "conditional",
+      "summary": "Marriage is sacred; conference practice varies—do not invent universality beyond this pack.",
+      "conditions": [
+        "local/conference awareness"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "mission",
+      "stance": "yes",
+      "summary": "Make disciples of Jesus Christ for the transformation of the world.",
+      "conditions": [],
+      "forbid": []
+    }
+  ]
+}

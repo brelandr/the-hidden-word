@@ -74,14 +74,19 @@ class HWBL_Books {
 	}
 
 	/**
-	 * Testament slug for a book ID (ot = 1–39, nt = 40–66).
+	 * Highest supported book ID (Protestant 1–66 + deuterocanon/apocrypha 67–85).
+	 */
+	const MAX_BOOK_ID = 85;
+
+	/**
+	 * Testament slug for a book ID (ot = 1–39 + deuterocanon/apocrypha 67–85, nt = 40–66).
 	 *
 	 * @param int $book_id Book ID.
 	 * @return string ot|nt|''
 	 */
 	public static function get_testament( $book_id ) {
 		$book_id = (int) $book_id;
-		if ( $book_id >= 1 && $book_id <= 39 ) {
+		if ( ( $book_id >= 1 && $book_id <= 39 ) || ( $book_id >= 67 && $book_id <= self::MAX_BOOK_ID ) ) {
 			return 'ot';
 		}
 		if ( $book_id >= 40 && $book_id <= 66 ) {
@@ -91,9 +96,67 @@ class HWBL_Books {
 	}
 
 	/**
+	 * Whether a book ID is deuterocanonical / apocryphal (beyond Protestant 1–66).
+	 *
+	 * @param int $book_id Book ID.
+	 * @return bool
+	 */
+	public static function is_deuterocanonical( $book_id ) {
+		$book_id = (int) $book_id;
+		return $book_id >= 67 && $book_id <= self::MAX_BOOK_ID;
+	}
+
+	/**
+	 * Display sort key so deuterocanonical books appear in Catholic/Orthodox OT order.
+	 *
+	 * @param int $book_id Book ID.
+	 * @return int
+	 */
+	public static function get_display_sort( $book_id ) {
+		$book_id = (int) $book_id;
+		$map     = array(
+			1  => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5, 6 => 6, 7 => 7, 8 => 8,
+			9  => 9, 10 => 10, 11 => 11, 12 => 12, 13 => 13, 14 => 14, 15 => 15,
+			74 => 16, // 1 Esdras (after Ezra in many Orthodox lists)
+			16 => 17, // Nehemiah
+			67 => 18, // Tobit
+			68 => 19, // Judith
+			17 => 20, // Esther
+			80 => 21, // Esther (Greek)
+			18 => 22, 19 => 23, 20 => 24, 21 => 25, 22 => 26,
+			69 => 27, // Wisdom
+			70 => 28, // Sirach
+			23 => 29, 24 => 30, 25 => 31,
+			71 => 32, // Baruch
+			84 => 33, // Letter of Jeremiah
+			26 => 34, // Ezekiel
+			27 => 35, // Daniel
+			81 => 36, // Daniel (Greek)
+			85 => 37, // Song of the Three
+			82 => 38, // Susanna
+			83 => 39, // Bel and the Dragon
+			28 => 40, 29 => 41, 30 => 42, 31 => 43, 32 => 44, 33 => 45, 34 => 46,
+			35 => 47, 36 => 48, 37 => 49, 38 => 50, 39 => 51,
+			72 => 52, // 1 Maccabees
+			73 => 53, // 2 Maccabees
+			78 => 54, // 3 Maccabees
+			79 => 55, // 4 Maccabees
+			75 => 56, // 2 Esdras
+			76 => 57, // Prayer of Manasseh
+			77 => 58, // Psalm 151
+			40 => 59, 41 => 60, 42 => 61, 43 => 62, 44 => 63, 45 => 64, 46 => 65,
+			47 => 66, 48 => 67, 49 => 68, 50 => 69, 51 => 70, 52 => 71, 53 => 72,
+			54 => 73, 55 => 74, 56 => 75, 57 => 76, 58 => 77, 59 => 78, 60 => 79,
+			61 => 80, 62 => 81, 63 => 82, 64 => 83, 65 => 84, 66 => 85,
+		);
+
+		return isset( $map[ $book_id ] ) ? (int) $map[ $book_id ] : ( 1000 + $book_id );
+	}
+
+	/**
 	 * USFM book ID for Hello AO and other API providers (GEN, 1JN, etc.).
 	 *
-	 * @param int $book_id Book ID (1–66).
+	 * @param int $book_id Book ID (1–85).
 	 * @return string Empty when unknown.
 	 */
 	public static function get_usfm( $book_id ) {
@@ -112,6 +175,11 @@ class HWBL_Books {
 			56 => 'TIT', 57 => 'PHM', 58 => 'HEB', 59 => 'JAS', 60 => '1PE',
 			61 => '2PE', 62 => '1JN', 63 => '2JN', 64 => '3JN', 65 => 'JUD',
 			66 => 'REV',
+			67 => 'TOB', 68 => 'JDT', 69 => 'WIS', 70 => 'SIR', 71 => 'BAR',
+			72 => '1MA', 73 => '2MA',
+			74 => '1ES', 75 => '2ES', 76 => 'MAN', 77 => 'PS2', 78 => '3MA',
+			79 => '4MA', 80 => 'ESG', 81 => 'DAG', 82 => 'SUS', 83 => 'BEL',
+			84 => 'LJE', 85 => 'S3Y',
 		);
 
 		$book_id = (int) $book_id;
@@ -138,12 +206,32 @@ class HWBL_Books {
 		}
 
 		$aliases = array(
-			'JN' => 43,
-			'MK' => 41,
-			'MT' => 40,
-			'LK' => 42,
-			'PS' => 19,
-			'SOS' => 22,
+			'JN'   => 43,
+			'MK'   => 41,
+			'MT'   => 40,
+			'LK'   => 42,
+			'PS'   => 19,
+			'SOS'  => 22,
+			'WIS'  => 69,
+			'SIR'  => 70,
+			'ECCL' => 70,
+			'TOB'  => 67,
+			'JDT'  => 68,
+			'BAR'  => 71,
+			'1MA'  => 72,
+			'2MA'  => 73,
+			'1ES'  => 74,
+			'2ES'  => 75,
+			'MAN'  => 76,
+			'PS2'  => 77,
+			'3MA'  => 78,
+			'4MA'  => 79,
+			'ESG'  => 80,
+			'DAG'  => 81,
+			'SUS'  => 82,
+			'BEL'  => 83,
+			'LJE'  => 84,
+			'S3Y'  => 85,
 		);
 
 		return isset( $aliases[ $usfm ] ) ? (int) $aliases[ $usfm ] : 0;
@@ -201,13 +289,33 @@ class HWBL_Books {
 	}
 
 	/**
+	 * Normalize typed/pasted references before parsing.
+	 *
+	 * @param string $text Raw reference.
+	 * @return string
+	 */
+	public static function normalize_reference_text( $text ) {
+		$text = (string) $text;
+		// Unicode dashes → ASCII hyphen; uncommon colons → ":".
+		$text = preg_replace( '/[\x{2010}-\x{2015}\x{2212}]/u', '-', $text );
+		$text = preg_replace( '/[\x{FF1A}\x{2236}\x{FE55}]/u', ':', $text );
+		$text = preg_replace( '/[\x{00A0}\x{202F}\x{2007}]/u', ' ', $text );
+		$text = trim( preg_replace( '/\s+/u', ' ', $text ) );
+		// Trailing sentence punctuation from pasted phrases.
+		$text = preg_replace( '/[.,;:!?"\'\x{2019}\x{201D}]+$/u', '', $text );
+		$text = trim( (string) $text );
+		$text = preg_replace( '/^(go to|jump to|open)\s+/iu', '', $text );
+		return trim( (string) $text );
+	}
+
+	/**
 	 * Parse a human reference like "John 3:16" or "Genesis 3".
 	 *
 	 * @param string $text Reference text.
 	 * @return array{book_id:int,chapter:int,verse:int,verse_end:int,reference:string}|null
 	 */
 	public static function parse_reference( $text ) {
-		$text = trim( preg_replace( '/\s+/', ' ', (string) $text ) );
+		$text = self::normalize_reference_text( $text );
 		if ( '' === $text ) {
 			return null;
 		}
@@ -302,6 +410,36 @@ class HWBL_Books {
 			'1 pet' => 60, '1pe' => 60, '2 pet' => 61, '2pe' => 61,
 			'1 jn' => 62, '1 john' => 62, '1jn' => 62, '2 jn' => 63, '2jn' => 63,
 			'3 jn' => 64, '3jn' => 64, 'jud' => 65, 'rev' => 66, 'revelation' => 66,
+			// Roman-numeral / alternate spellings used by scrollmapper Catholic texts.
+			'i samuel' => 9, 'ii samuel' => 10, 'i kings' => 11, 'ii kings' => 12,
+			'i chronicles' => 13, 'ii chronicles' => 14,
+			'i corinthians' => 46, 'ii corinthians' => 47,
+			'i thessalonians' => 52, 'ii thessalonians' => 53,
+			'i timothy' => 54, 'ii timothy' => 55,
+			'i peter' => 60, 'ii peter' => 61,
+			'i john' => 62, 'ii john' => 63, 'iii john' => 64,
+			'revelation of john' => 66, 'apocalypse' => 66,
+			// Deuterocanonical (Catholic).
+			'tobit' => 67, 'tob' => 67, 'judith' => 68, 'jdt' => 68,
+			'wisdom' => 69, 'wis' => 69, 'wisdom of solomon' => 69,
+			'sirach' => 70, 'sir' => 70, 'ecclesiasticus' => 70,
+			'baruch' => 71, 'bar' => 71,
+			'1 maccabees' => 72, '1 mac' => 72, '1maccabees' => 72, '1ma' => 72,
+			'i maccabees' => 72, 'i mac' => 72,
+			'2 maccabees' => 73, '2 mac' => 73, '2maccabees' => 73, '2ma' => 73,
+			'ii maccabees' => 73, 'ii mac' => 73,
+			// Orthodox / broader Apocrypha.
+			'1 esdras' => 74, 'i esdras' => 74, '1esdras' => 74, '1es' => 74,
+			'2 esdras' => 75, 'ii esdras' => 75, '2esdras' => 75, '2es' => 75,
+			'prayer of manasseh' => 76, 'prayer of manasses' => 76, 'manasseh' => 76, 'man' => 76,
+			'psalm 151' => 77, 'additional psalm' => 77,
+			'3 maccabees' => 78, 'iii maccabees' => 78, '3 mac' => 78, '3ma' => 78,
+			'4 maccabees' => 79, 'iv maccabees' => 79, '4 mac' => 79, '4ma' => 79,
+			'esther (greek)' => 80, 'greek esther' => 80, 'additions to esther' => 80,
+			'daniel (greek)' => 81, 'greek daniel' => 81, 'additions to daniel' => 81,
+			'susanna' => 82, 'bel and the dragon' => 83, 'bel' => 83,
+			'letter of jeremiah' => 84, 'epistle of jeremiah' => 84,
+			'song of the three' => 85, 'song of the three children' => 85, 'song of the three young men' => 85,
 		);
 	}
 }

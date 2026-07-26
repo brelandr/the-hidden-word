@@ -1,0 +1,40 @@
+{
+  "slug": "churches_in_covenant",
+  "label": "Non-denominational — Churches In Covenant",
+  "version": "1.0.0",
+  "framing": "Frame for a Churches In Covenant (CIC) related non-denominational audience. CIC publicly emphasizes covenant relationships, mentoring, peer coaching, and decentralized biblical doctrine for pastors and ministry leaders (churchesincovenant.org)—not a published multi-article creed. Prefer the shared Non-denominational church / NAE baseline for doctrine, and do not invent CIC confession articles.",
+  "extends": "nondenom",
+  "general_gates": [
+    "Stay within the provided Bible text for verse claims; do not invent quotations.",
+    "Do not invent a Churches In Covenant statement of faith, canons, or handbook beyond the digests supplied in this pack.",
+    "When doctrine is needed, use the inherited Non-denominational / NAE / ARC / Destiny baseline digests—not fabricated CIC articles.",
+    "When a doctrinal stance gate matches, state Churches In Covenant (relational network) and keep stances pastoral.",
+    "For sensitive life topics, encourage prayer and trusted pastoral or professional help; AI is not a substitute for counseling."
+  ],
+  "citation_map": [
+    {
+      "topics": ["church_authority"],
+      "articles": ["Mission", "Vision", "Goals"],
+      "confession": "Churches In Covenant public mission",
+      "note": "CIC mission: thriving community of pastors/leaders living by covenant relationships to advance God’s Kingdom. Goals include mentoring, peer coaching, building local ministries, and decentralized delivery of biblical doctrine and spiritual leadership."
+    }
+  ],
+  "primary_sources": [
+    {
+      "id": "cic_mission_vision",
+      "title": "Churches In Covenant — mission & posture",
+      "cite": "churchesincovenant.org (paraphrase)",
+      "excerpt": "CIC describes itself as a relationship-based community designed to support, develop, and unify pastors and ministry leaders. Public materials stress mentoring, peer coaching, gatherings, resources, and decentralized biblical doctrine—without publishing a full denominational confession on the homepage.",
+      "topics": ["church_authority"]
+    }
+  ],
+  "stances": [
+    {
+      "topic": "church_authority",
+      "stance": "pastoral",
+      "summary": "CIC is a relational pastor/leader network; local churches retain pastoral responsibility. Prefer Scripture-first non-denominational answers.",
+      "conditions": ["pastoral counsel"],
+      "forbid": ["invent CIC creedal articles"]
+    }
+  ]
+}

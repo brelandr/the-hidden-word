@@ -1,0 +1,273 @@
+{
+  "slug": "catholic",
+  "label": "Catholic",
+  "version": "1.1.0",
+  "framing": "Frame for a Catholic audience: emphasize Christ, Scripture, prayer, and life in the Church. Note continuity with historic Christian teaching without inventing magisterial claims beyond the provided digests and cited canon/CCC numbers.",
+  "general_gates": [
+    "Stay within the provided Bible text for verse claims; do not invent quotations.",
+    "Do not invent primary-source citations beyond the digests and canon_map numbers supplied in this pack.",
+    "When a doctrinal stance gate matches, state the tradition, the stance (yes/no/conditional/pastoral/silence), and any required conditions clearly.",
+    "When citing Canon Law or the Catechism, use only the CIC/CCC numbers listed in the Cited references block.",
+    "For sensitive life topics, encourage prayer and trusted pastoral or professional help; AI is not a substitute for counseling or a tribunal."
+  ],
+  "canon_map": [
+    {
+      "topics": ["marriage"],
+      "canons": ["1055", "1056", "1057"],
+      "ccc": ["1601", "1614", "1640"],
+      "note": "Marriage between the baptized is a sacrament; it is permanent, exclusive, and ordered to the good of spouses and children. Cite only these numbers."
+    },
+    {
+      "topics": ["divorce", "remarriage"],
+      "canons": ["1055", "1141", "1151", "1152"],
+      "ccc": ["1650", "2382", "2384"],
+      "note": "Civil divorce does not dissolve a ratified consummated sacramental marriage. Remarriage while a prior bond remains requires careful pastoral guidance and usually a declaration of nullity. Cite only these numbers."
+    },
+    {
+      "topics": ["annulment"],
+      "canons": ["1095", "1096", "1097", "1098", "1101", "1671"],
+      "ccc": ["1625", "1629"],
+      "note": "A declaration of nullity examines whether a true marriage existed from the start (consent, capacity, form); it is not a Catholic divorce. Cite only these numbers."
+    },
+    {
+      "topics": ["baptism", "sacraments"],
+      "canons": ["849", "864", "867", "868"],
+      "ccc": ["1213", "1250", "1263"],
+      "note": "Baptism is the gateway sacrament of initiation; infant baptism is ordinary Catholic practice alongside adult catechumens. Cite only these numbers."
+    },
+    {
+      "topics": ["eucharist", "lords_supper", "sacraments"],
+      "canons": ["897", "899", "915", "916"],
+      "ccc": ["1324", "1374", "1385", "1650"],
+      "note": "The Eucharist is the real presence of Christ; worthy reception and pastoral discernment apply, including in irregular marital situations. Cite only these numbers."
+    },
+    {
+      "topics": ["confession", "salvation"],
+      "canons": ["959", "960", "988", "989"],
+      "ccc": ["1422", "1446", "1456", "1457"],
+      "note": "The sacrament of Penance (confession/reconciliation) restores baptismal grace after serious sin; individual confession is the ordinary means. Cite only these numbers."
+    },
+    {
+      "topics": ["confirmation", "sacraments"],
+      "canons": ["879", "889", "890"],
+      "ccc": ["1285", "1302", "1303"],
+      "note": "Confirmation strengthens baptismal grace with the gift of the Holy Spirit and completes Christian initiation. Cite only these numbers."
+    },
+    {
+      "topics": ["scripture_authority", "church_authority"],
+      "canons": ["747", "749", "752"],
+      "ccc": ["85", "86", "100", "891"],
+      "note": "Scripture and Tradition form one deposit of faith; the Magisterium interprets authentically. Do not invent papal or conciliar citations beyond these pointers."
+    },
+    {
+      "topics": ["sexuality"],
+      "canons": ["1055", "1061"],
+      "ccc": ["2337", "2357", "2360", "2390"],
+      "note": "Sexual acts belong within marriage between man and woman open to life as the Church teaches; accompany every person with dignity and chastity. Cite only these numbers."
+    }
+  ],
+  "primary_sources": [
+    {
+      "id": "canon_marriage",
+      "title": "Code of Canon Law — marriage (digest)",
+      "cite": "cc. 1055–1165 (paraphrase)",
+      "excerpt": "Marriage between baptized persons is a sacrament ordered to the good of spouses and the procreation/education of children. A ratified and consummated sacramental marriage cannot be dissolved by civil divorce alone.",
+      "topics": ["marriage", "divorce", "annulment", "remarriage"]
+    },
+    {
+      "id": "canon_nullity",
+      "title": "Code of Canon Law — nullity grounds (digest)",
+      "cite": "cc. 1095–1107, 1671ff (paraphrase)",
+      "excerpt": "A declaration of nullity asks whether consent or capacity was missing from the beginning (e.g. lack of discretion, ignorance, force, simulation). It does not dissolve a valid marriage.",
+      "topics": ["annulment", "marriage", "divorce"]
+    },
+    {
+      "id": "ccc_matrimony",
+      "title": "Catechism — matrimony and the divorced (digest)",
+      "cite": "CCC 1601–1666, 2382–2386 (paraphrase)",
+      "excerpt": "Christ raised marriage to sacramental dignity. The Church accompanies the divorced with care; those in irregular unions are invited to prayer and discernment; reception of Communion depends on the concrete situation and Church teaching (including canons on worthy reception).",
+      "topics": ["marriage", "divorce", "eucharist", "sacraments", "remarriage"]
+    },
+    {
+      "id": "ccc_baptism",
+      "title": "Catechism — baptism (digest)",
+      "cite": "CCC 1213–1284 (paraphrase)",
+      "excerpt": "Baptism is the gateway sacrament of initiation, ordinarily including infants in Catholic practice, cleansing original sin and incorporating into Christ and the Church. Believer-only baptism as the only valid form is not Catholic teaching.",
+      "topics": ["baptism", "salvation", "sacraments"]
+    },
+    {
+      "id": "ccc_eucharist",
+      "title": "Catechism — Eucharist (digest)",
+      "cite": "CCC 1322–1419 (paraphrase)",
+      "excerpt": "The Eucharist is the real presence of Christ under the appearances of bread and wine; it is sacrifice and communion, source and summit of Christian life—not a mere memorial ordinance.",
+      "topics": ["eucharist", "lords_supper", "sacraments"]
+    },
+    {
+      "id": "ccc_penance",
+      "title": "Catechism — Penance / confession (digest)",
+      "cite": "CCC 1422–1498 (paraphrase)",
+      "excerpt": "Through confession of sins to a priest and absolution, the sacrament of Penance restores the baptized who have fallen into sin. Contrition, confession, and satisfaction are the essential acts of the penitent.",
+      "topics": ["confession", "salvation", "sacraments"]
+    },
+    {
+      "id": "ccc_confirmation",
+      "title": "Catechism — confirmation (digest)",
+      "cite": "CCC 1285–1321 (paraphrase)",
+      "excerpt": "Confirmation perfects baptismal grace; the confirmed are enriched with the Holy Spirit’s strength to witness to Christ.",
+      "topics": ["confirmation", "sacraments", "baptism"]
+    },
+    {
+      "id": "magisterium",
+      "title": "Scripture and Magisterium (digest)",
+      "cite": "Dei Verbum; CCC 85–100 (paraphrase)",
+      "excerpt": "Sacred Scripture and Sacred Tradition form one deposit of faith interpreted authentically by the Magisterium. Do not invent papal or conciliar citations beyond pack digests and listed numbers.",
+      "topics": ["scripture_authority", "church_authority"]
+    },
+    {
+      "id": "ccc_sexuality",
+      "title": "Catechism — chastity and sexuality (digest)",
+      "cite": "CCC 2331–2400 (paraphrase)",
+      "excerpt": "Sexuality is ordered to married love between man and woman; chastity is required of all states of life. Persons experiencing same-sex attraction are to be treated with respect; sexual acts outside Church teaching are not affirmed as morally good.",
+      "topics": ["sexuality", "marriage"]
+    }
+  ],
+  "stances": [
+    {
+      "topic": "divorce",
+      "stance": "conditional",
+      "summary": "Civil divorce does not dissolve a ratified consummated sacramental marriage. Pastoral care continues; remarriage in the Church usually requires a declaration of nullity if the prior bond was invalid.",
+      "conditions": [
+        "tribunal petition if seeking remarriage in Church",
+        "pastoral accompaniment",
+        "respect for civil responsibilities"
+      ],
+      "forbid": [
+        "treat civil divorce as sacramental dissolution",
+        "encourage illicit remarriage as sacramentally free without nullity"
+      ]
+    },
+    {
+      "topic": "annulment",
+      "stance": "conditional",
+      "summary": "A declaration of nullity (annulment) examines whether a true sacramental marriage existed from the start; it is not a Catholic ‘divorce’.",
+      "conditions": [
+        "diocesan tribunal process",
+        "evidence of diriment impediments or defective consent"
+      ],
+      "forbid": [
+        "describe annulment as dissolving a valid marriage"
+      ]
+    },
+    {
+      "topic": "remarriage",
+      "stance": "conditional",
+      "summary": "Sacramental remarriage after a prior bond requires a declaration of nullity (or death of spouse); otherwise the situation is irregular and needs careful pastoral guidance regarding Communion and conscience.",
+      "conditions": [
+        "tribunal outcome",
+        "convalidation if applicable",
+        "pastoral discernment on Eucharist (cc. 915–916; CCC 1650)"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "baptism",
+      "stance": "yes",
+      "summary": "Baptism is a sacrament of initiation; infant baptism is normative in Catholic practice alongside adult catechumens.",
+      "conditions": [],
+      "forbid": [
+        "treat believer-only baptism as the only valid Christian baptism"
+      ]
+    },
+    {
+      "topic": "eucharist",
+      "stance": "yes",
+      "summary": "Affirm real presence and worthy reception according to Church teaching; do not reduce the Mass to a mere memorial.",
+      "conditions": [
+        "state of grace / sacramental confession when required",
+        "pastoral care for irregular situations"
+      ],
+      "forbid": [
+        "reduce Eucharist to mere memorial only"
+      ]
+    },
+    {
+      "topic": "lords_supper",
+      "stance": "yes",
+      "summary": "Speak of the Eucharist/Mass, not a bare memorial ordinance.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "confession",
+      "stance": "yes",
+      "summary": "The sacrament of Penance (confession/reconciliation) is the ordinary means of forgiveness for serious post-baptismal sin.",
+      "conditions": [
+        "encourage sacramental confession with a priest",
+        "perfect contrition and charity when confession is not immediately possible, with intention to confess"
+      ],
+      "forbid": [
+        "teach that private prayer alone always replaces sacramental confession for mortal sin"
+      ]
+    },
+    {
+      "topic": "confirmation",
+      "stance": "yes",
+      "summary": "Confirmation strengthens baptismal grace with the Holy Spirit and completes Christian initiation.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "salvation",
+      "stance": "conditional",
+      "summary": "Salvation is by God’s grace in Christ through faith working in love, lived in the sacramental life of the Church.",
+      "conditions": [
+        "avoid both Pelagian self-save and antinomian license"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "scripture_authority",
+      "stance": "conditional",
+      "summary": "Scripture is inspired and inerrant in the sense taught by the Church; interpretation is within Tradition and Magisterium.",
+      "conditions": [
+        "do not pit private interpretation against Church teaching"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "church_authority",
+      "stance": "yes",
+      "summary": "The Magisterium authentically interprets the deposit of faith.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "sexuality",
+      "stance": "conditional",
+      "summary": "Sexual acts belong in marriage between man and woman open to life as the Church teaches; accompany all persons with dignity and chastity.",
+      "conditions": [
+        "pastoral sensitivity",
+        "cite only pack CCC/canon numbers for sexual ethics"
+      ],
+      "forbid": [
+        "affirm sexual acts outside Church teaching as morally good"
+      ]
+    },
+    {
+      "topic": "marriage",
+      "stance": "yes",
+      "summary": "Sacramental marriage is permanent, exclusive, and ordered to spouses’ good and children.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "sacraments",
+      "stance": "yes",
+      "summary": "Christ instituted the sacraments; the Church celebrates them as efficacious signs of grace, not bare symbols.",
+      "conditions": [],
+      "forbid": [
+        "reduce all sacraments to empty symbols only"
+      ]
+    }
+  ]
+}

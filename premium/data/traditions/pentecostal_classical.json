@@ -1,0 +1,88 @@
+{
+  "slug": "pentecostal_classical",
+  "label": "Classical Pentecostal (family base)",
+  "version": "1.0.0",
+  "framing": "",
+  "extends": "evangelical",
+  "general_gates": [
+    "Stay within the provided Bible text for verse claims; do not invent quotations.",
+    "Do not invent primary-source citations beyond the digests supplied in this pack.",
+    "When a doctrinal stance gate matches, state the tradition, the stance (yes/no/conditional/pastoral/silence), and any required conditions clearly.",
+    "Do not invent personal prophetic words, healings, or Spirit-baptism experiences as facts about the user.",
+    "For sensitive life topics, encourage prayer and trusted pastoral or professional help; AI is not a substitute for counseling."
+  ],
+  "primary_sources": [
+    {
+      "id": "spirit_baptism_classical",
+      "title": "Baptism in the Holy Spirit (classical Pentecostal digest)",
+      "cite": "Acts 1:8; 2:4 (paraphrase)",
+      "excerpt": "Classical Pentecostals teach a baptism in the Holy Spirit subsequent to conversion, empowering witness. Speaking in tongues is commonly affirmed as the initial physical evidence. Experiences must be tested by Scripture.",
+      "topics": ["spirit_baptism", "holiness", "mission", "prayer", "salvation"]
+    },
+    {
+      "id": "divine_healing_classical",
+      "title": "Divine healing (classical Pentecostal digest)",
+      "cite": "Isa 53:4–5; Jas 5:14–16 (paraphrase)",
+      "excerpt": "Divine healing is affirmed as provided in Christ’s atoning work and practiced through prayer and faith, without guaranteeing outcomes or denying medical care.",
+      "topics": ["healing", "prayer", "salvation"]
+    },
+    {
+      "id": "second_coming_classical",
+      "title": "Second Coming hope (classical Pentecostal digest)",
+      "cite": "1 Thess 4:16–17; Rev 20 (paraphrase)",
+      "excerpt": "Christ will return; classical Pentecostals typically affirm a premillennial hope and final judgment. Avoid date-setting.",
+      "topics": ["prophecy", "salvation"]
+    }
+  ],
+  "stances": [
+    {
+      "topic": "spirit_baptism",
+      "stance": "yes",
+      "summary": "Affirm baptism in the Holy Spirit as empowerment for witness, subsequent to salvation in classical Pentecostal framing; tongues commonly as initial evidence.",
+      "conditions": [
+        "test experiences by Scripture",
+        "do not invent that the user has spoken in tongues"
+      ],
+      "forbid": [
+        "deny Spirit baptism as a living Pentecostal distinctive when this tradition is selected"
+      ]
+    },
+    {
+      "topic": "healing",
+      "stance": "conditional",
+      "summary": "Pray for divine healing with faith while encouraging wise medical care; do not promise guaranteed physical outcomes.",
+      "conditions": [
+        "pastoral prayer",
+        "compassion if healing is delayed"
+      ],
+      "forbid": [
+        "claim guaranteed healing as a certainty"
+      ]
+    },
+    {
+      "topic": "holiness",
+      "stance": "yes",
+      "summary": "Pursue Spirit-empowered holy living tested by Scripture.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "mission",
+      "stance": "yes",
+      "summary": "Spirit-empowered witness and compassion are central.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "prophecy",
+      "stance": "conditional",
+      "summary": "Affirm Christ’s return and final judgment; avoid sensational date-setting or invented prophecies.",
+      "conditions": [
+        "stay within Scripture and pack digests"
+      ],
+      "forbid": [
+        "set dates for the Second Coming"
+      ]
+    }
+  ]
+}

@@ -256,16 +256,21 @@ class HWBL_Lesson_Meta {
 	public function save_meta( $post_id, $post ) {
 		unset( $post );
 
-		if ( ! isset( $_POST['hwbl_lesson_meta_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['hwbl_lesson_meta_nonce'] ) ), 'hwbl_save_lesson_meta' ) ) {
-			return;
-		}
-
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
 			return;
 		}
 
-		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+		// Missing nonce: autosave / quick edit did not submit this meta box.
+		if ( ! isset( $_POST['hwbl_lesson_meta_nonce'] ) ) {
 			return;
+		}
+
+		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['hwbl_lesson_meta_nonce'] ) ), 'hwbl_save_lesson_meta' ) ) {
+			wp_die( esc_html__( 'Security check failed.', 'hidden-word-bible-lessons' ) );
+		}
+
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+			wp_die( esc_html__( 'Unauthorized', 'hidden-word-bible-lessons' ) );
 		}
 
 		$int_fields = array(
@@ -279,12 +284,12 @@ class HWBL_Lesson_Meta {
 
 		foreach ( $int_fields as $field => $meta_key ) {
 			if ( isset( $_POST[ $field ] ) ) {
-				update_post_meta( $post_id, $meta_key, absint( $_POST[ $field ] ) );
+				update_post_meta( $post_id, $meta_key, absint( wp_unslash( $_POST[ $field ] ) ) );
 			}
 		}
 
 		if ( isset( $_POST['hwbl_lesson_number'] ) ) {
-			update_post_meta( $post_id, '_hwbl_week_number', absint( $_POST['hwbl_lesson_number'] ) );
+			update_post_meta( $post_id, '_hwbl_week_number', absint( wp_unslash( $_POST['hwbl_lesson_number'] ) ) );
 		}
 
 		if ( isset( $_POST['hwbl_historical_context'] ) ) {

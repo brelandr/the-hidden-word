@@ -1,0 +1,58 @@
+.hwbl-local-bibles .hwbl-local-bibles-warning {
+	margin: 12px 0 16px;
+	max-width: 860px;
+}
+
+.hwbl-local-bibles .hwbl-local-language-filter {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin: 16px 0 8px;
+}
+
+.hwbl-local-bibles .hwbl-local-language-filter label {
+	font-weight: 600;
+}
+
+.hwbl-local-bibles .hwbl-local-language-filter select {
+	min-width: 220px;
+}
+
+.hwbl-local-bibles .hwbl-local-filter-empty {
+	margin: 0 0 12px;
+}
+
+.hwbl-local-bibles-table .check-column {
+	width: 2.2em;
+	padding: 10px 0 10px 8px;
+}
+
+.hwbl-local-bibles-table .description {
+	margin: 4px 0 0;
+}
+
+.hwbl-local-progress {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-top: 6px;
+}
+
+.hwbl-local-progress progress {
+	width: 140px;
+	height: 10px;
+}
+
+.hwbl-local-percent {
+	font-variant-numeric: tabular-nums;
+	color: #555;
+}
+
+.hwbl-local-error {
+	color: #b32d2e;
+	margin: 6px 0 0;
+}
+
+.hwbl-local-actions .button {
+	margin: 0 4px 4px 0;
+}

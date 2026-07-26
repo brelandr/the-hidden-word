@@ -1,0 +1,216 @@
+{
+  "slug": "baptist",
+  "label": "Baptist (general)",
+  "version": "1.1.0",
+  "framing": "Frame for a Baptist audience (non-SBC): Scripture, personal faith in Christ, believer’s baptism, congregational polity, and evangelism. Prefer New Hampshire Baptist Confession (1833) or 1689 London Baptist Confession identifiers—not BF&M unless the SBC pack is selected. Do not invent confession dumps.",
+  "extends": "evangelical",
+  "general_gates": [
+    "Stay within the provided Bible text for verse claims; do not invent quotations.",
+    "Do not invent primary-source citations beyond the digests and Baptist confession identifiers supplied in this pack.",
+    "When citing Baptist doctrine for this general pack, prefer New Hampshire Baptist Confession or 1689 London Baptist Confession Art. numbers—not BF&M (use the SBC pack for BF&M).",
+    "When a doctrinal stance gate matches, state the tradition, the stance (yes/no/conditional/pastoral/silence), and any required conditions clearly.",
+    "For sensitive life topics, encourage prayer and trusted pastoral or professional help; AI is not a substitute for counseling."
+  ],
+  "citation_map": [
+    {
+      "topics": [
+        "scripture_authority"
+      ],
+      "articles": [
+        "1"
+      ],
+      "confession": "New Hampshire Baptist Confession",
+      "note": "Of the Scriptures — Bible as inspired and sufficient rule of faith. Cite Art. 1 (1833). Reformed Baptists may also cite 1689 LBC ch. 1."
+    },
+    {
+      "topics": [
+        "salvation"
+      ],
+      "articles": [
+        "4",
+        "5",
+        "6"
+      ],
+      "confession": "New Hampshire Baptist Confession",
+      "note": "Fall of Man; Way of Salvation; Justification by grace through faith. Cite Arts. 4–6."
+    },
+    {
+      "topics": [
+        "baptism",
+        "lords_supper",
+        "eucharist",
+        "sacraments"
+      ],
+      "articles": [
+        "14",
+        "15"
+      ],
+      "confession": "New Hampshire Baptist Confession",
+      "note": "Baptism and the Lord’s Supper as ordinances. Believer’s immersion is Baptist practice. Cite Arts. 14–15."
+    },
+    {
+      "topics": [
+        "church_authority"
+      ],
+      "articles": [
+        "13"
+      ],
+      "confession": "New Hampshire Baptist Confession",
+      "note": "Of a Gospel Church — congregational. Cite Art. 13."
+    },
+    {
+      "topics": [
+        "marriage",
+        "divorce",
+        "remarriage",
+        "sexuality"
+      ],
+      "articles": [
+        "16"
+      ],
+      "confession": "1689 London Baptist Confession",
+      "note": "Of Marriage — lifelong covenant; pastoral care for divorce/remarriage. Cite 1689 LBC ch. 25 (often numbered in editions) / marriage teaching—paraphrase only."
+    },
+    {
+      "topics": [
+        "holiness",
+        "sanctification"
+      ],
+      "articles": [
+        "8",
+        "9"
+      ],
+      "confession": "New Hampshire Baptist Confession",
+      "note": "Repentance and Sanctification. Cite Arts. 8–9."
+    }
+  ],
+  "primary_sources": [
+    {
+      "id": "baptist_scripture",
+      "title": "Baptist confessions — Scripture (digest)",
+      "cite": "New Hampshire Baptist Confession Art. 1 (paraphrase)",
+      "excerpt": "The Holy Bible is the only sufficient, certain, and authoritative rule of faith and practice. Historic Baptists also treasure the 1689 London Baptist Confession for Reformed Baptist congregations.",
+      "topics": [
+        "scripture_authority"
+      ]
+    },
+    {
+      "id": "baptist_salvation",
+      "title": "Baptist confessions — salvation (digest)",
+      "cite": "New Hampshire Baptist Confession Arts. 4–6 (paraphrase)",
+      "excerpt": "Salvation is by grace through faith in Jesus Christ—personal conversion, not inherited church membership.",
+      "topics": [
+        "salvation"
+      ]
+    },
+    {
+      "id": "baptist_ordinances",
+      "title": "Baptist confessions — baptism & Lord’s Supper (digest)",
+      "cite": "New Hampshire Baptist Confession Arts. 14–15 (paraphrase)",
+      "excerpt": "Believer’s baptism by immersion and the Lord’s Supper are gospel ordinances of the local church—not a priestly sacramental system.",
+      "topics": [
+        "baptism",
+        "lords_supper",
+        "eucharist",
+        "sacraments"
+      ]
+    },
+    {
+      "id": "baptist_church",
+      "title": "Baptist confessions — local church (digest)",
+      "cite": "New Hampshire Baptist Confession Art. 13 (paraphrase)",
+      "excerpt": "A gospel church is a local congregation of baptized believers under Christ’s lordship with congregational responsibility.",
+      "topics": [
+        "church_authority",
+        "mission"
+      ]
+    }
+  ],
+  "stances": [
+    {
+      "topic": "scripture_authority",
+      "stance": "yes",
+      "summary": "Bible as sufficient rule of faith (NH Art. 1 / 1689 LBC ch. 1).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "baptism",
+      "stance": "yes",
+      "summary": "Believer’s baptism by immersion (NH Art. 14).",
+      "conditions": [
+        "personal faith"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "lords_supper",
+      "stance": "yes",
+      "summary": "Lord’s Supper as ordinance (NH Art. 15).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "eucharist",
+      "stance": "yes",
+      "summary": "Speak as Lord’s Supper/ordinance, not Mass.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "salvation",
+      "stance": "yes",
+      "summary": "Grace through faith in Christ (NH Arts. 4–6).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "church_authority",
+      "stance": "yes",
+      "summary": "Congregational local church (NH Art. 13).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "marriage",
+      "stance": "yes",
+      "summary": "Marriage as lifelong covenant under Scripture.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "divorce",
+      "stance": "conditional",
+      "summary": "Serious under biblical teaching; pastoral counsel.",
+      "conditions": [
+        "pastoral counsel"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "annulment",
+      "stance": "silence",
+      "summary": "Not a Baptist tribunal category.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "remarriage",
+      "stance": "conditional",
+      "summary": "Follow Scripture and congregational counsel.",
+      "conditions": [
+        "pastoral guidance"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "sexuality",
+      "stance": "conditional",
+      "summary": "Sexual ethics per Scripture; compassion.",
+      "conditions": [
+        "compassion"
+      ],
+      "forbid": []
+    }
+  ]
+}

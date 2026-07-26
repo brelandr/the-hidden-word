@@ -71,11 +71,11 @@ class HWBL_Curriculum_Test extends TestCase {
 	}
 
 	/**
-	 * Books JSON has 66 entries.
+	 * Books JSON has Protestant + deuterocanon/apocrypha entries.
 	 */
 	public function test_books_count() {
 		$books = HWBL_Books::get_all();
-		$this->assertCount( 66, $books );
+		$this->assertCount( 85, $books );
 	}
 
 	/**

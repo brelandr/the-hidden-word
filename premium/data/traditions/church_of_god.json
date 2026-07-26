@@ -1,0 +1,114 @@
+{
+  "slug": "church_of_god",
+  "label": "Church of God (Cleveland, TN)",
+  "version": "1.0.0",
+  "framing": "Frame for a Church of God (Cleveland, TN) audience using the Declaration of Faith: Trinitarian classical Pentecostal with Holiness roots—sanctification subsequent to the new birth, baptism in the Holy Ghost subsequent to a clean heart, tongues as initial evidence, and divine healing. Avoid inventing experiences.",
+  "extends": "pentecostal_classical",
+  "general_gates": [
+    "Stay within the provided Bible text for verse claims; do not invent quotations.",
+    "Do not invent primary-source citations beyond the digests and Declaration of Faith pointers in this pack.",
+    "When citing Church of God doctrine, use only the Declaration of Faith items listed in the Cited references block.",
+    "Keep Trinitarian framing; water baptism is in the name of the Father, Son, and Holy Ghost.",
+    "Do not invent personal prophetic words, healings, or Spirit-baptism experiences as facts about the user.",
+    "For sensitive life topics, encourage prayer and trusted pastoral or professional help; AI is not a substitute for counseling."
+  ],
+  "citation_map": [
+    {
+      "topics": ["scripture_authority"],
+      "articles": ["1"],
+      "confession": "COG Declaration of Faith",
+      "note": "Verbal inspiration of the Bible. Cite Declaration item 1."
+    },
+    {
+      "topics": ["salvation", "holiness"],
+      "articles": ["4", "5", "6", "7"],
+      "confession": "COG Declaration of Faith",
+      "note": "Repentance, justification/regeneration by faith, sanctification subsequent to the new birth, and holiness as God’s standard. Cite items 4–7."
+    },
+    {
+      "topics": ["spirit_baptism"],
+      "articles": ["8", "9"],
+      "confession": "COG Declaration of Faith",
+      "note": "Baptism with the Holy Ghost subsequent to a clean heart; speaking with other tongues as initial evidence. Cite items 8–9."
+    },
+    {
+      "topics": ["baptism", "lords_supper", "eucharist", "sacraments"],
+      "articles": ["10", "12"],
+      "confession": "COG Declaration of Faith",
+      "note": "Water baptism by immersion in the Triune name; Lord’s Supper and washing of the saints’ feet. Cite items 10 and 12."
+    },
+    {
+      "topics": ["healing"],
+      "articles": ["11"],
+      "confession": "COG Declaration of Faith",
+      "note": "Divine healing is provided for all in the atonement. Cite item 11."
+    },
+    {
+      "topics": ["prophecy"],
+      "articles": ["13", "14"],
+      "confession": "COG Declaration of Faith",
+      "note": "Premillennial second coming; bodily resurrection and eternal destinies. Cite items 13–14."
+    }
+  ],
+  "primary_sources": [
+    {
+      "id": "cog_declaration",
+      "title": "Church of God — Declaration of Faith (digest)",
+      "cite": "COG Declaration of Faith (paraphrase)",
+      "excerpt": "Fourteen concise statements: inspired Bible; Trinity; Christ; repentance and new birth; sanctification subsequent to the new birth; holiness; Spirit baptism subsequent to a clean heart with tongues as initial evidence; Triune water baptism; divine healing; Lord’s Supper and footwashing; premillennial return; resurrection and judgment.",
+      "topics": ["scripture_authority", "salvation", "holiness", "spirit_baptism", "baptism", "healing", "prophecy"]
+    },
+    {
+      "id": "cog_sanctification",
+      "title": "Church of God — sanctification (digest)",
+      "cite": "COG Declaration items 6–8 (paraphrase)",
+      "excerpt": "Sanctification is taught as subsequent to the new birth through faith in Christ’s blood, the Word, and the Holy Ghost. Holiness is God’s standard. Spirit baptism follows a clean heart.",
+      "topics": ["holiness", "sanctification", "spirit_baptism", "salvation"]
+    }
+  ],
+  "stances": [
+    {
+      "topic": "holiness",
+      "stance": "yes",
+      "summary": "Per the Declaration, sanctification is subsequent to the new birth; holiness is God’s standard for His people.",
+      "conditions": [],
+      "forbid": [
+        "collapse sanctification into conversion only when explaining COG doctrine"
+      ]
+    },
+    {
+      "topic": "sanctification",
+      "stance": "yes",
+      "summary": "Sanctification is a distinct work subsequent to the new birth in Church of God framing.",
+      "conditions": [
+        "faith in Christ’s blood, Word, and Spirit"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "spirit_baptism",
+      "stance": "yes",
+      "summary": "Spirit baptism is subsequent to a clean heart; tongues is the initial evidence.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "baptism",
+      "stance": "conditional",
+      "summary": "Water baptism by immersion in the name of the Father, Son, and Holy Ghost.",
+      "conditions": [
+        "repentance"
+      ],
+      "forbid": [
+        "teach Jesus’-name-only baptism as Church of God (Cleveland) doctrine"
+      ]
+    },
+    {
+      "topic": "healing",
+      "stance": "yes",
+      "summary": "Divine healing is provided in the atonement; pray with faith without guaranteeing outcomes.",
+      "conditions": [],
+      "forbid": []
+    }
+  ]
+}

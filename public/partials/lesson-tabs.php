@@ -45,9 +45,9 @@ $lesson_title = isset( $lesson['title'] ) ? (string) $lesson['title'] : '';
 		<?php foreach ( $tabs as $slug => $label ) : ?>
 			<button
 				type="button"
-				class="hwbl-tab-button<?php echo $first ? ' is-active' : ''; ?>"
+				class="<?php echo esc_attr( 'hwbl-tab-button' . ( $first ? ' is-active' : '' ) ); ?>"
 				role="tab"
-				aria-selected="<?php echo $first ? 'true' : 'false'; ?>"
+				aria-selected="<?php echo esc_attr( $first ? 'true' : 'false' ); ?>"
 				aria-controls="hwbl-panel-<?php echo esc_attr( $slug ); ?>-<?php echo esc_attr( $lesson_id ); ?>"
 				data-tab="<?php echo esc_attr( $slug ); ?>"
 			><?php echo esc_html( $label ); ?></button>
@@ -75,7 +75,23 @@ $lesson_title = isset( $lesson['title'] ) ? (string) $lesson['title'] : '';
 				<?php if ( is_user_logged_in() ) : ?>
 					<p class="hwbl-memorization-review-banner" data-lesson-id="<?php echo esc_attr( $lesson_id ); ?>" aria-live="polite" hidden></p>
 				<?php endif; ?>
-				<div class="hwbl-memorization" data-verse="<?php echo esc_attr( $verse_text ); ?>" data-lesson-id="<?php echo esc_attr( $lesson_id ); ?>">
+				<?php
+				$mem_book_id   = isset( $lesson['book_id'] ) ? (int) $lesson['book_id'] : 0;
+				$mem_chapter   = isset( $lesson['chapter'] ) ? (int) $lesson['chapter'] : 0;
+				$mem_verse     = isset( $lesson['verse_start'] ) ? (int) $lesson['verse_start'] : ( isset( $lesson['verse'] ) ? (int) $lesson['verse'] : 0 );
+				$mem_book_name = ( $mem_book_id && class_exists( 'HWBL_Books' ) ) ? HWBL_Books::get_name( $mem_book_id ) : '';
+				$mem_reference = ! empty( $lesson['reference'] ) ? (string) $lesson['reference'] : '';
+				?>
+				<div
+					class="hwbl-memorization"
+					data-verse="<?php echo esc_attr( $verse_text ); ?>"
+					data-lesson-id="<?php echo esc_attr( $lesson_id ); ?>"
+					data-book-id="<?php echo esc_attr( (string) $mem_book_id ); ?>"
+					data-book-name="<?php echo esc_attr( $mem_book_name ); ?>"
+					data-chapter="<?php echo esc_attr( (string) $mem_chapter ); ?>"
+					data-verse-num="<?php echo esc_attr( (string) $mem_verse ); ?>"
+					data-reference="<?php echo esc_attr( $mem_reference ); ?>"
+				>
 					<h4><?php esc_html_e( 'Memorization Practice', 'hidden-word-bible-lessons' ); ?></h4>
 					<div class="hwbl-memorization-mode" role="tablist" aria-label="<?php esc_attr_e( 'Practice mode', 'hidden-word-bible-lessons' ); ?>">
 						<?php if ( is_user_logged_in() ) : ?>
@@ -83,6 +99,7 @@ $lesson_title = isset( $lesson['title'] ) ? (string) $lesson['title'] : '';
 						<?php endif; ?>
 						<button type="button" class="hwbl-btn hwbl-btn-secondary hwbl-mode-btn is-active" data-mode="hide" role="tab" aria-selected="true"><?php esc_html_e( 'Hide words', 'hidden-word-bible-lessons' ); ?></button>
 						<button type="button" class="hwbl-btn hwbl-btn-secondary hwbl-mode-btn" data-mode="recall" role="tab" aria-selected="false"><?php esc_html_e( 'Type from memory', 'hidden-word-bible-lessons' ); ?></button>
+						<button type="button" class="hwbl-btn hwbl-btn-secondary hwbl-mode-btn" data-mode="reference" role="tab" aria-selected="false"><?php esc_html_e( 'Know the reference', 'hidden-word-bible-lessons' ); ?></button>
 						<button type="button" class="hwbl-btn hwbl-btn-secondary hwbl-mode-btn" data-mode="first-letter" role="tab" aria-selected="false"><?php esc_html_e( 'First-letter hints', 'hidden-word-bible-lessons' ); ?></button>
 						<button type="button" class="hwbl-btn hwbl-btn-secondary hwbl-mode-btn" data-mode="scramble" role="tab" aria-selected="false"><?php esc_html_e( 'Word scramble', 'hidden-word-bible-lessons' ); ?></button>
 					</div>
@@ -96,6 +113,29 @@ $lesson_title = isset( $lesson['title'] ) ? (string) $lesson['title'] : '';
 						</label>
 						<button type="button" class="hwbl-btn hwbl-memorization-recall-check"><?php esc_html_e( 'Check answer', 'hidden-word-bible-lessons' ); ?></button>
 						<p class="hwbl-memorization-recall-result" role="status" aria-live="polite"></p>
+					</div>
+					<div class="hwbl-memorization-reference" hidden>
+						<p class="hwbl-memorization-reference-prompt"><?php esc_html_e( 'Without looking, enter the book, chapter, and verse for this passage.', 'hidden-word-bible-lessons' ); ?></p>
+						<div class="hwbl-memorization-reference-fields">
+							<label class="hwbl-memorization-reference-field">
+								<span><?php esc_html_e( 'Book', 'hidden-word-bible-lessons' ); ?></span>
+								<input type="text" class="hwbl-memorization-reference-book" autocomplete="off" placeholder="<?php esc_attr_e( 'e.g. Romans', 'hidden-word-bible-lessons' ); ?>" />
+							</label>
+							<label class="hwbl-memorization-reference-field">
+								<span><?php esc_html_e( 'Chapter', 'hidden-word-bible-lessons' ); ?></span>
+								<input type="number" class="hwbl-memorization-reference-chapter" min="1" step="1" inputmode="numeric" placeholder="1" />
+							</label>
+							<label class="hwbl-memorization-reference-field">
+								<span><?php esc_html_e( 'Verse', 'hidden-word-bible-lessons' ); ?></span>
+								<input type="number" class="hwbl-memorization-reference-verse" min="1" step="1" inputmode="numeric" placeholder="1" />
+							</label>
+						</div>
+						<label class="hwbl-memorization-reference-field hwbl-memorization-reference-field--full">
+							<span><?php esc_html_e( 'Or type the full reference', 'hidden-word-bible-lessons' ); ?></span>
+							<input type="text" class="hwbl-memorization-reference-full" autocomplete="off" placeholder="<?php esc_attr_e( 'e.g. Romans 1:1 or Romans chapter 1, verse 1', 'hidden-word-bible-lessons' ); ?>" />
+						</label>
+						<button type="button" class="hwbl-btn hwbl-memorization-reference-check"><?php esc_html_e( 'Check reference', 'hidden-word-bible-lessons' ); ?></button>
+						<p class="hwbl-memorization-reference-result" role="status" aria-live="polite"></p>
 					</div>
 					<div class="hwbl-memorization-scramble" hidden>
 						<p class="hwbl-memorization-scramble-pool" aria-label="<?php esc_attr_e( 'Shuffled words — click in verse order', 'hidden-word-bible-lessons' ); ?>"></p>
@@ -121,12 +161,12 @@ $lesson_title = isset( $lesson['title'] ) ? (string) $lesson['title'] : '';
 					if ( class_exists( 'HWBL_Memorization_Audio' ) && is_array( $lesson ) && ! empty( $lesson['book_id'] ) ) {
 						$memorization_footer = HWBL_Memorization_Audio::render_audio_button( $lesson_id, $lesson );
 					}
-					echo apply_filters( 'hwbl_memorization_widget_html', $memorization_footer, $lesson_id ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					echo wp_kses_post( apply_filters( 'hwbl_memorization_widget_html', $memorization_footer, $lesson_id ) );
 					?>
 				</div>
 			<?php endif; ?>
 
-			<?php echo $trans_svc->render_copyright( $translation ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+			<?php echo wp_kses_post( $trans_svc->render_copyright( $translation ) ); ?>
 		</section>
 
 		<section

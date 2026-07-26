@@ -4,11 +4,11 @@ Tags: bible, scripture, discipleship, memorization, verse of the day
 Requires at least: 6.2
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.7.0
+Stable tag: 2.1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-A Bible discipleship plugin with 500 NIV verses, deep-dive lessons, historical context, memorization tools, and discussion prompts.
+A Bible discipleship plugin with 500 NIV verses, memorization, Bible reader, local public-domain Bibles, digests, AI study tools (BYOK), and multi-translation APIs — all free.
 
 == Description ==
 
@@ -23,24 +23,26 @@ Hidden Word Bible Lessons helps your church or ministry teach Scripture through 
 = Features =
 
 * 500-verse curated NIV curriculum (Biblica fair-use maximum)
-* King James Version (public domain) included
-* World English Bible (public domain) included
-* Verse of the Week or Verse of the Day scheduling
-* Fill-in-the-blanks memorization widget
-* Custom post type lesson builder with dedicated meta fields
-* Gutenberg block and shortcodes for easy placement
-* Lesson catalog at `/bible-lesson/` and `[hwbl_lesson_list]`
-* Print and copy verse buttons on lesson pages
-* Local memorization streak counter (browser storage)
-* Classic widget for Verse of the Week
-* WordPress comments integration for group discussion
+* King James Version and World English Bible (public domain) included
+* **Local Bibles** — download free public-domain translations (English, Spanish, French, German, Chinese, and more, including Catholic/Orthodox-scope texts) into your site database for offline reading and search
+* Spaced-repetition memorization (SM-2), practice modes, and review queue
+* Bible chapter reader with Hello AO audio (no API key)
+* Optional BYOK: API.Bible, Biblia.com, YouVersion Platform, OpenAI / Claude (or WP AI Connectors)
+* Licensed translation safety: NIV/ESV/NLT and similar wording is not embedded into AI prompts (display-only via API)
+* Verse of the Day, email digests, progress tracking, PDF leader guides
+* Custom scheduling, cohorts, study finder, and ask-a-question tools
+* Companion app support (church directory, app connect, account deletion)
+* Gutenberg blocks and shortcodes; lesson catalog at `/bible-lesson/`
 
 = Shortcodes =
 
-* `[hwbl_lesson]` — Display the current scheduled lesson
-* `[hwbl_lesson id="123"]` — Display a specific lesson
-* `[hwbl_lesson_list]` — Browse all lessons by book or testament
-* `[hwbl_verse_of_week]` — Compact verse display
+* `[hwbl_lesson]` — Current scheduled lesson
+* `[hwbl_lesson_list]` — Browse all lessons
+* `[hwbl_verse_of_week]` — Compact scheduled verse
+* `[hwbl_bible_reader]` — Read/listen to any chapter
+* `[hwbl_memorize_verse]` / `[hwbl_memorize_reviews]` — Memorize and review
+* `[hwbl_verse_of_the_day]` / `[hwbl_study_finder]` / `[hwbl_ask_question]` — Daily verse and AI study tools
+* `[hwbl_my_progress]` — Progress and streaks
 
 = NIV Copyright =
 
@@ -48,27 +50,42 @@ Scripture quotations marked NIV are from THE HOLY BIBLE, NEW INTERNATIONAL VERSI
 
 The bundled NIV text is provided under Biblica's gratis use guidelines for non-commercial WordPress plugins (fewer than 500 verses, no complete books).
 
-= Premium Add-on =
-
-[The Hidden Word Premium](https://landtechwebdesigns.com/product/the-hidden-word-premium/) adds custom scheduling, PDF leader guides, multi-translation switching via API.Bible (bring your own API key), progress tracking, and AI-assisted lesson drafting.
-
 == External Services ==
 
-This free plugin does not send data to third-party servers. Bundled NIV text is stored locally under Biblica's gratis use guidelines. The optional Premium add-on (sold separately) may connect to external services when the site administrator configures API keys — see the Premium plugin readme.
+Bundled NIV/KJV/WEB text is stored locally. All other external calls are optional and only happen when a site administrator explicitly enables a feature, supplies keys, or starts an import:
+
+* Hello AO — free Bible text/audio API (no key)
+* API.Bible, Biblia.com, YouVersion Platform — optional translation providers (BYOK)
+* bible.com — Verse of the Day reference/image (when VOTD is enabled)
+* OpenAI or Anthropic — optional AI explain/study/ask (BYOK or Connectors)
+* BibleSuperSearch.com, eBible.org, BereanBible.com, theWord module archives (theword-modules.com), and the scrollmapper/bible_databases GitHub repository — used only when an administrator uses the built-in Local Bible Importer (Bible Lessons → Local Bibles) to download an additional public-domain translation
+* GitHub (raw.githubusercontent.com, api.github.com) — used only when an administrator browses or installs a shared "Explain Pack" from the optional community catalog, or publishes/updates their own pack
+
+No license phone-home. No paid feature gates.
 
 == Installation ==
 
 1. Upload the plugin to `/wp-content/plugins/hidden-word-bible-lessons/`
 2. Activate through the 'Plugins' menu
-3. Go to **Hidden Word Bible Lessons** in the admin menu — 500 lessons seed in the background (progress notice while running). A **Today's Lesson** demo page is created on first activation.
+3. Go to **Hidden Word Bible Lessons** in the admin menu — 500 lessons seed in the background. A **Today's Lesson** demo page is created on first activation.
 4. Add `[hwbl_lesson]` to any page or use the **Bible Lesson** Gutenberg block
-5. Configure schedule and translation under **Hidden Word Bible Lessons → Settings**
+5. Configure schedule and translation under **Settings**; API keys and digests under **Advanced**
+6. Optional: download public-domain Bibles under **Bible Lessons → Local Bibles**
+7. If you previously used the separate Premium add-on, deactivate and delete that plugin
 
 == Frequently Asked Questions ==
 
 = How many NIV verses are bundled? =
 
 500 single-verse lessons, using the full Biblica 500-verse gratis use allowance.
+
+= Do I need a separate Premium plugin? =
+
+No. Former Premium features are included in this plugin for free. Deactivate any older separate Premium install.
+
+= Can I store more Bible translations on my site? =
+
+Yes. Use **Bible Lessons → Local Bibles** to download public-domain translations into your database. Licensed editions (NIV, ESV, NLT, etc.) still use your API keys under Advanced.
 
 = Can I add my own lessons? =
 
@@ -87,6 +104,37 @@ Yes. Use the shortcode `[hwbl_lesson]` in any page builder text widget or the Gu
 5. Plugin settings — schedule mode and translation switcher
 
 == Changelog ==
+
+= 2.1.0 =
+* Local Bibles: import public-domain translations into site SQL (language filter, USFX/eBible, scrollmapper JSON, theWord .ont including Torres Amat, and more)
+* Expanded book map for Catholic/Orthodox deuterocanonical texts in the Bible reader
+* Email verification helpers for front-end registration (pending until confirmed; login blocked until verified)
+* Companion app plumbing: church network directory, app connect codes, account deletion endpoint, community safety reports
+* AI scripture policy: do not embed licensed translation wording (NIV/ESV/NLT/etc.) into explain prompts
+* Explain packs and preload tooling for shared base + tradition override rows
+
+= 2.0.2 =
+* Fix Verse of the Day Explain 404s: flush CPT rewrite rules when missing so saved explanation permalinks resolve
+* Ignore empty/broken saved explanation shells and regenerate usable content
+* Silence Plugin Check false positive for wp_get_connectors() via call_user_func
+
+= 2.0.1 =
+* Verse of the Day Explain: clearer errors when AI explain is off or no provider is ready; follow site AI toggle when the VOTD explain option has never been saved
+* Log AI generation failures for Verse of the Day Explain to help diagnose Connectors/BYOK issues
+
+= 2.0.0 =
+* Merge former Premium add-on into this plugin (all features free, no license gate)
+* Advanced Settings: Bible API keys, AI (BYOK/Connectors), digests, VOTD, scheduling
+* Shortcodes: hwbl_study_finder, hwbl_ask_question, hwbl_verse_of_the_day, hwbl_my_progress, and more
+* Remove license phone-home and GitHub updater from bundled modules
+
+= 1.7.2 =
+* Escape copyright and lesson list HTML with wp_kses_post at output boundaries
+* Remove legacy thw_/THW_ shortcodes, constants, class aliases, and hook bridges (hwbl_/HWBL_ only)
+
+= 1.7.1 =
+* Fix “Listen to verse” when site translation has no Hello AO audio (falls back to KJV/WEB/BSB chapter audio)
+* Add “Know the reference” memorization mode for book, chapter, and verse practice
 
 = 1.7.0 =
 * SRS-first memorization: daily review mode, quality ratings, review queue dashboard shortcode `[hwbl_memorize_reviews]`
@@ -175,6 +223,15 @@ Yes. Use the shortcode `[hwbl_lesson]` in any page builder text widget or the Gu
 * Gutenberg block and shortcodes
 
 == Upgrade Notice ==
+
+= 2.1.0 =
+Adds Local Bibles imports, companion app support, email verification helpers, and safer AI handling for licensed translations.
+
+= 2.0.2 =
+Fixes Verse of the Day Explain links that 404 when CPT rewrite rules were not flushed.
+
+= 2.0.1 =
+Improves Verse of the Day AI Explain messaging and diagnostics when AI is not ready.
 
 = 1.6.0 =
 Adds SM-2 memorization, server streak sync, four practice modes, and hwbl/v1 REST as the primary API namespace.

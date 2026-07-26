@@ -43,7 +43,7 @@ class HWBL_Bible_Reader {
 		wp_register_script(
 			'hwbl-bible-reader',
 			HWBL_PLUGIN_URL . 'public/js/bible-reader.js',
-			array(),
+			array( 'hwbl-user-preferences' ),
 			HWBL_VERSION,
 			true
 		);
@@ -51,7 +51,7 @@ class HWBL_Bible_Reader {
 		wp_register_script(
 			'hwbl-bible-reader-research',
 			HWBL_PLUGIN_URL . 'public/js/bible-reader-research.js',
-			array( 'hwbl-bible-reader' ),
+			array( 'hwbl-bible-reader', 'hwbl-user-preferences' ),
 			HWBL_VERSION,
 			true
 		);
@@ -92,6 +92,19 @@ class HWBL_Bible_Reader {
 			$translations = array_merge( $translations, HWBL_HelloAO_Provider::get_reader_translations() );
 		}
 
+		// Installed local Bibles (including Catholic DRA/CPDV not on Hello AO).
+		if ( class_exists( 'HWBL_Local_Bible_Store' ) ) {
+			$catalog = HWBL_Local_Bible_Store::get_catalog();
+			foreach ( $catalog as $slug => $meta ) {
+				if ( ! HWBL_Local_Bible_Store::is_installed( $slug ) ) {
+					continue;
+				}
+				if ( ! isset( $translations[ $slug ] ) ) {
+					$translations[ $slug ] = (string) ( $meta['label'] ?? strtoupper( $slug ) );
+				}
+			}
+		}
+
 		if ( class_exists( 'THW_Premium_Biblia' ) && THW_Premium_Biblia::is_available() ) {
 			foreach ( THW_Premium_Biblia::add_translations( array() ) as $slug => $label ) {
 				if ( ! isset( $translations[ $slug ] ) ) {
@@ -125,12 +138,41 @@ class HWBL_Bible_Reader {
 	 * @return array<string, string>
 	 */
 	public static function get_reader_translations() {
+		$registered = self::get_registered_reader_translations();
+		$local_keys = array();
+		if ( class_exists( 'HWBL_Local_Bible_Store' ) ) {
+			foreach ( array_keys( HWBL_Local_Bible_Store::get_catalog() ) as $slug ) {
+				if ( HWBL_Local_Bible_Store::is_installed( $slug ) ) {
+					$local_keys[] = $slug;
+				}
+			}
+		}
+		$fingerprint = md5(
+			wp_json_encode(
+				array(
+					array_keys( $registered ),
+					$local_keys,
+					(bool) get_option( 'hwbl_helloao_enabled', true ),
+					(bool) get_option( 'thw_biblia_api_key', '' ),
+					(bool) get_option( 'thw_youversion_app_key', '' ),
+					(bool) get_option( 'thw_api_bible_key', '' ),
+				)
+			)
+		);
+		$cache_key = 'hwbl_reader_translations_' . $fingerprint;
+		$cached    = get_transient( $cache_key );
+		if ( is_array( $cached ) ) {
+			return apply_filters( 'hwbl_bible_reader_translations', $cached );
+		}
+
 		$accessible = array();
-		foreach ( self::get_registered_reader_translations() as $slug => $label ) {
+		foreach ( $registered as $slug => $label ) {
 			if ( self::is_translation_accessible( $slug ) ) {
 				$accessible[ $slug ] = $label;
 			}
 		}
+
+		set_transient( $cache_key, $accessible, HOUR_IN_SECONDS );
 
 		return apply_filters( 'hwbl_bible_reader_translations', $accessible );
 	}
@@ -145,6 +187,10 @@ class HWBL_Bible_Reader {
 		$translation = self::sanitize_translation( $translation );
 		if ( ! $translation ) {
 			return false;
+		}
+
+		if ( class_exists( 'HWBL_Local_Bible_Store' ) && HWBL_Local_Bible_Store::is_installed( $translation ) ) {
+			return true;
 		}
 
 		if ( class_exists( 'HWBL_HelloAO_Provider' ) && HWBL_HelloAO_Provider::is_enabled() && HWBL_HelloAO_Provider::get_helloao_id( $translation ) ) {
@@ -174,7 +220,8 @@ class HWBL_Bible_Reader {
 	public static function get_reader_features() {
 		$features = array(
 			'parse'    => true,
-			'search'   => class_exists( 'THW_Premium_Biblia' ) && THW_Premium_Biblia::is_available(),
+			// Public-domain fallback always works; Biblia is used first when configured.
+			'search'   => class_exists( 'HWBL_Bible_Text_Search' ) || ( class_exists( 'THW_Premium_Biblia' ) && THW_Premium_Biblia::is_available() ),
 			'research' => true,
 		);
 
@@ -254,16 +301,87 @@ class HWBL_Bible_Reader {
 	 * @return array<int, array<string, mixed>>
 	 */
 	public static function search( $translation, $query, $limit = 12 ) {
-		$translation = self::sanitize_translation( $translation );
-		if ( ! $translation || ! self::is_translation_accessible( $translation ) ) {
-			return array();
+		$payload = self::search_detailed( $translation, $query, $limit );
+		return isset( $payload['results'] ) && is_array( $payload['results'] ) ? $payload['results'] : array();
+	}
+
+	/**
+	 * Search Bible text with metadata (fallback translation, errors).
+	 *
+	 * @param string $translation Translation slug.
+	 * @param string $query       Search query.
+	 * @param int    $limit       Max results.
+	 * @return array{results:array<int,array<string,mixed>>,translation:string,requested_translation:string,error:string}
+	 */
+	public static function search_detailed( $translation, $query, $limit = 12 ) {
+		$requested = self::sanitize_translation( $translation );
+		$empty     = array(
+			'results'               => array(),
+			'translation'           => '',
+			'requested_translation' => $requested,
+			'error'                 => '',
+		);
+
+		if ( ! $requested ) {
+			$requested = self::resolve_translation( '' );
+		}
+		$empty['requested_translation'] = $requested;
+
+		if ( class_exists( 'HWBL_Bible_Text_Search' ) ) {
+			$query = HWBL_Bible_Text_Search::normalize_query( $query );
+		} else {
+			$query = trim( (string) $query );
+		}
+		if ( '' === $query ) {
+			$empty['error'] = 'invalid_query';
+			return $empty;
 		}
 
-		if ( class_exists( 'THW_Premium_Biblia' ) && THW_Premium_Biblia::is_available() && THW_Premium_Biblia::is_translation_accessible( $translation ) ) {
-			return THW_Premium_Biblia::search_bible( $translation, $query, $limit );
+		// Prefer locally installed public-domain Bibles before remote search.
+		if ( class_exists( 'HWBL_Local_Bible_Store' ) && HWBL_Local_Bible_Store::is_installed( $requested ) ) {
+			$local_results = HWBL_Local_Bible_Store::search( $requested, $query, $limit );
+			if ( ! empty( $local_results ) ) {
+				return array(
+					'results'               => $local_results,
+					'translation'           => $requested,
+					'requested_translation' => $requested,
+					'error'                 => '',
+				);
+			}
 		}
 
-		return array();
+		// Prefer Biblia when configured; many site prefs (NIV/BSB) still need a public-domain fallback.
+		if ( class_exists( 'THW_Premium_Biblia' ) && THW_Premium_Biblia::is_available() ) {
+			$payload = THW_Premium_Biblia::search_bible_detailed( $requested, $query, $limit );
+			if ( is_array( $payload ) && ! empty( $payload['results'] ) ) {
+				$payload['requested_translation'] = $requested;
+				if ( empty( $payload['translation'] ) ) {
+					$payload['translation'] = $requested;
+				}
+				$payload['error'] = '';
+				return $payload;
+			}
+		}
+
+		if ( class_exists( 'HWBL_Bible_Text_Search' ) ) {
+			$fallback = HWBL_Bible_Text_Search::search( $requested, $query, $limit );
+			if ( is_array( $fallback ) ) {
+				$fallback['requested_translation'] = $requested;
+				if ( empty( $fallback['translation'] ) ) {
+					$fallback['translation'] = HWBL_Bible_Text_Search::resolve_translation( $requested );
+				}
+				if ( ! isset( $fallback['results'] ) || ! is_array( $fallback['results'] ) ) {
+					$fallback['results'] = array();
+				}
+				if ( ! isset( $fallback['error'] ) ) {
+					$fallback['error'] = '';
+				}
+				return $fallback;
+			}
+		}
+
+		$empty['error'] = 'search_failed';
+		return $empty;
 	}
 
 	/**
@@ -278,15 +396,54 @@ class HWBL_Bible_Reader {
 			return array();
 		}
 
+		// Local installs: only books/chapters actually present (supports Catholic DC books
+		// and longer Esther/Daniel chapter counts without polluting Protestant lists).
+		if ( class_exists( 'HWBL_Local_Bible_Store' ) && HWBL_Local_Bible_Store::is_installed( $translation ) ) {
+			$books = array();
+			foreach ( HWBL_Local_Bible_Store::list_book_ids( $translation ) as $book_id ) {
+				$book_id  = (int) $book_id;
+				$chapters = HWBL_Local_Bible_Store::list_chapter_numbers( $translation, $book_id );
+				$count    = $chapters ? (int) max( $chapters ) : 0;
+				if ( $count < 1 ) {
+					continue;
+				}
+				$books[] = array(
+					'id'       => $book_id,
+					'name'     => HWBL_Books::get_name( $book_id ),
+					'chapters' => $count,
+					'usfm'     => HWBL_Books::get_usfm( $book_id ),
+				);
+			}
+			usort(
+				$books,
+				static function ( $a, $b ) {
+					return HWBL_Books::get_display_sort( (int) $a['id'] ) <=> HWBL_Books::get_display_sort( (int) $b['id'] );
+				}
+			);
+			return $books;
+		}
+
 		$chapter_map = self::get_chapter_count_map( $translation );
 		$books       = array();
+		$has_dc      = false;
 
 		foreach ( HWBL_Books::get_all() as $id => $name ) {
 			$book_id = (int) $id;
 			$usfm    = HWBL_Books::get_usfm( $book_id );
 			$chapters = isset( $chapter_map[ $usfm ] ) ? (int) $chapter_map[ $usfm ] : 0;
-			if ( $chapters < 1 ) {
+
+			// Deuterocanonical books only appear when the translation catalog includes them.
+			if ( HWBL_Books::is_deuterocanonical( $book_id ) ) {
+				if ( $chapters < 1 ) {
+					continue;
+				}
+				$has_dc = true;
+			} elseif ( $chapters < 1 ) {
 				$chapters = self::fallback_chapter_count( $book_id );
+			}
+
+			if ( $chapters < 1 ) {
+				continue;
 			}
 
 			$books[] = array(
@@ -294,6 +451,15 @@ class HWBL_Bible_Reader {
 				'name'     => (string) $name,
 				'chapters' => $chapters,
 				'usfm'     => $usfm,
+			);
+		}
+
+		if ( $has_dc ) {
+			usort(
+				$books,
+				static function ( $a, $b ) {
+					return HWBL_Books::get_display_sort( (int) $a['id'] ) <=> HWBL_Books::get_display_sort( (int) $b['id'] );
+				}
 			);
 		}
 
@@ -332,7 +498,11 @@ class HWBL_Bible_Reader {
 
 		$payload = null;
 
-		if ( class_exists( 'HWBL_HelloAO_Provider' ) && HWBL_HelloAO_Provider::get_helloao_id( $translation ) ) {
+		if ( class_exists( 'HWBL_Local_Bible_Store' ) && HWBL_Local_Bible_Store::is_installed( $translation ) ) {
+			$payload = HWBL_Local_Bible_Provider::get_chapter_payload( $book_id, $chapter, $translation );
+		}
+
+		if ( ! HWBL_Http_Utils::is_valid_chapter_payload( $payload ) && class_exists( 'HWBL_HelloAO_Provider' ) && HWBL_HelloAO_Provider::get_helloao_id( $translation ) ) {
 			$payload = HWBL_HelloAO_Provider::get_chapter_payload( $book_id, $chapter, $translation );
 		}
 
@@ -451,20 +621,35 @@ class HWBL_Bible_Reader {
 				'callback'            => array( __CLASS__, 'rest_research' ),
 				'permission_callback' => '__return_true',
 				'args'                => array(
-					'book_id' => array(
+					'book_id'     => array(
 						'type'              => 'integer',
 						'required'          => true,
 						'sanitize_callback' => 'absint',
 					),
-					'chapter' => array(
+					'chapter'     => array(
 						'type'              => 'integer',
 						'required'          => true,
 						'sanitize_callback' => 'absint',
 					),
-					'verse'   => array(
+					'verse'       => array(
 						'type'              => 'integer',
 						'sanitize_callback' => 'absint',
 						'default'           => 0,
+					),
+					'translation' => array(
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_key',
+						'default'           => '',
+					),
+					'scope'       => array(
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_key',
+						'default'           => 'verse',
+					),
+					'tradition'   => array(
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_key',
+						'default'           => '',
 					),
 				),
 			)
@@ -592,13 +777,52 @@ class HWBL_Bible_Reader {
 		);
 
 		$features = self::get_reader_features();
+		$scope    = sanitize_key( (string) $request['scope'] );
+		if ( 'chapter' !== $scope ) {
+			$scope = 'verse';
+		}
+
+		$explain_url = '';
+		$translation = sanitize_key( (string) $request['translation'] );
+		$tradition   = sanitize_key( (string) $request['tradition'] );
+		if ( class_exists( 'THW_Premium_Bible_Reader_Explain_Store' ) && '' !== $translation ) {
+			if ( 'chapter' === $scope ) {
+				$lookup_verse = 0;
+			} else {
+				$lookup_verse = $verse;
+			}
+			if ( 'chapter' === $scope || $lookup_verse > 0 ) {
+				if ( '' === $tradition && function_exists( 'thw_premium_resolve_explain_rules_for_request' ) ) {
+					$resolved  = thw_premium_resolve_explain_rules_for_request( '', '' );
+					$tradition = sanitize_key( (string) ( $resolved['preset'] ?? 'site' ) );
+				}
+				if ( '' === $tradition ) {
+					$tradition = 'site';
+				}
+				$resolved_display = THW_Premium_Bible_Reader_Explain_Store::resolve_for_display(
+					array(
+						'book_id'     => $book_id,
+						'chapter'     => $chapter,
+						'verse'       => $lookup_verse,
+						'translation' => $translation,
+						'scope'       => $scope,
+						'tradition'   => $tradition,
+					)
+				);
+				$row = is_array( $resolved_display['content_row'] ?? null ) ? $resolved_display['content_row'] : null;
+				if ( is_array( $row ) && THW_Premium_Bible_Reader_Explain_Store::has_usable_explanation( $row ) ) {
+					$explain_url = THW_Premium_Bible_Reader_Explain_Store::get_public_url( $row );
+				}
+			}
+		}
 
 		return new WP_REST_Response(
 			array(
 				'lesson_id'     => (int) $lesson['lesson_id'],
 				'lesson_url'    => (string) $lesson['url'],
 				'in_curriculum' => (bool) $lesson['in_curriculum'],
-				'explain'       => ! empty( $features['explain'] ),
+				'explain'       => ! empty( $features['explain'] ) || class_exists( 'THW_Premium_Bible_Reader_Explain' ),
+				'explain_url'   => $explain_url,
 				'logged_in'     => is_user_logged_in(),
 			)
 		);
@@ -620,18 +844,35 @@ class HWBL_Bible_Reader {
 			return new WP_REST_Response( array( 'error' => 'search_unavailable' ), 403 );
 		}
 
-		$translation = self::resolve_translation( $request['translation'] );
-		if ( ! $translation ) {
+		$requested = self::sanitize_translation( $request['translation'] );
+		if ( ! $requested ) {
+			$requested = self::resolve_translation( '' );
+		}
+		if ( ! $requested ) {
 			return new WP_REST_Response( array( 'error' => 'invalid_translation' ), 400 );
 		}
 
-		$results = self::search( $translation, $request['q'], (int) $request['limit'] );
+		$payload = self::search_detailed( $requested, $request['q'], (int) $request['limit'] );
+		if ( ! empty( $payload['error'] ) && 'search_unavailable' === $payload['error'] ) {
+			return new WP_REST_Response(
+				array(
+					'error'                 => 'search_unavailable',
+					'translation'           => $requested,
+					'requested_translation' => $requested,
+					'query'                 => (string) $request['q'],
+					'results'               => array(),
+				),
+				403
+			);
+		}
 
 		return new WP_REST_Response(
 			array(
-				'translation' => $translation,
-				'query'         => (string) $request['q'],
-				'results'       => $results,
+				'translation'           => ! empty( $payload['translation'] ) ? $payload['translation'] : $requested,
+				'requested_translation' => $requested,
+				'query'                 => (string) $request['q'],
+				'results'               => isset( $payload['results'] ) ? $payload['results'] : array(),
+				'error'                 => isset( $payload['error'] ) ? $payload['error'] : '',
 			)
 		);
 	}
@@ -665,7 +906,13 @@ class HWBL_Bible_Reader {
 
 		$translation = self::sanitize_translation( $atts['translation'] );
 		if ( ! $translation || ! isset( $translations[ $translation ] ) ) {
-			$translation = self::sanitize_translation( get_option( 'hwbl_active_translation', 'bsb' ) );
+			if ( class_exists( 'HWBL_User_Preferences' ) ) {
+				$translation = self::sanitize_translation(
+					HWBL_User_Preferences::resolve_translation( $translations )
+				);
+			} else {
+				$translation = self::sanitize_translation( get_option( 'hwbl_active_translation', 'bsb' ) );
+			}
 		}
 		if ( ! $translation || ! isset( $translations[ $translation ] ) ) {
 			$keys        = array_keys( $translations );
@@ -707,6 +954,9 @@ class HWBL_Bible_Reader {
 				'restUrl'      => rest_url( 'hwbl/v1/' ),
 				'nonce'        => wp_create_nonce( 'wp_rest' ),
 				'translation'  => $translation,
+				'preferredTranslation' => class_exists( 'HWBL_User_Preferences' )
+					? HWBL_User_Preferences::get_preferred_translation()
+					: '',
 				'bookId'       => $book_id,
 				'chapter'      => $chapter,
 				'verse'        => $verse,
@@ -742,12 +992,15 @@ class HWBL_Bible_Reader {
 					'researchBtn'     => __( 'Explain passage', 'hidden-word-bible-lessons' ),
 					'researchLoading' => __( 'Generating explanation…', 'hidden-word-bible-lessons' ),
 					'researchError'   => __( 'Could not generate an explanation.', 'hidden-word-bible-lessons' ),
-					'researchLogin'   => __( 'Log in to generate an AI explanation.', 'hidden-word-bible-lessons' ),
+					'researchLogin'   => __( 'Log in to generate the first AI explanation for this passage and Bible version. Once saved, everyone can read it.', 'hidden-word-bible-lessons' ),
 					'researchLesson'  => __( 'Open full lesson study', 'hidden-word-bible-lessons' ),
+					'researchSaved'   => __( 'Read saved explanation', 'hidden-word-bible-lessons' ),
 					'researchHint'    => __( 'Click a verse to explain it, or explain the whole chapter.', 'hidden-word-bible-lessons' ),
 					'researchDisclaimer' => __( 'AI-generated explanation. Compare with Scripture and trusted teachers.', 'hidden-word-bible-lessons' ),
+					'researchLoadingCached' => __( 'Loading saved explanation…', 'hidden-word-bible-lessons' ),
+					'researchTraditionDiff' => __( 'Tradition variation', 'hidden-word-bible-lessons' ),
 				),
-				'explainRestUrl' => class_exists( 'THW_Premium_Bible_Reader_Explain' ) && THW_Premium_Bible_Reader_Explain::is_available()
+				'explainRestUrl' => class_exists( 'THW_Premium_Bible_Reader_Explain' )
 					? esc_url_raw( rest_url( 'hwbl/v1/bible-explain' ) )
 					: '',
 				'loggedIn'       => is_user_logged_in(),
@@ -823,10 +1076,9 @@ class HWBL_Bible_Reader {
 									<option value="chapter"><?php esc_html_e( 'This chapter', 'hidden-word-bible-lessons' ); ?></option>
 								</select>
 							</label>
-							<?php if ( ! empty( $features['explain'] ) && function_exists( 'thw_premium_render_tradition_select' ) ) : ?>
+							<?php if ( ! empty( $features['explain'] ) && function_exists( 'thw_premium_the_tradition_select' ) ) : ?>
 								<?php
-								// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- helper escapes markup.
-								echo thw_premium_render_tradition_select(
+								thw_premium_the_tradition_select(
 									array(
 										'id'    => 'hwbl-bible-reader-tradition',
 										'class' => 'thw-ai-tradition-select hwbl-bible-reader__research-tradition',
@@ -835,12 +1087,16 @@ class HWBL_Bible_Reader {
 								?>
 							<?php endif; ?>
 							<button type="button" class="hwbl-btn hwbl-btn-secondary hwbl-bible-reader__research-btn"><?php esc_html_e( 'Explain passage', 'hidden-word-bible-lessons' ); ?></button>
+							<a class="hwbl-bible-reader__research-saved hwbl-btn hwbl-btn-secondary" href="#" hidden><?php esc_html_e( 'Read saved explanation', 'hidden-word-bible-lessons' ); ?></a>
 							<a class="hwbl-bible-reader__research-lesson hwbl-btn hwbl-btn-secondary" href="#" hidden><?php esc_html_e( 'Open full lesson study', 'hidden-word-bible-lessons' ); ?></a>
 						</div>
 					</div>
 					<div class="hwbl-bible-reader__research-panel" hidden>
 						<h3 class="hwbl-bible-reader__research-title"></h3>
 						<div class="hwbl-bible-reader__research-output" aria-live="polite"></div>
+						<p class="hwbl-bible-reader__research-post-wrap" hidden>
+							<a class="hwbl-bible-reader__research-post" href="#" target="_blank" rel="noopener noreferrer"></a>
+						</p>
 						<p class="hwbl-bible-reader__research-disclaimer description"><?php esc_html_e( 'AI-generated explanation. Compare with Scripture and trusted teachers.', 'hidden-word-bible-lessons' ); ?></p>
 					</div>
 				</div>
@@ -915,6 +1171,11 @@ class HWBL_Bible_Reader {
 	 * @return array<string, int>
 	 */
 	private static function get_chapter_count_map( $translation ) {
+		// Local installs use built-in chapter counts — skip remote Hello AO catalog.
+		if ( class_exists( 'HWBL_Local_Bible_Store' ) && HWBL_Local_Bible_Store::is_installed( $translation ) ) {
+			return array();
+		}
+
 		$ao_id = class_exists( 'HWBL_HelloAO_Provider' ) ? HWBL_HelloAO_Provider::get_helloao_id( $translation ) : null;
 		if ( ! $ao_id ) {
 			return array();
@@ -959,6 +1220,10 @@ class HWBL_Bible_Reader {
 			51 => 4, 52 => 5, 53 => 3, 54 => 6, 55 => 4, 56 => 3, 57 => 1,
 			58 => 13, 59 => 5, 60 => 5, 61 => 3, 62 => 5, 63 => 1, 64 => 1,
 			65 => 1, 66 => 22,
+			// Deuterocanonical / Apocrypha chapter counts (approx. fallbacks).
+			67 => 14, 68 => 16, 69 => 19, 70 => 51, 71 => 6, 72 => 16, 73 => 15,
+			74 => 9, 75 => 16, 76 => 1, 77 => 1, 78 => 7, 79 => 18,
+			80 => 16, 81 => 14, 82 => 1, 83 => 1, 84 => 1, 85 => 1,
 		);
 
 		return isset( $counts[ $book_id ] ) ? (int) $counts[ $book_id ] : 0;

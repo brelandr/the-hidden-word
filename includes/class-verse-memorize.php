@@ -367,14 +367,81 @@ class HWBL_Verse_Memorize {
 	 * @param int    $chapter     Chapter.
 	 * @param int    $verse_start Verse start.
 	 * @param string $translation Translation slug.
+	 * @param int    $verse_end   Optional verse end.
 	 * @return string
 	 */
-	public static function get_verse_text( $book_id, $chapter, $verse_start, $translation ) {
-		return HWBL_Translation_Service::instance()->get_verse_text(
-			(int) $book_id,
-			(int) $chapter,
-			(int) $verse_start,
-			sanitize_key( (string) $translation )
+	public static function get_verse_text( $book_id, $chapter, $verse_start, $translation, $verse_end = 0 ) {
+		$book_id     = (int) $book_id;
+		$chapter     = (int) $chapter;
+		$verse_start = (int) $verse_start;
+		$verse_end   = (int) $verse_end > 0 ? (int) $verse_end : $verse_start;
+		$translation = sanitize_key( (string) $translation );
+		$svc         = HWBL_Translation_Service::instance();
+
+		if ( $verse_start === $verse_end ) {
+			return $svc->get_verse_text( $book_id, $chapter, $verse_start, $translation );
+		}
+
+		$parts = array();
+		for ( $verse = $verse_start; $verse <= $verse_end; $verse++ ) {
+			$part = $svc->get_verse_text( $book_id, $chapter, $verse, $translation );
+			if ( '' === trim( (string) $part ) ) {
+				return '';
+			}
+			$parts[] = $part;
+		}
+
+		return implode( ' ', $parts );
+	}
+
+	/**
+	 * Resolve verse text, falling back when the preferred translation can't supply it.
+	 *
+	 * NIV is often preferred but only bundled for curriculum verses; the Bible reader
+	 * may already be showing BSB/KJV for the same passage.
+	 *
+	 * @param int    $book_id     Book ID.
+	 * @param int    $chapter     Chapter.
+	 * @param int    $verse_start Verse start.
+	 * @param int    $verse_end   Verse end.
+	 * @param string $translation Preferred translation slug.
+	 * @return array{text:string,translation:string}
+	 */
+	public static function resolve_verse_text( $book_id, $chapter, $verse_start, $verse_end, $translation ) {
+		$translation = sanitize_key( (string) $translation );
+		$candidates  = array();
+		if ( $translation ) {
+			$candidates[] = $translation;
+		}
+
+		if ( class_exists( 'HWBL_Bible_Reader' ) && HWBL_Bible_Reader::is_enabled() ) {
+			$reader_slug = HWBL_Bible_Reader::resolve_translation_for_request( $translation );
+			if ( $reader_slug ) {
+				$candidates[] = $reader_slug;
+			}
+			foreach ( array_keys( HWBL_Bible_Reader::get_reader_translations() ) as $slug ) {
+				$candidates[] = sanitize_key( (string) $slug );
+			}
+		}
+
+		foreach ( array( 'bsb', 'kjv', 'web', 'asv' ) as $slug ) {
+			$candidates[] = $slug;
+		}
+
+		$candidates = array_values( array_unique( array_filter( $candidates ) ) );
+		foreach ( $candidates as $slug ) {
+			$text = self::get_verse_text( $book_id, $chapter, $verse_start, $slug, $verse_end );
+			if ( '' !== trim( (string) $text ) ) {
+				return array(
+					'text'         => $text,
+					'translation'  => $slug,
+				);
+			}
+		}
+
+		return array(
+			'text'        => '',
+			'translation' => $translation,
 		);
 	}
 
@@ -393,7 +460,9 @@ class HWBL_Verse_Memorize {
 		$reference   = (string) $parsed['reference'];
 
 		$translation = sanitize_key( (string) $translation );
-		$verse_text  = self::get_verse_text( $book_id, $chapter, $verse_start, $translation );
+		$resolved    = self::resolve_verse_text( $book_id, $chapter, $verse_start, $verse_end, $translation );
+		$verse_text  = $resolved['text'];
+		$translation = $resolved['translation'];
 		if ( '' === trim( $verse_text ) ) {
 			return new WP_Error(
 				'verse_unavailable',
@@ -409,10 +478,11 @@ class HWBL_Verse_Memorize {
 		}
 
 		if ( ! $lesson_id ) {
-			if ( ! is_user_logged_in() ) {
+			if ( ! self::ensure_rest_user() ) {
 				return new WP_Error(
 					'login_required',
-					__( 'Sign in to memorize verses that are not already in the lesson catalog.', 'hidden-word-bible-lessons' )
+					__( 'Sign in to memorize verses that are not already in the lesson catalog.', 'hidden-word-bible-lessons' ),
+					array( 'status' => 401 )
 				);
 			}
 
@@ -420,7 +490,8 @@ class HWBL_Verse_Memorize {
 			if ( ! $lesson_id ) {
 				return new WP_Error(
 					'lesson_create_failed',
-					__( 'Could not prepare this verse for memorization.', 'hidden-word-bible-lessons' )
+					__( 'Could not prepare this verse for memorization.', 'hidden-word-bible-lessons' ),
+					array( 'status' => 500 )
 				);
 			}
 		} elseif ( ! $in_curriculum ) {
@@ -492,7 +563,8 @@ class HWBL_Verse_Memorize {
 	 * @return int Post ID or 0.
 	 */
 	private static function create_custom_lesson( $parsed, $translation, $verse_text ) {
-		if ( ! is_user_logged_in() ) {
+		$user_id = self::ensure_rest_user();
+		if ( ! $user_id ) {
 			return 0;
 		}
 
@@ -518,15 +590,20 @@ class HWBL_Verse_Memorize {
 			}
 		}
 
-		$post_id = wp_insert_post(
-			array(
-				'post_type'    => 'hwbl_lesson',
-				'post_title'   => $label,
-				'post_status'  => 'publish',
-				'post_content' => '',
-			),
-			true
+		$post_arr = array(
+			'post_type'    => 'hwbl_lesson',
+			'post_title'   => $label,
+			'post_status'  => 'publish',
+			'post_content' => '',
+			'post_author'  => $user_id,
 		);
+
+		// Members (and Application Password sessions) may lack publish_posts.
+		$GLOBALS['hwbl_creating_custom_memorize_lesson'] = 1;
+		add_filter( 'user_has_cap', array( __CLASS__, 'grant_custom_memorize_caps' ), 10, 4 );
+		$post_id = wp_insert_post( $post_arr, true );
+		remove_filter( 'user_has_cap', array( __CLASS__, 'grant_custom_memorize_caps' ), 10 );
+		unset( $GLOBALS['hwbl_creating_custom_memorize_lesson'] );
 
 		if ( is_wp_error( $post_id ) || ! $post_id ) {
 			return 0;
@@ -542,6 +619,69 @@ class HWBL_Verse_Memorize {
 		self::maybe_store_verse_snapshot( (int) $post_id, $translation, $verse_text );
 
 		return (int) $post_id;
+	}
+
+	/**
+	 * Grant publish caps only while creating a lightweight memorize lesson.
+	 *
+	 * @param array<string,bool> $allcaps All capabilities.
+	 * @param array<int,string>  $caps    Required caps.
+	 * @param array<int,mixed>   $args    Cap check args.
+	 * @param WP_User            $user    User.
+	 * @return array<string,bool>
+	 */
+	public static function grant_custom_memorize_caps( $allcaps, $caps, $args, $user ) {
+		if ( empty( $GLOBALS['hwbl_creating_custom_memorize_lesson'] ) ) {
+			return $allcaps;
+		}
+		if ( ! ( $user instanceof WP_User ) || (int) $user->ID < 1 ) {
+			return $allcaps;
+		}
+
+		$allcaps['read']                 = true;
+		$allcaps['edit_posts']           = true;
+		$allcaps['publish_posts']        = true;
+		$allcaps['edit_published_posts'] = true;
+
+		return $allcaps;
+	}
+
+	/**
+	 * Whether this REST request is from the companion app.
+	 *
+	 * @return bool
+	 */
+	public static function is_companion_request() {
+		if ( empty( $_SERVER['HTTP_X_HWBL_CLIENT'] ) ) {
+			return false;
+		}
+		$client = sanitize_key( wp_unslash( (string) $_SERVER['HTTP_X_HWBL_CLIENT'] ) );
+		return 'companion' === $client;
+	}
+
+	/**
+	 * Ensure Application Password / REST auth has set the current user.
+	 *
+	 * Some stacks leave get_current_user_id() at 0 on public routes even when
+	 * a valid Authorization header is present; re-run core validation.
+	 *
+	 * @return int User ID or 0.
+	 */
+	public static function ensure_rest_user() {
+		$user_id = get_current_user_id();
+		if ( $user_id > 0 ) {
+			return $user_id;
+		}
+
+		if ( function_exists( 'wp_validate_application_password' ) ) {
+			$validated = wp_validate_application_password( 0 );
+			if ( is_numeric( $validated ) && (int) $validated > 0 ) {
+				wp_set_current_user( (int) $validated );
+				return (int) $validated;
+			}
+		}
+
+		return 0;
 	}
 
 	/**
@@ -690,6 +830,8 @@ class HWBL_Verse_Memorize {
 	 * @return WP_REST_Response
 	 */
 	public static function rest_add_verse( $request ) {
+		$user_id = self::ensure_rest_user();
+
 		$parsed = self::resolve_request_reference( $request );
 		if ( is_wp_error( $parsed ) ) {
 			return new WP_REST_Response(
@@ -713,16 +855,35 @@ class HWBL_Verse_Memorize {
 
 		$result = self::ensure_lesson( $parsed, $translation );
 		if ( is_wp_error( $result ) ) {
+			$data   = $result->get_error_data();
+			$status = ( is_array( $data ) && isset( $data['status'] ) ) ? (int) $data['status'] : 400;
+			if ( $status < 400 ) {
+				$status = 400;
+			}
 			return new WP_REST_Response(
 				array(
 					'error'   => $result->get_error_code(),
 					'message' => $result->get_error_message(),
 				),
-				404
+				$status
 			);
 		}
 
-		$user_id = get_current_user_id();
+		$translation = ! empty( $result['translation'] )
+			? sanitize_key( (string) $result['translation'] )
+			: $translation;
+
+		// Companion must be authenticated so the verse is actually saved to the deck.
+		if ( ! $user_id && self::is_companion_request() ) {
+			return new WP_REST_Response(
+				array(
+					'error'   => 'login_required',
+					'message' => __( 'Sign in to save verses to your Memorize deck.', 'hidden-word-bible-lessons' ),
+				),
+				401
+			);
+		}
+
 		if ( $user_id ) {
 			self::add_to_user_list( $user_id, (int) $result['lesson_id'], $translation );
 		}
@@ -828,6 +989,9 @@ class HWBL_Verse_Memorize {
 		wp_enqueue_style( 'hwbl-lesson' );
 		wp_enqueue_script( 'hwbl-lesson-tabs' );
 		wp_enqueue_script( 'hwbl-memorization-basic' );
+		wp_enqueue_script( 'hwbl-memorization-quality' );
+		wp_enqueue_script( 'hwbl-memorization-review' );
+		wp_enqueue_script( 'hwbl-memorization-audio' );
 		wp_enqueue_script( 'hwbl-verse-memorize' );
 		wp_localize_script(
 			'hwbl-memorization-basic',

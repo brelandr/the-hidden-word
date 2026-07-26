@@ -1,0 +1,85 @@
+{
+  "slug": "arc_churches",
+  "label": "Non-denominational — ARC (Association of Related Churches)",
+  "version": "1.0.0",
+  "framing": "Frame for an ARC-related non-denominational / independent church audience. Prefer the ARC Statement of Faith (arcchurches.com/about/statement-of-faith) with the shared non-denominational baseline—paraphrase only. Emphasize Jesus’ gospel, local-church autonomy, Spirit empowerment, and life-giving mission. Do not invent ARC governance over local churches; ARC presents partner churches as legally autonomous.",
+  "extends": "nondenom",
+  "general_gates": [
+    "Stay within the provided Bible text for verse claims; do not invent quotations.",
+    "Do not invent ARC handbook citations beyond the digests supplied in this pack.",
+    "When citing ARC doctrine, use ARC Statement of Faith themes only—paraphrase.",
+    "When a doctrinal stance gate matches, state ARC, the stance, and any required conditions clearly.",
+    "Remember ARC churches are independently led; avoid speaking as if ARC is a denomination with binding polity.",
+    "For sensitive life topics, encourage prayer and trusted pastoral or professional help; AI is not a substitute for counseling."
+  ],
+  "citation_map": [
+    {
+      "topics": ["scripture_authority"],
+      "articles": ["Bible"],
+      "confession": "ARC Statement of Faith",
+      "note": "Bible inspired, infallible, authoritative; Spirit inspired OT/NT pointing to Jesus."
+    },
+    {
+      "topics": ["salvation", "church_authority"],
+      "articles": ["God", "Jesus Christ"],
+      "confession": "ARC Statement of Faith",
+      "note": "One God in three coequal persons; Jesus virgin-born, sinless, crucified, buried, raised; salvation only in Jesus’ name; personal return in power and glory."
+    },
+    {
+      "topics": ["salvation"],
+      "articles": ["mankind", "Gospel"],
+      "confession": "ARC Statement of Faith",
+      "note": "Mankind sinful by nature and needs the saving knowledge of Jesus revealed in the Gospel."
+    },
+    {
+      "topics": ["spirit_baptism", "holiness"],
+      "articles": ["Holy Spirit"],
+      "confession": "ARC Statement of Faith",
+      "note": "Spirit convicts, reveals gospel truth, regenerates, distributes gifts and fruit; Jesus baptizes with the Holy Spirit for empowerment."
+    },
+    {
+      "topics": ["church_authority", "baptism", "lords_supper"],
+      "articles": ["local church"],
+      "confession": "ARC Statement of Faith",
+      "note": "Local church for edification, Word teaching, gift-based ministry, fellowship, correction, and discipline."
+    },
+    {
+      "topics": ["marriage", "sexuality"],
+      "articles": ["matrimony"],
+      "confession": "ARC Statement of Faith",
+      "note": "Matrimony is holy monogamous marriage between one man and one woman; two distinct genders reflecting God’s image."
+    }
+  ],
+  "primary_sources": [
+    {
+      "id": "arc_sof_page",
+      "title": "ARC Statement of Faith",
+      "cite": "arcchurches.com/about/statement-of-faith (paraphrase)",
+      "excerpt": "Official ARC Statement of Faith covering Scripture, Trinity, Jesus’ redemptive work and return, human sinfulness and gospel salvation, marriage, Holy Spirit baptism/empowerment, and the local church.",
+      "topics": ["scripture_authority", "salvation", "spirit_baptism", "church_authority", "marriage", "prophecy"]
+    }
+  ],
+  "stances": [
+    {
+      "topic": "spirit_baptism",
+      "stance": "yes",
+      "summary": "Jesus baptizes with the Holy Spirit for church empowerment (ARC).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "marriage",
+      "stance": "yes",
+      "summary": "Holy monogamous marriage of one man and one woman (ARC).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "church_authority",
+      "stance": "yes",
+      "summary": "Local church gathers for Word, gifts, fellowship, and discipline; ARC partner churches remain autonomous.",
+      "conditions": [],
+      "forbid": ["treat ARC as a denomination with binding local polity"]
+    }
+  ]
+}

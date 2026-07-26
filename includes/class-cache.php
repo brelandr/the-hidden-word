@@ -21,10 +21,12 @@ class HWBL_Cache {
 	 */
 	public static function mark_page_uncacheable( $reason = 'hwbl_schedule' ) {
 		if ( ! defined( 'DONOTCACHEPAGE' ) ) {
+			// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound -- Third-party cache convention.
 			define( 'DONOTCACHEPAGE', true );
 		}
 
 		if ( ! defined( 'DONOTCACHEOBJECT' ) ) {
+			// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound -- Third-party cache convention.
 			define( 'DONOTCACHEOBJECT', true );
 		}
 
@@ -33,7 +35,7 @@ class HWBL_Cache {
 		 *
 		 * @param string $reason Bypass reason.
 		 */
-		do_action( 'litespeed_control_set_nocache', $reason );
+		do_action( 'litespeed_control_set_nocache', $reason ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Third-party LiteSpeed hook.
 
 		if ( function_exists( 'w3tc_pgcache_flush' ) && ! defined( 'W3TC_PGCACHE' ) ) {
 			// W3 Total Cache honors DONOTCACHEPAGE when defined before output.

@@ -24,7 +24,6 @@ class HWBL_Memorization_SRS {
 	public static function init() {
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
 		add_shortcode( 'hwbl_memorize_reviews', array( __CLASS__, 'render_reviews_shortcode' ) );
-		add_shortcode( 'thw_memorize_reviews', array( __CLASS__, 'render_reviews_shortcode' ) );
 	}
 
 	/**
@@ -133,8 +132,13 @@ class HWBL_Memorization_SRS {
 	 *
 	 * @return bool|WP_Error
 	 */
+	/**
+	 * REST permission: authenticated users with the read capability.
+	 *
+	 * @return true|WP_Error
+	 */
 	public static function logged_in_permission() {
-		if ( ! is_user_logged_in() ) {
+		if ( ! current_user_can( 'read' ) ) {
 			return new WP_Error(
 				'hwbl_login_required',
 				__( 'Sign in to save memorization progress.', 'hidden-word-bible-lessons' ),
@@ -303,15 +307,43 @@ class HWBL_Memorization_SRS {
 		self::maybe_migrate_legacy_progress( $user_id );
 		$map     = self::get_progress_map( $user_id );
 		$stats   = self::get_progress_stats( $user_id );
+		$deck    = array();
+
+		foreach ( $map as $lesson_id => $row ) {
+			$deck[] = self::format_queue_item(
+				(int) $lesson_id,
+				is_array( $row ) ? $row : array()
+			);
+		}
+
+		usort(
+			$deck,
+			static function ( $a, $b ) {
+				$a_due = isset( $a['due_date'] ) ? (string) $a['due_date'] : '9999-12-31';
+				$b_due = isset( $b['due_date'] ) ? (string) $b['due_date'] : '9999-12-31';
+				return strcmp( $a_due, $b_due );
+			}
+		);
+
+		$badges          = array();
+		$memorized_count = 0;
+		if ( class_exists( 'THW_Premium_Progress' ) ) {
+			$badges          = THW_Premium_Progress::get_badges( $user_id );
+			$memorized_count = count( THW_Premium_Progress::get_user_progress( $user_id ) );
+		}
 
 		return new WP_REST_Response(
 			array(
-				'total'   => count( $map ),
-				'due'     => $stats['due'],
-				'learning'=> $stats['learning'],
-				'streak'  => self::get_streak( $user_id ),
-				'cards'   => $map,
-				'stats'   => $stats,
+				'total'           => count( $map ),
+				'due'             => $stats['due'],
+				'learning'        => $stats['learning'],
+				'streak'          => self::get_streak( $user_id ),
+				'cards'           => $map,
+				'deck'            => $deck,
+				'stats'           => $stats,
+				'badges'          => is_array( $badges ) ? array_values( $badges ) : array(),
+				'memorized_count' => $memorized_count,
+				'badge_milestones'=> array( 7, 30, 100 ),
 			)
 		);
 	}

@@ -1,9 +1,6 @@
 <?php
 /**
- * Loads Premium features from the bundled add-on when merge mode is enabled.
- *
- * Set HWBL_INTEGRATED_PREMIUM to true (or filter hwbl_integrated_premium) after
- * WordPress.org approval to fold Premium into the free plugin without license gates.
+ * Loads bundled advanced (formerly Premium) feature modules.
  *
  * @package Hidden_Word_Bible_Lessons
  */
@@ -27,50 +24,71 @@ class HWBL_Integrated_Premium_Loader {
 			return true;
 		}
 
-		return (bool) apply_filters( 'hwbl_integrated_premium', false );
+		return (bool) apply_filters( 'hwbl_integrated_premium', true );
 	}
 
 	/**
-	 * Bootstrap Premium from sibling directory when merge mode is on.
+	 * Bootstrap bundled modules when merge mode is on.
 	 */
 	public static function maybe_load() {
 		if ( ! self::is_enabled() ) {
 			return;
 		}
 
+		if ( ! defined( 'HWBL_INTEGRATED_PREMIUM' ) ) {
+			define( 'HWBL_INTEGRATED_PREMIUM', true );
+		}
+
 		if ( defined( 'THW_PREMIUM_VERSION' ) ) {
+			self::after_premium_loaded();
 			return;
 		}
 
 		$paths = array(
-			dirname( HWBL_PLUGIN_DIR ) . '/The-Hidden-Word-Premium/the-hidden-word-premium.php',
 			HWBL_PLUGIN_DIR . 'premium/the-hidden-word-premium.php',
+			dirname( HWBL_PLUGIN_DIR ) . '/The-Hidden-Word-Premium/the-hidden-word-premium.php',
 		);
 
 		foreach ( $paths as $path ) {
 			if ( is_readable( $path ) ) {
-				if ( ! defined( 'HWBL_INTEGRATED_PREMIUM' ) ) {
-					define( 'HWBL_INTEGRATED_PREMIUM', true );
-				}
 				require_once $path;
 				break;
 			}
 		}
 
-		if ( class_exists( 'THW_Premium_Updater' ) ) {
-			remove_action( 'init', array( 'THW_Premium_Updater', 'init' ) );
-			remove_filter( 'pre_set_site_transient_update_plugins', array( 'THW_Premium_Updater', 'check_update' ) );
-		}
-
-		if ( class_exists( 'THW_Premium_License' ) ) {
-			add_filter( 'thw_premium_is_licensed', '__return_true', 100 );
-		}
-
-		add_action( 'init', array( __CLASS__, 'init_engagement_modules' ), 30 );
+		self::after_premium_loaded();
 	}
 
 	/**
-	 * Phase 5 engagement modules (leaderboards, digests, PWA, etc.).
+	 * Post-load wiring: license bypass and engagement modules.
+	 */
+	private static function after_premium_loaded() {
+		add_filter( 'thw_premium_is_licensed', '__return_true', 100 );
+		add_action( 'init', array( __CLASS__, 'init_engagement_modules' ), 30 );
+		add_action( 'admin_init', array( __CLASS__, 'maybe_deactivate_legacy_premium' ), 1 );
+	}
+
+	/**
+	 * Deactivate the legacy standalone Premium plugin when merge mode is on.
+	 */
+	public static function maybe_deactivate_legacy_premium() {
+		if ( ! self::is_enabled() || ! current_user_can( 'activate_plugins' ) ) {
+			return;
+		}
+
+		if ( ! function_exists( 'is_plugin_active' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
+		$legacy = 'the-hidden-word-premium/the-hidden-word-premium.php';
+		if ( is_plugin_active( $legacy ) ) {
+			deactivate_plugins( $legacy, true );
+			set_transient( 'hwbl_legacy_premium_deactivated', 1, HOUR_IN_SECONDS );
+		}
+	}
+
+	/**
+	 * Engagement modules that live in the free plugin.
 	 */
 	public static function init_engagement_modules() {
 		if ( ! self::is_enabled() ) {

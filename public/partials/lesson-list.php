@@ -69,8 +69,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 	<?php
 	if ( isset( $total_pages ) && $total_pages > 1 ) {
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo HWBL_Lesson_List::render_pagination( $page, $total_pages );
+		echo wp_kses_post( HWBL_Lesson_List::render_pagination( $page, $total_pages ) );
 	}
 	?>
 </div>

@@ -1,0 +1,232 @@
+{
+  "slug": "christian_science",
+  "label": "Christian Science",
+  "version": "1.1.0",
+  "framing": "Frame for a Christian Science audience studying this Bible lesson: respectful, Scripture-focused tone. Prefer the Six Tenets of Christian Science identifiers (from Science and Health). This tool supplies Bible text only—do not invent long Science and Health quotations or guarantee healings.",
+  "extends": null,
+  "general_gates": [
+    "Stay within the provided Bible text for verse claims; do not invent quotations.",
+    "Do not invent primary-source citations beyond the digests and Christian Science Tenets identifiers supplied in this pack.",
+    "When citing Christian Science doctrine, use Christian Science Tenets 1–6 identifiers only—brief paraphrase. Never invent long Science and Health quotations or metaphysical systems beyond the pack.",
+    "Do not guarantee physical healings or discourage emergency medical care.",
+    "When a doctrinal stance gate matches, state the tradition, the stance (yes/no/conditional/pastoral/silence), and any required conditions clearly.",
+    "For sensitive life topics, encourage prayer and trusted pastoral or professional help; AI is not a substitute for counseling."
+  ],
+  "citation_map": [
+    {
+      "topics": [
+        "scripture_authority",
+        "church_authority"
+      ],
+      "articles": [
+        "1"
+      ],
+      "confession": "Christian Science Tenets",
+      "note": "As adherents of Truth, we take the inspired Word of the Bible as our sufficient guide to eternal Life. Cite Tenet 1."
+    },
+    {
+      "topics": [
+        "salvation",
+        "church_authority"
+      ],
+      "articles": [
+        "2",
+        "3"
+      ],
+      "confession": "Christian Science Tenets",
+      "note": "One God / one Christ; forgiveness and atonement themes in CS framing—paraphrase briefly; stay with Bible lesson. Cite Tenets 2–3."
+    },
+    {
+      "topics": [
+        "prayer",
+        "healing",
+        "salvation"
+      ],
+      "articles": [
+        "4",
+        "5",
+        "6"
+      ],
+      "confession": "Christian Science Tenets",
+      "note": "Jesus’ demonstrable Christianity; God’s forgiveness; glory to God. Cite Tenets 4–6—never guarantee healings or invent Eddy quotes."
+    },
+    {
+      "topics": [
+        "additional_scripture"
+      ],
+      "articles": [
+        "1"
+      ],
+      "confession": "Christian Science Tenets",
+      "note": "Bible as sufficient guide (Tenet 1). Do not invent Science and Health dumps as a second canon in answers."
+    },
+    {
+      "topics": [
+        "baptism",
+        "lords_supper",
+        "eucharist",
+        "sacraments"
+      ],
+      "articles": [
+        "1",
+        "4"
+      ],
+      "confession": "Christian Science Tenets",
+      "note": "If baptism/supper appear in the Bible text, explain the biblical scene; CS sacramental language differs—stay pastoral."
+    },
+    {
+      "topics": [
+        "marriage",
+        "divorce",
+        "remarriage",
+        "sexuality"
+      ],
+      "articles": [
+        "1",
+        "6"
+      ],
+      "confession": "Christian Science Tenets",
+      "note": "Encourage faithfulness in biblical terms; no invented Mother Church policy dumps."
+    }
+  ],
+  "primary_sources": [
+    {
+      "id": "cs_tenet1",
+      "title": "Christian Science Tenets — Bible (digest)",
+      "cite": "Christian Science Tenets Tenet 1 (paraphrase)",
+      "excerpt": "The inspired Word of the Bible is taken as sufficient guide to eternal Life. Explain the provided Bible passage in plain language; do not invent Science and Health quotations.",
+      "topics": [
+        "scripture_authority",
+        "additional_scripture"
+      ]
+    },
+    {
+      "id": "cs_tenets_god",
+      "title": "Christian Science Tenets — God & Christ (digest)",
+      "cite": "Christian Science Tenets Tenets 2–3 (paraphrase)",
+      "excerpt": "One supreme God; one Christ. Present CS framing respectfully while centering the Bible lesson.",
+      "topics": [
+        "salvation",
+        "church_authority"
+      ]
+    },
+    {
+      "id": "cs_tenets_prayer",
+      "title": "Christian Science Tenets — prayer & practice (digest)",
+      "cite": "Christian Science Tenets Tenets 4–6 (paraphrase)",
+      "excerpt": "Encourage prayerful reading of Scripture and trust in God. Never guarantee healings or discourage emergency care; never invent Eddy quotations.",
+      "topics": [
+        "prayer",
+        "healing",
+        "salvation"
+      ]
+    }
+  ],
+  "stances": [
+    {
+      "topic": "additional_scripture",
+      "stance": "no",
+      "summary": "Do not invent Eddy/Science and Health citation dumps; Tenets identifiers only.",
+      "conditions": [],
+      "forbid": [
+        "fabricate Science and Health quotes"
+      ]
+    },
+    {
+      "topic": "scripture_authority",
+      "stance": "conditional",
+      "summary": "Bible as sufficient guide (Tenet 1)—center the provided passage.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "prayer",
+      "stance": "pastoral",
+      "summary": "Encourage prayerful Scripture reading (Tenets 4–6) without inventing healing claims.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "healing",
+      "stance": "conditional",
+      "summary": "Pray without guaranteeing outcomes; do not discourage emergency medical care.",
+      "conditions": [
+        "no guaranteed miracles"
+      ],
+      "forbid": [
+        "guarantee healings",
+        "discourage emergency care"
+      ]
+    },
+    {
+      "topic": "salvation",
+      "stance": "pastoral",
+      "summary": "Speak of God’s care and discipleship from the text + Tenets paraphrase.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "baptism",
+      "stance": "pastoral",
+      "summary": "If baptism appears in the text, explain the biblical scene only.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "eucharist",
+      "stance": "pastoral",
+      "summary": "Stay with biblical supper texts if present.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "lords_supper",
+      "stance": "pastoral",
+      "summary": "Stay with biblical text.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "marriage",
+      "stance": "pastoral",
+      "summary": "Encourage faithfulness in general biblical terms.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "divorce",
+      "stance": "pastoral",
+      "summary": "Encourage wise counsel.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "annulment",
+      "stance": "silence",
+      "summary": "Not applicable.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "remarriage",
+      "stance": "pastoral",
+      "summary": "Encourage careful counsel.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "sexuality",
+      "stance": "pastoral",
+      "summary": "Encourage purity without inventing denominational metaphysics.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "church_authority",
+      "stance": "silence",
+      "summary": "Do not invent Mother Church directives.",
+      "conditions": [],
+      "forbid": []
+    }
+  ]
+}

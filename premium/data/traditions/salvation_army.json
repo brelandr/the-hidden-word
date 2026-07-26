@@ -1,0 +1,267 @@
+{
+  "slug": "salvation_army",
+  "label": "Salvation Army",
+  "version": "1.1.0",
+  "framing": "Frame for a Salvation Army audience: Scripture, practical holiness, and compassion for the vulnerable. Prefer the 11 Doctrines of The Salvation Army (Articles of Faith). Do not invent Orders and Regulations dumps.",
+  "extends": "evangelical",
+  "general_gates": [
+    "Stay within the provided Bible text for verse claims; do not invent quotations.",
+    "Do not invent primary-source citations beyond the digests and Salvation Army Doctrine numbers supplied in this pack.",
+    "When citing Salvation Army doctrine, use Salvation Army Doctrines 1–11 only—paraphrase; do not invent Orders and Regulations text.",
+    "When a doctrinal stance gate matches, state the tradition, the stance (yes/no/conditional/pastoral/silence), and any required conditions clearly.",
+    "For sensitive life topics, encourage prayer and trusted pastoral or professional help; AI is not a substitute for counseling."
+  ],
+  "citation_map": [
+    {
+      "topics": [
+        "scripture_authority"
+      ],
+      "articles": [
+        "1"
+      ],
+      "confession": "Salvation Army Doctrines",
+      "note": "Scriptures of the Old and New Testaments were given by inspiration of God and are the divine rule of faith and practice. Cite Doctrine 1."
+    },
+    {
+      "topics": [
+        "church_authority",
+        "salvation"
+      ],
+      "articles": [
+        "2",
+        "3",
+        "4"
+      ],
+      "confession": "Salvation Army Doctrines",
+      "note": "One God; Trinity; Jesus Christ true God and true man. Cite Doctrines 2–4."
+    },
+    {
+      "topics": [
+        "salvation"
+      ],
+      "articles": [
+        "5",
+        "6",
+        "7",
+        "8"
+      ],
+      "confession": "Salvation Army Doctrines",
+      "note": "Sin; atonement; repentance/faith/regeneration; justification by grace. Cite Doctrines 5–8."
+    },
+    {
+      "topics": [
+        "holiness",
+        "sanctification"
+      ],
+      "articles": [
+        "9",
+        "10"
+      ],
+      "confession": "Salvation Army Doctrines",
+      "note": "Continuance in a state of salvation; entire sanctification / holiness. Cite Doctrines 9–10."
+    },
+    {
+      "topics": [
+        "prophecy"
+      ],
+      "articles": [
+        "11"
+      ],
+      "confession": "Salvation Army Doctrines",
+      "note": "Immortality of the soul; resurrection; judgment; eternal happiness/punishment. Cite Doctrine 11."
+    },
+    {
+      "topics": [
+        "baptism",
+        "lords_supper",
+        "eucharist",
+        "sacraments"
+      ],
+      "articles": [
+        "9",
+        "10"
+      ],
+      "confession": "Salvation Army Doctrines",
+      "note": "The Army historically does not practice water baptism or Communion as ordinances—emphasize inward grace and soldiership; cite Doctrines on holiness while explaining the distinctive gently."
+    },
+    {
+      "topics": [
+        "mission",
+        "holiness"
+      ],
+      "articles": [
+        "9",
+        "10"
+      ],
+      "confession": "Salvation Army Doctrines",
+      "note": "Practical holiness joined to mercy ministries (soup, soap, salvation)—paraphrase ethos with Doctrine identifiers."
+    },
+    {
+      "topics": [
+        "marriage",
+        "divorce",
+        "remarriage",
+        "sexuality"
+      ],
+      "articles": [
+        "9",
+        "10"
+      ],
+      "confession": "Salvation Army Doctrines",
+      "note": "Holy living shapes family ethics; prefer pastoral counsel—do not invent SA policy dumps."
+    }
+  ],
+  "primary_sources": [
+    {
+      "id": "sa_scripture",
+      "title": "Salvation Army — Scripture (digest)",
+      "cite": "Salvation Army Doctrines Doctrine 1 (paraphrase)",
+      "excerpt": "The Scriptures are the divine rule of Christian faith and practice.",
+      "topics": [
+        "scripture_authority"
+      ]
+    },
+    {
+      "id": "sa_salvation",
+      "title": "Salvation Army — salvation (digest)",
+      "cite": "Salvation Army Doctrines Doctrines 5–8 (paraphrase)",
+      "excerpt": "All need salvation; Christ atones; repentance and faith bring regeneration; we are justified by grace through faith in Christ.",
+      "topics": [
+        "salvation"
+      ]
+    },
+    {
+      "id": "sa_holiness",
+      "title": "Salvation Army — holiness (digest)",
+      "cite": "Salvation Army Doctrines Doctrines 9–10 (paraphrase)",
+      "excerpt": "Believers may continue in salvation and are called to entire sanctification—heart cleansing and holy love empowering practical mercy.",
+      "topics": [
+        "holiness",
+        "sanctification",
+        "mission"
+      ]
+    },
+    {
+      "id": "sa_ordinances",
+      "title": "Salvation Army — ordinances distinctive (digest)",
+      "cite": "Salvation Army Doctrines; SA practice (paraphrase)",
+      "excerpt": "The Army historically does not practice water baptism or the Lord’s Supper as ordinances; emphasize inward grace, soldiership commitment, and holy living without attacking other churches’ practices.",
+      "topics": [
+        "baptism",
+        "eucharist",
+        "lords_supper",
+        "sacraments"
+      ]
+    }
+  ],
+  "stances": [
+    {
+      "topic": "scripture_authority",
+      "stance": "yes",
+      "summary": "Scripture as divine rule (Doctrine 1).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "salvation",
+      "stance": "yes",
+      "summary": "By grace through faith in Christ’s atonement (Doctrines 5–8).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "holiness",
+      "stance": "yes",
+      "summary": "Practical holiness and entire sanctification (Doctrines 9–10).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "sanctification",
+      "stance": "yes",
+      "summary": "Entire sanctification / holy living (Doctrine 10).",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "baptism",
+      "stance": "conditional",
+      "summary": "SA historically does not practice water baptism as an ordinance—explain gently.",
+      "conditions": [
+        "acknowledge SA distinctives gently"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "eucharist",
+      "stance": "conditional",
+      "summary": "Outward Communion generally not practiced; spiritual feeding on Christ.",
+      "conditions": [
+        "acknowledge distinctives"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "lords_supper",
+      "stance": "conditional",
+      "summary": "Focus on spiritual communion and holiness.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "mission",
+      "stance": "yes",
+      "summary": "Gospel witness with care for the poor.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "marriage",
+      "stance": "yes",
+      "summary": "Holy living shapes faithful marriage.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "divorce",
+      "stance": "conditional",
+      "summary": "Serious; pastoral/officer counsel—no invented SA policy dumps.",
+      "conditions": [
+        "pastoral counsel"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "annulment",
+      "stance": "silence",
+      "summary": "Not SA category.",
+      "conditions": [],
+      "forbid": []
+    },
+    {
+      "topic": "remarriage",
+      "stance": "conditional",
+      "summary": "Pastoral guidance under Scripture.",
+      "conditions": [
+        "pastoral guidance"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "sexuality",
+      "stance": "conditional",
+      "summary": "Holy living; compassion.",
+      "conditions": [
+        "compassion"
+      ],
+      "forbid": []
+    },
+    {
+      "topic": "prophecy",
+      "stance": "yes",
+      "summary": "Judgment and eternal destiny (Doctrine 11)—avoid speculation.",
+      "conditions": [],
+      "forbid": []
+    }
+  ]
+}
