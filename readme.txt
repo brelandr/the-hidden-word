@@ -8,7 +8,7 @@ Stable tag: 2.1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-A Bible discipleship plugin with 500 NIV verses, memorization, Bible reader, local public-domain Bibles, digests, AI study tools (BYOK), and multi-translation APIs — all free.
+Bible discipleship with 500 NIV lessons, memorization, Bible reader, local public-domain Bibles, digests, and BYOK AI — all free.
 
 == Description ==
 
