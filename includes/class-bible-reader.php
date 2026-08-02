@@ -930,6 +930,15 @@ class HWBL_Bible_Reader {
 		if ( ! empty( $features['explain'] ) && wp_style_is( 'thw-premium', 'registered' ) ) {
 			wp_enqueue_style( 'thw-premium' );
 		}
+		if ( ! empty( $features['study_card'] ) && class_exists( 'THW_Premium_Bible_Study_Card' ) ) {
+			THW_Premium_Bible_Study_Card::enqueue_assets();
+		}
+		if ( ! empty( $features['maps'] ) && class_exists( 'HWBL_Bible_Places' ) ) {
+			HWBL_Bible_Places::enqueue_assets();
+		}
+		if ( ! empty( $features['concordance'] ) && class_exists( 'HWBL_Bible_Concordance' ) ) {
+			HWBL_Bible_Concordance::enqueue_assets();
+		}
 
 		wp_enqueue_style( 'hwbl-bible-reader' );
 		wp_enqueue_script( 'hwbl-bible-reader' );
@@ -999,11 +1008,26 @@ class HWBL_Bible_Reader {
 					'researchDisclaimer' => __( 'AI-generated explanation. Compare with Scripture and trusted teachers.', 'hidden-word-bible-lessons' ),
 					'researchLoadingCached' => __( 'Loading saved explanation…', 'hidden-word-bible-lessons' ),
 					'researchTraditionDiff' => __( 'Tradition variation', 'hidden-word-bible-lessons' ),
+					'studyBtn'              => __( 'Study this verse', 'hidden-word-bible-lessons' ),
+					'studyLoading'          => __( 'Building your Verse Study Card…', 'hidden-word-bible-lessons' ),
+					'studyError'            => __( 'Could not build a study card.', 'hidden-word-bible-lessons' ),
+					'studyLogin'            => __( 'Sign in to generate a Verse Study Card. Once saved, everyone can read it.', 'hidden-word-bible-lessons' ),
+					'studyHint'             => __( 'Click a verse, then open a guided study card.', 'hidden-word-bible-lessons' ),
+					'mapBtn'                => __( 'Map places', 'hidden-word-bible-lessons' ),
+					'mapLoading'            => __( 'Loading places…', 'hidden-word-bible-lessons' ),
+					'mapError'              => __( 'Could not load places for this passage.', 'hidden-word-bible-lessons' ),
+					'mapHint'               => __( 'Click a verse, then map its places — or map the whole chapter.', 'hidden-word-bible-lessons' ),
+					'mapEmpty'              => __( 'No catalogued places for this passage.', 'hidden-word-bible-lessons' ),
+					'concordanceBtn'        => __( 'Concordance', 'hidden-word-bible-lessons' ),
 				),
 				'explainRestUrl' => class_exists( 'THW_Premium_Bible_Reader_Explain' )
 					? esc_url_raw( rest_url( 'hwbl/v1/bible-explain' ) )
 					: '',
+				'studyCardRestUrl' => class_exists( 'THW_Premium_Bible_Study_Card' )
+					? esc_url_raw( rest_url( 'hwbl/v1/bible/study-card' ) )
+					: '',
 				'loggedIn'       => is_user_logged_in(),
+				'maps'           => class_exists( 'HWBL_Bible_Places' ) ? HWBL_Bible_Places::get_front_config() : array( 'enabled' => false ),
 			)
 		);
 
@@ -1087,6 +1111,15 @@ class HWBL_Bible_Reader {
 								?>
 							<?php endif; ?>
 							<button type="button" class="hwbl-btn hwbl-btn-secondary hwbl-bible-reader__research-btn"><?php esc_html_e( 'Explain passage', 'hidden-word-bible-lessons' ); ?></button>
+							<?php if ( ! empty( $features['study_card'] ) ) : ?>
+								<button type="button" class="hwbl-btn hwbl-bible-reader__study-btn"><?php esc_html_e( 'Study this verse', 'hidden-word-bible-lessons' ); ?></button>
+							<?php endif; ?>
+							<?php if ( ! empty( $features['maps'] ) ) : ?>
+								<button type="button" class="hwbl-btn hwbl-btn-secondary hwbl-bible-reader__map-btn"><?php esc_html_e( 'Map places', 'hidden-word-bible-lessons' ); ?></button>
+							<?php endif; ?>
+							<?php if ( ! empty( $features['concordance'] ) ) : ?>
+								<button type="button" class="hwbl-btn hwbl-btn-secondary hwbl-bible-reader__concordance-btn"><?php esc_html_e( 'Concordance', 'hidden-word-bible-lessons' ); ?></button>
+							<?php endif; ?>
 							<a class="hwbl-bible-reader__research-saved hwbl-btn hwbl-btn-secondary" href="#" hidden><?php esc_html_e( 'Read saved explanation', 'hidden-word-bible-lessons' ); ?></a>
 							<a class="hwbl-bible-reader__research-lesson hwbl-btn hwbl-btn-secondary" href="#" hidden><?php esc_html_e( 'Open full lesson study', 'hidden-word-bible-lessons' ); ?></a>
 						</div>
@@ -1099,6 +1132,35 @@ class HWBL_Bible_Reader {
 						</p>
 						<p class="hwbl-bible-reader__research-disclaimer description"><?php esc_html_e( 'AI-generated explanation. Compare with Scripture and trusted teachers.', 'hidden-word-bible-lessons' ); ?></p>
 					</div>
+					<?php if ( ! empty( $features['study_card'] ) ) : ?>
+						<div class="hwbl-bible-reader__study-panel" hidden>
+							<div class="hwbl-bible-reader__study-status" role="status" aria-live="polite"></div>
+							<div class="hwbl-bible-reader__study-output"></div>
+						</div>
+					<?php endif; ?>
+					<?php if ( ! empty( $features['maps'] ) ) : ?>
+						<div class="hwbl-bible-reader__map-panel hwbl-bible-map" hidden>
+							<div class="hwbl-bible-map__canvas" role="img" aria-label="<?php esc_attr_e( 'Map of biblical places', 'hidden-word-bible-lessons' ); ?>"></div>
+							<details class="hwbl-bible-map__places">
+								<summary class="hwbl-bible-map__places-summary"><?php esc_html_e( 'Places list', 'hidden-word-bible-lessons' ); ?></summary>
+								<ul class="hwbl-bible-map__list" aria-live="polite"></ul>
+							</details>
+							<p class="hwbl-bible-map__status" role="status"></p>
+							<p class="hwbl-bible-map__attribution"><?php echo esc_html( HWBL_Bible_Places::get_attribution() ); ?></p>
+						</div>
+					<?php endif; ?>
+					<?php if ( ! empty( $features['concordance'] ) ) : ?>
+						<div class="hwbl-bible-reader__concordance-panel" hidden>
+							<?php
+							echo HWBL_Bible_Concordance::render_shortcode( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shortcode returns escaped HTML.
+								array(
+									'title'       => __( 'Bible Concordance', 'hidden-word-bible-lessons' ),
+									'translation' => $translation,
+								)
+							);
+							?>
+						</div>
+					<?php endif; ?>
 				</div>
 			<?php endif; ?>
 			<article class="hwbl-bible-reader__body">

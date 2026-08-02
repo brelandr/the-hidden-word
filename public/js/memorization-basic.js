@@ -254,11 +254,150 @@
 
 		var scrambleWords = [];
 		var scramblePicked = [];
+		var flipTargetIndexes = {};
+		var flipFlippedIndexes = {};
 
 		function getWordTokens() {
 			return state.filter(function (item) { return item.word; }).map(function (item) {
 				return item.text.trim();
 			});
+		}
+
+		function flipRatioFromCard() {
+			var reps = parseInt(widget.getAttribute('data-srs-reps') || '0', 10) || 0;
+			var interval = parseInt(widget.getAttribute('data-srs-interval') || '0', 10) || 0;
+			var ease = parseFloat(widget.getAttribute('data-srs-ease') || '2.5');
+			if (!isFinite(ease) || ease <= 0) {
+				ease = 2.5;
+			}
+			var repScore = Math.min(1, Math.max(0, reps) / 6);
+			var intervalScore = Math.min(1, Math.max(0, interval) / 21);
+			var easeBoost = Math.max(-0.1, Math.min(0.15, (ease - 2.5) * 0.1));
+			var mastery = Math.max(0, Math.min(1, repScore * 0.55 + intervalScore * 0.45 + easeBoost));
+			var minRatio = 0.3;
+			var maxRatio = 0.75;
+			return Math.round((minRatio + (maxRatio - minRatio) * mastery) * 100) / 100;
+		}
+
+		function speakWord(word) {
+			if (!word || typeof window.speechSynthesis === 'undefined') {
+				return;
+			}
+			try {
+				window.speechSynthesis.cancel();
+				var utter = new window.SpeechSynthesisUtterance(word);
+				utter.rate = 0.95;
+				window.speechSynthesis.speak(utter);
+			} catch (e) {
+				// Ignore TTS failures.
+			}
+		}
+
+		function pickFlipTargets(ratio) {
+			var words = state.filter(function (item) { return item.word; });
+			flipTargetIndexes = {};
+			flipFlippedIndexes = {};
+			if (!words.length) {
+				return;
+			}
+			var useRatio = ratio == null ? flipRatioFromCard() : ratio;
+			var clamped = Math.min(1, Math.max(0, useRatio));
+			var count = Math.max(1, Math.round(words.length * clamped));
+			var shuffled = shuffleArray(words);
+			shuffled.slice(0, Math.min(count, shuffled.length)).forEach(function (item) {
+				flipTargetIndexes[item.index] = true;
+			});
+		}
+
+		function renderFlip() {
+			container.innerHTML = '';
+			state.forEach(function (item) {
+				if (item.word && flipTargetIndexes[item.index]) {
+					var flipped = !!flipFlippedIndexes[item.index];
+					var word = item.text.trim();
+					var card = document.createElement('button');
+					card.type = 'button';
+					card.className = 'hwbl-flip-card' + (flipped ? ' is-flipped' : '');
+					card.setAttribute(
+						'aria-label',
+						flipped
+							? word
+							: i18n('flipReveal', 'Flip card to reveal word')
+					);
+
+					var inner = document.createElement('span');
+					inner.className = 'hwbl-flip-card__inner';
+					/* Size to the revealed word so it never wraps onto itself. */
+					inner.style.minWidth = Math.max(2.75, Math.min(word.length + 1.5, 14)) + 'ch';
+
+					var front = document.createElement('span');
+					front.className = 'hwbl-flip-card__face hwbl-flip-card__front';
+					front.textContent = '?';
+					front.setAttribute('aria-hidden', 'true');
+
+					var back = document.createElement('span');
+					back.className = 'hwbl-flip-card__face hwbl-flip-card__back';
+					back.textContent = word;
+					back.setAttribute('aria-hidden', 'true');
+
+					inner.appendChild(front);
+					inner.appendChild(back);
+					card.appendChild(inner);
+
+					card.addEventListener('click', function () {
+						if (flipFlippedIndexes[item.index]) {
+							delete flipFlippedIndexes[item.index];
+						} else {
+							flipFlippedIndexes[item.index] = true;
+							recordPractice(widget);
+							speakWord(word);
+						}
+						renderFlip();
+					});
+
+					// Horizontal swipe to flip (touch).
+					var touchStartX = null;
+					card.addEventListener('touchstart', function (ev) {
+						if (ev.changedTouches && ev.changedTouches[0]) {
+							touchStartX = ev.changedTouches[0].clientX;
+						}
+					}, { passive: true });
+					card.addEventListener('touchend', function (ev) {
+						if (touchStartX == null || !ev.changedTouches || !ev.changedTouches[0]) {
+							return;
+						}
+						var dx = ev.changedTouches[0].clientX - touchStartX;
+						touchStartX = null;
+						if (Math.abs(dx) < 36) {
+							return;
+						}
+						ev.preventDefault();
+						if (flipFlippedIndexes[item.index]) {
+							delete flipFlippedIndexes[item.index];
+						} else {
+							flipFlippedIndexes[item.index] = true;
+							recordPractice(widget);
+							speakWord(word);
+						}
+						renderFlip();
+					}, { passive: false });
+
+					container.appendChild(card);
+					return;
+				}
+
+				var span = document.createElement('span');
+				span.className = 'hwbl-word';
+				span.textContent = item.text;
+				container.appendChild(span);
+			});
+		}
+
+		function flipAllCards() {
+			Object.keys(flipTargetIndexes).forEach(function (index) {
+				flipFlippedIndexes[index] = true;
+			});
+			renderFlip();
 		}
 
 		function resetScramble() {
@@ -319,9 +458,14 @@
 			var scramble = widget.querySelector('.hwbl-memorization-scramble');
 			var reference = widget.querySelector('.hwbl-memorization-reference');
 			var controls = widget.querySelector('.hwbl-memorization-controls');
+			var flipControls = widget.querySelector('.hwbl-memorization-flip-controls');
+			var audioWrap = widget.querySelector('.hwbl-memorization-audio-wrap');
 			container.hidden = true;
 			if (controls) {
 				controls.hidden = true;
+			}
+			if (flipControls) {
+				flipControls.hidden = true;
 			}
 			if (recall) {
 				recall.hidden = true;
@@ -331,6 +475,9 @@
 			}
 			if (reference) {
 				reference.hidden = true;
+			}
+			if (audioWrap) {
+				audioWrap.classList.remove('is-flip-paired');
 			}
 		}
 
@@ -379,6 +526,28 @@
 				resetScramble();
 				if (hint) {
 					hint.textContent = i18n('modeScramble', 'Click shuffled words in verse order.');
+				}
+				return;
+			}
+
+			if (mode === 'flip') {
+				hidePracticePanels();
+				container.hidden = false;
+				var flipControls = widget.querySelector('.hwbl-memorization-flip-controls');
+				if (flipControls) {
+					flipControls.hidden = false;
+				}
+				pickFlipTargets();
+				renderFlip();
+				if (hint) {
+					hint.textContent = i18n(
+						'modeFlip',
+						'Flip cards (or swipe) to reveal missing words. Listen to the chapter, then check yourself.'
+					);
+				}
+				var audioWrap = widget.querySelector('.hwbl-memorization-audio-wrap');
+				if (audioWrap) {
+					audioWrap.classList.add('is-flip-paired');
 				}
 				return;
 			}
@@ -641,6 +810,35 @@
 		if (scrambleReset) {
 			scrambleReset.addEventListener('click', function () {
 				resetScramble();
+			});
+		}
+
+		var flipNew = widget.querySelector('.hwbl-flip-new');
+		if (flipNew) {
+			flipNew.addEventListener('click', function () {
+				pickFlipTargets();
+				renderFlip();
+			});
+		}
+
+		var flipAll = widget.querySelector('.hwbl-flip-all');
+		if (flipAll) {
+			flipAll.addEventListener('click', function () {
+				flipAllCards();
+			});
+		}
+
+		var flipDone = widget.querySelector('.hwbl-flip-done');
+		if (flipDone) {
+			flipDone.addEventListener('click', function () {
+				recordPractice(widget);
+				if (typeof window.hwblShowReviewQuality === 'function') {
+					window.hwblShowReviewQuality(widget, function (quality) {
+						finishReview(quality, 'flip');
+					});
+					return;
+				}
+				promptQuality('flip', 4);
 			});
 		}
 

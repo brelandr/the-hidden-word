@@ -289,6 +289,164 @@
 			elBtn.addEventListener('click', runExplain);
 		}
 
+		var elStudyBtn = qs(root, '.hwbl-bible-reader__study-btn');
+		var elStudyPanel = qs(root, '.hwbl-bible-reader__study-panel');
+		var elStudyStatus = qs(root, '.hwbl-bible-reader__study-status');
+		var elStudyOutput = qs(root, '.hwbl-bible-reader__study-output');
+
+		function runStudyCard() {
+			var verse = selectedVerse || parseInt(root.dataset.verse || '0', 10);
+			if (!verse) {
+				if (elStudyPanel) {
+					elStudyPanel.hidden = false;
+				}
+				if (elStudyStatus) {
+					elStudyStatus.textContent = i18n.studyHint || 'Click a verse first.';
+				}
+				return;
+			}
+			if (!cfg.studyCardRestUrl) {
+				if (elStudyStatus) {
+					elStudyStatus.textContent = i18n.studyError || 'Study card unavailable.';
+				}
+				return;
+			}
+			if (!cfg.loggedIn) {
+				if (elStudyPanel) {
+					elStudyPanel.hidden = false;
+				}
+				if (elStudyStatus) {
+					elStudyStatus.textContent = i18n.studyLogin || 'Sign in to generate a study card.';
+				}
+				return;
+			}
+
+			if (elStudyPanel) {
+				elStudyPanel.hidden = false;
+			}
+			if (elStudyStatus) {
+				elStudyStatus.textContent = i18n.studyLoading || 'Building your Verse Study Card…';
+			}
+			if (elStudyOutput) {
+				elStudyOutput.innerHTML = '';
+			}
+
+			fetchJson(cfg.studyCardRestUrl, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					book_id: parseInt(root.dataset.book || '0', 10),
+					chapter: parseInt(root.dataset.chapter || '0', 10),
+					verse: verse,
+					translation: root.dataset.translation || cfg.translation,
+					tradition: getTradition(root),
+				}),
+			})
+				.then(function (payload) {
+					if (elStudyStatus) {
+						elStudyStatus.textContent = '';
+					}
+					if (elStudyOutput) {
+						if (window.hwblVerseStudyApi && window.hwblVerseStudyApi.renderCardHtml) {
+							elStudyOutput.innerHTML = window.hwblVerseStudyApi.renderCardHtml(payload);
+						} else {
+							elStudyOutput.innerHTML =
+								'<p><strong>' +
+								(payload.reference || '') +
+								'</strong></p><p>' +
+								(payload.plainWords || '') +
+								'</p>';
+						}
+					}
+				})
+				.catch(function (err) {
+					var msg = i18n.studyError || 'Could not build a study card.';
+					if (err && err.code === 'thw_ai_login') {
+						msg = i18n.studyLogin || msg;
+					} else if (err && err.message) {
+						msg = err.message;
+					}
+					if (elStudyStatus) {
+						elStudyStatus.textContent = msg;
+					}
+				});
+		}
+
+		if (elStudyBtn) {
+			elStudyBtn.addEventListener('click', runStudyCard);
+		}
+
+		var elMapBtn = qs(root, '.hwbl-bible-reader__map-btn');
+		var elMapPanel = qs(root, '.hwbl-bible-reader__map-panel');
+
+		function runMapPlaces() {
+			var mapsCfg = cfg.maps || window.hwblBibleMap || {};
+			if (!mapsCfg.enabled) {
+				return;
+			}
+			var scope = elScope ? elScope.value : 'verse';
+			var verse =
+				scope === 'chapter'
+					? 0
+					: selectedVerse || parseInt(root.dataset.verse || '0', 10);
+			if (scope !== 'chapter' && !verse) {
+				if (elMapPanel) {
+					elMapPanel.hidden = false;
+				}
+				var statusEarly = elMapPanel
+					? elMapPanel.querySelector('.hwbl-bible-map__status')
+					: null;
+				if (statusEarly) {
+					statusEarly.textContent =
+						i18n.mapHint || 'Click a verse, then map its places.';
+				}
+				return;
+			}
+
+			if (elMapPanel) {
+				elMapPanel.hidden = false;
+			}
+			if (elStudyPanel) {
+				elStudyPanel.hidden = true;
+			}
+			if (elPanel) {
+				elPanel.hidden = true;
+			}
+
+			var api = window.hwblBibleMapApi;
+			if (!api || !api.renderIntoPanel) {
+				var statusMissing = elMapPanel
+					? elMapPanel.querySelector('.hwbl-bible-map__status')
+					: null;
+				if (statusMissing) {
+					statusMissing.textContent =
+						i18n.mapError || 'Could not load places for this passage.';
+				}
+				return;
+			}
+
+			api
+				.renderIntoPanel(
+					elMapPanel,
+					parseInt(root.dataset.book || '0', 10),
+					parseInt(root.dataset.chapter || '0', 10),
+					verse
+				)
+				.catch(function () {
+					var statusErr = elMapPanel
+						? elMapPanel.querySelector('.hwbl-bible-map__status')
+						: null;
+					if (statusErr) {
+						statusErr.textContent =
+							i18n.mapError || 'Could not load places for this passage.';
+					}
+				});
+		}
+
+		if (elMapBtn) {
+			elMapBtn.addEventListener('click', runMapPlaces);
+		}
+
 		if (elScope) {
 			elScope.addEventListener('change', function () {
 				if (elPanel && elScope.value === 'chapter') {

@@ -43,6 +43,9 @@ class THW_Premium_Explain_Preload {
 	/** Max auto-resubmits for one OpenAI file after expired/failed before pausing. */
 	const OPENAI_MAX_BATCH_RETRIES = 8;
 
+	/** Max missing passages to snapshot into the job option at start. */
+	const GAP_QUEUE_MAX = 2000;
+
 	/**
 	 * Wire cron / Action Scheduler.
 	 */
@@ -59,6 +62,8 @@ class THW_Premium_Explain_Preload {
 		return array(
 			'status'             => 'idle',
 			'mode'               => 'realtime',
+			'fill_gaps'          => false,
+			'strategy'           => '',
 			'translations'       => array(),
 			'traditions'         => array(),
 			'scopes'             => array(),
@@ -72,6 +77,9 @@ class THW_Premium_Explain_Preload {
 				'total'     => 0,
 				'queued'    => 0,
 			),
+			'gap_queue'          => array(),
+			'gap_index'          => 0,
+			'gap_samples'        => array(),
 			'last_reference'     => '',
 			'last_error'         => '',
 			'consecutive_errors' => 0,
@@ -79,6 +87,16 @@ class THW_Premium_Explain_Preload {
 			'updated_at'         => 0,
 			'finished_at'        => 0,
 		);
+	}
+
+	/**
+	 * Whether this job should only process missing passages.
+	 *
+	 * @param array<string, mixed> $job Job.
+	 * @return bool
+	 */
+	public static function job_is_fill_gaps( array $job ) {
+		return ! empty( $job['fill_gaps'] ) || 'fill_gaps' === (string) ( $job['strategy'] ?? '' );
 	}
 
 	/**
@@ -375,6 +393,86 @@ class THW_Premium_Explain_Preload {
 	}
 
 	/**
+	 * Start a job that only generates missing passages for one Bible × tradition × scope.
+	 *
+	 * @param array<string, mixed> $args translation, tradition, scope, mode.
+	 * @return array<string, mixed>|WP_Error
+	 */
+	public static function start_fill_gaps( array $args ) {
+		$translation = sanitize_key( (string) ( $args['translation'] ?? '' ) );
+		$tradition   = sanitize_key( (string) ( $args['tradition'] ?? '' ) );
+		$scope       = sanitize_key( (string) ( $args['scope'] ?? 'verse' ) );
+		if ( 'chapter' !== $scope ) {
+			$scope = 'verse';
+		}
+		$mode = self::normalize_mode( $args['mode'] ?? 'realtime' );
+
+		if ( '' === $translation || '' === $tradition ) {
+			return new WP_Error( 'thw_preload_fill_keys', __( 'Choose a Bible and tradition to fill gaps.', 'hidden-word-bible-lessons' ) );
+		}
+		if ( ! class_exists( 'HWBL_Local_Bible_Store' ) || ! HWBL_Local_Bible_Store::is_installed( $translation ) ) {
+			return new WP_Error( 'thw_preload_fill_bible', __( 'That Bible must be installed as a ready Local Bible before gaps can be filled.', 'hidden-word-bible-lessons' ) );
+		}
+		if ( ! class_exists( 'THW_Premium_Bible_Reader_Explain_Store' ) ) {
+			return new WP_Error( 'thw_preload_fill_store', __( 'Explain store is unavailable.', 'hidden-word-bible-lessons' ) );
+		}
+
+		$current = self::get_job();
+		if ( 'running' === ( $current['status'] ?? '' ) ) {
+			return new WP_Error( 'thw_preload_busy', __( 'A preload job is already running. Pause it first.', 'hidden-word-bible-lessons' ) );
+		}
+
+		if ( 'openai_batch' === $mode ) {
+			if ( ! class_exists( 'THW_Premium_AI_Client' ) || '' === THW_Premium_AI_Client::resolve_openai_api_key() ) {
+				return new WP_Error(
+					'thw_preload_need_openai',
+					__( 'OpenAI Batch mode requires an OpenAI API key (Premium settings or Settings → Connectors).', 'hidden-word-bible-lessons' )
+				);
+			}
+		}
+
+		$missing = THW_Premium_Bible_Reader_Explain_Store::count_missing_passages( $translation, $tradition, $scope );
+		if ( $missing < 1 ) {
+			return new WP_Error( 'thw_preload_no_gaps', __( 'No missing passages found for that Bible, tradition, and scope.', 'hidden-word-bible-lessons' ) );
+		}
+
+		$queue_limit = min( $missing, self::GAP_QUEUE_MAX );
+		$gap_queue   = THW_Premium_Bible_Reader_Explain_Store::list_missing_passages( $translation, $tradition, $scope, $queue_limit, 0 );
+		if ( empty( $gap_queue ) ) {
+			return new WP_Error( 'thw_preload_no_gaps', __( 'No missing passages found for that Bible, tradition, and scope.', 'hidden-word-bible-lessons' ) );
+		}
+
+		$labels = array();
+		foreach ( array_slice( $gap_queue, 0, 12 ) as $sample ) {
+			$labels[] = self::format_gap_sample_label( $sample );
+		}
+
+		self::cleanup_openai_artifacts( $current, true );
+
+		$job                       = self::default_job();
+		$job['status']             = 'running';
+		$job['mode']               = $mode;
+		$job['fill_gaps']          = 1;
+		$job['strategy']           = 'fill_gaps';
+		$job['translations']       = array( $translation );
+		$job['traditions']         = array( $tradition );
+		$job['scopes']             = array( $scope );
+		$job['stats']['total']     = $missing;
+		$job['gap_queue']          = array_values( $gap_queue );
+		$job['gap_index']          = 0;
+		$job['gap_samples']        = array_values( array_filter( array_map( 'strval', $labels ) ) );
+		$job['started_at']         = time();
+		$job['finished_at']        = 0;
+		$job['consecutive_errors'] = 0;
+		$job['cursor']             = self::default_cursor();
+
+		self::save_job( $job );
+		self::schedule_next_batch();
+
+		return $job;
+	}
+
+	/**
 	 * Pause a running job.
 	 *
 	 * @return array<string, mixed>
@@ -448,9 +546,18 @@ class THW_Premium_Explain_Preload {
 
 		$openai = is_array( $job['openai'] ?? null ) ? array_merge( self::default_openai_state(), $job['openai'] ) : self::default_openai_state();
 
+		$fill_gaps = self::job_is_fill_gaps( $job );
+		// Fill-gaps progress is generation-oriented (do not count Bible-walk skips).
+		if ( $fill_gaps ) {
+			$done = (int) ( $stats['generated'] ?? 0 ) + (int) ( $stats['errors'] ?? 0 ) + (int) ( $stats['skipped'] ?? 0 );
+			$pct  = ( $total > 0 ) ? min( 100, (int) floor( ( $done / $total ) * 100 ) ) : ( 'done' === ( $job['status'] ?? '' ) ? 100 : 0 );
+		}
+
 		return array(
 			'status'             => (string) ( $job['status'] ?? 'idle' ),
 			'mode'               => self::normalize_mode( $job['mode'] ?? 'realtime' ),
+			'fill_gaps'          => $fill_gaps,
+			'strategy'           => (string) ( $job['strategy'] ?? '' ),
 			'translations'       => array_values( (array) ( $job['translations'] ?? array() ) ),
 			'traditions'         => array_values( (array) ( $job['traditions'] ?? array() ) ),
 			'scopes'             => array_values( (array) ( $job['scopes'] ?? array() ) ),
@@ -463,6 +570,8 @@ class THW_Premium_Explain_Preload {
 				'queued'    => (int) ( $stats['queued'] ?? 0 ),
 			),
 			'percent'            => $pct,
+			'gap_remaining'      => $fill_gaps ? max( 0, $total - $done ) : 0,
+			'gap_samples'        => array_values( array_map( 'strval', (array) ( $job['gap_samples'] ?? array() ) ) ),
 			'last_reference'     => (string) ( $job['last_reference'] ?? '' ),
 			'last_error'         => (string) ( $job['last_error'] ?? '' ),
 			'consecutive_errors' => (int) ( $job['consecutive_errors'] ?? 0 ),
@@ -555,6 +664,10 @@ class THW_Premium_Explain_Preload {
 			return self::process_openai_batch_tick( $job );
 		}
 
+		if ( self::job_is_fill_gaps( $job ) ) {
+			return self::process_fill_gaps_realtime( $job );
+		}
+
 		$generated = 0;
 		$skipped   = 0;
 		$errors    = 0;
@@ -645,12 +758,269 @@ class THW_Premium_Explain_Preload {
 	}
 
 	/**
+	 * Human label for a missing passage sample.
+	 *
+	 * @param array<string, mixed> $sample Sample keys.
+	 * @return string
+	 */
+	private static function format_gap_sample_label( array $sample ) {
+		$book_id = (int) ( $sample['book_id'] ?? 0 );
+		$chapter = (int) ( $sample['chapter'] ?? 0 );
+		$verse   = (int) ( $sample['verse'] ?? 0 );
+		$scope   = sanitize_key( (string) ( $sample['scope'] ?? 'verse' ) );
+		if ( class_exists( 'HWBL_Books' ) ) {
+			return ( 'chapter' === $scope )
+				? HWBL_Books::get_name( $book_id ) . ' ' . $chapter
+				: HWBL_Books::format_reference( $book_id, $chapter, $verse );
+		}
+		return $book_id . ' ' . $chapter . ( ( 'verse' === $scope && $verse > 0 ) ? ':' . $verse : '' );
+	}
+
+	/**
+	 * Next missing passage for a fill-gaps job (from the snapshot queue, not a Bible walk).
+	 *
+	 * @param array<string, mixed> $job   Job (by ref).
+	 * @param int                  $depth Recursion guard for bad queue slots.
+	 * @return array<string, mixed>|null
+	 */
+	private static function resolve_fill_gaps_target( array &$job, $depth = 0 ) {
+		if ( $depth > 50 ) {
+			return null;
+		}
+		$translation = sanitize_key( (string) ( ( array_values( (array) ( $job['translations'] ?? array() ) )[0] ?? '' ) ) );
+		$tradition   = sanitize_key( (string) ( ( array_values( (array) ( $job['traditions'] ?? array() ) )[0] ?? '' ) ) );
+		$scope       = sanitize_key( (string) ( ( array_values( (array) ( $job['scopes'] ?? array() ) )[0] ?? 'verse' ) ) );
+		if ( 'chapter' !== $scope ) {
+			$scope = 'verse';
+		}
+		if ( '' === $translation || '' === $tradition ) {
+			return null;
+		}
+
+		$queue = array_values( (array) ( $job['gap_queue'] ?? array() ) );
+		$index = max( 0, (int) ( $job['gap_index'] ?? 0 ) );
+
+		if ( $index >= count( $queue ) ) {
+			if ( ! class_exists( 'THW_Premium_Bible_Reader_Explain_Store' ) ) {
+				return null;
+			}
+			// Refill from DB (offset 0): already-filled gaps drop out of the missing set.
+			$more = THW_Premium_Bible_Reader_Explain_Store::list_missing_passages(
+				$translation,
+				$tradition,
+				$scope,
+				min( 100, self::GAP_QUEUE_MAX ),
+				0
+			);
+			if ( empty( $more ) ) {
+				return null;
+			}
+			$job['gap_queue'] = array_values( $more );
+			$job['gap_index'] = 0;
+			$queue            = $job['gap_queue'];
+			$index            = 0;
+		}
+
+		$row = is_array( $queue[ $index ] ?? null ) ? $queue[ $index ] : null;
+		$job['gap_index'] = $index + 1;
+		if ( ! is_array( $row ) ) {
+			// Bad queue slot — try the next one instead of ending the job.
+			return self::resolve_fill_gaps_target( $job, $depth + 1 );
+		}
+
+		$book_id = (int) ( $row['book_id'] ?? 0 );
+		$chapter = (int) ( $row['chapter'] ?? 0 );
+		$verse   = ( 'chapter' === $scope ) ? 0 : (int) ( $row['verse'] ?? 0 );
+		if ( $book_id < 1 || $chapter < 1 || ( 'verse' === $scope && $verse < 1 ) ) {
+			return self::resolve_fill_gaps_target( $job, $depth + 1 );
+		}
+
+		$job['cursor'] = array(
+			't'           => 0,
+			'd'           => 0,
+			's'           => 0,
+			'book_id'     => $book_id,
+			'chapter'     => $chapter,
+			'verse'       => $verse,
+			'initialized' => true,
+		);
+
+		$label = self::format_gap_sample_label(
+			array(
+				'book_id' => $book_id,
+				'chapter' => $chapter,
+				'verse'   => $verse,
+				'scope'   => $scope,
+			)
+		);
+
+		return array(
+			'translation' => $translation,
+			'tradition'   => $tradition,
+			'scope'       => $scope,
+			'book_id'     => $book_id,
+			'chapter'     => $chapter,
+			'verse'       => $verse,
+			'label'       => $label,
+		);
+	}
+
+	/**
+	 * Mark a fill-gaps job complete and align totals with remaining DB gaps.
+	 *
+	 * @param array<string, mixed> $job Job.
+	 * @return array<string, mixed>
+	 */
+	private static function finalize_fill_gaps_job( array $job ) {
+		$translation = sanitize_key( (string) ( ( array_values( (array) ( $job['translations'] ?? array() ) )[0] ?? '' ) ) );
+		$tradition   = sanitize_key( (string) ( ( array_values( (array) ( $job['traditions'] ?? array() ) )[0] ?? '' ) ) );
+		$scope       = sanitize_key( (string) ( ( array_values( (array) ( $job['scopes'] ?? array() ) )[0] ?? 'verse' ) ) );
+		if ( 'chapter' !== $scope ) {
+			$scope = 'verse';
+		}
+
+		$remaining = 0;
+		if ( $translation && $tradition && class_exists( 'THW_Premium_Bible_Reader_Explain_Store' ) ) {
+			$remaining = THW_Premium_Bible_Reader_Explain_Store::count_missing_passages( $translation, $tradition, $scope );
+		}
+
+		// If gaps remain, keep running with a fresh queue instead of stopping early.
+		if ( $remaining > 0 ) {
+			$job['gap_queue'] = THW_Premium_Bible_Reader_Explain_Store::list_missing_passages(
+				$translation,
+				$tradition,
+				$scope,
+				min( $remaining, self::GAP_QUEUE_MAX ),
+				0
+			);
+			$job['gap_index']      = 0;
+			$job['stats']['total'] = max( (int) ( $job['stats']['total'] ?? 0 ), $remaining + (int) ( $job['stats']['processed'] ?? 0 ) );
+			$job['status']         = 'running';
+			$job['last_error']     = '';
+			self::save_job( $job );
+			self::schedule_next_batch( 2 );
+			return array(
+				'ok'       => true,
+				'continue' => true,
+				'status'   => 'running',
+				'job'      => self::status_payload(),
+			);
+		}
+
+		$processed                 = (int) ( $job['stats']['processed'] ?? 0 );
+		$job['stats']['total']     = max( $processed, (int) ( $job['stats']['total'] ?? 0 ) );
+		$job['status']             = 'done';
+		$job['finished_at']        = time();
+		$job['gap_queue']          = array();
+		$job['gap_index']          = 0;
+		self::save_job( $job );
+		self::clear_scheduled();
+		return array(
+			'ok'       => true,
+			'continue' => false,
+			'status'   => 'done',
+			'job'      => self::status_payload(),
+		);
+	}
+
+	/**
+	 * Realtime processor that only generates queued missing passages.
+	 *
+	 * @param array<string, mixed> $job Job.
+	 * @return array<string, mixed>
+	 */
+	private static function process_fill_gaps_realtime( array $job ) {
+		$generated = 0;
+		$skipped   = 0;
+		$errors    = 0;
+		$steps     = 0;
+		// One AI call per tick; allow a few already-present skips without walking the Bible.
+		$max_steps = self::GENERATE_BATCH + 5;
+
+		while ( $steps < $max_steps && $generated < self::GENERATE_BATCH ) {
+			++$steps;
+			$target = self::resolve_fill_gaps_target( $job );
+			if ( null === $target ) {
+				return self::finalize_fill_gaps_job( $job );
+			}
+
+			$result = THW_Premium_Bible_Reader_Explain::generate_for_passage(
+				(int) $target['book_id'],
+				(int) $target['chapter'],
+				(int) $target['verse'],
+				(string) $target['translation'],
+				(string) $target['scope'],
+				(string) $target['tradition'],
+				array(
+					'bypass_rate_limit' => true,
+					'user_id'           => get_current_user_id(),
+				)
+			);
+
+			$job['last_reference']         = (string) ( $result['reference'] ?? $target['label'] ?? '' );
+			$job['stats']['processed']     = (int) ( $job['stats']['processed'] ?? 0 ) + 1;
+
+			if ( ! empty( $result['ok'] ) && ! empty( $result['skipped'] ) ) {
+				++$skipped;
+				$job['stats']['skipped']   = (int) ( $job['stats']['skipped'] ?? 0 ) + 1;
+				$job['consecutive_errors'] = 0;
+				$job['last_error']         = '';
+			} elseif ( ! empty( $result['ok'] ) ) {
+				++$generated;
+				$job['stats']['generated'] = (int) ( $job['stats']['generated'] ?? 0 ) + 1;
+				$job['consecutive_errors'] = 0;
+				$job['last_error']         = '';
+			} else {
+				++$errors;
+				$job['stats']['errors']    = (int) ( $job['stats']['errors'] ?? 0 ) + 1;
+				$job['last_error']         = (string) ( $result['error'] ?? 'generate_failed' );
+				$job['consecutive_errors'] = (int) ( $job['consecutive_errors'] ?? 0 ) + 1;
+
+				if ( in_array( $job['last_error'], array( 'ai_unavailable', 'compliance_failed' ), true )
+					|| $job['consecutive_errors'] >= self::MAX_CONSECUTIVE_ERRORS ) {
+					$job['status'] = 'paused';
+					self::save_job( $job );
+					self::clear_scheduled();
+					return array(
+						'ok'       => false,
+						'continue' => false,
+						'status'   => 'paused',
+						'message'  => $job['last_error'],
+						'job'      => self::status_payload(),
+					);
+				}
+			}
+
+			self::save_job( $job );
+		}
+
+		$still = ( 'running' === ( $job['status'] ?? '' ) );
+		if ( $still ) {
+			self::schedule_next_batch();
+		}
+
+		return array(
+			'ok'        => true,
+			'continue'  => $still,
+			'generated' => $generated,
+			'skipped'   => $skipped,
+			'errors'    => $errors,
+			'status'    => (string) ( $job['status'] ?? 'idle' ),
+			'job'       => self::status_payload(),
+		);
+	}
+
+	/**
 	 * Resolve the current cursor into a concrete passage target.
 	 *
 	 * @param array<string, mixed> $job Job (by value; may initialize cursor via advance).
 	 * @return array<string, mixed>|null
 	 */
 	public static function resolve_target( array &$job ) {
+		if ( self::job_is_fill_gaps( $job ) ) {
+			return self::resolve_fill_gaps_target( $job );
+		}
+
 		$guard = 0;
 		while ( $guard < 5000 ) {
 			++$guard;
@@ -784,6 +1154,11 @@ class THW_Premium_Explain_Preload {
 	 * @return array<string, mixed>
 	 */
 	public static function advance_job_cursor( array $job, array $target ) {
+		// Fill-gaps jobs advance via gap_index inside resolve_fill_gaps_target.
+		if ( self::job_is_fill_gaps( $job ) ) {
+			return $job;
+		}
+
 		$cursor = is_array( $job['cursor'] ?? null ) ? $job['cursor'] : self::default_cursor();
 		$ti     = (int) ( $cursor['t'] ?? 0 );
 		$di     = (int) ( $cursor['d'] ?? 0 );
@@ -1143,6 +1518,10 @@ class THW_Premium_Explain_Preload {
 		}
 
 		if ( $exhausted && 0 === $queued ) {
+			if ( self::job_is_fill_gaps( $job ) ) {
+				$job['openai'] = self::default_openai_state();
+				return self::finalize_fill_gaps_job( $job );
+			}
 			$job['status']      = 'done';
 			$job['finished_at'] = time();
 			$job['openai']      = self::default_openai_state();

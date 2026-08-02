@@ -161,33 +161,43 @@ class HWBL_Memorization_Audio {
 	/**
 	 * Render listen button markup for a lesson.
 	 *
-	 * @param int                  $lesson_id Lesson post ID.
-	 * @param array<string, mixed> $lesson    Lesson data.
+	 * Speaks the exact verse via browser TTS when possible. Chapter MP3 is only
+	 * a fallback (Hello AO has no verse-level timestamps).
+	 *
+	 * @param int                  $lesson_id  Lesson post ID.
+	 * @param array<string, mixed> $lesson     Lesson data.
+	 * @param string               $verse_text Verse text to speak.
 	 * @return string
 	 */
-	public static function render_audio_button( $lesson_id, $lesson ) {
+	public static function render_audio_button( $lesson_id, $lesson, $verse_text = '' ) {
 		unset( $lesson_id );
 
 		if ( ! is_array( $lesson ) || empty( $lesson['book_id'] ) || empty( $lesson['chapter'] ) ) {
 			return '';
 		}
 
+		$verse_text = trim( (string) $verse_text );
+		if ( '' === $verse_text && ! empty( $lesson['verse_text'] ) ) {
+			$verse_text = trim( (string) $lesson['verse_text'] );
+		}
+
 		$translation = sanitize_key( (string) get_option( 'hwbl_active_translation', 'kjv' ) );
-		// Prefer an audio-capable Hello AO translation for the button default.
+		// Prefer an audio-capable Hello AO translation for chapter fallback.
 		if ( class_exists( 'HWBL_HelloAO_Provider' ) && ! HWBL_HelloAO_Provider::get_helloao_id( $translation ) ) {
 			$translation = 'kjv';
 		}
 
 		return sprintf(
 			'<div class="hwbl-memorization-audio-wrap">'
-			. '<button type="button" class="hwbl-btn hwbl-memorization-audio" data-book-id="%1$d" data-chapter="%2$d" data-translation="%3$s" aria-label="%4$s">%5$s</button>'
+			. '<button type="button" class="hwbl-btn hwbl-memorization-audio" data-book-id="%1$d" data-chapter="%2$d" data-translation="%3$s" data-verse-text="%4$s" aria-label="%5$s">%6$s</button>'
 			. '<audio class="hwbl-memorization-audio-player" controls preload="none" hidden></audio>'
 			. '<p class="hwbl-memorization-audio-status" role="status" aria-live="polite" hidden></p>'
 			. '</div>',
 			(int) $lesson['book_id'],
 			(int) $lesson['chapter'],
 			esc_attr( $translation ),
-			esc_attr__( 'Listen to chapter audio for this verse', 'hidden-word-bible-lessons' ),
+			esc_attr( $verse_text ),
+			esc_attr__( 'Listen to this verse', 'hidden-word-bible-lessons' ),
 			esc_html__( 'Listen to verse', 'hidden-word-bible-lessons' )
 		);
 	}

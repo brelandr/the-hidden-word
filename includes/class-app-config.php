@@ -44,6 +44,33 @@ class HWBL_App_Config {
 				'default'           => '',
 			)
 		);
+		register_setting(
+			'hwbl_app_brand',
+			'hwbl_app_min_version',
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+				'default'           => '',
+			)
+		);
+		register_setting(
+			'hwbl_app_brand',
+			'hwbl_app_min_ios_build',
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+				'default'           => '',
+			)
+		);
+		register_setting(
+			'hwbl_app_brand',
+			'hwbl_app_min_android_version_code',
+			array(
+				'type'              => 'integer',
+				'sanitize_callback' => 'absint',
+				'default'           => 0,
+			)
+		);
 	}
 
 	/**
@@ -84,6 +111,16 @@ class HWBL_App_Config {
 
 		$primary   = (string) get_option( 'hwbl_app_primary_color', '' );
 		$secondary = (string) get_option( 'hwbl_app_secondary_color', '' );
+		$min_ver   = trim( (string) get_option( 'hwbl_app_min_version', '' ) );
+		$min_ios   = trim( (string) get_option( 'hwbl_app_min_ios_build', '' ) );
+		$min_and   = (int) get_option( 'hwbl_app_min_android_version_code', 0 );
+
+		$store_ios = '';
+		$store_and = '';
+		if ( class_exists( 'HWBL_Church_Network' ) ) {
+			$store_ios = (string) get_option( HWBL_Church_Network::OPT_IOS_STORE, '' );
+			$store_and = (string) get_option( HWBL_Church_Network::OPT_ANDROID_STORE, '' );
+		}
 
 		return array(
 			'name'           => (string) get_bloginfo( 'name' ),
@@ -91,6 +128,11 @@ class HWBL_App_Config {
 			'logoUrl'        => $logo,
 			'primaryColor'   => $primary,
 			'secondaryColor' => $secondary,
+			'minAppVersion'  => $min_ver,
+			'minIosBuild'    => $min_ios,
+			'minAndroidVersionCode' => $min_and > 0 ? $min_and : 0,
+			'appStoreUrl'    => $store_ios,
+			'playStoreUrl'   => $store_and,
 			'features'       => array(
 				'bibleReader'           => (bool) $bible_reader,
 				'votd'                  => (bool) $votd,
@@ -106,6 +148,8 @@ class HWBL_App_Config {
 					( function_exists( 'bp_is_active' ) || function_exists( 'buddypress' ) )
 					&& function_exists( 'bp_activity_add' )
 				),
+				'remotePush'            => class_exists( 'HWBL_Push_Notifications' )
+					&& HWBL_Push_Notifications::is_configured(),
 			),
 			'deepLink'     => 'hwbl://church?url=' . rawurlencode( $site_url ),
 			'joinUrl'      => class_exists( 'HWBL_Church_Network' )

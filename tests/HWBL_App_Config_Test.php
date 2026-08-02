@@ -66,6 +66,23 @@ class HWBL_App_Config_Test extends TestCase {
 	}
 
 	/**
+	 * Min app version gate fields surface from options.
+	 */
+	public function test_get_config_min_app_version_fields() {
+		update_option( 'hwbl_app_min_version', '1.2.0' );
+		update_option( 'hwbl_app_min_ios_build', '12' );
+		update_option( 'hwbl_app_min_android_version_code', 40 );
+
+		$config = HWBL_App_Config::get_config();
+		$this->assertSame( '1.2.0', $config['minAppVersion'] );
+		$this->assertSame( '12', $config['minIosBuild'] );
+		$this->assertSame( 40, $config['minAndroidVersionCode'] );
+		$this->assertArrayHasKey( 'remotePush', $config['features'] );
+		$this->assertArrayHasKey( 'appStoreUrl', $config );
+		$this->assertArrayHasKey( 'playStoreUrl', $config );
+	}
+
+	/**
 	 * REST wrapper returns WP_REST_Response.
 	 */
 	public function test_rest_get_config() {

@@ -22,6 +22,8 @@ class HWBL_Church_Network {
 	const META_CITY      = '_hwbl_church_city';
 	const META_STATE     = '_hwbl_church_state';
 	const META_ZIP       = '_hwbl_church_zip';
+	const META_LAT       = '_hwbl_church_lat';
+	const META_LNG       = '_hwbl_church_lng';
 	const META_LOGO      = '_hwbl_church_logo';
 	const META_STATUS    = '_hwbl_church_status';
 	const OPT_STATUS       = 'hwbl_network_status';
@@ -133,13 +135,23 @@ class HWBL_Church_Network {
 				'callback'            => array( __CLASS__, 'rest_list_churches' ),
 				'permission_callback' => '__return_true',
 				'args'                => array(
-					'q'   => array(
+					'q'      => array(
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_text_field',
 					),
-					'zip' => array(
+					'zip'    => array(
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_text_field',
+					),
+					'lat'    => array(
+						'type' => 'number',
+					),
+					'lng'    => array(
+						'type' => 'number',
+					),
+					'radius' => array(
+						'type'    => 'number',
+						'default' => 50,
 					),
 				),
 			)
@@ -305,8 +317,17 @@ class HWBL_Church_Network {
 			);
 		}
 
-		$q   = trim( (string) $request->get_param( 'q' ) );
-		$zip = trim( (string) $request->get_param( 'zip' ) );
+		$q      = trim( (string) $request->get_param( 'q' ) );
+		$zip    = trim( (string) $request->get_param( 'zip' ) );
+		$lat    = $request->get_param( 'lat' );
+		$lng    = $request->get_param( 'lng' );
+		$radius = (float) $request->get_param( 'radius' );
+		if ( $radius <= 0 ) {
+			$radius = 50;
+		}
+		$use_geo = null !== $lat && null !== $lng && '' !== (string) $lat && '' !== (string) $lng;
+		$lat_f   = $use_geo ? (float) $lat : 0.0;
+		$lng_f   = $use_geo ? (float) $lng : 0.0;
 
 		$query = new WP_Query(
 			array(
@@ -339,6 +360,8 @@ class HWBL_Church_Network {
 			$city       = (string) get_post_meta( $post->ID, self::META_CITY, true );
 			$state      = (string) get_post_meta( $post->ID, self::META_STATE, true );
 			$church_zip = (string) get_post_meta( $post->ID, self::META_ZIP, true );
+			$church_lat = (float) get_post_meta( $post->ID, self::META_LAT, true );
+			$church_lng = (float) get_post_meta( $post->ID, self::META_LNG, true );
 			if ( $zip && 0 !== strcasecmp( $zip, $church_zip ) && false === stripos( $church_zip, $zip ) ) {
 				continue;
 			}
@@ -359,14 +382,38 @@ class HWBL_Church_Network {
 					continue;
 				}
 			}
+			$distance = null;
+			if ( $use_geo ) {
+				if ( ! $church_lat && ! $church_lng ) {
+					continue;
+				}
+				$distance = self::haversine_miles( $lat_f, $lng_f, $church_lat, $church_lng );
+				if ( $distance > $radius ) {
+					continue;
+				}
+			}
 			$churches[] = array(
-				'id'      => (int) $post->ID,
-				'name'    => $name,
-				'city'    => $city,
-				'state'   => $state,
-				'zip'     => $church_zip,
-				'siteUrl' => $site,
-				'logoUrl' => (string) get_post_meta( $post->ID, self::META_LOGO, true ),
+				'id'       => (int) $post->ID,
+				'name'     => $name,
+				'city'     => $city,
+				'state'    => $state,
+				'zip'      => $church_zip,
+				'lat'      => $church_lat ? $church_lat : null,
+				'lng'      => $church_lng ? $church_lng : null,
+				'distance' => null !== $distance ? round( $distance, 1 ) : null,
+				'siteUrl'  => $site,
+				'logoUrl'  => (string) get_post_meta( $post->ID, self::META_LOGO, true ),
+			);
+		}
+
+		if ( $use_geo ) {
+			usort(
+				$churches,
+				static function ( $a, $b ) {
+					$da = isset( $a['distance'] ) ? (float) $a['distance'] : PHP_FLOAT_MAX;
+					$db = isset( $b['distance'] ) ? (float) $b['distance'] : PHP_FLOAT_MAX;
+					return $da <=> $db;
+				}
 			);
 		}
 
@@ -376,6 +423,26 @@ class HWBL_Church_Network {
 				'hub'      => true,
 			)
 		);
+	}
+
+	/**
+	 * Great-circle distance in miles.
+	 *
+	 * @param float $lat1 Lat A.
+	 * @param float $lng1 Lng A.
+	 * @param float $lat2 Lat B.
+	 * @param float $lng2 Lng B.
+	 * @return float
+	 */
+	public static function haversine_miles( $lat1, $lng1, $lat2, $lng2 ) {
+		$earth = 3958.8;
+		$d_lat = deg2rad( (float) $lat2 - (float) $lat1 );
+		$d_lng = deg2rad( (float) $lng2 - (float) $lng1 );
+		$a     = sin( $d_lat / 2 ) * sin( $d_lat / 2 )
+			+ cos( deg2rad( (float) $lat1 ) ) * cos( deg2rad( (float) $lat2 ) )
+			* sin( $d_lng / 2 ) * sin( $d_lng / 2 );
+		$c     = 2 * atan2( sqrt( $a ), sqrt( 1 - $a ) );
+		return $earth * $c;
 	}
 
 	/**
@@ -1019,6 +1086,8 @@ class HWBL_Church_Network {
 		$city   = (string) get_post_meta( $post->ID, self::META_CITY, true );
 		$state  = (string) get_post_meta( $post->ID, self::META_STATE, true );
 		$zip    = (string) get_post_meta( $post->ID, self::META_ZIP, true );
+		$lat    = (string) get_post_meta( $post->ID, self::META_LAT, true );
+		$lng    = (string) get_post_meta( $post->ID, self::META_LNG, true );
 		$logo   = (string) get_post_meta( $post->ID, self::META_LOGO, true );
 		$status = (string) get_post_meta( $post->ID, self::META_STATUS, true );
 		if ( ! $status ) {
@@ -1033,6 +1102,10 @@ class HWBL_Church_Network {
 			<input type="text" class="widefat" name="hwbl_church_state" value="<?php echo esc_attr( $state ); ?>" /></label></p>
 		<p><label><?php esc_html_e( 'ZIP', 'hidden-word-bible-lessons' ); ?><br />
 			<input type="text" class="widefat" name="hwbl_church_zip" value="<?php echo esc_attr( $zip ); ?>" /></label></p>
+		<p><label><?php esc_html_e( 'Latitude (optional, for Near me)', 'hidden-word-bible-lessons' ); ?><br />
+			<input type="text" class="widefat" name="hwbl_church_lat" value="<?php echo esc_attr( $lat ); ?>" placeholder="32.3526" /></label></p>
+		<p><label><?php esc_html_e( 'Longitude (optional, for Near me)', 'hidden-word-bible-lessons' ); ?><br />
+			<input type="text" class="widefat" name="hwbl_church_lng" value="<?php echo esc_attr( $lng ); ?>" placeholder="-90.8779" /></label></p>
 		<p><label><?php esc_html_e( 'Logo URL', 'hidden-word-bible-lessons' ); ?><br />
 			<input type="url" class="widefat" name="hwbl_church_logo" value="<?php echo esc_attr( $logo ); ?>" /></label></p>
 		<p><label><?php esc_html_e( 'Status', 'hidden-word-bible-lessons' ); ?><br />
@@ -1062,6 +1135,18 @@ class HWBL_Church_Network {
 		update_post_meta( $post_id, self::META_CITY, sanitize_text_field( wp_unslash( (string) ( $_POST['hwbl_church_city'] ?? '' ) ) ) );
 		update_post_meta( $post_id, self::META_STATE, sanitize_text_field( wp_unslash( (string) ( $_POST['hwbl_church_state'] ?? '' ) ) ) );
 		update_post_meta( $post_id, self::META_ZIP, sanitize_text_field( wp_unslash( (string) ( $_POST['hwbl_church_zip'] ?? '' ) ) ) );
+		$lat = trim( (string) wp_unslash( $_POST['hwbl_church_lat'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$lng = trim( (string) wp_unslash( $_POST['hwbl_church_lng'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		if ( '' !== $lat && is_numeric( $lat ) ) {
+			update_post_meta( $post_id, self::META_LAT, (float) $lat );
+		} else {
+			delete_post_meta( $post_id, self::META_LAT );
+		}
+		if ( '' !== $lng && is_numeric( $lng ) ) {
+			update_post_meta( $post_id, self::META_LNG, (float) $lng );
+		} else {
+			delete_post_meta( $post_id, self::META_LNG );
+		}
 		update_post_meta( $post_id, self::META_LOGO, esc_url_raw( wp_unslash( (string) ( $_POST['hwbl_church_logo'] ?? '' ) ) ) );
 		$status = sanitize_key( (string) ( $_POST['hwbl_church_status'] ?? 'pending' ) );
 		if ( ! in_array( $status, array( 'pending', 'active' ), true ) ) {

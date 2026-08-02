@@ -1132,6 +1132,8 @@ require_once HWBL_PLUGIN_DIR . 'includes/interface-translation-provider.php';
 require_once HWBL_PLUGIN_DIR . 'includes/class-bundled-provider.php';
 require_once HWBL_PLUGIN_DIR . 'includes/class-helloao-provider.php';
 require_once HWBL_PLUGIN_DIR . 'includes/class-bible-reader.php';
+require_once HWBL_PLUGIN_DIR . 'includes/class-bible-places.php';
+require_once HWBL_PLUGIN_DIR . 'includes/class-bible-concordance.php';
 require_once HWBL_PLUGIN_DIR . 'includes/class-user-preferences.php';
 require_once HWBL_PLUGIN_DIR . 'includes/class-verse-memorize.php';
 require_once HWBL_PLUGIN_DIR . 'includes/class-memorization-audio.php';

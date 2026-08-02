@@ -81,6 +81,18 @@ $lesson_title = isset( $lesson['title'] ) ? (string) $lesson['title'] : '';
 				$mem_verse     = isset( $lesson['verse_start'] ) ? (int) $lesson['verse_start'] : ( isset( $lesson['verse'] ) ? (int) $lesson['verse'] : 0 );
 				$mem_book_name = ( $mem_book_id && class_exists( 'HWBL_Books' ) ) ? HWBL_Books::get_name( $mem_book_id ) : '';
 				$mem_reference = ! empty( $lesson['reference'] ) ? (string) $lesson['reference'] : '';
+				$srs_reps      = 0;
+				$srs_interval  = 0;
+				$srs_ease      = 2.5;
+				if ( is_user_logged_in() && class_exists( 'HWBL_Memorization_SRS' ) ) {
+					$srs_map  = HWBL_Memorization_SRS::get_progress_map( get_current_user_id() );
+					$srs_card = isset( $srs_map[ (int) $lesson_id ] ) && is_array( $srs_map[ (int) $lesson_id ] )
+						? $srs_map[ (int) $lesson_id ]
+						: HWBL_Memorization_SRS::default_card( (int) $lesson_id );
+					$srs_reps     = isset( $srs_card['repetitions'] ) ? (int) $srs_card['repetitions'] : 0;
+					$srs_interval = isset( $srs_card['interval_days'] ) ? (int) $srs_card['interval_days'] : 0;
+					$srs_ease     = isset( $srs_card['ease_factor'] ) ? (float) $srs_card['ease_factor'] : 2.5;
+				}
 				?>
 				<div
 					class="hwbl-memorization"
@@ -91,6 +103,9 @@ $lesson_title = isset( $lesson['title'] ) ? (string) $lesson['title'] : '';
 					data-chapter="<?php echo esc_attr( (string) $mem_chapter ); ?>"
 					data-verse-num="<?php echo esc_attr( (string) $mem_verse ); ?>"
 					data-reference="<?php echo esc_attr( $mem_reference ); ?>"
+					data-srs-reps="<?php echo esc_attr( (string) $srs_reps ); ?>"
+					data-srs-interval="<?php echo esc_attr( (string) $srs_interval ); ?>"
+					data-srs-ease="<?php echo esc_attr( (string) $srs_ease ); ?>"
 				>
 					<h4><?php esc_html_e( 'Memorization Practice', 'hidden-word-bible-lessons' ); ?></h4>
 					<div class="hwbl-memorization-mode" role="tablist" aria-label="<?php esc_attr_e( 'Practice mode', 'hidden-word-bible-lessons' ); ?>">
@@ -98,6 +113,7 @@ $lesson_title = isset( $lesson['title'] ) ? (string) $lesson['title'] : '';
 							<button type="button" class="hwbl-btn hwbl-btn-secondary hwbl-mode-btn" data-mode="review" role="tab" aria-selected="false"><?php esc_html_e( 'Daily review', 'hidden-word-bible-lessons' ); ?></button>
 						<?php endif; ?>
 						<button type="button" class="hwbl-btn hwbl-btn-secondary hwbl-mode-btn is-active" data-mode="hide" role="tab" aria-selected="true"><?php esc_html_e( 'Hide words', 'hidden-word-bible-lessons' ); ?></button>
+						<button type="button" class="hwbl-btn hwbl-btn-secondary hwbl-mode-btn" data-mode="flip" role="tab" aria-selected="false"><?php esc_html_e( 'Flip cards', 'hidden-word-bible-lessons' ); ?></button>
 						<button type="button" class="hwbl-btn hwbl-btn-secondary hwbl-mode-btn" data-mode="recall" role="tab" aria-selected="false"><?php esc_html_e( 'Type from memory', 'hidden-word-bible-lessons' ); ?></button>
 						<button type="button" class="hwbl-btn hwbl-btn-secondary hwbl-mode-btn" data-mode="reference" role="tab" aria-selected="false"><?php esc_html_e( 'Know the reference', 'hidden-word-bible-lessons' ); ?></button>
 						<button type="button" class="hwbl-btn hwbl-btn-secondary hwbl-mode-btn" data-mode="first-letter" role="tab" aria-selected="false"><?php esc_html_e( 'First-letter hints', 'hidden-word-bible-lessons' ); ?></button>
@@ -144,6 +160,11 @@ $lesson_title = isset( $lesson['title'] ) ? (string) $lesson['title'] : '';
 						<button type="button" class="hwbl-btn hwbl-memorization-scramble-reset"><?php esc_html_e( 'Reshuffle', 'hidden-word-bible-lessons' ); ?></button>
 						<p class="hwbl-memorization-scramble-result" role="status" aria-live="polite"></p>
 					</div>
+					<div class="hwbl-memorization-flip-controls" hidden>
+						<button type="button" class="hwbl-btn hwbl-flip-new"><?php esc_html_e( 'New blanks', 'hidden-word-bible-lessons' ); ?></button>
+						<button type="button" class="hwbl-btn hwbl-flip-all"><?php esc_html_e( 'Flip all', 'hidden-word-bible-lessons' ); ?></button>
+						<button type="button" class="hwbl-btn hwbl-flip-done"><?php esc_html_e( 'Done — rate recall', 'hidden-word-bible-lessons' ); ?></button>
+					</div>
 					<div class="hwbl-memorization-controls">
 						<button type="button" class="hwbl-btn hwbl-hide-random"><?php esc_html_e( 'Hide Random Words', 'hidden-word-bible-lessons' ); ?></button>
 						<button type="button" class="hwbl-btn hwbl-reveal-all"><?php esc_html_e( 'Reveal All', 'hidden-word-bible-lessons' ); ?></button>
@@ -159,7 +180,7 @@ $lesson_title = isset( $lesson['title'] ) ? (string) $lesson['title'] : '';
 					<?php
 					$memorization_footer = '';
 					if ( class_exists( 'HWBL_Memorization_Audio' ) && is_array( $lesson ) && ! empty( $lesson['book_id'] ) ) {
-						$memorization_footer = HWBL_Memorization_Audio::render_audio_button( $lesson_id, $lesson );
+						$memorization_footer = HWBL_Memorization_Audio::render_audio_button( $lesson_id, $lesson, $verse_text );
 					}
 					echo wp_kses_post( apply_filters( 'hwbl_memorization_widget_html', $memorization_footer, $lesson_id ) );
 					?>

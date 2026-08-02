@@ -40,6 +40,8 @@ class HWBL_Frontend_I18n {
 			'scramblePartial'=> __( 'Not quite — try reshuffling and practice again.', 'hidden-word-bible-lessons' ),
 			/* translators: %s: word to add in scramble mode */
 			'scrambleWord'   => __( 'Add word: %s', 'hidden-word-bible-lessons' ),
+			'modeFlip'       => __( 'Flip cards (or swipe) to reveal missing words. Listen to the chapter, then check yourself.', 'hidden-word-bible-lessons' ),
+			'flipReveal'     => __( 'Flip card to reveal word', 'hidden-word-bible-lessons' ),
 			'reviewPrompt'   => __( 'Daily review: type the verse from memory, then rate your recall.', 'hidden-word-bible-lessons' ),
 			/* translators: %s: next review due date */
 			'reviewSaved'    => __( 'Review saved — next due %s.', 'hidden-word-bible-lessons' ),
@@ -55,6 +57,10 @@ class HWBL_Frontend_I18n {
 			'referenceEmpty' => __( 'Enter a book, chapter, and verse to check.', 'hidden-word-bible-lessons' ),
 			'audioLoading'   => __( 'Loading chapter audio…', 'hidden-word-bible-lessons' ),
 			'audioPlaying'   => __( 'Playing chapter audio for this verse.', 'hidden-word-bible-lessons' ),
+			'audioPlayingVerse' => __( 'Playing this verse.', 'hidden-word-bible-lessons' ),
+			'audioPlayingChapter' => __( 'Verse speech unavailable — playing the full chapter instead.', 'hidden-word-bible-lessons' ),
+			'listenVerse'    => __( 'Listen to verse', 'hidden-word-bible-lessons' ),
+			'stopListening'  => __( 'Stop listening', 'hidden-word-bible-lessons' ),
 			'audioUnavailable'=> __( 'Audio is not available right now.', 'hidden-word-bible-lessons' ),
 			'audioBlocked'   => __( 'Tap play on the audio player to listen.', 'hidden-word-bible-lessons' ),
 		);

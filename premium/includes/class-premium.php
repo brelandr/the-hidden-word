@@ -25,6 +25,9 @@ class THW_Premium {
 		THW_Premium_AI_Study_Finder::register_shortcode();
 		THW_Premium_AI_Ask::register_shortcode();
 		THW_Premium_Verse_Of_The_Day::register_shortcode();
+		if ( class_exists( 'THW_Premium_Bible_Study_Card' ) ) {
+			THW_Premium_Bible_Study_Card::register_shortcode();
+		}
 
 		$features_enabled = function_exists( 'hwbl_premium_features_enabled' )
 			? hwbl_premium_features_enabled()
@@ -46,6 +49,7 @@ class THW_Premium {
 		THW_Premium_AI_Explain::init();
 		THW_Premium_Bible_Reader_Explain::init();
 		THW_Premium_Bible_Reader_Explain_Store::init();
+		THW_Premium_Bible_Study_Card::init();
 		THW_Premium_Explain_Preload::init();
 		THW_Premium_Explain_Preload_Admin::init();
 		THW_Premium_Explain_Packs::init();
@@ -95,10 +99,12 @@ class THW_Premium {
 			|| thw_premium_content_has_shortcode( $post->post_content, 'thw_my_progress' )
 			|| thw_premium_content_has_shortcode( $post->post_content, 'thw_study_finder' )
 			|| thw_premium_content_has_shortcode( $post->post_content, 'thw_ask_question' )
+			|| thw_premium_content_has_shortcode( $post->post_content, 'thw_verse_study' )
 			|| thw_premium_content_has_shortcode( $post->post_content, 'thw_verse_of_the_day' )
 			|| thw_premium_content_has_shortcode( $post->post_content, 'thw_bible_com_votd' )
 			|| thw_premium_content_has_shortcode( $post->post_content, 'thw_bible_reader' )
 			|| has_shortcode( $post->post_content, 'hwbl_bible_reader' )
+			|| ( function_exists( 'has_block' ) && has_block( 'hwbl/verse-study', $post ) )
 			|| is_active_widget( false, false, 'hwbl_verse_of_week', true );
 	}
 
@@ -194,6 +200,22 @@ class THW_Premium {
 			THW_PREMIUM_VERSION,
 			true
 		);
+
+		if ( class_exists( 'THW_Premium_Bible_Study_Card' ) ) {
+			wp_register_style(
+				'hwbl-verse-study',
+				THW_PREMIUM_URL . 'public/css/verse-study-card.css',
+				array(),
+				THW_PREMIUM_VERSION
+			);
+			wp_register_script(
+				'hwbl-verse-study',
+				THW_PREMIUM_URL . 'public/js/verse-study-card.js',
+				$pref_deps,
+				THW_PREMIUM_VERSION,
+				true
+			);
+		}
 
 		wp_localize_script(
 			'thw-translation-switcher',
@@ -301,6 +323,16 @@ class THW_Premium {
 					'lessonsHeading'      => __( 'Related lessons', 'hidden-word-bible-lessons' ),
 				)
 			);
+		}
+
+		if (
+			class_exists( 'THW_Premium_Bible_Study_Card' )
+			&& (
+				THW_Premium_Bible_Study_Card::needs_assets()
+				|| ( $post && thw_premium_content_has_shortcode( $post->post_content, 'thw_verse_study' ) )
+			)
+		) {
+			THW_Premium_Bible_Study_Card::enqueue_assets();
 		}
 
 		if ( $post && thw_premium_content_has_shortcode( $post->post_content, 'thw_ask_question' ) ) {

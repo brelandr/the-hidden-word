@@ -30,16 +30,132 @@ class HWBL_Account {
 	 * Register REST routes.
 	 */
 	public static function register_routes() {
+		$auth = static function () {
+			return is_user_logged_in() && current_user_can( 'read' );
+		};
+
 		register_rest_route(
 			'hwbl/v1',
 			'/account/delete',
 			array(
 				'methods'             => 'POST',
 				'callback'            => array( __CLASS__, 'rest_delete_account' ),
-				'permission_callback' => static function () {
-					return is_user_logged_in() && current_user_can( 'read' );
-				},
+				'permission_callback' => $auth,
 			)
+		);
+
+		register_rest_route(
+			'hwbl/v1',
+			'/account/devices',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( __CLASS__, 'rest_list_devices' ),
+				'permission_callback' => $auth,
+			)
+		);
+
+		register_rest_route(
+			'hwbl/v1',
+			'/account/devices/(?P<uuid>[a-f0-9\-]+)',
+			array(
+				'methods'             => 'DELETE',
+				'callback'            => array( __CLASS__, 'rest_revoke_device' ),
+				'permission_callback' => $auth,
+				'args'                => array(
+					'uuid' => array(
+						'required'          => true,
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+				),
+			)
+		);
+	}
+
+	/**
+	 * List Application Passwords (connected companion devices/apps).
+	 *
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public static function rest_list_devices() {
+		$user_id = get_current_user_id();
+		if ( $user_id < 1 ) {
+			return new WP_Error(
+				'hwbl_forbidden',
+				__( 'You must be signed in.', 'hidden-word-bible-lessons' ),
+				array( 'status' => 401 )
+			);
+		}
+
+		if ( ! class_exists( 'WP_Application_Passwords' ) ) {
+			return new WP_Error(
+				'hwbl_app_passwords_unavailable',
+				__( 'Application Passwords are not available on this site.', 'hidden-word-bible-lessons' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		$items   = WP_Application_Passwords::get_user_application_passwords( $user_id );
+		$devices = array();
+		if ( is_array( $items ) ) {
+			foreach ( $items as $item ) {
+				$devices[] = array(
+					'uuid'      => isset( $item['uuid'] ) ? (string) $item['uuid'] : '',
+					'name'      => isset( $item['name'] ) ? (string) $item['name'] : '',
+					'created'   => isset( $item['created'] ) ? (int) $item['created'] : 0,
+					'last_used' => isset( $item['last_used'] ) ? (int) $item['last_used'] : 0,
+				);
+			}
+		}
+
+		return new WP_REST_Response(
+			array(
+				'devices' => $devices,
+			),
+			200
+		);
+	}
+
+	/**
+	 * Revoke one Application Password by UUID.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public static function rest_revoke_device( $request ) {
+		$user_id = get_current_user_id();
+		$uuid    = sanitize_text_field( (string) $request['uuid'] );
+		if ( $user_id < 1 || ! $uuid ) {
+			return new WP_Error(
+				'hwbl_bad_request',
+				__( 'Missing device id.', 'hidden-word-bible-lessons' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		if ( ! class_exists( 'WP_Application_Passwords' ) ) {
+			return new WP_Error(
+				'hwbl_app_passwords_unavailable',
+				__( 'Application Passwords are not available on this site.', 'hidden-word-bible-lessons' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		$result = WP_Application_Passwords::delete_application_password( $user_id, $uuid );
+		if ( is_wp_error( $result ) ) {
+			return new WP_Error(
+				'hwbl_device_missing',
+				__( 'That connected device was not found.', 'hidden-word-bible-lessons' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		return new WP_REST_Response(
+			array(
+				'revoked' => true,
+				'uuid'    => $uuid,
+			),
+			200
 		);
 	}
 

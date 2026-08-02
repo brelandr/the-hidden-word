@@ -132,18 +132,74 @@ class THW_Premium_Bible_Reader_Explain_Store {
 			return $content;
 		}
 
-		if ( ! class_exists( 'THW_Premium_AI_Client' ) ) {
-			return $content;
+		if ( class_exists( 'THW_Premium_AI_Client' ) ) {
+			if ( ! preg_match( '/^(.*)<div class="thw-bible-explain__body[^"]*">(.*)<\/div>\s*$/is', (string) $content, $m ) ) {
+				$content = THW_Premium_AI_Client::format_html_response( $content );
+			} else {
+				$prefix  = $m[1];
+				$body    = THW_Premium_AI_Client::format_html_response( $m[2] );
+				$content = $prefix . '<div class="thw-bible-explain__body thw-bible-explain-output">' . $body . '</div>';
+			}
 		}
 
-		if ( ! preg_match( '/^(.*)<div class="thw-bible-explain__body[^"]*">(.*)<\/div>\s*$/is', (string) $content, $m ) ) {
-			return THW_Premium_AI_Client::format_html_response( $content );
+		$map = self::render_places_map_for_current_post();
+		if ( $map ) {
+			$content .= $map;
 		}
 
-		$prefix = $m[1];
-		$body   = THW_Premium_AI_Client::format_html_response( $m[2] );
+		return $content;
+	}
 
-		return $prefix . '<div class="thw-bible-explain__body thw-bible-explain-output">' . $body . '</div>';
+	/**
+	 * Append OpenBible place map for the explained passage (when maps are enabled).
+	 *
+	 * @return string
+	 */
+	private static function render_places_map_for_current_post() {
+		if ( ! class_exists( 'HWBL_Bible_Places' ) || ! HWBL_Bible_Places::is_enabled() ) {
+			return '';
+		}
+
+		if ( 'mapbox' === HWBL_Bible_Places::get_provider() && '' === HWBL_Bible_Places::get_mapbox_token() ) {
+			return '';
+		}
+
+		$post_id = get_the_ID();
+		if ( ! $post_id ) {
+			return '';
+		}
+
+		$book_id = absint( get_post_meta( $post_id, self::META_BOOK, true ) );
+		$chapter = absint( get_post_meta( $post_id, self::META_CHAP, true ) );
+		$verse   = absint( get_post_meta( $post_id, self::META_VERSE, true ) );
+		$scope   = sanitize_key( (string) get_post_meta( $post_id, self::META_SCOPE, true ) );
+
+		if ( $book_id < 1 || $chapter < 1 ) {
+			return '';
+		}
+
+		if ( 'chapter' === $scope ) {
+			$verse = 0;
+		}
+
+		$map = HWBL_Bible_Places::render_shortcode(
+			array(
+				'book'    => $book_id,
+				'chapter' => $chapter,
+				'verse'   => $verse,
+				'scope'   => $verse > 0 ? 'verse' : 'chapter',
+				'height'  => 320,
+			)
+		);
+
+		if ( false === strpos( $map, 'hwbl-bible-map' ) ) {
+			return '';
+		}
+
+		return '<section class="thw-bible-explain__map" aria-label="' . esc_attr__( 'Places on the map', 'hidden-word-bible-lessons' ) . '">'
+			. '<h2 class="thw-bible-explain__map-title">' . esc_html__( 'Places in this passage', 'hidden-word-bible-lessons' ) . '</h2>'
+			. $map
+			. '</section>';
 	}
 
 	/**
@@ -155,6 +211,11 @@ class THW_Premium_Bible_Reader_Explain_Store {
 		}
 		if ( wp_style_is( 'thw-premium', 'registered' ) ) {
 			wp_enqueue_style( 'thw-premium' );
+		}
+		if ( class_exists( 'HWBL_Bible_Places' ) && HWBL_Bible_Places::is_enabled() ) {
+			if ( 'mapbox' !== HWBL_Bible_Places::get_provider() || '' !== HWBL_Bible_Places::get_mapbox_token() ) {
+				HWBL_Bible_Places::enqueue_assets();
+			}
 		}
 	}
 
@@ -325,7 +386,9 @@ class THW_Premium_Bible_Reader_Explain_Store {
 		if ( ! self::$test_backend ) {
 			$post = self::find_cpt_post( $keys );
 			if ( $post instanceof WP_Post && self::has_usable_explanation( $post ) ) {
-				return self::row_from_post( $post );
+				// Inventory / packs count SQL rows only — copy legacy CPT content into SQL.
+				$migrated = self::ensure_sql_row_from_item( $keys, $post );
+				return is_array( $migrated ) ? $migrated : self::row_from_post( $post );
 			}
 		}
 
@@ -343,16 +406,71 @@ class THW_Premium_Bible_Reader_Explain_Store {
 		$fallbacks = function_exists( 'thw_premium_explain_base_fallback_slugs' )
 			? thw_premium_explain_base_fallback_slugs()
 			: array( 'base', 'nondenom', 'general', 'site' );
+		$base_slug = function_exists( 'thw_premium_explain_base_tradition_slug' )
+			? thw_premium_explain_base_tradition_slug()
+			: 'base';
 
 		foreach ( $fallbacks as $slug ) {
 			$keys['tradition'] = sanitize_key( (string) $slug );
 			$found             = self::find( $keys );
 			if ( is_array( $found ) && self::has_usable_explanation( $found ) ) {
-				return $found;
+				// Always ensure the canonical base slug has a SQL row for pack inventory.
+				$base_keys              = $keys;
+				$base_keys['tradition'] = $base_slug;
+				$canonical              = self::ensure_sql_row_from_item( $base_keys, $found );
+				return is_array( $canonical ) && self::has_usable_explanation( $canonical ) ? $canonical : $found;
 			}
 		}
 
 		return null;
+	}
+
+	/**
+	 * Persist a usable explanation into the SQL table for the given keys if missing.
+	 *
+	 * Used when legacy CPT (or a fallback tradition row) already has content that
+	 * inventory/fill-gaps would otherwise treat as missing.
+	 *
+	 * @param array<string, mixed>             $keys Normalized keys.
+	 * @param array<string, mixed>|WP_Post     $item Source row or CPT.
+	 * @return array<string, mixed>|null
+	 */
+	public static function ensure_sql_row_from_item( array $keys, $item ) {
+		$keys = self::normalize_keys( $keys );
+		if ( $keys['book_id'] < 1 || $keys['chapter'] < 1 ) {
+			return null;
+		}
+		if ( ! self::has_usable_explanation( $item ) ) {
+			return null;
+		}
+
+		$existing = self::get_row( $keys );
+		if ( is_array( $existing ) && self::has_usable_explanation( $existing ) ) {
+			return $existing;
+		}
+
+		$html = self::get_explanation_html( $item );
+		$ref  = '';
+		if ( self::is_row( $item ) ) {
+			$ref = (string) ( $item['reference'] ?? '' );
+		} elseif ( $item instanceof WP_Post ) {
+			$ref = (string) get_post_meta( $item->ID, self::META_REF, true );
+			if ( '' === $ref ) {
+				$ref = (string) $item->post_title;
+			}
+		}
+
+		$payload = array(
+			'book_id'     => $keys['book_id'],
+			'chapter'     => $keys['chapter'],
+			'verse'       => $keys['verse'],
+			'translation' => $keys['translation'],
+			'tradition'   => $keys['tradition'],
+			'scope'       => $keys['scope'],
+			'reference'   => $ref,
+		);
+
+		return self::save( $payload, $html, self::is_flagged( $item ) );
 	}
 
 	/**
@@ -928,6 +1046,275 @@ class THW_Premium_Bible_Reader_Explain_Store {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$col = $wpdb->get_col( "SELECT DISTINCT translation FROM {$table} ORDER BY translation ASC" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		return is_array( $col ) ? array_values( array_filter( array_map( 'sanitize_key', $col ) ) ) : array();
+	}
+
+	/**
+	 * Count passages in a ready Local Bible that lack an explain row.
+	 *
+	 * @param string $translation Translation slug.
+	 * @param string $tradition   Tradition slug.
+	 * @param string $scope       verse|chapter.
+	 * @return int
+	 */
+	public static function count_missing_passages( $translation, $tradition, $scope = 'verse' ) {
+		$translation = sanitize_key( (string) $translation );
+		$tradition   = sanitize_key( (string) $tradition );
+		$scope       = ( 'chapter' === sanitize_key( (string) $scope ) ) ? 'chapter' : 'verse';
+		if ( '' === $translation || '' === $tradition ) {
+			return 0;
+		}
+
+		if ( self::$test_backend && method_exists( self::$test_backend, 'count_missing_passages' ) ) {
+			return (int) self::$test_backend->count_missing_passages( $translation, $tradition, $scope );
+		}
+
+		if ( ! class_exists( 'HWBL_Local_Bible_Store' ) || ! HWBL_Local_Bible_Store::is_installed( $translation ) ) {
+			return 0;
+		}
+
+		global $wpdb;
+		self::maybe_install_schema();
+		HWBL_Local_Bible_Store::maybe_install_schema();
+		$explains = self::table();
+		$verses   = HWBL_Local_Bible_Store::verses_table();
+
+		if ( 'chapter' === $scope ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$count = $wpdb->get_var(
+				$wpdb->prepare(
+					"SELECT COUNT(*) FROM (
+						SELECT v.book_id, v.chapter
+						FROM {$verses} v
+						LEFT JOIN {$explains} e
+							ON e.translation = %s
+							AND e.tradition = %s
+							AND e.scope = 'chapter'
+							AND e.book_id = v.book_id
+							AND e.chapter = v.chapter
+							AND e.verse = 0
+						WHERE v.translation = %s AND e.id IS NULL
+						GROUP BY v.book_id, v.chapter
+					) missing_chapters", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					$translation,
+					$tradition,
+					$translation
+				)
+			);
+			return max( 0, (int) $count );
+		}
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$count = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(*)
+				FROM {$verses} v
+				LEFT JOIN {$explains} e
+					ON e.translation = %s
+					AND e.tradition = %s
+					AND e.scope = 'verse'
+					AND e.book_id = v.book_id
+					AND e.chapter = v.chapter
+					AND e.verse = v.verse
+				WHERE v.translation = %s AND e.id IS NULL", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$translation,
+				$tradition,
+				$translation
+			)
+		);
+		return max( 0, (int) $count );
+	}
+
+	/**
+	 * List Local Bible passages that lack an explain row.
+	 *
+	 * @param string $translation Translation slug.
+	 * @param string $tradition   Tradition slug.
+	 * @param string $scope       verse|chapter.
+	 * @param int    $limit       Max rows.
+	 * @param int    $offset      Offset.
+	 * @return array<int, array{book_id:int,chapter:int,verse:int,scope:string,translation:string,tradition:string}>
+	 */
+	public static function list_missing_passages( $translation, $tradition, $scope = 'verse', $limit = 50, $offset = 0 ) {
+		$translation = sanitize_key( (string) $translation );
+		$tradition   = sanitize_key( (string) $tradition );
+		$scope       = ( 'chapter' === sanitize_key( (string) $scope ) ) ? 'chapter' : 'verse';
+		$limit       = max( 1, min( 500, (int) $limit ) );
+		$offset      = max( 0, (int) $offset );
+		if ( '' === $translation || '' === $tradition ) {
+			return array();
+		}
+
+		if ( self::$test_backend && method_exists( self::$test_backend, 'list_missing_passages' ) ) {
+			$rows = (array) self::$test_backend->list_missing_passages( $translation, $tradition, $scope, $limit, $offset );
+			return array_values(
+				array_filter(
+					array_map(
+						static function ( $row ) use ( $translation, $tradition, $scope ) {
+							if ( ! is_array( $row ) ) {
+								return null;
+							}
+							return array(
+								'book_id'     => max( 1, (int) ( $row['book_id'] ?? 0 ) ),
+								'chapter'     => max( 1, (int) ( $row['chapter'] ?? 0 ) ),
+								'verse'       => ( 'chapter' === $scope ) ? 0 : max( 1, (int) ( $row['verse'] ?? 0 ) ),
+								'scope'       => $scope,
+								'translation' => $translation,
+								'tradition'   => $tradition,
+							);
+						},
+						$rows
+					)
+				)
+			);
+		}
+
+		if ( ! class_exists( 'HWBL_Local_Bible_Store' ) || ! HWBL_Local_Bible_Store::is_installed( $translation ) ) {
+			return array();
+		}
+
+		global $wpdb;
+		self::maybe_install_schema();
+		HWBL_Local_Bible_Store::maybe_install_schema();
+		$explains = self::table();
+		$verses   = HWBL_Local_Bible_Store::verses_table();
+
+		if ( 'chapter' === $scope ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$rows = $wpdb->get_results(
+				$wpdb->prepare(
+					"SELECT v.book_id, v.chapter, 0 AS verse
+					FROM {$verses} v
+					LEFT JOIN {$explains} e
+						ON e.translation = %s
+						AND e.tradition = %s
+						AND e.scope = 'chapter'
+						AND e.book_id = v.book_id
+						AND e.chapter = v.chapter
+						AND e.verse = 0
+					WHERE v.translation = %s AND e.id IS NULL
+					GROUP BY v.book_id, v.chapter
+					ORDER BY v.book_id ASC, v.chapter ASC
+					LIMIT %d OFFSET %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					$translation,
+					$tradition,
+					$translation,
+					$limit,
+					$offset
+				),
+				ARRAY_A
+			);
+		} else {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$rows = $wpdb->get_results(
+				$wpdb->prepare(
+					"SELECT v.book_id, v.chapter, v.verse
+					FROM {$verses} v
+					LEFT JOIN {$explains} e
+						ON e.translation = %s
+						AND e.tradition = %s
+						AND e.scope = 'verse'
+						AND e.book_id = v.book_id
+						AND e.chapter = v.chapter
+						AND e.verse = v.verse
+					WHERE v.translation = %s AND e.id IS NULL
+					ORDER BY v.book_id ASC, v.chapter ASC, v.verse ASC
+					LIMIT %d OFFSET %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					$translation,
+					$tradition,
+					$translation,
+					$limit,
+					$offset
+				),
+				ARRAY_A
+			);
+		}
+
+		if ( ! is_array( $rows ) ) {
+			return array();
+		}
+
+		$out = array();
+		foreach ( $rows as $row ) {
+			$out[] = array(
+				'book_id'     => max( 1, (int) ( $row['book_id'] ?? 0 ) ),
+				'chapter'     => max( 1, (int) ( $row['chapter'] ?? 0 ) ),
+				'verse'       => ( 'chapter' === $scope ) ? 0 : max( 1, (int) ( $row['verse'] ?? 0 ) ),
+				'scope'       => $scope,
+				'translation' => $translation,
+				'tradition'   => $tradition,
+			);
+		}
+		return $out;
+	}
+
+	/**
+	 * Inventory of stored explains grouped by translation / tradition / scope.
+	 *
+	 * @return array<int, array{translation:string,tradition:string,scope:string,total:int,overrides:int,same_as_base:int}>
+	 */
+	public static function list_inventory_counts() {
+		if ( self::$test_backend && method_exists( self::$test_backend, 'list_inventory_counts' ) ) {
+			$rows = (array) self::$test_backend->list_inventory_counts();
+			return array_values(
+				array_filter(
+					array_map(
+						static function ( $row ) {
+							if ( ! is_array( $row ) ) {
+								return null;
+							}
+							$scope = sanitize_key( (string) ( $row['scope'] ?? 'verse' ) );
+							if ( 'chapter' !== $scope ) {
+								$scope = 'verse';
+							}
+							return array(
+								'translation'  => sanitize_key( (string) ( $row['translation'] ?? '' ) ),
+								'tradition'    => sanitize_key( (string) ( $row['tradition'] ?? '' ) ),
+								'scope'        => $scope,
+								'total'        => max( 0, (int) ( $row['total'] ?? 0 ) ),
+								'overrides'    => max( 0, (int) ( $row['overrides'] ?? 0 ) ),
+								'same_as_base' => max( 0, (int) ( $row['same_as_base'] ?? 0 ) ),
+							);
+						},
+						$rows
+					)
+				)
+			);
+		}
+
+		global $wpdb;
+		self::maybe_install_schema();
+		$table = self::table();
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$rows = $wpdb->get_results(
+			"SELECT translation, tradition, scope,
+				COUNT(*) AS total,
+				SUM(CASE WHEN html LIKE '%HWBL_NO_TRADITION_DIFF%' THEN 1 ELSE 0 END) AS same_as_base,
+				SUM(CASE WHEN html LIKE '%HWBL_NO_TRADITION_DIFF%' THEN 0 ELSE 1 END) AS overrides
+			FROM {$table}
+			GROUP BY translation, tradition, scope
+			ORDER BY translation ASC, tradition ASC, scope ASC", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			ARRAY_A
+		);
+		if ( ! is_array( $rows ) ) {
+			return array();
+		}
+
+		$out = array();
+		foreach ( $rows as $row ) {
+			$scope = sanitize_key( (string) ( $row['scope'] ?? 'verse' ) );
+			if ( 'chapter' !== $scope ) {
+				$scope = 'verse';
+			}
+			$out[] = array(
+				'translation'  => sanitize_key( (string) ( $row['translation'] ?? '' ) ),
+				'tradition'    => sanitize_key( (string) ( $row['tradition'] ?? '' ) ),
+				'scope'        => $scope,
+				'total'        => max( 0, (int) ( $row['total'] ?? 0 ) ),
+				'overrides'    => max( 0, (int) ( $row['overrides'] ?? 0 ) ),
+				'same_as_base' => max( 0, (int) ( $row['same_as_base'] ?? 0 ) ),
+			);
+		}
+		return $out;
 	}
 
 	/**

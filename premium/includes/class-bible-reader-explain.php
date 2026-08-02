@@ -855,6 +855,14 @@ class THW_Premium_Bible_Reader_Explain {
 		if ( class_exists( 'THW_Premium_Bible_Reader_Explain_Store' ) ) {
 			$saved = THW_Premium_Bible_Reader_Explain_Store::find_base( $store_payload );
 			if ( is_array( $saved ) && THW_Premium_Bible_Reader_Explain_Store::has_usable_explanation( $saved ) ) {
+				// find_base() also copies legacy CPT / fallback-tradition rows into SQL under "base".
+				$canonical = THW_Premium_Bible_Reader_Explain_Store::get_row( $store_payload );
+				if ( ! is_array( $canonical ) || ! THW_Premium_Bible_Reader_Explain_Store::has_usable_explanation( $canonical ) ) {
+					$canonical = THW_Premium_Bible_Reader_Explain_Store::ensure_sql_row_from_item( $store_payload, $saved );
+				}
+				if ( is_array( $canonical ) ) {
+					$saved = $canonical;
+				}
 				return array(
 					'ok'        => true,
 					'skipped'   => true,

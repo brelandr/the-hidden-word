@@ -23,6 +23,7 @@ class HWBL_Community_Safety {
 	const META_TARGET   = '_hwbl_reported_user_id';
 	const META_QUESTION = '_hwbl_report_question';
 	const META_ANSWER   = '_hwbl_report_answer';
+	const META_BLOCKED  = '_hwbl_blocked_user_ids';
 
 	/**
 	 * Allowed report reasons.
@@ -81,17 +82,166 @@ class HWBL_Community_Safety {
 		register_rest_route( 'hwbl/v1', '/ask/report', $ask_args );
 		register_rest_route( 'thw/v1', '/ask/report', $ask_args );
 
+		$auth = static function () {
+			return is_user_logged_in() && current_user_can( 'read' );
+		};
+
 		register_rest_route(
 			'hwbl/v1',
 			'/cohort/report',
 			array(
 				'methods'             => 'POST',
 				'callback'            => array( __CLASS__, 'rest_report_cohort' ),
-				'permission_callback' => static function () {
-					return is_user_logged_in() && current_user_can( 'read' );
-				},
+				'permission_callback' => $auth,
 			)
 		);
+
+		register_rest_route(
+			'hwbl/v1',
+			'/account/blocks',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( __CLASS__, 'rest_list_blocks' ),
+				'permission_callback' => $auth,
+			)
+		);
+
+		register_rest_route(
+			'hwbl/v1',
+			'/account/blocks',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( __CLASS__, 'rest_block_user' ),
+				'permission_callback' => $auth,
+			)
+		);
+
+		register_rest_route(
+			'hwbl/v1',
+			'/account/blocks/(?P<user_id>\d+)',
+			array(
+				'methods'             => 'DELETE',
+				'callback'            => array( __CLASS__, 'rest_unblock_user' ),
+				'permission_callback' => $auth,
+				'args'                => array(
+					'user_id' => array(
+						'required'          => true,
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+					),
+				),
+			)
+		);
+	}
+
+	/**
+	 * Blocked user IDs for a member.
+	 *
+	 * @param int $user_id User ID.
+	 * @return int[]
+	 */
+	public static function get_blocked_user_ids( $user_id ) {
+		$user_id = (int) $user_id;
+		if ( $user_id < 1 ) {
+			return array();
+		}
+		$raw = get_user_meta( $user_id, self::META_BLOCKED, true );
+		if ( ! is_array( $raw ) ) {
+			return array();
+		}
+		$ids = array();
+		foreach ( $raw as $id ) {
+			$id = (int) $id;
+			if ( $id > 0 && $id !== $user_id ) {
+				$ids[] = $id;
+			}
+		}
+		return array_values( array_unique( $ids ) );
+	}
+
+	/**
+	 * Persist blocked user IDs.
+	 *
+	 * @param int   $user_id User ID.
+	 * @param int[] $ids     Blocked IDs.
+	 * @return int[]
+	 */
+	public static function set_blocked_user_ids( $user_id, $ids ) {
+		$user_id = (int) $user_id;
+		$clean   = array();
+		foreach ( (array) $ids as $id ) {
+			$id = (int) $id;
+			if ( $id > 0 && $id !== $user_id ) {
+				$clean[] = $id;
+			}
+		}
+		$clean = array_values( array_unique( $clean ) );
+		update_user_meta( $user_id, self::META_BLOCKED, $clean );
+		return $clean;
+	}
+
+	/**
+	 * GET /account/blocks
+	 *
+	 * @return WP_REST_Response
+	 */
+	public static function rest_list_blocks() {
+		$ids = self::get_blocked_user_ids( get_current_user_id() );
+		return new WP_REST_Response( array( 'blockedUserIds' => $ids ), 200 );
+	}
+
+	/**
+	 * POST /account/blocks { userId }
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public static function rest_block_user( $request ) {
+		$params  = $request->get_json_params();
+		$params  = is_array( $params ) ? $params : $request->get_params();
+		$target  = isset( $params['userId'] ) ? (int) $params['userId'] : (int) ( $params['user_id'] ?? 0 );
+		$user_id = get_current_user_id();
+		if ( $target < 1 || $target === $user_id ) {
+			return new WP_Error(
+				'hwbl_invalid_block',
+				__( 'Choose a valid member to block.', 'hidden-word-bible-lessons' ),
+				array( 'status' => 400 )
+			);
+		}
+		if ( ! get_userdata( $target ) ) {
+			return new WP_Error(
+				'hwbl_user_missing',
+				__( 'That member was not found.', 'hidden-word-bible-lessons' ),
+				array( 'status' => 404 )
+			);
+		}
+		$ids = self::get_blocked_user_ids( $user_id );
+		if ( ! in_array( $target, $ids, true ) ) {
+			$ids[] = $target;
+		}
+		$ids = self::set_blocked_user_ids( $user_id, $ids );
+		return new WP_REST_Response( array( 'blockedUserIds' => $ids ), 200 );
+	}
+
+	/**
+	 * DELETE /account/blocks/{user_id}
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response
+	 */
+	public static function rest_unblock_user( $request ) {
+		$target  = (int) $request['user_id'];
+		$user_id = get_current_user_id();
+		$ids     = array_values(
+			array_filter(
+				self::get_blocked_user_ids( $user_id ),
+				static function ( $id ) use ( $target ) {
+					return (int) $id !== $target;
+				}
+			)
+		);
+		$ids = self::set_blocked_user_ids( $user_id, $ids );
+		return new WP_REST_Response( array( 'blockedUserIds' => $ids ), 200 );
 	}
 
 	/**

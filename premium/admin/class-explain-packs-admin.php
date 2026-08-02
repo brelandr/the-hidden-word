@@ -36,6 +36,8 @@ class THW_Premium_Explain_Packs_Admin {
 		add_action( 'wp_ajax_thw_explain_pack_refresh_catalog', array( __CLASS__, 'ajax_refresh_catalog' ) );
 		add_action( 'wp_ajax_thw_explain_pack_save_token', array( __CLASS__, 'ajax_save_token' ) );
 		add_action( 'wp_ajax_thw_explain_pack_publish', array( __CLASS__, 'ajax_publish' ) );
+		add_action( 'wp_ajax_thw_explain_pack_fill_gaps', array( __CLASS__, 'ajax_fill_gaps' ) );
+		add_action( 'wp_ajax_thw_explain_pack_gap_preview', array( __CLASS__, 'ajax_gap_preview' ) );
 	}
 
 	/**
@@ -77,17 +79,22 @@ class THW_Premium_Explain_Packs_Admin {
 			return;
 		}
 
+		$css_path = THW_PREMIUM_DIR . 'admin/css/explain-packs.css';
+		$js_path  = THW_PREMIUM_DIR . 'admin/js/explain-packs.js';
+		$css_ver  = file_exists( $css_path ) ? (string) filemtime( $css_path ) : THW_PREMIUM_VERSION;
+		$js_ver   = file_exists( $js_path ) ? (string) filemtime( $js_path ) : THW_PREMIUM_VERSION;
+
 		wp_enqueue_style(
 			'thw-explain-packs',
 			THW_PREMIUM_URL . 'admin/css/explain-packs.css',
 			array(),
-			THW_PREMIUM_VERSION
+			$css_ver
 		);
 		wp_enqueue_script(
 			'thw-explain-packs',
 			THW_PREMIUM_URL . 'admin/js/explain-packs.js',
 			array( 'jquery' ),
-			THW_PREMIUM_VERSION,
+			$js_ver,
 			true
 		);
 
@@ -106,6 +113,7 @@ class THW_Premium_Explain_Packs_Admin {
 				'isHub'       => $is_hub,
 				'hasToken'    => $is_hub && THW_Premium_Explain_Packs_GitHub::has_token(),
 				'defaultCatalogUrl' => THW_Premium_Explain_Packs::default_catalog_url(),
+				'preloadUrl'  => admin_url( 'edit.php?post_type=hwbl_lesson&page=thw-explain-preload' ),
 				'i18n'        => array(
 					'confirmRemove' => __( 'Delete local explanations for this Bible + tradition? This cannot be undone.', 'hidden-word-bible-lessons' ),
 					'needKeys'      => __( 'Choose a translation and tradition.', 'hidden-word-bible-lessons' ),
@@ -114,6 +122,12 @@ class THW_Premium_Explain_Packs_Admin {
 					'tokenCleared'  => __( 'GitHub token cleared.', 'hidden-word-bible-lessons' ),
 					'publishOk'     => __( 'Published to GitHub Release and catalog updated.', 'hidden-word-bible-lessons' ),
 					'publishNeed'   => __( 'Export a pack until status is ready, then publish.', 'hidden-word-bible-lessons' ),
+					'fillGapsConfirm' => __( 'Generate %1$s missing %2$s · %3$s · %4$s explains? Already-saved rows are left alone. You will be taken to Preload Explains to watch progress.', 'hidden-word-bible-lessons' ),
+					'fillGapsSamples' => __( 'First missing: %s', 'hidden-word-bible-lessons' ),
+					'fillGapsBusy'  => __( 'A preload job is already running. Pause or finish it first.', 'hidden-word-bible-lessons' ),
+					'fillGapsNeedSelection' => __( 'Click “Select gaps” on an incomplete inventory row first.', 'hidden-word-bible-lessons' ),
+					'noGaps'        => __( 'No missing passages found.', 'hidden-word-bible-lessons' ),
+					'noneSelected'  => __( 'None selected — click “Select gaps” on a row below.', 'hidden-word-bible-lessons' ),
 				),
 			)
 		);
@@ -155,6 +169,7 @@ class THW_Premium_Explain_Packs_Admin {
 		}
 		$export_translations = array_values( array_unique( array_merge( $trans_slugs, $local ) ) );
 		sort( $export_translations );
+		$inventory   = THW_Premium_Explain_Packs::get_local_inventory();
 		$catalog_url = (string) get_option( THW_Premium_Explain_Packs::CATALOG_OPTION, '' );
 		$default_url = THW_Premium_Explain_Packs::default_catalog_url();
 		$is_hub      = class_exists( 'THW_Premium_Explain_Packs_GitHub' ) && THW_Premium_Explain_Packs_GitHub::is_hub_publisher();
@@ -304,6 +319,137 @@ class THW_Premium_Explain_Packs_Admin {
 			<hr />
 
 			<h2><?php echo esc_html__( 'Export from this site (hub)', 'hidden-word-bible-lessons' ); ?></h2>
+			<h3><?php echo esc_html__( 'What’s on this site', 'hidden-word-bible-lessons' ); ?></h3>
+			<?php if ( empty( $inventory ) ) : ?>
+				<p class="description"><?php echo esc_html__( 'No stored explanations yet. Run Preload Explains or install a pack first.', 'hidden-word-bible-lessons' ); ?></p>
+			<?php else : ?>
+				<p class="description">
+					<?php echo esc_html__( 'Counts come from the explains database. Coverage compares against a ready Local Bible (verse/chapter totals). Click a row to fill the export selectors. To generate only missing passages: click Select gaps on a row, choose an API mode, then Start fill gaps (opens Preload Explains). Tradition packs may be sparse (overrides only); “same as base” markers count toward preload coverage but are not exported in the ZIP.', 'hidden-word-bible-lessons' ); ?>
+				</p>
+
+				<div class="thw-explain-pack-fill-panel" id="thw-explain-pack-fill-panel">
+					<h4><?php echo esc_html__( 'Fill gaps', 'hidden-word-bible-lessons' ); ?></h4>
+					<p class="thw-explain-pack-fill-selection">
+						<strong><?php echo esc_html__( 'Selected:', 'hidden-word-bible-lessons' ); ?></strong>
+						<span id="thw-explain-pack-fill-selection-label"><?php echo esc_html__( 'None selected — click “Select gaps” on a row below.', 'hidden-word-bible-lessons' ); ?></span>
+					</p>
+					<input type="hidden" id="thw-explain-pack-fill-translation" value="" />
+					<input type="hidden" id="thw-explain-pack-fill-tradition" value="" />
+					<input type="hidden" id="thw-explain-pack-fill-scope" value="" />
+					<input type="hidden" id="thw-explain-pack-fill-missing" value="0" />
+					<fieldset class="thw-explain-pack-fill-mode">
+						<legend><?php echo esc_html__( 'API mode', 'hidden-word-bible-lessons' ); ?></legend>
+						<label>
+							<input type="radio" name="thw_explain_pack_fill_mode" value="realtime" checked />
+							<?php echo esc_html__( 'Realtime API', 'hidden-word-bible-lessons' ); ?>
+						</label>
+						<label>
+							<input type="radio" name="thw_explain_pack_fill_mode" value="openai_batch" />
+							<?php echo esc_html__( 'OpenAI Batch API', 'hidden-word-bible-lessons' ); ?>
+						</label>
+					</fieldset>
+					<p class="description" id="thw-explain-pack-fill-samples" hidden></p>
+					<p>
+						<button type="button" class="button button-primary" id="thw-explain-pack-fill-start" disabled>
+							<?php echo esc_html__( 'Start fill gaps', 'hidden-word-bible-lessons' ); ?>
+						</button>
+						<a class="button" href="<?php echo esc_url( admin_url( 'edit.php?post_type=hwbl_lesson&page=thw-explain-preload' ) ); ?>">
+							<?php echo esc_html__( 'Open Preload Explains', 'hidden-word-bible-lessons' ); ?>
+						</a>
+					</p>
+				</div>
+
+				<table class="widefat striped thw-explain-pack-inventory">
+					<thead>
+						<tr>
+							<th><?php echo esc_html__( 'Bible', 'hidden-word-bible-lessons' ); ?></th>
+							<th><?php echo esc_html__( 'Tradition', 'hidden-word-bible-lessons' ); ?></th>
+							<th><?php echo esc_html__( 'Scope', 'hidden-word-bible-lessons' ); ?></th>
+							<th><?php echo esc_html__( 'Explains', 'hidden-word-bible-lessons' ); ?></th>
+							<th><?php echo esc_html__( 'Overrides', 'hidden-word-bible-lessons' ); ?></th>
+							<th><?php echo esc_html__( 'Same as base', 'hidden-word-bible-lessons' ); ?></th>
+							<th><?php echo esc_html__( 'Expected', 'hidden-word-bible-lessons' ); ?></th>
+							<th><?php echo esc_html__( 'Coverage', 'hidden-word-bible-lessons' ); ?></th>
+							<th><?php echo esc_html__( 'Actions', 'hidden-word-bible-lessons' ); ?></th>
+						</tr>
+					</thead>
+					<tbody>
+						<?php foreach ( $inventory as $row ) : ?>
+							<?php
+							$cov_class = 'thw-pack-cov-unknown';
+							$cov_label = __( 'No local Bible', 'hidden-word-bible-lessons' );
+							$missing   = (int) ( $row['missing'] ?? 0 );
+							if ( ! empty( $row['bible_ready'] ) ) {
+								if ( ! empty( $row['complete'] ) ) {
+									$cov_class = 'thw-pack-cov-complete';
+									$cov_label = sprintf(
+										/* translators: %d: percent complete */
+										__( 'Complete (%d%%)', 'hidden-word-bible-lessons' ),
+										(int) $row['percent']
+									);
+								} else {
+									$cov_class = 'thw-pack-cov-partial';
+									$cov_label = sprintf(
+										/* translators: 1: percent, 2: missing count */
+										__( '%1$d%% · %2$s missing', 'hidden-word-bible-lessons' ),
+										(int) $row['percent'],
+										number_format_i18n( $missing )
+									);
+								}
+							}
+							?>
+							<tr
+								class="thw-explain-pack-inventory-row <?php echo esc_attr( $cov_class ); ?>"
+								data-translation="<?php echo esc_attr( (string) $row['translation'] ); ?>"
+								data-tradition="<?php echo esc_attr( (string) $row['tradition'] ); ?>"
+								data-scope="<?php echo esc_attr( (string) $row['scope'] ); ?>"
+								data-missing="<?php echo esc_attr( (string) $missing ); ?>"
+								title="<?php echo esc_attr__( 'Click to select for export', 'hidden-word-bible-lessons' ); ?>"
+							>
+								<td><code><?php echo esc_html( strtoupper( (string) $row['translation'] ) ); ?></code></td>
+								<td><?php echo esc_html( (string) $row['tradition_label'] ); ?> <span class="description">(<?php echo esc_html( (string) $row['tradition'] ); ?>)</span></td>
+								<td><?php echo esc_html( (string) $row['scope'] ); ?></td>
+								<td><?php echo esc_html( number_format_i18n( (int) $row['total'] ) ); ?></td>
+								<td><?php echo esc_html( number_format_i18n( (int) $row['overrides'] ) ); ?></td>
+								<td><?php echo esc_html( number_format_i18n( (int) $row['same_as_base'] ) ); ?></td>
+								<td>
+									<?php
+									echo ! empty( $row['bible_ready'] )
+										? esc_html( number_format_i18n( (int) $row['expected'] ) )
+										: '—';
+									?>
+								</td>
+								<td><span class="thw-pack-coverage <?php echo esc_attr( $cov_class ); ?>"><?php echo esc_html( $cov_label ); ?></span></td>
+								<td>
+									<?php if ( ! empty( $row['bible_ready'] ) && $missing > 0 ) : ?>
+										<button
+											type="button"
+											class="button button-small thw-explain-pack-select-gaps"
+											data-translation="<?php echo esc_attr( (string) $row['translation'] ); ?>"
+											data-tradition="<?php echo esc_attr( (string) $row['tradition'] ); ?>"
+											data-scope="<?php echo esc_attr( (string) $row['scope'] ); ?>"
+											data-missing="<?php echo esc_attr( (string) $missing ); ?>"
+										>
+											<?php
+											echo esc_html(
+												sprintf(
+													/* translators: %s: missing passage count */
+													__( 'Select gaps (%s)', 'hidden-word-bible-lessons' ),
+													number_format_i18n( $missing )
+												)
+											);
+											?>
+										</button>
+									<?php else : ?>
+										<span class="description">—</span>
+									<?php endif; ?>
+								</td>
+							</tr>
+						<?php endforeach; ?>
+					</tbody>
+				</table>
+			<?php endif; ?>
+
 			<table class="form-table" role="presentation">
 				<tr>
 					<th scope="row"><?php echo esc_html__( 'Bible', 'hidden-word-bible-lessons' ); ?></th>
@@ -311,7 +457,19 @@ class THW_Premium_Explain_Packs_Admin {
 						<select id="thw-explain-pack-export-translation">
 							<option value=""><?php echo esc_html__( '— Select —', 'hidden-word-bible-lessons' ); ?></option>
 							<?php foreach ( $export_translations as $slug ) : ?>
-								<option value="<?php echo esc_attr( $slug ); ?>"><?php echo esc_html( strtoupper( $slug ) ); ?></option>
+								<?php
+								$slug_total = 0;
+								foreach ( $inventory as $inv_row ) {
+									if ( (string) $inv_row['translation'] === (string) $slug ) {
+										$slug_total += (int) $inv_row['total'];
+									}
+								}
+								$opt_label = strtoupper( $slug );
+								if ( $slug_total > 0 ) {
+									$opt_label .= ' (' . number_format_i18n( $slug_total ) . ')';
+								}
+								?>
+								<option value="<?php echo esc_attr( $slug ); ?>"><?php echo esc_html( $opt_label ); ?></option>
 							<?php endforeach; ?>
 						</select>
 					</td>
@@ -687,5 +845,81 @@ class THW_Premium_Explain_Packs_Admin {
 		}
 
 		wp_send_json_success( $result );
+	}
+
+	/**
+	 * AJAX: preview missing passages for Fill gaps confirm.
+	 */
+	public static function ajax_gap_preview() {
+		if ( ! self::verify_ajax() ) {
+			wp_send_json_error( array( 'message' => 'forbidden' ), 403 );
+		}
+		if ( ! class_exists( 'THW_Premium_Bible_Reader_Explain_Store' ) ) {
+			wp_send_json_error( array( 'message' => __( 'Explain store is unavailable.', 'hidden-word-bible-lessons' ) ), 400 );
+		}
+
+		$translation = isset( $_POST['translation'] ) ? sanitize_key( wp_unslash( $_POST['translation'] ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$tradition   = isset( $_POST['tradition'] ) ? sanitize_key( wp_unslash( $_POST['tradition'] ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$scope       = isset( $_POST['scope'] ) ? sanitize_key( wp_unslash( $_POST['scope'] ) ) : 'verse'; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		if ( 'chapter' !== $scope ) {
+			$scope = 'verse';
+		}
+
+		$missing = THW_Premium_Bible_Reader_Explain_Store::count_missing_passages( $translation, $tradition, $scope );
+		$samples = THW_Premium_Bible_Reader_Explain_Store::list_missing_passages( $translation, $tradition, $scope, 12, 0 );
+		$labels  = array();
+		foreach ( $samples as $sample ) {
+			$book_id = (int) ( $sample['book_id'] ?? 0 );
+			$chapter = (int) ( $sample['chapter'] ?? 0 );
+			$verse   = (int) ( $sample['verse'] ?? 0 );
+			if ( class_exists( 'HWBL_Books' ) ) {
+				$labels[] = ( 'chapter' === $scope )
+					? HWBL_Books::get_name( $book_id ) . ' ' . $chapter
+					: HWBL_Books::format_reference( $book_id, $chapter, $verse );
+			} else {
+				$labels[] = $book_id . ' ' . $chapter . ( $verse ? ':' . $verse : '' );
+			}
+		}
+
+		wp_send_json_success(
+			array(
+				'missing' => $missing,
+				'samples' => $labels,
+			)
+		);
+	}
+
+	/**
+	 * AJAX: start a fill-gaps preload job for one inventory row.
+	 */
+	public static function ajax_fill_gaps() {
+		if ( ! self::verify_ajax() ) {
+			wp_send_json_error( array( 'message' => 'forbidden' ), 403 );
+		}
+		if ( ! class_exists( 'THW_Premium_Explain_Preload' ) ) {
+			wp_send_json_error( array( 'message' => __( 'Preload Explains is unavailable.', 'hidden-word-bible-lessons' ) ), 400 );
+		}
+
+		$result = THW_Premium_Explain_Preload::start_fill_gaps(
+			array(
+				'translation' => isset( $_POST['translation'] ) ? sanitize_key( wp_unslash( $_POST['translation'] ) ) : '', // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+				'tradition'   => isset( $_POST['tradition'] ) ? sanitize_key( wp_unslash( $_POST['tradition'] ) ) : '', // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+				'scope'       => isset( $_POST['scope'] ) ? sanitize_key( wp_unslash( $_POST['scope'] ) ) : 'verse', // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+				'mode'        => isset( $_POST['mode'] ) ? sanitize_key( wp_unslash( $_POST['mode'] ) ) : 'realtime', // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			)
+		);
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error( array( 'message' => $result->get_error_message() ), 400 );
+		}
+
+		// Kick the first tick so tiny gap jobs don't wait on cron alone.
+		THW_Premium_Explain_Preload::process_batch();
+
+		wp_send_json_success(
+			array(
+				'job'        => THW_Premium_Explain_Preload::status_payload(),
+				'preloadUrl' => admin_url( 'edit.php?post_type=hwbl_lesson&page=thw-explain-preload' ),
+			)
+		);
 	}
 }

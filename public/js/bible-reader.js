@@ -418,6 +418,38 @@
 					});
 			});
 		}
+
+		var elConcordanceBtn = qs(root, '.hwbl-bible-reader__concordance-btn');
+		var elConcordancePanel = qs(root, '.hwbl-bible-reader__concordance-panel');
+		if (elConcordanceBtn && elConcordancePanel && features.concordance) {
+			elConcordanceBtn.addEventListener('click', function () {
+				elConcordancePanel.hidden = !elConcordancePanel.hidden;
+				if (!elConcordancePanel.hidden) {
+					var widget = elConcordancePanel.querySelector('.hwbl-bible-concordance');
+					if (widget && window.hwblBibleConcordanceApi) {
+						window.hwblBibleConcordanceApi.initWidget(widget);
+						var select = widget.querySelector('.hwbl-bible-concordance__translation');
+						if (select && state.translation) {
+							var opt = select.querySelector('option[value="' + state.translation + '"]');
+							if (opt) {
+								select.value = state.translation;
+							}
+						}
+					}
+				}
+			});
+		}
+
+		root._hwblGoTo = goTo;
+		if (!window.hwblBibleReaderApi) {
+			window.hwblBibleReaderApi = {};
+		}
+		window.hwblBibleReaderApi.goTo = function (bookId, chapter, verse) {
+			var active = document.querySelector('.hwbl-bible-reader');
+			if (active && typeof active._hwblGoTo === 'function') {
+				active._hwblGoTo(bookId, chapter, verse || 0);
+			}
+		};
 	}
 
 	document.addEventListener('DOMContentLoaded', function () {

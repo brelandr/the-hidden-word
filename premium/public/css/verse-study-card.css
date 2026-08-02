@@ -1,0 +1,115 @@
+.hwbl-verse-study {
+	margin: 1.25rem 0;
+	padding: 1.25rem;
+	border: 1px solid rgba(31, 42, 46, 0.12);
+	border-radius: 12px;
+	background: #fff;
+}
+
+.hwbl-verse-study__heading {
+	margin: 0 0 0.35rem;
+	font-size: 1.35rem;
+}
+
+.hwbl-verse-study__intro {
+	margin: 0 0 1rem;
+}
+
+.hwbl-verse-study__picker {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.75rem 1rem;
+	margin-bottom: 0.75rem;
+}
+
+.hwbl-verse-study__field {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+	min-width: 6rem;
+	font-weight: 600;
+	font-size: 0.9rem;
+}
+
+.hwbl-verse-study__field select,
+.hwbl-verse-study__field input,
+.hwbl-verse-study__tradition {
+	font-weight: 400;
+	min-height: 2.25rem;
+}
+
+.hwbl-verse-study__actions {
+	margin: 0.75rem 0;
+}
+
+.hwbl-verse-study__status {
+	min-height: 1.25rem;
+	margin: 0.5rem 0;
+	color: #3d4f56;
+}
+
+.hwbl-verse-study__status.is-error {
+	color: #a12622;
+}
+
+.hwbl-verse-study__result {
+	margin-top: 1rem;
+	padding-top: 1rem;
+	border-top: 1px solid rgba(31, 42, 46, 0.1);
+}
+
+.hwbl-verse-study__ref {
+	margin: 0 0 0.35rem;
+	font-weight: 700;
+	font-size: 1.1rem;
+}
+
+.hwbl-verse-study__text {
+	margin: 0 0 0.5rem;
+	line-height: 1.55;
+	font-size: 1.05rem;
+}
+
+.hwbl-verse-study__section {
+	margin: 1rem 0;
+}
+
+.hwbl-verse-study__label {
+	margin: 0 0 0.35rem;
+	font-size: 1rem;
+}
+
+.hwbl-verse-study__body,
+.hwbl-verse-study__list {
+	margin: 0;
+	line-height: 1.55;
+}
+
+.hwbl-verse-study__list {
+	padding-left: 1.2rem;
+}
+
+.hwbl-verse-study__list li {
+	margin-bottom: 0.4rem;
+}
+
+.hwbl-verse-study__disclaimer {
+	margin-top: 1rem;
+	font-style: italic;
+}
+
+.hwbl-bible-reader__study-btn {
+	margin-left: 0.25rem;
+}
+
+.hwbl-bible-reader__study-panel {
+	margin-top: 0.75rem;
+	padding: 1rem;
+	border: 1px solid rgba(31, 42, 46, 0.12);
+	border-radius: 10px;
+	background: #faf9f7;
+}
+
+.hwbl-bible-reader__study-panel[hidden] {
+	display: none !important;
+}

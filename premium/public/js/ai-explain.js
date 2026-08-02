@@ -108,6 +108,157 @@
 		return panel;
 	}
 
+	function renderFinalContent(output, data, config) {
+		var content = data && data.content ? String(data.content) : '';
+		if (!content) {
+			output.innerHTML = '<p class="thw-notice thw-notice-info">' + config.error + '</p>';
+			return;
+		}
+		var flagged = !!(data && data.complianceFlagged);
+		var html = content;
+		if (flagged && config.complianceFlagged) {
+			html = '<p class="thw-ai-explain-disclaimer thw-ai-compliance-flagged">' + config.complianceFlagged + '</p>' + html;
+		}
+		output.innerHTML = html;
+	}
+
+	function escapeHtml(text) {
+		return String(text)
+			.replace(/&/g, '&amp;')
+			.replace(/</g, '&lt;')
+			.replace(/>/g, '&gt;')
+			.replace(/"/g, '&quot;');
+	}
+
+	function parseSseChunk(buffer, onEvent) {
+		var parts = buffer.split('\n\n');
+		var rest = parts.pop() || '';
+		parts.forEach(function (block) {
+			var eventName = 'message';
+			var dataLines = [];
+			block.split('\n').forEach(function (line) {
+				if (line.indexOf('event:') === 0) {
+					eventName = line.slice(6).trim();
+				} else if (line.indexOf('data:') === 0) {
+					dataLines.push(line.slice(5).trim());
+				}
+			});
+			if (!dataLines.length) {
+				return;
+			}
+			var raw = dataLines.join('\n');
+			var payload = {};
+			try {
+				payload = JSON.parse(raw);
+			} catch (e) {
+				payload = { text: raw };
+			}
+			onEvent(eventName, payload);
+		});
+		return rest;
+	}
+
+	function requestExplainJson(config, body) {
+		return fetch(config.restUrl, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+				'X-WP-Nonce': config.nonce
+			},
+			credentials: 'same-origin',
+			body: body.toString()
+		})
+			.then(function (response) {
+				return response.json().then(function (data) {
+					return { ok: response.ok, status: response.status, data: data };
+				});
+			});
+	}
+
+	function requestExplainStream(config, body, output) {
+		var url = config.restUrl + (config.restUrl.indexOf('?') >= 0 ? '&' : '?') + 'stream=1';
+		body.set('stream', '1');
+
+		return fetch(url, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+				'Accept': 'text/event-stream',
+				'X-WP-Nonce': config.nonce
+			},
+			credentials: 'same-origin',
+			body: body.toString()
+		}).then(function (response) {
+			var contentType = (response.headers.get('content-type') || '').toLowerCase();
+			if (!response.ok) {
+				return response.json().then(function (data) {
+					return { ok: false, status: response.status, data: data };
+				});
+			}
+
+			// Server fell back to JSON (streaming unavailable).
+			if (contentType.indexOf('text/event-stream') === -1) {
+				return response.json().then(function (data) {
+					return { ok: true, status: response.status, data: data, streamed: false };
+				});
+			}
+
+			if (!response.body || !response.body.getReader) {
+				return { ok: false, status: response.status, data: { message: config.error } };
+			}
+
+			var reader = response.body.getReader();
+			var decoder = new TextDecoder();
+			var buffer = '';
+			var rawText = '';
+			var streamDone = null;
+			var streamError = null;
+
+			output.innerHTML = '<div class="thw-ai-explain-stream"></div>';
+			var streamEl = output.querySelector('.thw-ai-explain-stream');
+
+			function onEvent(eventName, payload) {
+				if (eventName === 'token' && payload && payload.text) {
+					rawText += String(payload.text);
+					if (streamEl) {
+						streamEl.innerHTML = '<pre class="thw-ai-explain-stream-text">' + escapeHtml(rawText) + '</pre>';
+					}
+				} else if (eventName === 'done') {
+					streamDone = payload || {};
+				} else if (eventName === 'error') {
+					streamError = payload || { message: config.error };
+				}
+			}
+
+			function pump() {
+				return reader.read().then(function (result) {
+					if (result.done) {
+						buffer = parseSseChunk(buffer + '\n\n', onEvent);
+						if (streamError) {
+							return {
+								ok: false,
+								status: 502,
+								data: { message: streamError.message || config.error },
+								streamed: true
+							};
+						}
+						return {
+							ok: true,
+							status: 200,
+							data: streamDone || { content: rawText },
+							streamed: true
+						};
+					}
+					buffer += decoder.decode(result.value, { stream: true });
+					buffer = parseSseChunk(buffer, onEvent);
+					return pump();
+				});
+			}
+
+			return pump();
+		});
+	}
+
 	function handleExplainClick(trigger) {
 		var config = getExplainConfig();
 		var root = trigger.closest('.thw-ai-explain-controls');
@@ -155,38 +306,32 @@
 			writeStoredTradition(config, traditionSelect.value);
 		}
 
-		fetch(config.restUrl, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-				'X-WP-Nonce': config.nonce
-			},
-			credentials: 'same-origin',
-			body: body.toString()
-		})
-			.then(function (response) {
-				return response.json().then(function (data) {
-					return { ok: response.ok, status: response.status, data: data };
-				});
-			})
-			.then(function (result) {
-				var content = result.data && result.data.content ? String(result.data.content) : '';
+		var useStream = !!config.stream && typeof ReadableStream !== 'undefined' && window.fetch;
+		var request = useStream
+			? requestExplainStream(config, body, output)
+			: requestExplainJson(config, body);
 
+		request
+			.then(function (result) {
 				if (!result.ok) {
 					output.innerHTML = '<p class="thw-notice thw-notice-info">' + formatErrorMessage(result, config) + '</p>';
 					return;
 				}
-
-				if (content) {
-					var flagged = !!(result.data && result.data.complianceFlagged);
-					var html = content;
-					if (flagged && config.complianceFlagged) {
-						html = '<p class="thw-ai-explain-disclaimer thw-ai-compliance-flagged">' + config.complianceFlagged + '</p>' + html;
-					}
-					output.innerHTML = html;
-				} else {
-					output.innerHTML = '<p class="thw-notice thw-notice-info">' + config.error + '</p>';
+				renderFinalContent(output, result.data, config);
+			})
+			.catch(function () {
+				// Streaming path failed — fall back to classic JSON.
+				if (useStream) {
+					body.delete('stream');
+					return requestExplainJson(config, body).then(function (result) {
+						if (!result.ok) {
+							output.innerHTML = '<p class="thw-notice thw-notice-info">' + formatErrorMessage(result, config) + '</p>';
+							return;
+						}
+						renderFinalContent(output, result.data, config);
+					});
 				}
+				output.innerHTML = '<p class="thw-notice thw-notice-info">' + config.error + '</p>';
 			})
 			.catch(function () {
 				output.innerHTML = '<p class="thw-notice thw-notice-info">' + config.error + '</p>';

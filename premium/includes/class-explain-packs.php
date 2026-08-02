@@ -210,6 +210,115 @@ class THW_Premium_Explain_Packs {
 	}
 
 	/**
+	 * Local explain inventory with expected coverage vs ready Local Bibles.
+	 *
+	 * @return array<int, array<string, mixed>>
+	 */
+	public static function get_local_inventory() {
+		if ( ! class_exists( 'THW_Premium_Bible_Reader_Explain_Store' ) ) {
+			return array();
+		}
+
+		$base_slug = function_exists( 'thw_premium_explain_base_tradition_slug' )
+			? thw_premium_explain_base_tradition_slug()
+			: 'base';
+		$labels    = function_exists( 'thw_premium_get_tradition_preset_choices' )
+			? thw_premium_get_tradition_preset_choices()
+			: array();
+
+		$expected_cache = array();
+		$out            = array();
+
+		foreach ( THW_Premium_Bible_Reader_Explain_Store::list_inventory_counts() as $row ) {
+			$translation = sanitize_key( (string) ( $row['translation'] ?? '' ) );
+			$tradition   = sanitize_key( (string) ( $row['tradition'] ?? '' ) );
+			$scope       = sanitize_key( (string) ( $row['scope'] ?? 'verse' ) );
+			if ( 'chapter' !== $scope ) {
+				$scope = 'verse';
+			}
+			if ( '' === $translation || '' === $tradition ) {
+				continue;
+			}
+
+			$cache_key = $translation . '|' . $scope;
+			if ( ! isset( $expected_cache[ $cache_key ] ) ) {
+				$expected_cache[ $cache_key ] = self::expected_explain_count( $translation, $scope );
+			}
+			$expected = (int) $expected_cache[ $cache_key ];
+			$total    = max( 0, (int) ( $row['total'] ?? 0 ) );
+			$complete = ( $expected > 0 && $total >= $expected );
+			if ( $expected > 0 ) {
+				$raw_pct = (int) round( ( $total / $expected ) * 100 );
+				// Keep "100%" reserved for truly complete rows (avoid 31084/31086 → 100%).
+				$percent = $complete ? 100 : (int) min( 99, max( 0, $raw_pct ) );
+			} else {
+				$percent = 0;
+			}
+			$is_base = ( $tradition === $base_slug );
+			$missing = 0;
+			if ( $expected > 0 && ! $complete ) {
+				$missing = THW_Premium_Bible_Reader_Explain_Store::count_missing_passages( $translation, $tradition, $scope );
+				if ( $missing < 1 && $total < $expected ) {
+					$missing = max( 0, $expected - $total );
+				}
+			}
+
+			if ( $is_base ) {
+				$tradition_label = __( 'Shared base', 'hidden-word-bible-lessons' );
+			} elseif ( isset( $labels[ $tradition ] ) ) {
+				$tradition_label = (string) $labels[ $tradition ];
+			} else {
+				$tradition_label = $tradition;
+			}
+
+			$out[] = array(
+				'translation'     => $translation,
+				'tradition'       => $tradition,
+				'tradition_label' => $tradition_label,
+				'scope'           => $scope,
+				'total'           => $total,
+				'overrides'       => max( 0, (int) ( $row['overrides'] ?? 0 ) ),
+				'same_as_base'    => max( 0, (int) ( $row['same_as_base'] ?? 0 ) ),
+				'expected'        => $expected,
+				'percent'         => $percent,
+				'complete'        => $complete,
+				'missing'         => $missing,
+				'is_base'         => $is_base,
+				'bible_ready'     => $expected > 0,
+			);
+		}
+
+		return $out;
+	}
+
+	/**
+	 * Expected explain rows for a ready local Bible + scope.
+	 *
+	 * @param string $translation Translation slug.
+	 * @param string $scope       verse|chapter.
+	 * @return int
+	 */
+	private static function expected_explain_count( $translation, $scope ) {
+		$translation = sanitize_key( (string) $translation );
+		$scope       = sanitize_key( (string) $scope );
+		if ( '' === $translation || ! class_exists( 'HWBL_Local_Bible_Store' ) || ! HWBL_Local_Bible_Store::is_installed( $translation ) ) {
+			return 0;
+		}
+
+		if ( 'chapter' === $scope ) {
+			return max( 0, (int) HWBL_Local_Bible_Store::count_chapters( $translation ) );
+		}
+
+		// Prefer live verse rows over cached verse_count (meta can be ahead of the import).
+		$n = (int) HWBL_Local_Bible_Store::count_verses( $translation );
+		if ( $n < 1 ) {
+			$row = HWBL_Local_Bible_Store::get_translation( $translation );
+			$n   = is_array( $row ) ? (int) ( $row['verse_count'] ?? 0 ) : 0;
+		}
+		return max( 0, $n );
+	}
+
+	/**
 	 * Mark a pack installed.
 	 *
 	 * @param string               $pack_id Pack id.

@@ -1,0 +1,102 @@
+.hwbl-bible-concordance {
+	margin: 0.75rem 0 1rem;
+}
+
+.hwbl-bible-concordance__heading {
+	margin: 0 0 0.35rem;
+	font-size: 1.2rem;
+}
+
+.hwbl-bible-concordance__intro {
+	margin: 0 0 0.75rem;
+}
+
+.hwbl-bible-concordance__form {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem 0.75rem;
+	align-items: flex-end;
+	margin-bottom: 0.75rem;
+}
+
+.hwbl-bible-concordance__field {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+	font-size: 0.9rem;
+}
+
+.hwbl-bible-concordance__field--query {
+	flex: 1 1 14rem;
+	min-width: 12rem;
+}
+
+.hwbl-bible-concordance__query,
+.hwbl-bible-concordance__translation,
+.hwbl-bible-concordance__testament {
+	padding: 0.45rem 0.6rem;
+	border: 1px solid #c5d0da;
+	border-radius: 4px;
+	font: inherit;
+}
+
+.hwbl-bible-concordance__status,
+.hwbl-bible-concordance__notice {
+	margin: 0 0 0.65rem;
+	font-size: 0.9rem;
+	color: #555;
+}
+
+.hwbl-bible-concordance__results {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	display: flex;
+	flex-direction: column;
+	gap: 0.65rem;
+}
+
+.hwbl-bible-concordance__hit {
+	margin: 0;
+	padding: 0.65rem 0.75rem;
+	border: 1px solid #d5dde5;
+	border-radius: 6px;
+	background: #fff;
+}
+
+.hwbl-bible-concordance__ref {
+	font-weight: 700;
+	color: #1a5276;
+	text-decoration: none;
+}
+
+.hwbl-bible-concordance__ref:hover,
+.hwbl-bible-concordance__ref:focus {
+	text-decoration: underline;
+}
+
+.hwbl-bible-concordance__text {
+	margin: 0.35rem 0 0;
+	line-height: 1.45;
+}
+
+.hwbl-bible-concordance__text mark {
+	background: #fff3bf;
+	color: inherit;
+	padding: 0 0.1em;
+}
+
+.hwbl-bible-reader__concordance-panel {
+	margin-top: 0.75rem;
+	padding: 0.75rem;
+	background: #f0f4f8;
+	border-radius: 6px;
+}
+
+.hwbl-bible-reader__concordance-panel[hidden] {
+	display: none;
+}
+
+.hwbl-bible-concordance-notice {
+	color: #666;
+}

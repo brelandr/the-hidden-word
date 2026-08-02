@@ -28,6 +28,13 @@ class THW_Premium_AI_Explain {
 	private static $assets_needed = false;
 
 	/**
+	 * Pending SSE emitter for rest_pre_serve_request (callable|null).
+	 *
+	 * @var callable|null
+	 */
+	private static $pending_sse = null;
+
+	/**
 	 * Initialize hooks.
 	 */
 	public static function init() {
@@ -79,6 +86,12 @@ class THW_Premium_AI_Explain {
 						'default'           => '',
 						'sanitize_callback' => 'sanitize_key',
 					),
+					'stream'    => array(
+						'type'              => 'boolean',
+						'required'          => false,
+						'default'           => false,
+						'sanitize_callback' => 'rest_sanitize_boolean',
+					),
 				),
 			)
 		);
@@ -110,12 +123,45 @@ class THW_Premium_AI_Explain {
 		}
 
 		$tradition = isset( $params['tradition'] ) ? sanitize_key( (string) $params['tradition'] ) : '';
+		$stream    = self::request_wants_stream( $request, $params );
 
 		return array(
 			'lesson_id' => $lesson_id,
 			'scope'     => $scope,
 			'tradition' => $tradition,
+			'stream'    => $stream,
 		);
+	}
+
+	/**
+	 * Whether the request asked for Server-Sent Events streaming.
+	 *
+	 * Accepts ?stream=1, body stream=true, or Accept: text/event-stream.
+	 *
+	 * @param WP_REST_Request      $request Request.
+	 * @param array<string, mixed> $params  Parsed params.
+	 * @return bool
+	 */
+	public static function request_wants_stream( $request, $params = array() ) {
+		if ( ! is_array( $params ) ) {
+			$params = array();
+		}
+
+		if ( isset( $params['stream'] ) ) {
+			return (bool) rest_sanitize_boolean( $params['stream'] );
+		}
+
+		$query_stream = $request->get_param( 'stream' );
+		if ( null !== $query_stream && '' !== $query_stream ) {
+			return (bool) rest_sanitize_boolean( $query_stream );
+		}
+
+		$accept = (string) $request->get_header( 'accept' );
+		if ( '' !== $accept && false !== stripos( $accept, 'text/event-stream' ) ) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
@@ -192,6 +238,8 @@ class THW_Premium_AI_Explain {
 				'noPanel'            => __( 'Could not open the explanation panel. Refresh the page and try again.', 'hidden-word-bible-lessons' ),
 				'userTradition'      => thw_premium_show_tradition_select(),
 				'traditionStorageKey'=> 'thw_ai_tradition_preset',
+				'stream'             => class_exists( 'THW_Premium_AI_Client' ) && THW_Premium_AI_Client::supports_streaming(),
+				'complianceFlagged'  => __( 'This explanation may not fully match the selected tradition’s guidelines. Please review carefully against Scripture and your church’s teaching.', 'hidden-word-bible-lessons' ),
 			)
 		);
 	}
@@ -246,6 +294,7 @@ class THW_Premium_AI_Explain {
 		$parsed    = self::parse_request_params( $request );
 		$lesson_id = (int) $parsed['lesson_id'];
 		$scope     = $parsed['scope'];
+		$want_stream = ! empty( $parsed['stream'] ) && THW_Premium_AI_Client::supports_streaming();
 
 		if ( $lesson_id < 1 ) {
 			return new WP_Error(
@@ -277,20 +326,35 @@ class THW_Premium_AI_Explain {
 		$content_hash = self::build_content_hash( $lesson, $scope, $rules, $resolved['digest_hash'] );
 		$cached       = self::get_cached_explanation( $lesson_id, $scope, $content_hash, $preset );
 		if ( null !== $cached ) {
-			return new WP_REST_Response(
-				array(
-					'content'           => $cached['content'],
-					'scope'             => $scope,
-					'cached'            => true,
-					'tradition'         => $preset,
-					'complianceFlagged' => $cached['flagged'],
-				)
+			$payload = array(
+				'content'           => $cached['content'],
+				'scope'             => $scope,
+				'cached'            => true,
+				'tradition'         => $preset,
+				'complianceFlagged' => $cached['flagged'],
 			);
+			if ( $want_stream ) {
+				return self::stream_cached_sse_response( $payload );
+			}
+			return new WP_REST_Response( $payload );
 		}
 
 		$prompt             = self::build_prompt( $lesson, $scope );
 		$system_instruction = thw_premium_build_ai_system_instruction( $rules );
-		$result             = THW_Premium_AI_Client::generate_text( $prompt, $system_instruction );
+
+		if ( $want_stream ) {
+			return self::stream_explain_sse(
+				$prompt,
+				$system_instruction,
+				$checklist,
+				$lesson_id,
+				$scope,
+				$content_hash,
+				$preset
+			);
+		}
+
+		$result = THW_Premium_AI_Client::generate_text( $prompt, $system_instruction );
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}
@@ -323,6 +387,184 @@ class THW_Premium_AI_Explain {
 				'complianceFlagged' => $flagged,
 			)
 		);
+	}
+
+	/**
+	 * Emit a cached explanation over SSE (single done event).
+	 *
+	 * @param array<string, mixed> $payload REST payload.
+	 * @return WP_REST_Response
+	 */
+	private static function stream_cached_sse_response( array $payload ) {
+		self::queue_sse_emitter(
+			static function () use ( $payload ) {
+				self::emit_sse_event(
+					'done',
+					array(
+						'content'           => (string) ( $payload['content'] ?? '' ),
+						'scope'             => (string) ( $payload['scope'] ?? 'all' ),
+						'cached'            => true,
+						'tradition'         => (string) ( $payload['tradition'] ?? 'site' ),
+						'complianceFlagged' => ! empty( $payload['complianceFlagged'] ),
+					)
+				);
+				self::end_sse_response();
+			}
+		);
+		return new WP_REST_Response( null, 200 );
+	}
+
+	/**
+	 * Stream a new explanation via Server-Sent Events.
+	 *
+	 * Events: token {text}, done {content, …}, error {message}.
+	 *
+	 * @param string $prompt             Prompt.
+	 * @param string $system_instruction System instruction.
+	 * @param string $checklist          Compliance checklist.
+	 * @param int    $lesson_id          Lesson ID.
+	 * @param string $scope              Scope.
+	 * @param string $content_hash       Cache hash.
+	 * @param string $preset             Tradition preset.
+	 * @return WP_REST_Response
+	 */
+	private static function stream_explain_sse( $prompt, $system_instruction, $checklist, $lesson_id, $scope, $content_hash, $preset ) {
+		self::queue_sse_emitter(
+			static function () use ( $prompt, $system_instruction, $checklist, $lesson_id, $scope, $content_hash, $preset ) {
+				$result = THW_Premium_AI_Client::stream_completion(
+					array(
+						'prompt'             => $prompt,
+						'system_instruction' => $system_instruction,
+						'on_chunk'           => static function ( $delta ) {
+							self::emit_sse_event( 'token', array( 'text' => (string) $delta ) );
+						},
+					)
+				);
+
+				if ( is_wp_error( $result ) ) {
+					self::emit_sse_event(
+						'error',
+						array(
+							'message' => $result->get_error_message(),
+							'code'    => $result->get_error_code(),
+						)
+					);
+					self::end_sse_response();
+					return;
+				}
+
+				$flagged = false;
+				if ( thw_premium_ai_compliance_check_enabled() ) {
+					$compliance = self::enforce_compliance( $prompt, $system_instruction, $checklist, $result );
+					$result     = $compliance['content'];
+					$flagged    = $compliance['flagged'];
+
+					if ( $flagged && 'block' === thw_premium_get_ai_compliance_failure_action() ) {
+						self::emit_sse_event(
+							'error',
+							array(
+								'message' => __( 'We could not generate an explanation that follows the selected tradition’s guidelines. Please try again, or choose a different scope.', 'hidden-word-bible-lessons' ),
+								'code'    => 'thw_ai_compliance_failed',
+							)
+						);
+						self::end_sse_response();
+						return;
+					}
+				}
+
+				$html = THW_Premium_AI_Client::format_html_response( $result );
+				self::store_cached_explanation( $lesson_id, $scope, $content_hash, $html, $preset, $flagged );
+				self::increment_rate_limit( get_current_user_id() );
+
+				self::emit_sse_event(
+					'done',
+					array(
+						'content'           => $html,
+						'scope'             => $scope,
+						'cached'            => false,
+						'tradition'         => $preset,
+						'complianceFlagged' => $flagged,
+					)
+				);
+				self::end_sse_response();
+			}
+		);
+
+		return new WP_REST_Response( null, 200 );
+	}
+
+	/**
+	 * Queue an SSE body emitter served via rest_pre_serve_request.
+	 *
+	 * @param callable $emitter Emitter that writes SSE frames.
+	 */
+	private static function queue_sse_emitter( $emitter ) {
+		self::$pending_sse = $emitter;
+		add_filter( 'rest_pre_serve_request', array( __CLASS__, 'serve_pending_sse' ), 10, 4 );
+	}
+
+	/**
+	 * Serve a queued SSE response instead of JSON.
+	 *
+	 * @param bool             $served  Whether the request has already been served.
+	 * @param WP_REST_Response $result  Result to send.
+	 * @param WP_REST_Request  $request Request.
+	 * @param WP_REST_Server   $server  Server.
+	 * @return bool
+	 */
+	public static function serve_pending_sse( $served, $result, $request, $server ) {
+		unset( $result, $request, $server );
+		if ( $served || ! is_callable( self::$pending_sse ) ) {
+			return $served;
+		}
+
+		$emitter           = self::$pending_sse;
+		self::$pending_sse = null;
+		remove_filter( 'rest_pre_serve_request', array( __CLASS__, 'serve_pending_sse' ), 10 );
+
+		self::begin_sse_response();
+		call_user_func( $emitter );
+		return true;
+	}
+
+	/**
+	 * Send SSE response headers and disable buffering.
+	 */
+	private static function begin_sse_response() {
+		if ( ! headers_sent() ) {
+			status_header( 200 );
+			header( 'Content-Type: text/event-stream; charset=UTF-8' );
+			header( 'Cache-Control: no-cache, no-transform' );
+			header( 'X-Accel-Buffering: no' );
+		}
+		while ( ob_get_level() > 0 ) {
+			ob_end_flush();
+		}
+		flush();
+	}
+
+	/**
+	 * Write one SSE event.
+	 *
+	 * @param string               $event Event name.
+	 * @param array<string, mixed> $data  Payload.
+	 */
+	private static function emit_sse_event( $event, array $data ) {
+		$json = wp_json_encode( $data );
+		if ( ! is_string( $json ) ) {
+			$json = '{}';
+		}
+		echo 'event: ' . sanitize_key( (string) $event ) . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- SSE protocol frame, not HTML.
+		echo 'data: ' . $json . "\n\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JSON payload for EventSource clients.
+		flush();
+	}
+
+	/**
+	 * Finish an SSE response.
+	 */
+	private static function end_sse_response() {
+		echo "event: close\ndata: {}\n\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- SSE protocol frame.
+		flush();
 	}
 
 	/**

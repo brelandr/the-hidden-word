@@ -230,50 +230,7 @@ class THW_Premium_Verse_Of_The_Day {
 	 * Register REST routes.
 	 */
 	public static function register_routes() {
-		register_rest_route(
-			'thw/v1',
-			'/votd',
-			array(
-				'methods'             => 'GET',
-				'callback'            => array( __CLASS__, 'rest_payload' ),
-				'permission_callback' => '__return_true',
-				'args'                => array(
-					'translation' => array(
-						'type'              => 'string',
-						'sanitize_callback' => 'sanitize_key',
-						'default'           => '',
-					),
-					'refresh'     => array(
-						'type'              => 'boolean',
-						'sanitize_callback' => 'rest_sanitize_boolean',
-						'default'           => false,
-					),
-				),
-			)
-		);
-
-		register_rest_route(
-			'thw/v1',
-			'/votd-explain',
-			array(
-				'methods'             => 'POST',
-				'callback'            => array( __CLASS__, 'rest_explain' ),
-				/*
-				 * Public on purpose: anonymous visitors may fetch an already-saved
-				 * explanation. Creating a new AI explanation is gated inside
-				 * rest_explain() with is_user_logged_in() + AI availability.
-				 */
-				'permission_callback' => '__return_true',
-				'args'                => array(
-					'translation' => array(
-						'type'              => 'string',
-						'required'          => false,
-						'default'           => '',
-						'sanitize_callback' => 'sanitize_key',
-					),
-				),
-			)
-		);
+		THW_Premium_Votd_Rest::register_routes();
 	}
 
 	/**
@@ -1042,31 +999,7 @@ class THW_Premium_Verse_Of_The_Day {
 	 * @return array{reference:string,description_text:string,image:string}
 	 */
 	public static function fetch_bible_com_meta() {
-		$body = self::fetch_bible_com_page_html();
-		if ( '' === $body ) {
-			self::debug_log( 'bible.com HTTP request failed or returned blocked HTML' );
-			return array(
-				'reference'         => '',
-				'description_text'  => '',
-				'image'             => '',
-			);
-		}
-
-		$parsed = self::parse_bible_com_html( $body );
-		if ( empty( $parsed['reference'] ) ) {
-			self::debug_log( 'bible.com HTML parsed but no reference found' );
-		} else {
-			self::debug_log(
-				'bible.com scrape succeeded',
-				array(
-					'reference' => (string) $parsed['reference'],
-					'page_date' => isset( $parsed['page_date'] ) ? (string) $parsed['page_date'] : '',
-					'has_image' => ! empty( $parsed['image'] ),
-				)
-			);
-		}
-
-		return $parsed;
+		return THW_Premium_Votd_YouVersion::fetch_bible_com_meta();
 	}
 
 	/**
@@ -1076,14 +1009,7 @@ class THW_Premium_Verse_Of_The_Day {
 	 * @return int
 	 */
 	public static function get_day_of_year( $day ) {
-		try {
-			$tz   = function_exists( 'wp_timezone' ) ? wp_timezone() : new DateTimeZone( 'UTC' );
-			$date = new DateTime( (string) $day, $tz );
-			return max( 1, min( 366, (int) $date->format( 'z' ) + 1 ) );
-		} catch ( Exception $e ) {
-			unset( $e );
-			return max( 1, (int) gmdate( 'z' ) + 1 );
-		}
+		return THW_Premium_Votd_YouVersion::get_day_of_year( $day );
 	}
 
 	/**
@@ -1093,81 +1019,7 @@ class THW_Premium_Verse_Of_The_Day {
 	 * @return array{reference:string,description_text:string,image:string,page_date:string,passage_id:string}
 	 */
 	public static function fetch_youversion_votd_meta( $day ) {
-		$empty = array(
-			'reference'        => '',
-			'description_text' => '',
-			'image'            => '',
-			'page_date'        => '',
-			'passage_id'       => '',
-		);
-
-		if ( ! class_exists( 'THW_Premium_YouVersion' ) ) {
-			self::debug_log( 'YouVersion API unavailable (provider not loaded)', array( 'day' => $day ) );
-			return $empty;
-		}
-
-		if ( ! THW_Premium_License::is_licensed() ) {
-			self::debug_log( 'YouVersion API unavailable (Premium license inactive)', array( 'day' => $day ) );
-			return $empty;
-		}
-
-		if ( ! THW_Premium_YouVersion::get_app_key() ) {
-			self::debug_log( 'YouVersion API unavailable (no App Key saved in Premium settings)', array( 'day' => $day ) );
-			return $empty;
-		}
-
-		$day_of_year = self::get_day_of_year( $day );
-		$payload     = THW_Premium_YouVersion::api_get( 'verse_of_the_days/' . $day_of_year );
-		if ( ! is_array( $payload ) || empty( $payload['passage_id'] ) ) {
-			self::debug_log(
-				'YouVersion verse_of_the_days API returned no passage_id',
-				array(
-					'day'         => $day,
-					'day_of_year' => $day_of_year,
-				)
-			);
-			return $empty;
-		}
-
-		$passage_id = (string) $payload['passage_id'];
-		if ( ! class_exists( 'HWBL_Books' ) ) {
-			return $empty;
-		}
-
-		$parsed = HWBL_Books::parse_youversion_passage_id( $passage_id );
-		if ( ! $parsed || empty( $parsed['reference'] ) ) {
-			self::debug_log(
-				'YouVersion passage_id could not be parsed',
-				array(
-					'day'        => $day,
-					'passage_id' => $passage_id,
-				)
-			);
-			return $empty;
-		}
-
-		$translation = self::get_default_translation();
-		$text        = self::fetch_youversion_passage_text( $passage_id, $translation );
-		if ( '' === $text ) {
-			self::debug_log(
-				'YouVersion passage text empty',
-				array(
-					'day'         => $day,
-					'passage_id'  => $passage_id,
-					'translation' => $translation,
-				)
-			);
-		}
-
-		$image = self::resolve_votd_image_url( $passage_id );
-
-		return array(
-			'reference'        => (string) $parsed['reference'],
-			'description_text' => $text,
-			'image'            => $image,
-			'page_date'        => (string) $day,
-			'passage_id'       => $passage_id,
-		);
+		return THW_Premium_Votd_YouVersion::fetch_youversion_votd_meta( $day );
 	}
 
 	/**
@@ -1177,46 +1029,7 @@ class THW_Premium_Verse_Of_The_Day {
 	 * @return string
 	 */
 	public static function resolve_votd_image_url( $passage_id ) {
-		$passage_id = strtoupper( trim( (string) $passage_id ) );
-		if ( '' === $passage_id ) {
-			return '';
-		}
-
-		if ( class_exists( 'THW_Premium_YouVersion' ) && THW_Premium_YouVersion::is_available() ) {
-			$image = THW_Premium_YouVersion::fetch_image_for_passage( $passage_id );
-			if ( '' !== $image ) {
-				self::debug_log(
-					'VOTD image resolved via YouVersion images API',
-					array(
-						'passage_id' => $passage_id,
-					)
-				);
-				return $image;
-			}
-		}
-
-		$html = self::fetch_bible_com_page_html();
-		if ( '' !== $html ) {
-			$parsed = self::parse_bible_com_html( $html );
-			if ( ! empty( $parsed['image'] ) ) {
-				return self::normalize_votd_image_url( (string) $parsed['image'] );
-			}
-
-			$page_props = self::parse_bible_com_next_data( $html );
-			$image      = self::extract_votd_image_from_page_props( $page_props, $passage_id );
-			if ( '' !== $image ) {
-				self::debug_log(
-					'VOTD image resolved via bible.com page JSON',
-					array(
-						'passage_id' => $passage_id,
-					)
-				);
-				return $image;
-			}
-		}
-
-		self::debug_log( 'VOTD image unavailable', array( 'passage_id' => $passage_id ) );
-		return '';
+		return THW_Premium_Votd_YouVersion::resolve_votd_image_url( $passage_id );
 	}
 
 	/**
@@ -1225,50 +1038,7 @@ class THW_Premium_Verse_Of_The_Day {
 	 * @return string
 	 */
 	public static function fetch_bible_com_page_html() {
-		$response = wp_safe_remote_get(
-			self::SOURCE_URL,
-			array(
-				'timeout'     => 12,
-				'redirection' => 3,
-				'headers'     => array(
-					'Accept'          => 'text/html,application/xhtml+xml',
-					'Accept-Language' => 'en-US,en;q=0.9',
-					'Cache-Control'   => 'no-cache',
-					'Pragma'          => 'no-cache',
-				),
-				'user-agent'  => 'Mozilla/5.0 (compatible; TheHiddenWordPremium/' . ( defined( 'THW_PREMIUM_VERSION' ) ? THW_PREMIUM_VERSION : '1.0' ) . '; ' . home_url( '/' ) . ')',
-			)
-		);
-
-		if ( is_wp_error( $response ) ) {
-			return '';
-		}
-
-		$code = (int) wp_remote_retrieve_response_code( $response );
-		$body = (string) wp_remote_retrieve_body( $response );
-		if ( $code < 200 || $code >= 300 || '' === $body ) {
-			self::debug_log(
-				'bible.com HTTP response rejected',
-				array(
-					'status' => $code,
-				)
-			);
-			return '';
-		}
-
-		if ( ! class_exists( 'HWBL_Http_Utils' ) || ! HWBL_Http_Utils::is_usable_bible_com_votd_html( $body ) ) {
-			self::debug_log(
-				'bible.com HTML not usable for VOTD',
-				array(
-					'status'     => $code,
-					'body_bytes' => strlen( $body ),
-					'blocked'    => class_exists( 'HWBL_Http_Utils' ) && HWBL_Http_Utils::looks_like_blocked_html_page( $body ),
-				)
-			);
-			return '';
-		}
-
-		return $body;
+		return THW_Premium_Votd_YouVersion::fetch_bible_com_page_html();
 	}
 
 	/**
@@ -1278,45 +1048,7 @@ class THW_Premium_Verse_Of_The_Day {
 	 * @return string
 	 */
 	public static function normalize_votd_image_url( $url ) {
-		$url = trim( html_entity_decode( (string) $url, ENT_QUOTES | ENT_HTML5, 'UTF-8' ) );
-		if ( '' === $url ) {
-			return '';
-		}
-
-		if ( 0 === strpos( $url, '//' ) ) {
-			$url = 'https:' . $url;
-		}
-
-		$url = esc_url_raw( $url );
-		if ( '' === $url ) {
-			return '';
-		}
-
-		$host = (string) wp_parse_url( $url, PHP_URL_HOST );
-		if ( '' === $host ) {
-			return '';
-		}
-
-		$allowed_hosts = array(
-			'imageproxy.youversionapi.com',
-			'imageproxy-cdn.youversionapi.com',
-			's3.amazonaws.com',
-		);
-
-		$allowed = false;
-		foreach ( $allowed_hosts as $allowed_host ) {
-			if ( $host === $allowed_host ) {
-				$allowed = true;
-				break;
-			}
-			$suffix = '.' . $allowed_host;
-			if ( strlen( $host ) > strlen( $suffix ) && substr( $host, -strlen( $suffix ) ) === $suffix ) {
-				$allowed = true;
-				break;
-			}
-		}
-
-		return $allowed ? $url : '';
+		return THW_Premium_Votd_YouVersion::normalize_votd_image_url( $url );
 	}
 
 	/**
@@ -1326,16 +1058,7 @@ class THW_Premium_Verse_Of_The_Day {
 	 * @return array<string, mixed>|null
 	 */
 	public static function parse_bible_com_next_data( $html ) {
-		if ( ! preg_match( '/<script id=["\']__NEXT_DATA__["\'][^>]*>(.*?)<\/script>/is', (string) $html, $matches ) ) {
-			return null;
-		}
-
-		$data = json_decode( html_entity_decode( trim( $matches[1] ), ENT_QUOTES | ENT_HTML5, 'UTF-8' ), true );
-		if ( ! is_array( $data ) || empty( $data['props']['pageProps'] ) || ! is_array( $data['props']['pageProps'] ) ) {
-			return null;
-		}
-
-		return $data['props']['pageProps'];
+		return THW_Premium_Votd_YouVersion::parse_bible_com_next_data( $html );
 	}
 
 	/**
@@ -1346,41 +1069,7 @@ class THW_Premium_Verse_Of_The_Day {
 	 * @return string
 	 */
 	public static function extract_votd_image_from_page_props( $page_props, $passage_id = '' ) {
-		if ( ! is_array( $page_props ) || empty( $page_props['images'] ) || ! is_array( $page_props['images'] ) ) {
-			return '';
-		}
-
-		$passage_id = strtoupper( trim( (string) $passage_id ) );
-		foreach ( $page_props['images'] as $image ) {
-			if ( ! is_array( $image ) ) {
-				continue;
-			}
-
-			if ( $passage_id && ! empty( $image['usfm'] ) && is_array( $image['usfm'] ) ) {
-				$matches = false;
-				foreach ( $image['usfm'] as $usfm ) {
-					if ( strtoupper( trim( (string) $usfm ) ) === $passage_id ) {
-						$matches = true;
-						break;
-					}
-				}
-				if ( ! $matches ) {
-					continue;
-				}
-			}
-
-			$url = self::pick_votd_image_rendition( $image, 640 );
-			if ( '' !== $url ) {
-				return self::normalize_votd_image_url( $url );
-			}
-		}
-
-		$first = $page_props['images'][0];
-		if ( is_array( $first ) ) {
-			return self::normalize_votd_image_url( self::pick_votd_image_rendition( $first, 640 ) );
-		}
-
-		return '';
+		return THW_Premium_Votd_YouVersion::extract_votd_image_from_page_props( $page_props, $passage_id );
 	}
 
 	/**
@@ -1391,28 +1080,7 @@ class THW_Premium_Verse_Of_The_Day {
 	 * @return string
 	 */
 	public static function pick_votd_image_rendition( $image, $width = 640 ) {
-		if ( empty( $image['renditions'] ) || ! is_array( $image['renditions'] ) ) {
-			return '';
-		}
-
-		$width      = max( 152, min( 1280, (int) $width ) );
-		$best_url   = '';
-		$best_delta = PHP_INT_MAX;
-
-		foreach ( $image['renditions'] as $rendition ) {
-			if ( ! is_array( $rendition ) || empty( $rendition['url'] ) ) {
-				continue;
-			}
-
-			$rendition_width = isset( $rendition['width'] ) ? (int) $rendition['width'] : 0;
-			$delta           = $rendition_width > 0 ? abs( $rendition_width - $width ) : 9999;
-			if ( $delta < $best_delta ) {
-				$best_delta = $delta;
-				$best_url   = (string) $rendition['url'];
-			}
-		}
-
-		return $best_url;
+		return THW_Premium_Votd_YouVersion::pick_votd_image_rendition( $image, $width );
 	}
 
 	/**
@@ -1423,28 +1091,7 @@ class THW_Premium_Verse_Of_The_Day {
 	 * @return string
 	 */
 	public static function fetch_youversion_passage_text( $passage_id, $translation = '' ) {
-		if ( ! class_exists( 'THW_Premium_YouVersion' ) || ! THW_Premium_YouVersion::is_available() ) {
-			return '';
-		}
-
-		$translation = sanitize_key( (string) $translation );
-		if ( '' === $translation ) {
-			$translation = self::get_default_translation();
-		}
-
-		$version_id = THW_Premium_YouVersion::get_version_id_for_translation( $translation );
-		if ( ! $version_id ) {
-			$version_id = THW_Premium_YouVersion::get_version_id_for_translation( 'niv' );
-		}
-		if ( ! $version_id ) {
-			$version_id = THW_Premium_YouVersion::get_version_id_for_translation( 'bsb' );
-		}
-		if ( ! $version_id ) {
-			return '';
-		}
-
-		$payload = THW_Premium_YouVersion::fetch_passage( (int) $version_id, (string) $passage_id );
-		return THW_Premium_YouVersion::extract_passage_text( $payload );
+		return THW_Premium_Votd_YouVersion::fetch_youversion_passage_text( $passage_id, $translation );
 	}
 
 	/**
@@ -1454,63 +1101,7 @@ class THW_Premium_Verse_Of_The_Day {
 	 * @return array{reference:string,description_text:string,image:string}
 	 */
 	public static function parse_bible_com_html( $html ) {
-		if ( class_exists( 'HWBL_Http_Utils' ) && ! HWBL_Http_Utils::is_usable_bible_com_votd_html( $html ) ) {
-			return array(
-				'reference'         => '',
-				'description_text'  => '',
-				'image'             => '',
-			);
-		}
-
-		$reference = '';
-		$image     = '';
-		$desc      = '';
-		$page_date = '';
-
-		if ( preg_match( '/"date":"(\d{4}-\d{2}-\d{2})T/i', $html, $m ) ) {
-			$page_date = $m[1];
-		}
-
-		if ( preg_match( '/<title[^>]*>\s*Verse of the Day\s*-\s*(.+?)\s*-\s*Bible App\s*<\/title>/is', $html, $m ) ) {
-			$reference = html_entity_decode( trim( $m[1] ), ENT_QUOTES | ENT_HTML5, 'UTF-8' );
-		}
-
-		if ( preg_match( '/property=["\']og:description["\']\s+content=["\']([^"\']+)["\']/i', $html, $m )
-			|| preg_match( '/content=["\']([^"\']+)["\']\s+property=["\']og:description["\']/i', $html, $m )
-		) {
-			$desc = html_entity_decode( trim( $m[1] ), ENT_QUOTES | ENT_HTML5, 'UTF-8' );
-		}
-
-		if ( '' === $reference && '' !== $desc && preg_match( '/^((?:\d+\s+)?[A-Za-z][A-Za-z\s\.]+?\s+\d+:\d+(?:-\d+)?)\s+(.+)$/u', $desc, $m ) ) {
-			$reference = trim( $m[1] );
-			$desc      = trim( $m[2] );
-		} elseif ( '' !== $reference && '' !== $desc && 0 === stripos( $desc, $reference ) ) {
-			$desc = trim( substr( $desc, strlen( $reference ) ) );
-		}
-
-		if ( preg_match( '/property=["\']og:image["\']\s+content=["\']([^"\']+)["\']/i', $html, $m )
-			|| preg_match( '/content=["\']([^"\']+)["\']\s+property=["\']og:image["\']/i', $html, $m )
-		) {
-			$image = self::normalize_votd_image_url( html_entity_decode( trim( $m[1] ), ENT_QUOTES | ENT_HTML5, 'UTF-8' ) );
-		}
-
-		if ( '' === $image ) {
-			$page_props = self::parse_bible_com_next_data( $html );
-			if ( is_array( $page_props ) ) {
-				$passage_id = '';
-				if ( ! empty( $page_props['verses'][0]['reference']['usfm'][0] ) ) {
-					$passage_id = (string) $page_props['verses'][0]['reference']['usfm'][0];
-				}
-				$image = self::extract_votd_image_from_page_props( $page_props, $passage_id );
-			}
-		}
-
-		return array(
-			'reference'        => $reference,
-			'description_text' => $desc,
-			'image'            => $image,
-			'page_date'        => $page_date,
-		);
+		return THW_Premium_Votd_YouVersion::parse_bible_com_html( $html );
 	}
 
 	/**
@@ -1520,42 +1111,7 @@ class THW_Premium_Verse_Of_The_Day {
 	 * @return array{book_id:int,chapter:int,verse_start:int,verse_end:int}
 	 */
 	public static function parse_reference( $reference ) {
-		$reference = trim( preg_replace( '/\s+/', ' ', (string) $reference ) );
-		$out       = array(
-			'book_id'     => 0,
-			'chapter'     => 0,
-			'verse_start' => 0,
-			'verse_end'   => 0,
-		);
-
-		if ( ! preg_match( '/^(.+?)\s+(\d+):(\d+)(?:-(\d+))?$/u', $reference, $m ) ) {
-			return $out;
-		}
-
-		$book_name = trim( $m[1] );
-		$book_id   = 0;
-		if ( class_exists( 'HWBL_Books' ) ) {
-			$book_id = (int) HWBL_Books::get_id_by_name( $book_name );
-			if ( $book_id < 1 ) {
-				// Try without trailing period / common aliases.
-				$aliases = array(
-					'Psalm'          => 'Psalms',
-					'Ps'             => 'Psalms',
-					'Song of Songs'  => 'Song of Solomon',
-					'Song of Solomon'=> 'Song of Solomon',
-					'Revelation'     => 'Revelation',
-				);
-				if ( isset( $aliases[ $book_name ] ) ) {
-					$book_id = (int) HWBL_Books::get_id_by_name( $aliases[ $book_name ] );
-				}
-			}
-		}
-
-		$out['book_id']     = $book_id;
-		$out['chapter']     = (int) $m[2];
-		$out['verse_start'] = (int) $m[3];
-		$out['verse_end']   = ! empty( $m[4] ) ? (int) $m[4] : (int) $m[3];
-		return $out;
+		return THW_Premium_Votd_YouVersion::parse_reference( $reference );
 	}
 
 	/**
@@ -1599,48 +1155,7 @@ class THW_Premium_Verse_Of_The_Day {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public static function rest_payload( $request ) {
-		$translation = sanitize_key( (string) $request->get_param( 'translation' ) );
-		$refresh     = rest_sanitize_boolean( $request->get_param( 'refresh' ) );
-
-		if ( $refresh ) {
-			self::clear_cache_for_day( wp_date( 'Y-m-d' ) );
-		}
-
-		$payload = self::get_payload_for_translation( $translation );
-
-		if ( empty( $payload['reference'] ) || empty( $payload['text'] ) ) {
-			return new WP_Error(
-				'thw_votd_missing',
-				__( 'Verse of the Day is unavailable right now.', 'hidden-word-bible-lessons' ),
-				array( 'status' => 503 )
-			);
-		}
-
-		$post_url = '';
-		if ( class_exists( 'THW_Premium_Votd_Explain_Store' ) ) {
-			$saved = THW_Premium_Votd_Explain_Store::find_saved_post( $payload );
-			if ( $saved instanceof WP_Post ) {
-				$url = THW_Premium_Votd_Explain_Store::get_public_url( $saved );
-				if ( $url ) {
-					$post_url = $url;
-				}
-			}
-		}
-
-		return new WP_REST_Response(
-			array(
-				'reference'         => (string) $payload['reference'],
-				'text'              => (string) $payload['text'],
-				'translation'       => (string) $payload['translation'],
-				'translation_label' => (string) $payload['translation_label'],
-				'day'               => (string) $payload['day'],
-				'postUrl'           => $post_url,
-			),
-			200,
-			array(
-				'Cache-Control' => 'no-cache, no-store, must-revalidate',
-			)
-		);
+		return THW_Premium_Votd_Rest::rest_payload( $request );
 	}
 
 	/**
@@ -1650,151 +1165,7 @@ class THW_Premium_Verse_Of_The_Day {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public static function rest_explain( $request ) {
-		if ( ! self::is_ai_explain_enabled() ) {
-			return new WP_Error(
-				'thw_votd_ai_disabled',
-				__( 'AI explanation for Verse of the Day is not enabled.', 'hidden-word-bible-lessons' ),
-				array( 'status' => 403 )
-			);
-		}
-
-		$params = $request->get_json_params();
-		if ( ! is_array( $params ) || empty( $params ) ) {
-			$params = $request->get_body_params();
-		}
-		if ( ! is_array( $params ) || empty( $params ) ) {
-			$params = $request->get_params();
-		}
-		$params      = is_array( $params ) ? $params : array();
-		$translation = isset( $params['translation'] ) ? sanitize_key( (string) $params['translation'] ) : '';
-
-		$payload = self::get_payload_for_translation( $translation );
-		if ( empty( $payload['reference'] ) || empty( $payload['text'] ) ) {
-			return new WP_Error(
-				'thw_votd_missing',
-				__( 'Verse of the Day is unavailable right now.', 'hidden-word-bible-lessons' ),
-				array( 'status' => 503 )
-			);
-		}
-
-		$trans_key = ! empty( $payload['translation'] ) ? sanitize_key( (string) $payload['translation'] ) : 'default';
-		$rules     = thw_premium_votd_neutral_explain_rules();
-		$checklist = $rules;
-
-		// Prefer a saved post — no AI call; redirect to the published explanation.
-		if ( class_exists( 'THW_Premium_Votd_Explain_Store' ) ) {
-			$saved = THW_Premium_Votd_Explain_Store::find_saved_post( $payload );
-			if ( $saved instanceof WP_Post ) {
-				$html = THW_Premium_Votd_Explain_Store::get_explanation_html( $saved );
-				$url  = THW_Premium_Votd_Explain_Store::get_public_url( $saved );
-				return new WP_REST_Response(
-					array(
-						'content'           => $html,
-						'cached'            => true,
-						'translation'       => $trans_key,
-						'complianceFlagged' => (bool) get_post_meta( $saved->ID, THW_Premium_Votd_Explain_Store::META_FLAG, true ),
-						'postUrl'           => $url ? $url : '',
-						'postId'            => (int) $saved->ID,
-						'redirect'          => self::should_redirect_to_post( $url ),
-					)
-				);
-			}
-		}
-
-		// Generating a new explanation requires login + AI availability.
-		if ( ! is_user_logged_in() ) {
-			return new WP_Error(
-				'thw_votd_ai_login',
-				__( 'Log in to generate the first AI explanation for this Bible version. Once saved, everyone can read it.', 'hidden-word-bible-lessons' ),
-				array( 'status' => 401 )
-			);
-		}
-
-		if ( ! self::is_ai_explain_enabled()
-			|| ! function_exists( 'thw_premium_ai_frontend_available' )
-			|| ! thw_premium_ai_frontend_available() ) {
-			$reason = self::get_ai_unavailable_reason();
-			return new WP_Error(
-				'thw_votd_ai_unavailable',
-				$reason,
-				array( 'status' => 503 )
-			);
-		}
-
-		if ( ! self::check_rate_limit( get_current_user_id() ) ) {
-			return new WP_Error(
-				'thw_ai_rate_limit',
-				__( 'Hourly AI explanation limit reached.', 'hidden-word-bible-lessons' ),
-				array( 'status' => 429 )
-			);
-		}
-
-		$prompt             = self::build_explain_prompt( $payload );
-		$system_instruction = thw_premium_build_ai_system_instruction( $rules );
-		$result             = THW_Premium_AI_Client::generate_text( $prompt, $system_instruction );
-		if ( is_wp_error( $result ) ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- intentional ops log for AI failures.
-			error_log(
-				'[THW VOTD] AI generate failed: '
-				. $result->get_error_code()
-				. ' — '
-				. $result->get_error_message()
-			);
-			return $result;
-		}
-
-		$flagged = false;
-		if ( thw_premium_ai_compliance_check_enabled() ) {
-			$check = THW_Premium_AI_Client::check_compliance( $checklist, wp_strip_all_tags( $result ) );
-			if ( ! $check['compliant'] ) {
-				$flagged      = true;
-				$retry_system = $system_instruction
-					. "\n\nYour previous answer was flagged for this specific issue: {$check['reason']} Revise your answer so it fully complies with the Rules above.";
-				$retry        = THW_Premium_AI_Client::generate_text( $prompt, $retry_system );
-				if ( ! is_wp_error( $retry ) ) {
-					$result  = $retry;
-					$check2  = THW_Premium_AI_Client::check_compliance( $checklist, wp_strip_all_tags( $result ) );
-					$flagged = ! $check2['compliant'];
-				}
-				if ( $flagged && 'block' === thw_premium_get_ai_compliance_failure_action() ) {
-					return new WP_Error(
-						'thw_ai_compliance_failed',
-						__( 'We could not generate an explanation that meets the quality guidelines. Please try again.', 'hidden-word-bible-lessons' ),
-						array( 'status' => 502 )
-					);
-				}
-			}
-		}
-
-		$html = THW_Premium_AI_Client::format_html_response( $result );
-
-		// Another request may have saved first — reuse that post.
-		$post = null;
-		if ( class_exists( 'THW_Premium_Votd_Explain_Store' ) ) {
-			$post = THW_Premium_Votd_Explain_Store::find_saved_post( $payload );
-			if ( ! ( $post instanceof WP_Post ) ) {
-				$post = THW_Premium_Votd_Explain_Store::save_post( $payload, $html, $flagged );
-			} else {
-				$html    = THW_Premium_Votd_Explain_Store::get_explanation_html( $post );
-				$flagged = (bool) get_post_meta( $post->ID, THW_Premium_Votd_Explain_Store::META_FLAG, true );
-			}
-		}
-
-		self::increment_rate_limit( get_current_user_id() );
-
-		$url = ( $post instanceof WP_Post ) ? THW_Premium_Votd_Explain_Store::get_public_url( $post ) : '';
-
-		return new WP_REST_Response(
-			array(
-				'content'           => $html,
-				'cached'            => false,
-				'translation'       => $trans_key,
-				'complianceFlagged' => $flagged,
-				'postUrl'           => $url ? $url : '',
-				'postId'            => ( $post instanceof WP_Post ) ? (int) $post->ID : 0,
-				'redirect'          => self::should_redirect_to_post( $url ),
-			)
-		);
+		return THW_Premium_Votd_Rest::rest_explain( $request );
 	}
 
 	/**
@@ -1951,26 +1322,4 @@ class THW_Premium_Verse_Of_The_Day {
 		);
 	}
 
-	/**
-	 * Rate limit check.
-	 *
-	 * @param int $user_id User ID.
-	 * @return bool
-	 */
-	private static function check_rate_limit( $user_id ) {
-		$key   = 'thw_votd_ai_' . (int) $user_id;
-		$count = (int) get_transient( $key );
-		return $count < self::RATE_LIMIT;
-	}
-
-	/**
-	 * Increment rate limit counter.
-	 *
-	 * @param int $user_id User ID.
-	 */
-	private static function increment_rate_limit( $user_id ) {
-		$key   = 'thw_votd_ai_' . (int) $user_id;
-		$count = (int) get_transient( $key );
-		set_transient( $key, $count + 1, self::RATE_WINDOW );
-	}
 }

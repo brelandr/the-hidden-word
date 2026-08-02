@@ -1167,4 +1167,346 @@ class THW_Premium_AI_Client {
 	public static function format_html_response( $raw ) {
 		return wp_kses_post( self::normalize_html_response( $raw ) );
 	}
+
+	/**
+	 * Whether token streaming is available (WP 7.1+ AI Client stream API).
+	 *
+	 * BYOK-only sites do not get progressive tokens — callers should fall back
+	 * to a single non-stream completion.
+	 *
+	 * @return bool
+	 */
+	public static function supports_streaming() {
+		if ( ! self::core_ai_environment_enabled() ) {
+			return false;
+		}
+
+		foreach ( self::core_provider_attempt_ids() as $provider_id ) {
+			$builder = self::core_prompt_builder( 'Streaming availability check', '', $provider_id );
+			if ( ! is_object( $builder ) ) {
+				continue;
+			}
+			if ( method_exists( $builder, 'stream_generate_text' ) || method_exists( $builder, 'streamGenerateText' ) ) {
+				return true;
+			}
+			// Probe via __call support: some WP wrappers expose methods only through magic.
+			if ( is_callable( array( $builder, 'stream_generate_text' ) ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Whether embedding generation is available (WP AI Client or OpenAI BYOK).
+	 *
+	 * @return bool
+	 */
+	public static function supports_embeddings() {
+		if ( self::core_supports_embeddings() ) {
+			return true;
+		}
+
+		return '' !== self::resolve_openai_api_key();
+	}
+
+	/**
+	 * Stream a text completion, invoking $on_chunk for each delta when supported.
+	 *
+	 * Args:
+	 * - prompt (string, required)
+	 * - system_instruction (string, optional)
+	 * - on_chunk (callable, optional) receives string deltas
+	 *
+	 * When streaming APIs are missing, generates the full text once and calls
+	 * on_chunk a single time (pseudo-stream) so callers can share one code path.
+	 *
+	 * @param array<string, mixed> $args Stream args.
+	 * @return string|WP_Error Full assembled text.
+	 */
+	public static function stream_completion( $args ) {
+		$args               = is_array( $args ) ? $args : array();
+		$prompt             = isset( $args['prompt'] ) ? (string) $args['prompt'] : '';
+		$system_instruction = isset( $args['system_instruction'] ) ? (string) $args['system_instruction'] : '';
+		$on_chunk           = isset( $args['on_chunk'] ) && is_callable( $args['on_chunk'] ) ? $args['on_chunk'] : null;
+
+		if ( '' === trim( $prompt ) ) {
+			return new WP_Error( 'hwbl_empty_prompt', __( 'Prompt text is required.', 'hidden-word-bible-lessons' ) );
+		}
+
+		if ( self::supports_streaming() ) {
+			$result = self::stream_completion_via_core( $prompt, $system_instruction, $on_chunk );
+			if ( ! is_wp_error( $result ) || 'hwbl_no_ai_connector' !== $result->get_error_code() ) {
+				return $result;
+			}
+		}
+
+		// Graceful degrade: single-shot completion, optionally emitted as one chunk.
+		$text = self::generate_text( $prompt, $system_instruction );
+		if ( is_wp_error( $text ) ) {
+			return $text;
+		}
+		$text = (string) $text;
+		if ( $on_chunk && '' !== $text ) {
+			call_user_func( $on_chunk, $text );
+		}
+
+		return $text;
+	}
+
+	/**
+	 * Generate an embedding vector for text.
+	 *
+	 * Prefers WordPress AI Client embeddings (7.1+), then OpenAI BYOK.
+	 *
+	 * @param string $text Text to embed.
+	 * @return array<int, float>|WP_Error
+	 */
+	public static function generate_embedding( $text ) {
+		$text = trim( (string) $text );
+		if ( '' === $text ) {
+			return new WP_Error( 'hwbl_empty_embed', __( 'Text is required for embeddings.', 'hidden-word-bible-lessons' ) );
+		}
+
+		if ( self::core_supports_embeddings() ) {
+			$result = self::generate_embedding_via_core( $text );
+			if ( ! is_wp_error( $result ) ) {
+				return $result;
+			}
+		}
+
+		$openai_key = self::resolve_openai_api_key();
+		if ( '' !== $openai_key ) {
+			return self::generate_embedding_via_openai( $openai_key, $text );
+		}
+
+		return new WP_Error(
+			'hwbl_no_embeddings',
+			__( 'Embeddings are not available. Configure an AI connector that supports embeddings, or an OpenAI API key.', 'hidden-word-bible-lessons' )
+		);
+	}
+
+	/**
+	 * Cosine similarity between two embedding vectors.
+	 *
+	 * @param array<int, float|int> $a Vector A.
+	 * @param array<int, float|int> $b Vector B.
+	 * @return float Similarity in [-1, 1], or 0.0 when invalid.
+	 */
+	public static function cosine_similarity( $a, $b ) {
+		if ( ! is_array( $a ) || ! is_array( $b ) || empty( $a ) || empty( $b ) ) {
+			return 0.0;
+		}
+
+		$len = min( count( $a ), count( $b ) );
+		if ( $len < 1 ) {
+			return 0.0;
+		}
+
+		$dot = 0.0;
+		$na  = 0.0;
+		$nb  = 0.0;
+		for ( $i = 0; $i < $len; $i++ ) {
+			$av = (float) $a[ $i ];
+			$bv = (float) $b[ $i ];
+			$dot += $av * $bv;
+			$na  += $av * $av;
+			$nb  += $bv * $bv;
+		}
+
+		if ( $na <= 0.0 || $nb <= 0.0 ) {
+			return 0.0;
+		}
+
+		return $dot / ( sqrt( $na ) * sqrt( $nb ) );
+	}
+
+	/**
+	 * Stream text through WordPress AI Client when stream_generate_text exists.
+	 *
+	 * @param string        $prompt             Prompt.
+	 * @param string        $system_instruction System instruction.
+	 * @param callable|null $on_chunk           Chunk callback.
+	 * @return string|WP_Error
+	 */
+	private static function stream_completion_via_core( $prompt, $system_instruction, $on_chunk ) {
+		$last_error = null;
+
+		foreach ( self::core_provider_attempt_ids() as $provider_id ) {
+			$builder = self::core_prompt_builder( $prompt, $system_instruction, $provider_id );
+			if ( ! is_object( $builder ) ) {
+				continue;
+			}
+
+			$assembled = '';
+			try {
+				if ( is_callable( array( $builder, 'stream_generate_text' ) ) ) {
+					foreach ( $builder->stream_generate_text() as $delta ) {
+						$delta = (string) $delta;
+						if ( '' === $delta ) {
+							continue;
+						}
+						$assembled .= $delta;
+						if ( $on_chunk ) {
+							call_user_func( $on_chunk, $delta );
+						}
+					}
+					if ( '' !== $assembled ) {
+						return $assembled;
+					}
+				} elseif ( is_callable( array( $builder, 'stream_generate_text_result' ) ) ) {
+					foreach ( $builder->stream_generate_text_result() as $chunk ) {
+						$delta = '';
+						if ( is_object( $chunk ) && method_exists( $chunk, 'getDeltaText' ) ) {
+							$delta = (string) $chunk->getDeltaText();
+						} elseif ( is_object( $chunk ) && method_exists( $chunk, 'get_delta_text' ) ) {
+							$delta = (string) $chunk->get_delta_text();
+						} elseif ( is_string( $chunk ) ) {
+							$delta = $chunk;
+						}
+						if ( '' === $delta ) {
+							continue;
+						}
+						$assembled .= $delta;
+						if ( $on_chunk ) {
+							call_user_func( $on_chunk, $delta );
+						}
+					}
+					if ( '' !== $assembled ) {
+						return $assembled;
+					}
+				} else {
+					continue;
+				}
+			} catch ( Exception $e ) {
+				$last_error = new WP_Error( 'hwbl_stream_failed', $e->getMessage() );
+				continue;
+			}
+		}
+
+		if ( $last_error instanceof WP_Error ) {
+			return $last_error;
+		}
+
+		return self::core_not_configured_error();
+	}
+
+	/**
+	 * Whether the AI Client can generate embeddings.
+	 *
+	 * @return bool
+	 */
+	private static function core_supports_embeddings() {
+		if ( ! class_exists( '\WordPress\AiClient\AiClient' ) ) {
+			return false;
+		}
+
+		if ( ! self::core_ai_environment_enabled() ) {
+			return false;
+		}
+
+		try {
+			if ( method_exists( '\WordPress\AiClient\AiClient', 'input' ) ) {
+				$builder = \WordPress\AiClient\AiClient::input( 'Availability check' );
+				if ( is_object( $builder ) && method_exists( $builder, 'isSupported' ) && $builder->isSupported() ) {
+					return true;
+				}
+			}
+		} catch ( Exception $e ) {
+			return false;
+		}
+
+		// Prompt-builder probe used by some WP 7.0/7.1 builds.
+		$builder = self::core_prompt_builder( 'Availability check' );
+		if ( is_object( $builder ) && method_exists( $builder, 'is_supported_for_embedding_generation' ) ) {
+			return (bool) $builder->is_supported_for_embedding_generation();
+		}
+
+		return false;
+	}
+
+	/**
+	 * Generate embedding via WordPress AI Client.
+	 *
+	 * @param string $text Text.
+	 * @return array<int, float>|WP_Error
+	 */
+	private static function generate_embedding_via_core( $text ) {
+		try {
+			if ( method_exists( '\WordPress\AiClient\AiClient', 'generateEmbedding' ) ) {
+				$embedding = \WordPress\AiClient\AiClient::generateEmbedding( $text );
+				return self::extract_embedding_values( $embedding );
+			}
+			if ( method_exists( '\WordPress\AiClient\AiClient', 'input' ) ) {
+				$builder = \WordPress\AiClient\AiClient::input( $text );
+				if ( is_object( $builder ) && method_exists( $builder, 'generateEmbedding' ) ) {
+					return self::extract_embedding_values( $builder->generateEmbedding() );
+				}
+			}
+		} catch ( Exception $e ) {
+			return new WP_Error( 'hwbl_embed_failed', $e->getMessage() );
+		}
+
+		return new WP_Error( 'hwbl_no_embeddings', __( 'Embeddings are not available on this site.', 'hidden-word-bible-lessons' ) );
+	}
+
+	/**
+	 * Normalize an Embedding object / array into a float list.
+	 *
+	 * @param mixed $embedding Embedding result.
+	 * @return array<int, float>|WP_Error
+	 */
+	private static function extract_embedding_values( $embedding ) {
+		if ( is_wp_error( $embedding ) ) {
+			return $embedding;
+		}
+		if ( is_object( $embedding ) && method_exists( $embedding, 'getValues' ) ) {
+			$values = $embedding->getValues();
+			return is_array( $values ) ? array_map( 'floatval', array_values( $values ) ) : new WP_Error( 'hwbl_embed_empty', __( 'Empty embedding vector.', 'hidden-word-bible-lessons' ) );
+		}
+		if ( is_array( $embedding ) ) {
+			return array_map( 'floatval', array_values( $embedding ) );
+		}
+
+		return new WP_Error( 'hwbl_embed_invalid', __( 'Unexpected embedding response.', 'hidden-word-bible-lessons' ) );
+	}
+
+	/**
+	 * OpenAI embeddings API (BYOK / Connectors key).
+	 *
+	 * @param string $api_key API key.
+	 * @param string $text    Text.
+	 * @return array<int, float>|WP_Error
+	 */
+	private static function generate_embedding_via_openai( $api_key, $text ) {
+		$response = wp_remote_post(
+			'https://api.openai.com/v1/embeddings',
+			array(
+				'timeout' => 60,
+				'headers' => array(
+					'Authorization' => 'Bearer ' . $api_key,
+					'Content-Type'  => 'application/json',
+				),
+				'body'    => wp_json_encode(
+					array(
+						'model' => 'text-embedding-3-small',
+						'input' => $text,
+					)
+				),
+			)
+		);
+
+		$http_error = HWBL_Http_Utils::response_error( $response, 'hwbl_embed_failed' );
+		if ( $http_error ) {
+			return $http_error;
+		}
+
+		$body = json_decode( wp_remote_retrieve_body( $response ), true );
+		if ( empty( $body['data'][0]['embedding'] ) || ! is_array( $body['data'][0]['embedding'] ) ) {
+			return new WP_Error( 'hwbl_embed_empty', __( 'OpenAI returned an empty embedding.', 'hidden-word-bible-lessons' ) );
+		}
+
+		return array_map( 'floatval', array_values( $body['data'][0]['embedding'] ) );
+	}
 }

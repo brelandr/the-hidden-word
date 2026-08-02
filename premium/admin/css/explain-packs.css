@@ -67,3 +67,75 @@
 .thw-pack-publish-result.is-error {
 	color: #b32d2e;
 }
+
+.thw-explain-pack-inventory {
+	max-width: 1200px;
+	margin: 8px 0 20px;
+}
+
+.thw-explain-pack-fill-panel {
+	max-width: 720px;
+	margin: 12px 0 18px;
+	padding: 14px 16px;
+	border: 1px solid #c3c4c7;
+	border-left: 4px solid #2271b1;
+	background: #f6f7f7;
+}
+
+.thw-explain-pack-fill-panel.is-armed {
+	background: #f0f6fc;
+}
+
+.thw-explain-pack-fill-panel h4 {
+	margin: 0 0 8px;
+}
+
+.thw-explain-pack-fill-selection {
+	margin: 0 0 10px;
+}
+
+.thw-explain-pack-fill-mode {
+	margin: 0 0 12px;
+	padding: 0;
+	border: 0;
+}
+
+.thw-explain-pack-fill-mode legend {
+	padding: 0;
+	margin: 0 0 6px;
+	font-weight: 600;
+}
+
+.thw-explain-pack-fill-mode label {
+	display: inline-block;
+	margin-right: 16px;
+}
+
+.thw-explain-pack-select-gaps {
+	white-space: nowrap;
+}
+
+.thw-explain-pack-inventory-row {
+	cursor: pointer;
+}
+
+.thw-explain-pack-inventory-row:hover td {
+	background: #f0f6fc;
+}
+
+.thw-explain-pack-inventory-row.is-selected td {
+	background: #e7f0f9;
+}
+
+.thw-pack-coverage.thw-pack-cov-complete {
+	color: #057f3e;
+	font-weight: 600;
+}
+
+.thw-pack-coverage.thw-pack-cov-partial {
+	color: #996800;
+}
+
+.thw-pack-coverage.thw-pack-cov-unknown {
+	color: #646970;
+}

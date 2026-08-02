@@ -79,6 +79,7 @@ class HWBL_Explain_Preload_Test extends TestCase {
 	public static function setUpBeforeClass(): void {
 		require_once HWBL_PLUGIN_DIR . 'includes/class-local-bible-store.php';
 		require_once HWBL_PLUGIN_DIR . 'premium/includes/thw-premium-functions.php';
+		require_once HWBL_PLUGIN_DIR . 'premium/includes/class-bible-reader-explain-store.php';
 		require_once HWBL_PLUGIN_DIR . 'premium/includes/class-explain-preload.php';
 	}
 
@@ -86,8 +87,10 @@ class HWBL_Explain_Preload_Test extends TestCase {
 	 * Reset options / backend.
 	 */
 	protected function tearDown(): void {
-		HWBL_Test_Options::$options           = array();
-		HWBL_Local_Bible_Store::$test_backend = null;
+		HWBL_Test_Options::$options                           = array();
+		HWBL_Local_Bible_Store::$test_backend                 = null;
+		THW_Premium_Bible_Reader_Explain_Store::$test_backend = null;
+		delete_option( THW_Premium_Explain_Preload::JOB_OPTION );
 	}
 
 	/**
@@ -298,5 +301,77 @@ class HWBL_Explain_Preload_Test extends TestCase {
 		$this->assertSame( 7, (int) $resumed['stats']['generated'] );
 
 		THW_Premium_Explain_Preload::clear_job();
+	}
+
+	/**
+	 * Fill-gaps job targets only missing passages for one combo.
+	 */
+	public function test_start_fill_gaps_sets_job() {
+		HWBL_Local_Bible_Store::$test_backend = new HWBL_Explain_Preload_Bible_Backend(
+			array(
+				'bsb' => array(
+					'status'      => 'ready',
+					'verse_count' => 3,
+					'label'       => 'BSB',
+				),
+			)
+		);
+
+		$backend = new class() {
+			/**
+			 * @return int
+			 */
+			public function count_missing_passages( $translation, $tradition, $scope = 'verse' ) {
+				return 2;
+			}
+
+			/**
+			 * @return array<int, array<string, mixed>>
+			 */
+			public function list_missing_passages( $translation, $tradition, $scope = 'verse', $limit = 50, $offset = 0 ) {
+				$rows = array(
+					array(
+						'book_id' => 1,
+						'chapter' => 1,
+						'verse'   => 2,
+					),
+					array(
+						'book_id' => 1,
+						'chapter' => 1,
+						'verse'   => 3,
+					),
+				);
+				return array_slice( $rows, $offset, $limit );
+			}
+		};
+		THW_Premium_Bible_Reader_Explain_Store::$test_backend = $backend;
+
+		$job = THW_Premium_Explain_Preload::start_fill_gaps(
+			array(
+				'translation' => 'bsb',
+				'tradition'   => 'base',
+				'scope'       => 'verse',
+				'mode'        => 'realtime',
+			)
+		);
+		$this->assertIsArray( $job );
+		$this->assertTrue( THW_Premium_Explain_Preload::job_is_fill_gaps( $job ) );
+		$this->assertSame( 'fill_gaps', $job['strategy'] );
+		$this->assertSame( 'running', $job['status'] );
+		$this->assertSame( array( 'bsb' ), $job['translations'] );
+		$this->assertSame( array( 'base' ), $job['traditions'] );
+		$this->assertSame( array( 'verse' ), $job['scopes'] );
+		$this->assertSame( 2, (int) $job['stats']['total'] );
+		$this->assertCount( 2, $job['gap_queue'] );
+		$this->assertSame( 0, (int) $job['gap_index'] );
+
+		$target = THW_Premium_Explain_Preload::resolve_target( $job );
+		$this->assertIsArray( $target );
+		$this->assertSame( 2, (int) $target['verse'] );
+		$this->assertSame( 1, (int) $job['gap_index'] );
+
+		$target2 = THW_Premium_Explain_Preload::resolve_target( $job );
+		$this->assertIsArray( $target2 );
+		$this->assertSame( 3, (int) $target2['verse'] );
 	}
 }

@@ -24,17 +24,33 @@
 
 	function countsText(job) {
 		var s = (job && job.stats) || {};
-		var text =
-			(s.processed || 0) +
-			' / ' +
-			(s.total || 0) +
-			' processed · ' +
-			(s.generated || 0) +
-			' generated · ' +
-			(s.skipped || 0) +
-			' skipped · ' +
-			(s.errors || 0) +
-			' errors';
+		var text;
+		if (job && job.fill_gaps) {
+			text =
+				(s.generated || 0) +
+				' / ' +
+				(s.total || 0) +
+				' gaps filled · ' +
+				(s.skipped || 0) +
+				' already present · ' +
+				(s.errors || 0) +
+				' errors';
+			if (typeof job.gap_remaining === 'number') {
+				text += ' · ' + job.gap_remaining + ' remaining';
+			}
+		} else {
+			text =
+				(s.processed || 0) +
+				' / ' +
+				(s.total || 0) +
+				' processed · ' +
+				(s.generated || 0) +
+				' generated · ' +
+				(s.skipped || 0) +
+				' skipped · ' +
+				(s.errors || 0) +
+				' errors';
+		}
 		if (s.queued) {
 			text += ' · ' + s.queued + ' queued for OpenAI';
 		}
@@ -58,6 +74,12 @@
 			(job.scopes || []).join(', ') +
 			' · ' +
 			mode;
+		if (job.fill_gaps) {
+			text += ' · Fill gaps only';
+			if (job.gap_samples && job.gap_samples.length) {
+				text += ' · Missing e.g. ' + job.gap_samples.slice(0, 5).join(', ');
+			}
+		}
 		if (job.openai && job.openai.phase) {
 			text += ' · Batch phase: ' + job.openai.phase;
 			if (job.openai.batch_status) {

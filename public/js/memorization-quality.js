@@ -52,6 +52,16 @@
 			if (feedback && data && data.card) {
 				feedback.textContent = i18n('reviewSaved', 'Review saved — next due %s.').replace('%s', data.card.due_date || '');
 				feedback.hidden = false;
+				// Keep Flip blank-ratio inputs in sync with updated SM-2 card.
+				if (typeof data.card.repetitions !== 'undefined') {
+					widget.setAttribute('data-srs-reps', String(data.card.repetitions));
+				}
+				if (typeof data.card.interval_days !== 'undefined') {
+					widget.setAttribute('data-srs-interval', String(data.card.interval_days));
+				}
+				if (typeof data.card.ease_factor !== 'undefined') {
+					widget.setAttribute('data-srs-ease', String(data.card.ease_factor));
+				}
 			}
 			return data;
 		});

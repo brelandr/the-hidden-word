@@ -66,6 +66,78 @@ class HWBL_Settings {
 			'sanitize_callback' => 'rest_sanitize_boolean',
 			'default'           => false,
 		) );
+
+		register_setting( 'hwbl_settings', 'hwbl_bible_maps_enabled', array(
+			'type'              => 'boolean',
+			'sanitize_callback' => 'rest_sanitize_boolean',
+			'default'           => true,
+		) );
+
+		register_setting( 'hwbl_settings', 'hwbl_bible_maps_provider', array(
+			'type'              => 'string',
+			'sanitize_callback' => array( $this, 'sanitize_bible_maps_provider' ),
+			'default'           => 'leaflet',
+		) );
+
+		register_setting( 'hwbl_settings', 'hwbl_bible_maps_mapbox_token', array(
+			'type'              => 'string',
+			'sanitize_callback' => 'sanitize_text_field',
+			'default'           => '',
+		) );
+
+		register_setting( 'hwbl_settings', 'hwbl_bible_maps_mapbox_style_key', array(
+			'type'              => 'string',
+			'sanitize_callback' => array( $this, 'sanitize_bible_maps_mapbox_style_key' ),
+			'default'           => 'outdoors',
+		) );
+
+		register_setting( 'hwbl_settings', 'hwbl_bible_maps_mapbox_style', array(
+			'type'              => 'string',
+			'sanitize_callback' => array( $this, 'sanitize_bible_maps_mapbox_style' ),
+			'default'           => '',
+		) );
+
+		register_setting( 'hwbl_settings', 'hwbl_bible_concordance_enabled', array(
+			'type'              => 'boolean',
+			'sanitize_callback' => 'rest_sanitize_boolean',
+			'default'           => true,
+		) );
+	}
+
+	/**
+	 * Sanitize map provider slug.
+	 *
+	 * @param string $value Input.
+	 * @return string
+	 */
+	public function sanitize_bible_maps_provider( $value ) {
+		$value = sanitize_key( (string) $value );
+		return in_array( $value, array( 'leaflet', 'mapbox' ), true ) ? $value : 'leaflet';
+	}
+
+	/**
+	 * Sanitize Mapbox style preset key.
+	 *
+	 * @param string $value Input.
+	 * @return string
+	 */
+	public function sanitize_bible_maps_mapbox_style_key( $value ) {
+		$value   = sanitize_key( (string) $value );
+		$presets = class_exists( 'HWBL_Bible_Places' ) ? array_keys( HWBL_Bible_Places::get_mapbox_style_presets() ) : array( 'outdoors' );
+		return in_array( $value, $presets, true ) ? $value : 'outdoors';
+	}
+
+	/**
+	 * Sanitize custom Mapbox Studio style URL.
+	 *
+	 * @param string $value Input.
+	 * @return string
+	 */
+	public function sanitize_bible_maps_mapbox_style( $value ) {
+		if ( class_exists( 'HWBL_Bible_Places' ) ) {
+			return HWBL_Bible_Places::sanitize_mapbox_style_url( $value );
+		}
+		return sanitize_text_field( (string) $value );
 	}
 
 	/**
@@ -117,6 +189,16 @@ class HWBL_Settings {
 		$reader_enabled   = (bool) get_option( 'hwbl_bible_reader_enabled', true );
 		$reader_narrator  = sanitize_key( (string) get_option( 'hwbl_bible_reader_narrator', 'david' ) );
 		$self_signup      = (bool) get_option( 'hwbl_companion_self_signup', false );
+		$maps_enabled     = (bool) get_option( 'hwbl_bible_maps_enabled', true );
+		$maps_provider    = sanitize_key( (string) get_option( 'hwbl_bible_maps_provider', 'leaflet' ) );
+		if ( ! in_array( $maps_provider, array( 'leaflet', 'mapbox' ), true ) ) {
+			$maps_provider = 'leaflet';
+		}
+		$mapbox_token        = (string) get_option( 'hwbl_bible_maps_mapbox_token', '' );
+		$mapbox_style_key    = class_exists( 'HWBL_Bible_Places' ) ? HWBL_Bible_Places::get_mapbox_style_key() : 'outdoors';
+		$mapbox_style        = (string) get_option( 'hwbl_bible_maps_mapbox_style', '' );
+		$mapbox_presets      = class_exists( 'HWBL_Bible_Places' ) ? HWBL_Bible_Places::get_mapbox_style_presets() : array();
+		$concordance_enabled = (bool) get_option( 'hwbl_bible_concordance_enabled', true );
 		$modes         = HWBL_Scheduler::get_schedule_modes();
 		$translations  = HWBL_Translation_Service::instance()->get_supported_translations();
 		$trans_svc     = HWBL_Translation_Service::instance();
@@ -219,6 +301,73 @@ class HWBL_Settings {
 						</td>
 					</tr>
 					<tr>
+						<th scope="row"><?php esc_html_e( 'Bible Maps', 'hidden-word-bible-lessons' ); ?></th>
+						<td>
+							<input type="hidden" name="hwbl_bible_maps_enabled" value="0" />
+							<label>
+								<input type="checkbox" name="hwbl_bible_maps_enabled" value="1" <?php checked( $maps_enabled ); ?> />
+								<?php esc_html_e( 'Show place maps for Bible verses (OpenBible geocoding data)', 'hidden-word-bible-lessons' ); ?>
+							</label>
+							<p class="description">
+								<?php esc_html_e( 'Adds a Map places control to the Bible reader and the [hwbl_bible_map] shortcode. Geographic data © OpenBible.info (CC BY 4.0).', 'hidden-word-bible-lessons' ); ?>
+							</p>
+							<p>
+								<label for="hwbl_bible_maps_provider"><?php esc_html_e( 'Map provider', 'hidden-word-bible-lessons' ); ?></label>
+								<select id="hwbl_bible_maps_provider" name="hwbl_bible_maps_provider">
+									<option value="leaflet" <?php selected( $maps_provider, 'leaflet' ); ?>><?php esc_html_e( 'Leaflet + OpenStreetMap (no API key)', 'hidden-word-bible-lessons' ); ?></option>
+									<option value="mapbox" <?php selected( $maps_provider, 'mapbox' ); ?>><?php esc_html_e( 'Mapbox GL', 'hidden-word-bible-lessons' ); ?></option>
+								</select>
+							</p>
+							<p>
+								<label for="hwbl_bible_maps_mapbox_token"><?php esc_html_e( 'Mapbox access token', 'hidden-word-bible-lessons' ); ?></label><br />
+								<input type="password" class="regular-text" id="hwbl_bible_maps_mapbox_token" name="hwbl_bible_maps_mapbox_token" value="<?php echo esc_attr( $mapbox_token ); ?>" autocomplete="off" />
+							</p>
+							<p>
+								<label for="hwbl_bible_maps_mapbox_style_key"><?php esc_html_e( 'Mapbox map style', 'hidden-word-bible-lessons' ); ?></label><br />
+								<select id="hwbl_bible_maps_mapbox_style_key" name="hwbl_bible_maps_mapbox_style_key">
+									<?php foreach ( $mapbox_presets as $preset_key => $preset ) : ?>
+										<option value="<?php echo esc_attr( $preset_key ); ?>" <?php selected( $mapbox_style_key, $preset_key ); ?>>
+											<?php echo esc_html( $preset['label'] ); ?>
+										</option>
+									<?php endforeach; ?>
+								</select>
+							</p>
+							<p class="hwbl-mapbox-custom-style" <?php echo 'custom' === $mapbox_style_key ? '' : 'hidden'; ?>>
+								<label for="hwbl_bible_maps_mapbox_style"><?php esc_html_e( 'Custom Mapbox Studio style URL', 'hidden-word-bible-lessons' ); ?></label><br />
+								<input type="text" class="regular-text" id="hwbl_bible_maps_mapbox_style" name="hwbl_bible_maps_mapbox_style" value="<?php echo esc_attr( $mapbox_style ); ?>" placeholder="mapbox://styles/your-username/your-style-id" />
+							</p>
+							<p class="description">
+								<?php esc_html_e( 'Mapbox token is required when Mapbox is selected. Default style is Outdoors (terrain & journeys). Leaflet works without a key.', 'hidden-word-bible-lessons' ); ?>
+							</p>
+							<p class="description">
+								<?php esc_html_e( 'Custom Studio tip: mute modern POIs and highway shields, use parchment land (#FDFBF7), warm water, and serif labels (Cinzel, Lora, or EB Garamond). Then paste the style URL here.', 'hidden-word-bible-lessons' ); ?>
+							</p>
+							<script>
+							(function () {
+								var sel = document.getElementById('hwbl_bible_maps_mapbox_style_key');
+								var wrap = document.querySelector('.hwbl-mapbox-custom-style');
+								if (!sel || !wrap) return;
+								function sync() { wrap.hidden = sel.value !== 'custom'; }
+								sel.addEventListener('change', sync);
+								sync();
+							})();
+							</script>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><?php esc_html_e( 'Bible Concordance', 'hidden-word-bible-lessons' ); ?></th>
+						<td>
+							<input type="hidden" name="hwbl_bible_concordance_enabled" value="0" />
+							<label>
+								<input type="checkbox" name="hwbl_bible_concordance_enabled" value="1" <?php checked( $concordance_enabled ); ?> />
+								<?php esc_html_e( 'Enable concordance word/phrase study', 'hidden-word-bible-lessons' ); ?>
+							</label>
+							<p class="description">
+								<?php esc_html_e( 'Adds [hwbl_bible_concordance] and a Concordance panel in the Bible reader. Installed Local Bibles search offline; NIV/NLT require a Biblia.com API key under Advanced settings.', 'hidden-word-bible-lessons' ); ?>
+							</p>
+						</td>
+					</tr>
+					<tr>
 						<th scope="row"><?php esc_html_e( 'Companion App Sign-up', 'hidden-word-bible-lessons' ); ?></th>
 						<td>
 							<input type="hidden" name="hwbl_companion_self_signup" value="0" />
@@ -258,6 +407,8 @@ class HWBL_Settings {
 			<p><code>[hwbl_lesson_list]</code> — <?php esc_html_e( 'Browse the verse catalog (group by book, testament, or flat list).', 'hidden-word-bible-lessons' ); ?></p>
 			<p><code>[hwbl_verse_of_week]</code> — <?php esc_html_e( 'Compact scheduled verse display.', 'hidden-word-bible-lessons' ); ?></p>
 			<p><code>[hwbl_bible_reader]</code> — <?php esc_html_e( 'Read and listen to any Bible chapter (translation, book, and chapter pickers).', 'hidden-word-bible-lessons' ); ?></p>
+			<p><code>[hwbl_bible_map book="43" chapter="3" verse="16"]</code> — <?php esc_html_e( 'Map biblical places for a verse or chapter (OpenBible data). Use scope="book" for the whole book; the map also has a This passage / Whole book toggle.', 'hidden-word-bible-lessons' ); ?></p>
+			<p><code>[hwbl_bible_concordance]</code> — <?php esc_html_e( 'Word/phrase concordance (Local Bibles offline; NIV/NLT via Biblia when configured).', 'hidden-word-bible-lessons' ); ?></p>
 			<p><code>[hwbl_memorize_verse]</code> — <?php esc_html_e( 'Pick any accessible verse reference and open memorization practice.', 'hidden-word-bible-lessons' ); ?></p>
 			<p><code>[hwbl_study_finder]</code> — <?php esc_html_e( 'Keyword Bible study search (AI / curriculum; configure under Advanced Settings).', 'hidden-word-bible-lessons' ); ?></p>
 			<p><code>[hwbl_ask_question]</code> — <?php esc_html_e( 'Ask a Bible question (configure AI under Advanced Settings).', 'hidden-word-bible-lessons' ); ?></p>

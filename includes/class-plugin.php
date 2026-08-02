@@ -33,6 +33,8 @@ class HWBL_Plugin {
 		HWBL_Local_Bible_Importer::init();
 		HWBL_Local_Bible_Provider::init();
 		HWBL_Bible_Reader::init();
+		HWBL_Bible_Places::init();
+		HWBL_Bible_Concordance::init();
 		HWBL_User_Preferences::init();
 		HWBL_Verse_Memorize::init();
 		HWBL_Memorization_SRS::init();
@@ -42,6 +44,9 @@ class HWBL_Plugin {
 		HWBL_App_Connect::init();
 		HWBL_Community_Safety::init();
 		HWBL_Account::init();
+		HWBL_Push_Notifications::init();
+		HWBL_Abilities::init();
+		HWBL_Command_Palette::init();
 		HWBL_Email_Verification::init();
 		new HWBL_Translation_Service();
 		new HWBL_Shortcodes();

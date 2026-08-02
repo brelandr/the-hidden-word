@@ -185,6 +185,180 @@
 		applyExport(cfg.exportJob);
 		applyImport(cfg.importJob);
 
+		function selectedFillMode() {
+			return (
+				$('input[name="thw_explain_pack_fill_mode"]:checked').val() || 'realtime'
+			);
+		}
+
+		function setFillSelection(translation, tradition, scope, missing, samples) {
+			$('#thw-explain-pack-fill-translation').val(translation);
+			$('#thw-explain-pack-fill-tradition').val(tradition);
+			$('#thw-explain-pack-fill-scope').val(scope);
+			$('#thw-explain-pack-fill-missing').val(String(missing || 0));
+			var label =
+				translation.toUpperCase() +
+				' · ' +
+				tradition +
+				' · ' +
+				scope +
+				' · ' +
+				String(missing || 0) +
+				' missing';
+			$('#thw-explain-pack-fill-selection-label').text(label);
+			var $samples = $('#thw-explain-pack-fill-samples');
+			if (samples && samples.length) {
+				$samples
+					.text(
+						(
+							(cfg.i18n && cfg.i18n.fillGapsSamples) ||
+							'First missing: %s'
+						).replace('%s', samples.join(', '))
+					)
+					.prop('hidden', false);
+			} else {
+				$samples.text('').prop('hidden', true);
+			}
+			$('#thw-explain-pack-fill-start').prop('disabled', !translation || !tradition);
+			$('#thw-explain-pack-fill-panel').addClass('is-armed');
+		}
+
+		function startFillGaps() {
+			var translation = String($('#thw-explain-pack-fill-translation').val() || '');
+			var tradition = String($('#thw-explain-pack-fill-tradition').val() || '');
+			var scope = String($('#thw-explain-pack-fill-scope').val() || 'verse');
+			var missing = parseInt($('#thw-explain-pack-fill-missing').val(), 10) || 0;
+			var mode = selectedFillMode();
+			var $start = $('#thw-explain-pack-fill-start');
+
+			if (!translation || !tradition) {
+				window.alert(
+					(cfg.i18n && cfg.i18n.fillGapsNeedSelection) ||
+						'Select gaps on a row first'
+				);
+				return;
+			}
+
+			var msg = (
+				(cfg.i18n && cfg.i18n.fillGapsConfirm) ||
+				'Generate %1$s missing %2$s · %3$s · %4$s explains?'
+			)
+				.replace('%1$s', String(missing))
+				.replace('%2$s', translation.toUpperCase())
+				.replace('%3$s', tradition)
+				.replace('%4$s', scope);
+			var samplesText = $('#thw-explain-pack-fill-samples').text();
+			if (samplesText) {
+				msg += '\n\n' + samplesText;
+			}
+			if (!window.confirm(msg)) {
+				return;
+			}
+
+			$start.prop('disabled', true);
+			post('thw_explain_pack_fill_gaps', {
+				translation: translation,
+				tradition: tradition,
+				scope: scope,
+				mode: mode
+			})
+				.always(function () {
+					$start.prop('disabled', false);
+				})
+				.done(function (resp) {
+					if (resp && resp.success && resp.data) {
+						var url = resp.data.preloadUrl || cfg.preloadUrl || '';
+						if (url) {
+							window.location.href = url;
+							return;
+						}
+					}
+					window.alert(
+						(resp && resp.data && resp.data.message) ||
+							((cfg.i18n && cfg.i18n.fillGapsBusy) ||
+								'Could not start fill gaps')
+					);
+				})
+				.fail(function (xhr) {
+					var msgFail =
+						(xhr &&
+							xhr.responseJSON &&
+							xhr.responseJSON.data &&
+							xhr.responseJSON.data.message) ||
+						((cfg.i18n && cfg.i18n.fillGapsBusy) ||
+							'Could not start fill gaps');
+					window.alert(msgFail);
+				});
+		}
+
+		$(document).on('click', '.thw-explain-pack-inventory-row', function (e) {
+			if ($(e.target).closest('.thw-explain-pack-select-gaps').length) {
+				return;
+			}
+			var $row = $(this);
+			var translation = String($row.data('translation') || '');
+			var tradition = String($row.data('tradition') || '');
+			var scope = String($row.data('scope') || 'verse');
+			if (!translation || !tradition) {
+				return;
+			}
+			$('.thw-explain-pack-inventory-row').removeClass('is-selected');
+			$row.addClass('is-selected');
+			$('#thw-explain-pack-export-translation').val(translation);
+			$('#thw-explain-pack-export-tradition').val(tradition);
+			$('input[name="export_scopes[]"]').prop('checked', false);
+			$('input[name="export_scopes[]"][value="' + scope + '"]').prop('checked', true);
+			$('#thw-explain-pack-remove-translation').val(translation);
+			$('#thw-explain-pack-remove-tradition').val(tradition);
+		});
+
+		$(document).on('click', '.thw-explain-pack-select-gaps', function (e) {
+			e.preventDefault();
+			e.stopPropagation();
+			var $btn = $(this);
+			var translation = String($btn.data('translation') || '');
+			var tradition = String($btn.data('tradition') || '');
+			var scope = String($btn.data('scope') || 'verse');
+			var missing = parseInt($btn.data('missing'), 10) || 0;
+			if (!translation || !tradition) {
+				return;
+			}
+
+			$('.thw-explain-pack-inventory-row').removeClass('is-selected');
+			$btn.closest('tr').addClass('is-selected');
+
+			$btn.prop('disabled', true);
+			post('thw_explain_pack_gap_preview', {
+				translation: translation,
+				tradition: tradition,
+				scope: scope
+			})
+				.always(function () {
+					$btn.prop('disabled', false);
+				})
+				.done(function (preview) {
+					var samples = [];
+					var count = missing;
+					if (preview && preview.success && preview.data) {
+						count = preview.data.missing || missing;
+						samples = preview.data.samples || [];
+					}
+					if (!count) {
+						window.alert((cfg.i18n && cfg.i18n.noGaps) || 'No gaps');
+						return;
+					}
+					setFillSelection(translation, tradition, scope, count, samples);
+					var panel = document.getElementById('thw-explain-pack-fill-panel');
+					if (panel && panel.scrollIntoView) {
+						panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+					}
+				});
+		});
+
+		$('#thw-explain-pack-fill-start').on('click', function () {
+			startFillGaps();
+		});
+
 		$('#thw-explain-pack-export-start').on('click', function () {
 			var translation = $('#thw-explain-pack-export-translation').val();
 			var tradition = $('#thw-explain-pack-export-tradition').val();

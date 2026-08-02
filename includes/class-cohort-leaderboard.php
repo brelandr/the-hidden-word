@@ -140,18 +140,26 @@ class HWBL_Cohort_Leaderboard {
 			$members[] = $user_id;
 		}
 
+		$blocked = class_exists( 'HWBL_Community_Safety' )
+			? HWBL_Community_Safety::get_blocked_user_ids( $user_id )
+			: array();
+
 		$rows = array();
 		foreach ( $members as $member_id ) {
+			$member_id = (int) $member_id;
+			if ( $member_id !== (int) $user_id && in_array( $member_id, $blocked, true ) ) {
+				continue;
+			}
 			$streak = class_exists( 'HWBL_Memorization_SRS' )
-				? HWBL_Memorization_SRS::get_streak( (int) $member_id )
+				? HWBL_Memorization_SRS::get_streak( $member_id )
 				: array( 'current' => 0 );
-			$user   = get_userdata( (int) $member_id );
+			$user   = get_userdata( $member_id );
 			$name   = $user ? wp_strip_all_tags( (string) $user->display_name ) : '';
 			$rows[] = array(
-				'user_id' => (int) $member_id,
+				'user_id' => $member_id,
 				'name'    => $name,
 				'streak'  => (int) ( $streak['current'] ?? 0 ),
-				'is_you'  => (int) $member_id === (int) $user_id,
+				'is_you'  => $member_id === (int) $user_id,
 			);
 		}
 

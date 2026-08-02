@@ -160,6 +160,30 @@ class THW_Premium_Explain_Preload_Admin {
 				</p>
 			</div>
 
+			<?php if ( ! empty( $job['fill_gaps'] ) && in_array( (string) ( $job['status'] ?? '' ), array( 'running', 'paused' ), true ) ) : ?>
+				<div class="notice notice-info inline">
+					<p>
+						<?php
+						echo esc_html__(
+							'Fill gaps mode: only passages that are missing from the explains database for the selected Bible × tradition × scope are generated.',
+							'hidden-word-bible-lessons'
+						);
+						$samples = array_values( array_map( 'strval', (array) ( $job['gap_samples'] ?? array() ) ) );
+						if ( ! empty( $samples ) ) {
+							echo ' ';
+							echo esc_html(
+								sprintf(
+									/* translators: %s: comma-separated scripture references */
+									__( 'Examples still missing when started: %s', 'hidden-word-bible-lessons' ),
+									implode( ', ', array_slice( $samples, 0, 8 ) )
+								)
+							);
+						}
+						?>
+					</p>
+				</div>
+			<?php endif; ?>
+
 			<?php if ( ! $ai_ok ) : ?>
 				<div class="notice notice-error inline">
 					<p><?php echo esc_html__( 'AI explanation is not configured or enabled. Configure AI under Premium settings before starting a preload.', 'hidden-word-bible-lessons' ); ?></p>

@@ -688,23 +688,35 @@ class HWBL_Local_Bible_Store {
 	/**
 	 * Search local verses (FULLTEXT when available, otherwise LIKE).
 	 *
-	 * @param string $slug  Translation slug.
-	 * @param string $query Search query.
-	 * @param int    $limit Max results.
+	 * @param string               $slug  Translation slug.
+	 * @param string               $query Search query.
+	 * @param int                  $limit Max results (up to 100).
+	 * @param array<string, mixed> $args  Optional: testament (ot|nt|'').
 	 * @return array<int, array<string, mixed>>
 	 */
-	public static function search( $slug, $query, $limit = 12 ) {
+	public static function search( $slug, $query, $limit = 12, $args = array() ) {
 		global $wpdb;
 
 		$slug  = sanitize_key( (string) $slug );
 		$query = trim( (string) $query );
-		$limit = max( 1, min( 25, (int) $limit ) );
+		$limit = max( 1, min( 100, (int) $limit ) );
 		if ( '' === $slug || '' === $query || ! self::is_installed( $slug ) ) {
 			return array();
 		}
 
-		$table   = self::verses_table();
-		$results = array();
+		$testament = sanitize_key( (string) ( $args['testament'] ?? '' ) );
+		if ( ! in_array( $testament, array( 'ot', 'nt' ), true ) ) {
+			$testament = '';
+		}
+
+		$table    = self::verses_table();
+		$results  = array();
+		$book_sql = '';
+		if ( 'ot' === $testament ) {
+			$book_sql = ' AND (book_id BETWEEN 1 AND 39 OR book_id >= 67)';
+		} elseif ( 'nt' === $testament ) {
+			$book_sql = ' AND book_id BETWEEN 40 AND 66';
+		}
 
 		// Prefer FULLTEXT when the index exists.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -712,13 +724,14 @@ class HWBL_Local_Bible_Store {
 		if ( ! empty( $has_ft ) ) {
 			$boolean = self::to_boolean_fulltext( $query );
 			if ( $boolean ) {
+				$sql = "SELECT book_id, chapter, verse, text FROM {$table}
+					WHERE translation = %s AND MATCH(text) AGAINST (%s IN BOOLEAN MODE){$book_sql}
+					ORDER BY book_id ASC, chapter ASC, verse ASC
+					LIMIT %d";
 				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 				$rows = $wpdb->get_results(
 					$wpdb->prepare(
-						"SELECT book_id, chapter, verse, text FROM {$table}
-						WHERE translation = %s AND MATCH(text) AGAINST (%s IN BOOLEAN MODE)
-						ORDER BY book_id ASC, chapter ASC, verse ASC
-						LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+						$sql, // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name + optional testament clause.
 						$slug,
 						$boolean,
 						$limit
@@ -733,13 +746,14 @@ class HWBL_Local_Bible_Store {
 
 		if ( empty( $results ) ) {
 			$like = '%' . $wpdb->esc_like( $query ) . '%';
+			$sql  = "SELECT book_id, chapter, verse, text FROM {$table}
+				WHERE translation = %s AND text LIKE %s{$book_sql}
+				ORDER BY book_id ASC, chapter ASC, verse ASC
+				LIMIT %d";
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			$rows = $wpdb->get_results(
 				$wpdb->prepare(
-					"SELECT book_id, chapter, verse, text FROM {$table}
-					WHERE translation = %s AND text LIKE %s
-					ORDER BY book_id ASC, chapter ASC, verse ASC
-					LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					$sql, // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name + optional testament clause.
 					$slug,
 					$like,
 					$limit
@@ -767,6 +781,23 @@ class HWBL_Local_Bible_Store {
 			);
 		}
 
+		return $out;
+	}
+
+	/**
+	 * List installed translation slugs with labels.
+	 *
+	 * @return array<string, string>
+	 */
+	public static function get_installed_labels() {
+		$catalog = self::get_catalog();
+		$out     = array();
+		foreach ( array_keys( $catalog ) as $slug ) {
+			if ( ! self::is_installed( $slug ) ) {
+				continue;
+			}
+			$out[ $slug ] = isset( $catalog[ $slug ]['label'] ) ? (string) $catalog[ $slug ]['label'] : $slug;
+		}
 		return $out;
 	}
 

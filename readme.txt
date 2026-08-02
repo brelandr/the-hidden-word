@@ -4,7 +4,7 @@ Tags: bible, scripture, discipleship, memorization, verse of the day
 Requires at least: 6.2
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 2.1.0
+Stable tag: 2.2.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -25,8 +25,10 @@ Hidden Word Bible Lessons helps your church or ministry teach Scripture through 
 * 500-verse curated NIV curriculum (Biblica fair-use maximum)
 * King James Version and World English Bible (public domain) included
 * **Local Bibles** — download free public-domain translations (English, Spanish, French, German, Chinese, and more, including Catholic/Orthodox-scope texts) into your site database for offline reading and search
-* Spaced-repetition memorization (SM-2), practice modes, and review queue
-* Bible chapter reader with Hello AO audio (no API key)
+* Spaced-repetition memorization (SM-2), Flip cards and other practice modes, and review queue
+* Bible chapter reader with Hello AO audio (no key); memorization “Listen to verse” speaks the exact verse text
+* Bible Maps with biblical + modern place labels, passage/book toggle, and verse references
+* Bible Concordance for word/phrase study (Local Bibles offline; NIV/NLT via Biblia when configured)
 * Optional BYOK: API.Bible, Biblia.com, YouVersion Platform, OpenAI / Claude (or WP AI Connectors)
 * Licensed translation safety: NIV/ESV/NLT and similar wording is not embedded into AI prompts (display-only via API)
 * Verse of the Day, email digests, progress tracking, PDF leader guides
@@ -34,12 +36,24 @@ Hidden Word Bible Lessons helps your church or ministry teach Scripture through 
 * Companion app support (church directory, app connect, account deletion)
 * Gutenberg blocks and shortcodes; lesson catalog at `/bible-lesson/`
 
+= Coming soon: iPhone and Android apps =
+
+Native companion apps for iPhone and Android are coming soon. We are looking for volunteers to help test before public launch.
+
+To join the testing program, email **sales@landtechwebdesigns.com** with this subject line:
+
+`The hidden word iphone or andrid app testing program to participate.`
+
+Please tell us which phone you wish to test on (iPhone, Android, or both).
+
 = Shortcodes =
 
 * `[hwbl_lesson]` — Current scheduled lesson
 * `[hwbl_lesson_list]` — Browse all lessons
 * `[hwbl_verse_of_week]` — Compact scheduled verse
 * `[hwbl_bible_reader]` — Read/listen to any chapter
+* `[hwbl_bible_map]` — Map biblical places for a verse or chapter (OpenBible geocoding data)
+* `[hwbl_bible_concordance]` — Word/phrase concordance (Local Bibles offline; NIV/NLT via Biblia when configured)
 * `[hwbl_memorize_verse]` / `[hwbl_memorize_reviews]` — Memorize and review
 * `[hwbl_verse_of_the_day]` / `[hwbl_study_finder]` / `[hwbl_ask_question]` — Daily verse and AI study tools
 * `[hwbl_my_progress]` — Progress and streaks
@@ -60,6 +74,10 @@ Bundled NIV/KJV/WEB text is stored locally. All other external calls are optiona
 * OpenAI or Anthropic — optional AI explain/study/ask (BYOK or Connectors)
 * BibleSuperSearch.com, eBible.org, BereanBible.com, theWord module archives (theword-modules.com), and the scrollmapper/bible_databases GitHub repository — used only when an administrator uses the built-in Local Bible Importer (Bible Lessons → Local Bibles) to download an additional public-domain translation
 * GitHub (raw.githubusercontent.com, api.github.com) — used only when an administrator browses or installs a shared "Explain Pack" from the optional community catalog, or publishes/updates their own pack
+* OpenStreetMap tile servers — used when Bible Maps is enabled with the Leaflet provider (browser loads map tiles; OSM attribution shown on the map)
+* Mapbox — used only when an administrator selects Mapbox as the Bible Maps provider and supplies a Mapbox access token. Style presets include Outdoors (default), Light, Satellite, Streets, or a custom Mapbox Studio style URL (e.g. parchment/vintage themes)
+
+Bundled OpenBible.info Bible-Geocoding-Data place index is licensed CC BY 4.0; attribution is shown with every map.
 
 No license phone-home. No paid feature gates.
 
@@ -95,6 +113,10 @@ Yes. Create new Bible Lessons or edit the seeded 500-lesson curriculum.
 
 Yes. Use the shortcode `[hwbl_lesson]` in any page builder text widget or the Gutenberg block.
 
+= How can I help test the iPhone or Android app? =
+
+Email sales@landtechwebdesigns.com with the subject “The hidden word iphone or andrid app testing program to participate.” and say whether you want to test on iPhone, Android, or both.
+
 == Screenshots ==
 
 1. Tabbed lesson view with scripture, context, narrative, echo, and discussion tabs
@@ -105,6 +127,12 @@ Yes. Use the shortcode `[hwbl_lesson]` in any page builder text widget or the Gu
 
 == Changelog ==
 
+= 2.2.0 =
+* Memorization Flip cards: SM-2 adaptive blank ratio, swipe-to-flip, and “Listen to verse” speaks the exact verse (device/browser TTS) instead of the full chapter
+* Bible Maps: biblical + modern place labels, This passage / Whole book toggle, verse references in place details, and a compact places dropdown under the map
+* Bible Concordance and map shortcodes/blocks remain available for study and geography
+* Announcement: iPhone and Android companion apps coming soon — volunteer testers welcome (email sales@landtechwebdesigns.com; subject: The hidden word iphone or andrid app testing program to participate.; say iPhone, Android, or both)
+
 = 2.1.0 =
 * Local Bibles: import public-domain translations into site SQL (language filter, USFX/eBible, scrollmapper JSON, theWord .ont including Torres Amat, and more)
 * Expanded book map for Catholic/Orthodox deuterocanonical texts in the Bible reader
@@ -112,6 +140,8 @@ Yes. Use the shortcode `[hwbl_lesson]` in any page builder text widget or the Gu
 * Companion app plumbing: church network directory, app connect codes, account deletion endpoint, community safety reports
 * AI scripture policy: do not embed licensed translation wording (NIV/ESV/NLT/etc.) into explain prompts
 * Explain packs and preload tooling for shared base + tradition override rows
+* Bible Maps: OpenBible place markers in the Bible reader, `[hwbl_bible_map]` / Gutenberg block, Leaflet or Mapbox (admin choice); Mapbox style presets (Outdoors default, Light, Satellite, Streets, custom Studio) with on-map style switcher; companion Map UI deferred until current store build is approved
+* Bible Concordance: word/phrase study via Local Bibles (offline) or Biblia.com for NIV/NLT; `[hwbl_bible_concordance]` / Gutenberg block + reader panel
 
 = 2.0.2 =
 * Fix Verse of the Day Explain 404s: flush CPT rewrite rules when missing so saved explanation permalinks resolve
@@ -223,6 +253,9 @@ Yes. Use the shortcode `[hwbl_lesson]` in any page builder text widget or the Gu
 * Gutenberg block and shortcodes
 
 == Upgrade Notice ==
+
+= 2.2.0 =
+Improves Flip memorization and Bible Maps, and announces coming iPhone/Android companion apps with a volunteer testing call.
 
 = 2.1.0 =
 Adds Local Bibles imports, companion app support, email verification helpers, and safer AI handling for licensed translations.
