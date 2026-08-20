@@ -6,6 +6,35 @@
 	gap: 0.75rem;
 }
 
+.hwbl-plan-list__filter {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.5rem 0.75rem;
+	margin: 0 0 1rem;
+}
+
+.hwbl-plan-list__filter-label {
+	font-weight: 600;
+	font-size: 0.95rem;
+}
+
+.hwbl-plan-list__filter-select {
+	min-width: min(100%, 16rem);
+	max-width: 100%;
+	padding: 0.45rem 0.65rem;
+	font: inherit;
+	border: 1px solid rgba(0, 0, 0, 0.18);
+	border-radius: 4px;
+	background: #fff;
+	color: inherit;
+}
+
+.hwbl-plan-list__empty-filter {
+	margin: 1rem 0 0;
+	opacity: 0.8;
+}
+
 .hwbl-plan-list__item {
 	margin: 0;
 }

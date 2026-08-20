@@ -653,8 +653,75 @@
 		onExplain(root);
 	}
 
+	function initPlanLists() {
+		document.querySelectorAll('.hwbl-plan-list[data-filterable="1"]').forEach(function (root) {
+			var select = root.querySelector('.hwbl-plan-list__filter-select');
+			var items = root.querySelectorAll('.hwbl-plan-list__item');
+			var empty = root.querySelector('.hwbl-plan-list__empty-filter');
+			if (!select || !items.length) {
+				return;
+			}
+
+			function applyFilter(topic) {
+				topic = (topic || '').toLowerCase();
+				var visible = 0;
+				items.forEach(function (li) {
+					var t = (li.getAttribute('data-topic') || '').toLowerCase();
+					var show = !topic || t === topic;
+					li.hidden = !show;
+					if (show) {
+						visible += 1;
+					}
+				});
+				if (empty) {
+					empty.hidden = visible > 0;
+				}
+			}
+
+			var fromUrl = '';
+			try {
+				fromUrl = (
+					new URLSearchParams(window.location.search).get('topic') || ''
+				)
+					.trim()
+					.toLowerCase();
+			} catch (e) {
+				fromUrl = '';
+			}
+			if (fromUrl) {
+				var hasOption = false;
+				Array.prototype.forEach.call(select.options, function (opt) {
+					if (opt.value === fromUrl) {
+						hasOption = true;
+					}
+				});
+				if (hasOption) {
+					select.value = fromUrl;
+				}
+			}
+
+			applyFilter(select.value);
+			select.addEventListener('change', function () {
+				var value = select.value || '';
+				applyFilter(value);
+				try {
+					var url = new URL(window.location.href);
+					if (value) {
+						url.searchParams.set('topic', value);
+					} else {
+						url.searchParams.delete('topic');
+					}
+					window.history.replaceState({}, '', url.toString());
+				} catch (e) {
+					/* ignore */
+				}
+			});
+		});
+	}
+
 	function init() {
 		document.querySelectorAll('.hwbl-plan').forEach(bind);
+		initPlanLists();
 	}
 
 	if (document.readyState === 'loading') {

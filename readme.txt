@@ -4,7 +4,7 @@ Tags: bible, scripture, discipleship, memorization, verse of the day
 Requires at least: 6.2
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.3.9
+Stable tag: 2.3.10
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -133,6 +133,9 @@ The hub operator’s policy for The Hidden Word (accounts, AI Ask, gospel-respon
 5. Plugin settings — schedule mode and translation switcher
 
 == Changelog ==
+
+= 2.3.10 =
+* Reading plan list: topic filter dropdown on full plan lists (e.g. Reading Plans page)
 
 = 2.3.9 =
 * Reading plans: ten new 7-day life-issues studies (overwhelm, health, marriage strain, alcohol, addiction, finances, domestic violence, doubt, loneliness, depression) in Hidden Word study voice
@@ -304,6 +307,9 @@ The hub operator’s policy for The Hidden Word (accounts, AI Ask, gospel-respon
 * Gutenberg block and shortcodes
 
 == Upgrade Notice ==
+
+= 2.3.10 =
+Adds a topic filter dropdown on reading plan list pages.
 
 = 2.3.9 =
 Adds ten pastoral life-issues reading plans for hard seasons (health, addiction, finances, depression, and more).
