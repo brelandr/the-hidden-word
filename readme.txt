@@ -26,14 +26,16 @@ Hidden Word Bible Lessons helps your church or ministry teach Scripture through 
 * King James Version and World English Bible (public domain) included
 * **Local Bibles** — download free public-domain translations (English, Spanish, French, German, Chinese, and more, including Catholic/Orthodox-scope texts) into your site database for offline reading and search
 * Spaced-repetition memorization (SM-2), Flip cards and other practice modes, and review queue
-* Bible chapter reader with Hello AO audio (no key); memorization “Listen to verse” speaks the exact verse text
+* **Reading plans** — multi-day discipleship plans (anxiety, prayer, identity, gospel share, kids stories, Advent/Lent, and more) with progress tracking, day review navigation, and shortcodes/blocks
+* Bible chapter reader with Hello AO audio (no key); Spanish and Portuguese AO text editions; memorization “Listen to verse” speaks the exact verse text
 * Bible Maps with biblical + modern place labels, passage/book toggle, and verse references
-* Bible Concordance for word/phrase study (Local Bibles offline; NIV/NLT via Biblia when configured)
+* Bible Concordance / Strong’s study tooling (Local Bibles offline; NIV/NLT via Biblia when configured)
 * Optional BYOK: API.Bible, Biblia.com, YouVersion Platform, OpenAI / Claude (or WP AI Connectors)
 * Licensed translation safety: NIV/ESV/NLT and similar wording is not embedded into AI prompts (display-only via API)
 * Verse of the Day, email digests, progress tracking, PDF leader guides
 * Custom scheduling, cohorts, study finder, and ask-a-question tools
-* Companion app support (church directory, app connect, account deletion)
+* Gospel share pages (`/gospel/{id}`), QR/WhatsApp helpers, and optional gospel-response capture with consent
+* Companion app support (church directory, app connect, Sign in with Apple, account deletion)
 * Gutenberg blocks and shortcodes; lesson catalog at `/bible-lesson/`
 
 = Coming soon: iPhone and Android apps =
@@ -55,6 +57,7 @@ Please tell us which phone you wish to test on (iPhone, Android, or both).
 * `[hwbl_bible_map]` — Map biblical places for a verse or chapter (OpenBible geocoding data)
 * `[hwbl_bible_concordance]` — Word/phrase concordance (Local Bibles offline; NIV/NLT via Biblia when configured)
 * `[hwbl_memorize_verse]` / `[hwbl_memorize_reviews]` — Memorize and review
+* `[hwbl_plan_list]` / `[hwbl_plan]` — Browse or open a reading plan (optional `topic` filter)
 * `[hwbl_verse_of_the_day]` / `[hwbl_study_finder]` / `[hwbl_ask_question]` — Daily verse and AI study tools
 * `[hwbl_my_progress]` — Progress and streaks
 
@@ -133,6 +136,11 @@ The hub operator’s policy for The Hidden Word (accounts, AI Ask, gospel-respon
 
 = 2.3.8 =
 * Performance: plan list / outline pages no longer fetch Scripture for every day (fixes slow loads and 504s on Faith Formation & Reading Plans)
+* Reading plans: Previous/Next day review and clickable outline without changing progress (from 2.3.7)
+* Hello AO: Spanish (Reina-Valera 1909, Biblia en Español Sencillo) and Portuguese (Bíblia Livre); fix YLT map; no English audio fallback for non-English AO editions (from 2.3.6)
+* Sign in with Apple RS256 verification; gospel response consent + privacy notice; companion auth polish (from 2.3.4–2.3.5)
+* Rich study-voice plan days, Strong’s tooling, gospel share pages (`/gospel/{id}`), QR/WhatsApp helpers (from 2.3.2–2.3.3)
+* Reading plans CPT + progress/REST/shortcodes/blocks, gospel response + testimony/prayer foundations (from 2.3.0–2.3.1)
 
 = 2.3.7 =
 * Reading plans: review previous days via Previous/Next and a clickable plan outline (progress stays on the current day)
@@ -294,7 +302,7 @@ The hub operator’s policy for The Hidden Word (accounts, AI Ask, gospel-respon
 == Upgrade Notice ==
 
 = 2.3.8 =
-Speeds up reading-plan list pages that were timing out under load.
+Reading plans, gospel share, Strong’s tooling, Spanish/Portuguese Hello AO Bibles, Sign in with Apple fixes, and faster plan list pages (since 2.2.0).
 
 = 2.3.7 =
 Lets you reopen earlier reading-plan days without losing progress.

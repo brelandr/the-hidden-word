@@ -8,6 +8,12 @@
 	"features": {
 		"networking": true
 	},
+	"meta": {
+		"title": "Hidden Word Bible Lessons 2.3",
+		"description": "Live preview — 500 lessons, reading plans, memorization, Bible reader, maps, concordance, and demo hub seed data",
+		"author": "brelandr",
+		"categories": ["education", "religion"]
+	},
 	"steps": [
 		{
 			"step": "login",
@@ -48,14 +54,14 @@
 			"step": "setSiteOptions",
 			"options": {
 				"blogname": "Hidden Word Bible Lessons",
-				"blogdescription": "Live preview — lessons, memorization, Bible reader, and more",
+				"blogdescription": "Live preview — lessons, reading plans, memorization, Bible reader, maps & concordance",
 				"permalink_structure": "/%postname%/",
 				"users_can_register": 1
 			}
 		},
 		{
 			"step": "runPHP",
-			"code": "<?php\nrequire_once '/wordpress/wp-load.php';\n\n// Normalize GitHub zip theme folder (…-main) to the canonical stylesheet slug.\n$theme_root = get_theme_root();\nforeach ( array( 'the-hidden-word-theme', 'the-hidden-word-theme-main' ) as $slug ) {\n\t$dir = trailingslashit( $theme_root ) . $slug;\n\tif ( ! is_dir( $dir ) ) {\n\t\tcontinue;\n\t}\n\tif ( 'the-hidden-word-theme' !== $slug && ! is_dir( trailingslashit( $theme_root ) . 'the-hidden-word-theme' ) ) {\n\t\t@rename( $dir, trailingslashit( $theme_root ) . 'the-hidden-word-theme' );\n\t\t$slug = 'the-hidden-word-theme';\n\t}\n\tif ( wp_get_theme( $slug )->exists() ) {\n\t\tswitch_theme( $slug );\n\t}\n\tbreak;\n}\n\nwp_set_current_user( 1 );\n\n// Seed curriculum (Playground cron is unreliable).\nif ( class_exists( 'HWBL_Activator' ) && method_exists( 'HWBL_Activator', 'process_seed_batch' ) ) {\n\tfor ( $i = 0; $i < 50; $i++ ) {\n\t\tif ( get_option( 'hwbl_seeded' ) && false === get_option( 'hwbl_seed_queue', false ) ) {\n\t\t\tbreak;\n\t\t}\n\t\tHWBL_Activator::process_seed_batch();\n\t}\n}\n\n// Full demo pages + sample data (Demo Hub), with Marketing Setup as fallback.\nif ( class_exists( 'THW_Demo_Seeder' ) ) {\n\tif ( method_exists( 'THW_Demo_Seeder', 'drain_curriculum_seed_queue' ) ) {\n\t\tTHW_Demo_Seeder::drain_curriculum_seed_queue();\n\t}\n\tTHW_Demo_Seeder::run( true );\n} elseif ( class_exists( 'THW_Theme_Marketing_Setup' ) ) {\n\tTHW_Theme_Marketing_Setup::run_setup( true );\n\t$lesson = get_page_by_path( 'todays-lesson' );\n\tif ( $lesson instanceof WP_Post ) {\n\t\tupdate_option( 'show_on_front', 'page' );\n\t\tupdate_option( 'page_on_front', (int) $lesson->ID );\n\t}\n}\n\nflush_rewrite_rules( false );\n"
+			"code": "<?php\nrequire_once '/wordpress/wp-load.php';\n\n// Normalize GitHub zip theme folder (…-main) to the canonical stylesheet slug.\n$theme_root = get_theme_root();\nforeach ( array( 'the-hidden-word-theme', 'the-hidden-word-theme-main' ) as $slug ) {\n\t$dir = trailingslashit( $theme_root ) . $slug;\n\tif ( ! is_dir( $dir ) ) {\n\t\tcontinue;\n\t}\n\tif ( 'the-hidden-word-theme' !== $slug && ! is_dir( trailingslashit( $theme_root ) . 'the-hidden-word-theme' ) ) {\n\t\t@rename( $dir, trailingslashit( $theme_root ) . 'the-hidden-word-theme' );\n\t\t$slug = 'the-hidden-word-theme';\n\t}\n\tif ( wp_get_theme( $slug )->exists() ) {\n\t\tswitch_theme( $slug );\n\t}\n\tbreak;\n}\n\nwp_set_current_user( 1 );\n\n// Seed curriculum (Playground cron is unreliable).\nif ( class_exists( 'HWBL_Activator' ) && method_exists( 'HWBL_Activator', 'process_seed_batch' ) ) {\n\tfor ( $i = 0; $i < 50; $i++ ) {\n\t\tif ( get_option( 'hwbl_seeded' ) && false === get_option( 'hwbl_seed_queue', false ) ) {\n\t\t\tbreak;\n\t\t}\n\t\tHWBL_Activator::process_seed_batch();\n\t}\n}\n\n// Sample reading plans (needed before Demo Hub / marketing pages that list plans).\nif ( class_exists( 'HWBL_Plan_Seed' ) && method_exists( 'HWBL_Plan_Seed', 'maybe_seed' ) ) {\n\tHWBL_Plan_Seed::maybe_seed();\n}\n\n// Full demo pages + sample data (Demo Hub), with Marketing Setup as fallback.\nif ( class_exists( 'THW_Demo_Seeder' ) ) {\n\tif ( method_exists( 'THW_Demo_Seeder', 'drain_curriculum_seed_queue' ) ) {\n\t\tTHW_Demo_Seeder::drain_curriculum_seed_queue();\n\t}\n\tTHW_Demo_Seeder::run( true );\n} elseif ( class_exists( 'THW_Theme_Marketing_Setup' ) ) {\n\tTHW_Theme_Marketing_Setup::run_setup( true );\n\t$lesson = get_page_by_path( 'todays-lesson' );\n\tif ( $lesson instanceof WP_Post ) {\n\t\tupdate_option( 'show_on_front', 'page' );\n\t\tupdate_option( 'page_on_front', (int) $lesson->ID );\n\t}\n}\n\nflush_rewrite_rules( false );\n"
 		}
 	]
 }
