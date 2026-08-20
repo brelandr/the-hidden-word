@@ -248,9 +248,12 @@ class HWBL_Plan_Rest {
 		if ( ! $day ) {
 			return new WP_Error( 'hwbl_plan_day_not_found', __( 'Plan day not found.', 'hidden-word-bible-lessons' ), array( 'status' => 404 ) );
 		}
-		$day['plan_id']    = $plan_id;
-		$day['plan_title'] = (string) ( $plan['title'] ?? '' );
-		$day['topic']      = (string) ( $plan['topic'] ?? '' );
+		$day['plan_id']     = $plan_id;
+		$day['plan_title']  = (string) ( $plan['title'] ?? '' );
+		$day['topic']       = (string) ( $plan['topic'] ?? '' );
+		$day['plan_length'] = (int) ( $plan['length'] ?? count( (array) ( $plan['days'] ?? array() ) ) );
+		$lesson_id          = ! empty( $day['lesson_id'] ) ? (int) $day['lesson_id'] : 0;
+		$day['lesson_url']  = $lesson_id > 0 ? (string) get_permalink( $lesson_id ) : '';
 		return rest_ensure_response( $day );
 	}
 }

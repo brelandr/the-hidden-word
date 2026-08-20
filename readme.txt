@@ -4,7 +4,7 @@ Tags: bible, scripture, discipleship, memorization, verse of the day
 Requires at least: 6.2
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.3.6
+Stable tag: 2.3.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -130,6 +130,9 @@ The hub operator’s policy for The Hidden Word (accounts, AI Ask, gospel-respon
 5. Plugin settings — schedule mode and translation switcher
 
 == Changelog ==
+
+= 2.3.7 =
+* Reading plans: review previous days via Previous/Next and a clickable plan outline (progress stays on the current day)
 
 = 2.3.6 =
 * Hello AO: Spanish (Reina-Valera 1909, Biblia en Español Sencillo) and Portuguese (Bíblia Livre) for the Bible reader — text only where AO has no chapter audio
@@ -286,6 +289,9 @@ The hub operator’s policy for The Hidden Word (accounts, AI Ask, gospel-respon
 * Gutenberg block and shortcodes
 
 == Upgrade Notice ==
+
+= 2.3.7 =
+Lets you reopen earlier reading-plan days without losing progress.
 
 = 2.3.6 =
 Adds Spanish and Portuguese Hello AO Bibles to the reader; fixes YLT mapping and non-English audio fallback.

@@ -117,6 +117,206 @@
 		return root.querySelector('.hwbl-plan-day');
 	}
 
+	function escapeHtml(s) {
+		return String(s || '')
+			.replace(/&/g, '&amp;')
+			.replace(/</g, '&lt;')
+			.replace(/>/g, '&gt;')
+			.replace(/"/g, '&quot;');
+	}
+
+	function updateNavUi(root) {
+		var day = daySection(root);
+		if (!day) {
+			return;
+		}
+		var nav = day.querySelector('.hwbl-plan-day__nav');
+		var note = day.querySelector('.hwbl-plan-day__review-note');
+		var advance = root.querySelector('.hwbl-plan-advance');
+		var prevBtn = day.querySelector('.hwbl-plan-day-prev');
+		var nextBtn = day.querySelector('.hwbl-plan-day-next');
+		var todayBtn = day.querySelector('.hwbl-plan-day-today');
+		var preview = root.getAttribute('data-preview') === '1';
+		var viewing = parseInt(root.getAttribute('data-viewing-day') || '0', 10);
+		var current = parseInt(root.getAttribute('data-current-day') || '0', 10);
+		var length = parseInt(root.getAttribute('data-plan-length') || '0', 10);
+
+		if (nav) {
+			nav.hidden = preview || length < 2;
+		}
+		if (prevBtn) {
+			prevBtn.disabled = viewing <= 1;
+		}
+		if (nextBtn) {
+			nextBtn.disabled = length > 0 ? viewing >= length : true;
+		}
+		if (todayBtn) {
+			todayBtn.hidden = !current || viewing === current;
+		}
+		if (note) {
+			if (!preview && current > 0 && viewing > 0 && viewing !== current) {
+				note.hidden = false;
+				note.textContent =
+					'Reviewing day ' +
+					viewing +
+					' (your progress stays on day ' +
+					current +
+					').';
+			} else {
+				note.hidden = true;
+				note.textContent = '';
+			}
+		}
+		if (advance) {
+			advance.hidden = preview || !current || viewing !== current;
+		}
+
+		root.querySelectorAll('.hwbl-plan__day-btn').forEach(function (btn) {
+			var n = parseInt(btn.getAttribute('data-day') || '0', 10);
+			btn.classList.toggle('is-viewing', n === viewing);
+		});
+	}
+
+	function applyDayPayload(root, payload) {
+		var day = daySection(root);
+		if (!day || !payload) {
+			return;
+		}
+		var dayNum = parseInt(payload.day || '0', 10);
+		root.setAttribute('data-viewing-day', String(dayNum));
+		if (payload.plan_length) {
+			root.setAttribute('data-plan-length', String(payload.plan_length));
+		}
+		day.setAttribute('data-day', String(dayNum));
+		day.setAttribute('data-book-id', String(payload.book_id || 0));
+		day.setAttribute('data-chapter', String(payload.chapter || 0));
+		day.setAttribute('data-verse', String(payload.verse || 0));
+		day.setAttribute('data-translation', String(payload.translation || ''));
+		day.setAttribute('data-verse-ref', String(payload.verse_ref || ''));
+
+		var title = day.querySelector('.hwbl-plan-day__title');
+		if (title) {
+			title.textContent =
+				'Day ' + dayNum + ': ' + (payload.title || 'Reading');
+		}
+
+		var verseWrap = day.querySelector('.hwbl-plan-day__verse-wrap');
+		if (verseWrap) {
+			if (payload.verse_ref || payload.verse_text) {
+				var html = '<figure class="hwbl-plan-day__verse">';
+				if (payload.verse_ref) {
+					html +=
+						'<figcaption class="hwbl-plan-day__ref"><strong>' +
+						escapeHtml(payload.verse_ref) +
+						'</strong>';
+					if (payload.translation) {
+						html +=
+							'<span class="hwbl-plan-day__translation">' +
+							escapeHtml(String(payload.translation).toUpperCase()) +
+							'</span>';
+					}
+					html += '</figcaption>';
+				}
+				if (payload.verse_text) {
+					html +=
+						'<blockquote class="hwbl-plan-day__verse-text">' +
+						escapeHtml(payload.verse_text) +
+						'</blockquote>';
+				}
+				html += '</figure>';
+				verseWrap.innerHTML = html;
+			} else {
+				verseWrap.innerHTML = '';
+			}
+		}
+
+		var body = day.querySelector('.hwbl-plan-day__body');
+		if (body) {
+			body.innerHTML = payload.body || '';
+		}
+
+		var studyBody = day.querySelector('.hwbl-plan-day__study-body');
+		var studyStatus = day.querySelector('.hwbl-plan-day__study-status');
+		if (studyBody) {
+			studyBody.hidden = true;
+			studyBody.innerHTML = '';
+		}
+		if (studyStatus) {
+			studyStatus.textContent = 'Loading study…';
+		}
+
+		var explain = day.querySelector('.hwbl-plan-day__explain');
+		var explainBody = day.querySelector('.hwbl-plan-day__explain-body');
+		var explainStatus = day.querySelector('.hwbl-plan-day__explain-status');
+		if (explain) {
+			explain.hidden = !(payload.book_id && payload.verse);
+		}
+		if (explainBody) {
+			explainBody.hidden = true;
+			explainBody.innerHTML = '';
+		}
+		if (explainStatus) {
+			explainStatus.textContent = payload.book_id && payload.verse ? 'Loading explanation…' : '';
+		}
+
+		var lesson = day.querySelector('.hwbl-plan-day__lesson-link');
+		if (lesson) {
+			var link = lesson.querySelector('a');
+			if (payload.lesson_url && link) {
+				lesson.hidden = false;
+				link.href = payload.lesson_url;
+			} else {
+				lesson.hidden = true;
+			}
+		}
+
+		var journalInput = day.querySelector('.hwbl-plan-day__journal-input');
+		var journalStatus = day.querySelector('.hwbl-plan-day__journal-status');
+		if (journalInput) {
+			journalInput.value = '';
+		}
+		if (journalStatus) {
+			journalStatus.textContent = '';
+		}
+
+		updateNavUi(root);
+		loadJournal(root);
+		onStudy(root);
+		onExplain(root);
+
+		try {
+			day.scrollIntoView({ behavior: 'smooth', block: 'start' });
+		} catch (e) {
+			/* ignore */
+		}
+	}
+
+	function showDay(root, dayNum) {
+		dayNum = parseInt(dayNum || '0', 10);
+		if (dayNum < 1) {
+			return;
+		}
+		var preview = root.getAttribute('data-preview') === '1';
+		if (preview) {
+			setStatus(root, 'Start the plan to move between days.');
+			return;
+		}
+		var viewing = parseInt(root.getAttribute('data-viewing-day') || '0', 10);
+		if (viewing === dayNum) {
+			updateNavUi(root);
+			return;
+		}
+		setStatus(root, 'Loading day ' + dayNum + '…');
+		rest(root, '/days/' + encodeURIComponent(String(dayNum)), 'GET')
+			.then(function (payload) {
+				setStatus(root, '');
+				applyDayPayload(root, payload);
+			})
+			.catch(function (err) {
+				setStatus(root, err.message || 'Could not load that day.');
+			});
+	}
+
 	function onExplain(root) {
 		var day = daySection(root);
 		if (!day) {
@@ -382,6 +582,11 @@
 		var saveBtn = root.querySelector('.hwbl-plan-journal-save');
 		var askBtn = root.querySelector('.hwbl-plan-journal-ask');
 		var list = root.querySelector('.hwbl-plan-day__journal-list');
+		var day = daySection(root);
+		var prevBtn = day ? day.querySelector('.hwbl-plan-day-prev') : null;
+		var nextBtn = day ? day.querySelector('.hwbl-plan-day-next') : null;
+		var todayBtn = day ? day.querySelector('.hwbl-plan-day-today') : null;
+		var outline = root.querySelector('.hwbl-plan__days');
 
 		if (startBtn) {
 			startBtn.addEventListener('click', function () {
@@ -414,7 +619,35 @@
 				askExisting(root, id);
 			});
 		}
+		if (prevBtn) {
+			prevBtn.addEventListener('click', function () {
+				var viewing = parseInt(root.getAttribute('data-viewing-day') || '0', 10);
+				showDay(root, viewing - 1);
+			});
+		}
+		if (nextBtn) {
+			nextBtn.addEventListener('click', function () {
+				var viewing = parseInt(root.getAttribute('data-viewing-day') || '0', 10);
+				showDay(root, viewing + 1);
+			});
+		}
+		if (todayBtn) {
+			todayBtn.addEventListener('click', function () {
+				var current = parseInt(root.getAttribute('data-current-day') || '0', 10);
+				showDay(root, current || 1);
+			});
+		}
+		if (outline) {
+			outline.addEventListener('click', function (event) {
+				var btn = event.target.closest('.hwbl-plan__day-btn');
+				if (!btn || btn.disabled) {
+					return;
+				}
+				showDay(root, btn.getAttribute('data-day'));
+			});
+		}
 
+		updateNavUi(root);
 		loadJournal(root);
 		onStudy(root);
 		onExplain(root);
