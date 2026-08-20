@@ -25,6 +25,94 @@ class THW_Premium_PDF_Export {
 		add_action( 'admin_post_thw_download_leader_guide', array( __CLASS__, 'handle_download' ) );
 		add_action( 'admin_post_thw_download_booklet', array( __CLASS__, 'handle_booklet_download' ) );
 		add_action( 'hwbl_lesson_render_after_echo', array( __CLASS__, 'render_front_end_button' ), 20 );
+		add_action( 'rest_api_init', array( __CLASS__, 'register_routes' ) );
+	}
+
+	/**
+	 * REST: leader guide download for lesson editors / leaders.
+	 */
+	public static function register_routes() {
+		$args = array(
+			'methods'             => 'GET',
+			'callback'            => array( __CLASS__, 'rest_leader_guide' ),
+			'permission_callback' => static function ( $request ) {
+				$lesson_id = isset( $request['id'] ) ? absint( $request['id'] ) : 0;
+				return $lesson_id && current_user_can( 'edit_post', $lesson_id );
+			},
+			'args'                => array(
+				'id' => array(
+					'required'          => true,
+					'type'              => 'integer',
+					'sanitize_callback' => 'absint',
+				),
+			),
+		);
+
+		register_rest_route( 'hwbl/v1', '/lessons/(?P<id>\d+)/leader-guide', $args );
+		register_rest_route( 'thw/v1', '/lessons/(?P<id>\d+)/leader-guide', $args );
+	}
+
+	/**
+	 * Whether the current user can download a leader guide for this lesson.
+	 *
+	 * @param int $lesson_id Lesson ID.
+	 * @return bool
+	 */
+	public static function can_download_leader_guide( $lesson_id ) {
+		$lesson_id = absint( $lesson_id );
+		return $lesson_id > 0 && current_user_can( 'edit_post', $lesson_id );
+	}
+
+	/**
+	 * Signed download URL for companion / front-end (empty when unauthorized).
+	 *
+	 * @param int $lesson_id Lesson ID.
+	 * @return string
+	 */
+	public static function get_leader_guide_url( $lesson_id ) {
+		$lesson_id = absint( $lesson_id );
+		if ( ! self::can_download_leader_guide( $lesson_id ) ) {
+			return '';
+		}
+		return wp_nonce_url(
+			admin_url( 'admin-post.php?action=thw_download_leader_guide&lesson_id=' . $lesson_id ),
+			'thw_download_leader_guide_' . $lesson_id
+		);
+	}
+
+	/**
+	 * REST callback — returns a one-time download URL (HTML/PDF via admin-post).
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public static function rest_leader_guide( $request ) {
+		$lesson_id = absint( $request['id'] );
+		$post      = get_post( $lesson_id );
+		if ( ! $post || ! in_array( $post->post_type, array( 'hwbl_lesson', 'thw_lesson' ), true ) ) {
+			return new WP_Error(
+				'thw_leader_guide_not_found',
+				__( 'Lesson not found.', 'hidden-word-bible-lessons' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		$url = self::get_leader_guide_url( $lesson_id );
+		if ( '' === $url ) {
+			return new WP_Error(
+				'thw_leader_guide_forbidden',
+				__( 'You cannot download this leader guide.', 'hidden-word-bible-lessons' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		return new WP_REST_Response(
+			array(
+				'lessonId' => $lesson_id,
+				'url'      => $url,
+				'available' => true,
+			)
+		);
 	}
 
 	/**

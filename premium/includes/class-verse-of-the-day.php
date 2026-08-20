@@ -26,6 +26,16 @@ class THW_Premium_Verse_Of_The_Day {
 	const SOURCE_OPT   = 'thw_votd_source';
 	const DELIVERY_OPT = 'thw_votd_explain_delivery';
 	const CRON_HOOK    = 'thw_premium_votd_daily_refresh';
+	/** Opt-in: pre-generate today's VOTD explains for selected translations. */
+	const AUTO_EXPLAIN_OPT           = 'thw_votd_auto_explain_enabled';
+	const AUTO_EXPLAIN_TRANS_OPT     = 'thw_votd_auto_explain_translations';
+	const AUTO_EXPLAIN_LAST_OPT      = 'thw_votd_auto_explain_last';
+	const AUTO_EXPLAIN_STATUS_OPT    = 'thw_votd_auto_explain_status';
+	/** Opt-in: pre-generate today's VOTD Study This Verse cards for selected translations. */
+	const AUTO_STUDY_OPT             = 'thw_votd_auto_study_enabled';
+	const AUTO_STUDY_TRANS_OPT       = 'thw_votd_auto_study_translations';
+	const AUTO_STUDY_LAST_OPT        = 'thw_votd_auto_study_last';
+	const AUTO_STUDY_STATUS_OPT      = 'thw_votd_auto_study_status';
 	const RATE_LIMIT   = 10;
 	const RATE_WINDOW  = 3600;
 
@@ -81,6 +91,8 @@ class THW_Premium_Verse_Of_The_Day {
 		add_action( 'init', array( __CLASS__, 'maybe_flush_cache_on_upgrade' ), 5 );
 		add_action( self::CRON_HOOK, array( __CLASS__, 'run_daily_refresh' ) );
 		add_action( 'admin_post_thw_clear_votd_cache', array( __CLASS__, 'handle_clear_cache_admin' ) );
+		add_action( 'admin_post_thw_votd_auto_explain_now', array( __CLASS__, 'handle_auto_explain_now_admin' ) );
+		add_action( 'admin_post_thw_votd_auto_study_now', array( __CLASS__, 'handle_auto_study_now_admin' ) );
 		// admin-ajax uses normal cookie auth (no REST nonce required) so page-cache
 		// HTML with a logged-out wp_rest nonce can still refresh a valid session.
 		add_action( 'wp_ajax_thw_votd_auth', array( __CLASS__, 'ajax_auth_bootstrap' ) );
@@ -366,6 +378,14 @@ class THW_Premium_Verse_Of_The_Day {
 					<?php endif; ?>
 				</footer>
 			</blockquote>
+			<p class="thw-votd__share">
+				<?php
+				echo HWBL_Verse_Share_Card::button_html( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					(string) ( $payload['text'] ?? '' ),
+					(string) ( $payload['reference'] ?? '' )
+				);
+				?>
+			</p>
 			<p class="thw-votd__credit">
 				<a href="<?php echo esc_url( self::SOURCE_URL ); ?>" target="_blank" rel="noopener noreferrer">
 					<?php esc_html_e( 'Source: Bible.com / YouVersion', 'hidden-word-bible-lessons' ); ?>
@@ -398,8 +418,8 @@ class THW_Premium_Verse_Of_The_Day {
 							<?php endforeach; ?>
 						</select>
 					<?php endif; ?>
-					<a href="#thw-votd-explain" class="thw-votd__explain-trigger thw-votd__explain-link"<?php echo $ai_ok ? '' : ' ' . esc_attr( 'hidden' ); ?>>
-						<?php esc_html_e( 'Explain this verse with AI', 'hidden-word-bible-lessons' ); ?>
+					<a href="#thw-votd-explain" class="thw-votd__explain-trigger thw-votd__explain-btn thw-btn thw-btn--primary"<?php echo $ai_ok ? '' : ' ' . esc_attr( 'hidden' ); ?>>
+						<?php esc_html_e( 'Explain this Bible Verse', 'hidden-word-bible-lessons' ); ?>
 					</a>
 					<a class="thw-votd__existing-link thw-votd__explain-link" href="#" hidden>
 						<?php esc_html_e( 'Read saved explanation', 'hidden-word-bible-lessons' ); ?>
@@ -475,6 +495,17 @@ class THW_Premium_Verse_Of_The_Day {
 		$payload = self::build_payload_for_today( $day, $translation );
 		if ( ! empty( $payload['reference'] ) && ! empty( $payload['text'] ) ) {
 			$payload['text'] = class_exists( 'HWBL_Http_Utils' ) ? HWBL_Http_Utils::sanitize_bible_text( $payload['text'] ) : trim( (string) $payload['text'] );
+		}
+		/**
+		 * Filter VOTD payload after build (before cache).
+		 *
+		 * @param array  $payload     Payload.
+		 * @param string $day         Y-m-d.
+		 * @param string $translation Translation slug.
+		 */
+		$payload = apply_filters( 'hwbl_votd_payload', $payload, $day, $translation );
+		if ( ! is_array( $payload ) ) {
+			$payload = array();
 		}
 		if ( ! empty( $payload['reference'] ) && ! empty( $payload['text'] ) ) {
 			set_transient( $key, $payload, self::seconds_until_midnight() );
@@ -566,8 +597,10 @@ class THW_Premium_Verse_Of_The_Day {
 		}
 
 		if ( ! wp_next_scheduled( self::CRON_HOOK ) ) {
-			$timestamp = strtotime( 'tomorrow midnight', current_time( 'timestamp' ) );
-			if ( ! $timestamp ) {
+			// Real UTC timestamp for site-local midnight (not current_time('timestamp') + strtotime).
+			try {
+				$timestamp = ( new DateTimeImmutable( 'tomorrow midnight', wp_timezone() ) )->getTimestamp();
+			} catch ( Exception $e ) {
 				$timestamp = time() + DAY_IN_SECONDS;
 			}
 			wp_schedule_event( $timestamp, 'daily', self::CRON_HOOK );
@@ -586,6 +619,313 @@ class THW_Premium_Verse_Of_The_Day {
 
 		self::debug_log( 'Daily cron refresh', array( 'day' => $today ) );
 		self::get_today_payload();
+		self::run_daily_auto_explains();
+		self::run_daily_auto_studies();
+	}
+
+	/**
+	 * Whether daily auto-explain for selected translations is enabled.
+	 *
+	 * Default off so individual churches do not incur AI cost unless they opt in.
+	 *
+	 * @return bool
+	 */
+	public static function is_auto_explain_enabled() {
+		return (bool) get_option( self::AUTO_EXPLAIN_OPT, false )
+			&& self::is_ai_explain_enabled();
+	}
+
+	/**
+	 * Translations selected for daily auto-explain (sanitized slugs).
+	 *
+	 * @return string[]
+	 */
+	public static function get_auto_explain_translations() {
+		$raw = get_option( self::AUTO_EXPLAIN_TRANS_OPT, array() );
+		if ( ! is_array( $raw ) ) {
+			$raw = array();
+		}
+		$choices = self::get_translation_choices();
+		$out     = array();
+		foreach ( $raw as $slug ) {
+			$slug = sanitize_key( (string) $slug );
+			if ( '' === $slug || ! isset( $choices[ $slug ] ) ) {
+				continue;
+			}
+			$out[] = $slug;
+		}
+		return array_values( array_unique( $out ) );
+	}
+
+	/**
+	 * Pre-generate today's VOTD explanations for configured translations.
+	 *
+	 * Skips versions that already have a saved post. Safe to call from cron or admin.
+	 *
+	 * @param bool $force When true, ignore the once-per-day guard (admin “Run now”).
+	 * @return array{day:string,generated:string[],skipped:string[],errors:array<string,string>}
+	 */
+	public static function run_daily_auto_explains( $force = false ) {
+		$day = wp_date( 'Y-m-d' );
+		$out = array(
+			'day'       => $day,
+			'generated' => array(),
+			'skipped'   => array(),
+			'errors'    => array(),
+		);
+
+		if ( ! self::is_auto_explain_enabled() ) {
+			$out['errors']['_'] = __( 'Daily auto-explain is disabled, or AI explain verse is off.', 'hidden-word-bible-lessons' );
+			update_option( self::AUTO_EXPLAIN_STATUS_OPT, $out, false );
+			return $out;
+		}
+
+		$translations = self::get_auto_explain_translations();
+		if ( empty( $translations ) ) {
+			$out['errors']['_'] = __( 'No Bible translations selected for daily auto-explain.', 'hidden-word-bible-lessons' );
+			update_option( self::AUTO_EXPLAIN_STATUS_OPT, $out, false );
+			return $out;
+		}
+
+		$last = get_option( self::AUTO_EXPLAIN_LAST_OPT, array() );
+		if ( ! is_array( $last ) ) {
+			$last = array();
+		}
+		if ( ! $force && isset( $last['day'] ) && (string) $last['day'] === $day && ! empty( $last['done'] ) ) {
+			self::debug_log( 'Daily auto-explain already completed for day', array( 'day' => $day ) );
+			$cached = get_option( self::AUTO_EXPLAIN_STATUS_OPT, array() );
+			return is_array( $cached ) ? $cached : $out;
+		}
+
+		if ( ! function_exists( 'thw_premium_ai_frontend_available' ) || ! thw_premium_ai_frontend_available() ) {
+			$out['errors']['_'] = self::get_ai_unavailable_reason()
+				? self::get_ai_unavailable_reason()
+				: __( 'AI provider is not available.', 'hidden-word-bible-lessons' );
+			update_option( self::AUTO_EXPLAIN_STATUS_OPT, $out, false );
+			return $out;
+		}
+
+		foreach ( $translations as $slug ) {
+			$payload = self::get_payload_for_translation( $slug );
+			if ( empty( $payload['reference'] ) || empty( $payload['text'] ) ) {
+				$out['errors'][ $slug ] = __( 'Could not load verse text for this translation.', 'hidden-word-bible-lessons' );
+				continue;
+			}
+
+			if ( class_exists( 'THW_Premium_Votd_Explain_Store' ) ) {
+				$existing = THW_Premium_Votd_Explain_Store::find_saved_post( $payload );
+				if ( $existing instanceof WP_Post ) {
+					$out['skipped'][] = $slug;
+					continue;
+				}
+			}
+
+			$result = self::ensure_explanation( $payload, true );
+			if ( ! empty( $result['generated'] ) || ( ! empty( $result['post_url'] ) && ! empty( $result['html'] ) ) ) {
+				if ( ! empty( $result['generated'] ) ) {
+					$out['generated'][] = $slug;
+				} else {
+					$out['skipped'][] = $slug;
+				}
+			} else {
+				$out['errors'][ $slug ] = __( 'Explain generation failed or was blocked.', 'hidden-word-bible-lessons' );
+			}
+		}
+
+		$all_ok = empty( $out['errors'] ) && ( ! empty( $out['generated'] ) || ! empty( $out['skipped'] ) );
+		update_option(
+			self::AUTO_EXPLAIN_LAST_OPT,
+			array(
+				'day'  => $day,
+				'done' => $all_ok || ( ! empty( $out['generated'] ) || ! empty( $out['skipped'] ) ),
+				'at'   => current_time( 'mysql' ),
+			),
+			false
+		);
+		update_option( self::AUTO_EXPLAIN_STATUS_OPT, $out, false );
+		self::debug_log( 'Daily auto-explain finished', $out );
+		return $out;
+	}
+
+	/**
+	 * Admin: run auto-explain for today immediately.
+	 */
+	public static function handle_auto_explain_now_admin() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'Forbidden', 'hidden-word-bible-lessons' ) );
+		}
+		check_admin_referer( 'thw_votd_auto_explain_now' );
+
+		self::run_daily_auto_explains( true );
+
+		$redirect = wp_get_referer() ? wp_get_referer() : admin_url( 'edit.php?post_type=hwbl_lesson&page=thw-premium-settings' );
+		wp_safe_redirect( add_query_arg( 'thw_votd_auto_explain_ran', '1', $redirect ) );
+		exit;
+	}
+
+	/**
+	 * Whether daily auto-study (Study This Verse) for selected translations is enabled.
+	 *
+	 * Default off so individual churches do not incur AI cost unless they opt in.
+	 *
+	 * @return bool
+	 */
+	public static function is_auto_study_enabled() {
+		return (bool) get_option( self::AUTO_STUDY_OPT, false )
+			&& class_exists( 'THW_Premium_Bible_Study_Card' )
+			&& class_exists( 'THW_Premium_AI_Client' )
+			&& THW_Premium_AI_Client::is_configured();
+	}
+
+	/**
+	 * Translations selected for daily auto-study (sanitized slugs).
+	 *
+	 * @return string[]
+	 */
+	public static function get_auto_study_translations() {
+		$raw = get_option( self::AUTO_STUDY_TRANS_OPT, array() );
+		if ( ! is_array( $raw ) ) {
+			$raw = array();
+		}
+		$choices = self::get_translation_choices();
+		$out     = array();
+		foreach ( $raw as $slug ) {
+			$slug = sanitize_key( (string) $slug );
+			if ( '' === $slug || ! isset( $choices[ $slug ] ) ) {
+				continue;
+			}
+			$out[] = $slug;
+		}
+		return array_values( array_unique( $out ) );
+	}
+
+	/**
+	 * Pre-generate today's VOTD Study This Verse cards for configured translations.
+	 *
+	 * Skips versions that already have a valid cached study card. Safe for cron or admin.
+	 *
+	 * @param bool $force When true, ignore the once-per-day guard (admin “Run now”).
+	 * @return array{day:string,generated:string[],skipped:string[],errors:array<string,string>}
+	 */
+	public static function run_daily_auto_studies( $force = false ) {
+		$day = wp_date( 'Y-m-d' );
+		$out = array(
+			'day'       => $day,
+			'generated' => array(),
+			'skipped'   => array(),
+			'errors'    => array(),
+		);
+
+		if ( ! (bool) get_option( self::AUTO_STUDY_OPT, false ) ) {
+			$out['errors']['_'] = __( 'Daily auto-study is disabled.', 'hidden-word-bible-lessons' );
+			update_option( self::AUTO_STUDY_STATUS_OPT, $out, false );
+			return $out;
+		}
+
+		if ( ! class_exists( 'THW_Premium_Bible_Study_Card' ) ) {
+			$out['errors']['_'] = __( 'Verse Study Card is not available on this site.', 'hidden-word-bible-lessons' );
+			update_option( self::AUTO_STUDY_STATUS_OPT, $out, false );
+			return $out;
+		}
+
+		if ( ! self::is_auto_study_enabled() ) {
+			$out['errors']['_'] = __( 'Daily auto-study needs an AI provider configured.', 'hidden-word-bible-lessons' );
+			update_option( self::AUTO_STUDY_STATUS_OPT, $out, false );
+			return $out;
+		}
+
+		$translations = self::get_auto_study_translations();
+		if ( empty( $translations ) ) {
+			$out['errors']['_'] = __( 'No Bible translations selected for daily auto-study.', 'hidden-word-bible-lessons' );
+			update_option( self::AUTO_STUDY_STATUS_OPT, $out, false );
+			return $out;
+		}
+
+		$last = get_option( self::AUTO_STUDY_LAST_OPT, array() );
+		if ( ! is_array( $last ) ) {
+			$last = array();
+		}
+		if ( ! $force && isset( $last['day'] ) && (string) $last['day'] === $day && ! empty( $last['done'] ) ) {
+			self::debug_log( 'Daily auto-study already completed for day', array( 'day' => $day ) );
+			$cached = get_option( self::AUTO_STUDY_STATUS_OPT, array() );
+			return is_array( $cached ) ? $cached : $out;
+		}
+
+		foreach ( $translations as $slug ) {
+			$payload = self::get_payload_for_translation( $slug );
+			if ( empty( $payload['reference'] ) || empty( $payload['text'] ) ) {
+				$out['errors'][ $slug ] = __( 'Could not load verse text for this translation.', 'hidden-word-bible-lessons' );
+				continue;
+			}
+
+			$book_id = (int) ( $payload['book_id'] ?? 0 );
+			$chapter = (int) ( $payload['chapter'] ?? 0 );
+			$verse   = (int) ( $payload['verse_start'] ?? 0 );
+			if ( $book_id < 1 || $chapter < 1 || $verse < 1 ) {
+				if ( class_exists( 'HWBL_Books' ) ) {
+					$parsed = HWBL_Books::parse_reference( (string) $payload['reference'] );
+					if ( is_array( $parsed ) ) {
+						$book_id = (int) ( $parsed['book_id'] ?? 0 );
+						$chapter = (int) ( $parsed['chapter'] ?? 0 );
+						$verse   = (int) ( $parsed['verse'] ?? 0 );
+					}
+				}
+			}
+			if ( $book_id < 1 || $chapter < 1 || $verse < 1 ) {
+				$out['errors'][ $slug ] = __( 'Could not resolve book/chapter/verse for this translation.', 'hidden-word-bible-lessons' );
+				continue;
+			}
+
+			$result = THW_Premium_Bible_Study_Card::ensure_cached_card(
+				$book_id,
+				$chapter,
+				$verse,
+				$slug,
+				''
+			);
+			if ( is_wp_error( $result ) ) {
+				$out['errors'][ $slug ] = $result->get_error_message();
+				continue;
+			}
+
+			$status = isset( $result['status'] ) ? (string) $result['status'] : '';
+			if ( 'generated' === $status ) {
+				$out['generated'][] = $slug;
+			} elseif ( 'skipped' === $status ) {
+				$out['skipped'][] = $slug;
+			} else {
+				$out['errors'][ $slug ] = __( 'Study card generation failed.', 'hidden-word-bible-lessons' );
+			}
+		}
+
+		update_option(
+			self::AUTO_STUDY_LAST_OPT,
+			array(
+				'day'  => $day,
+				'done' => ( ! empty( $out['generated'] ) || ! empty( $out['skipped'] ) ),
+				'at'   => current_time( 'mysql' ),
+			),
+			false
+		);
+		update_option( self::AUTO_STUDY_STATUS_OPT, $out, false );
+		self::debug_log( 'Daily auto-study finished', $out );
+		return $out;
+	}
+
+	/**
+	 * Admin: run auto-study for today immediately.
+	 */
+	public static function handle_auto_study_now_admin() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'Forbidden', 'hidden-word-bible-lessons' ) );
+		}
+		check_admin_referer( 'thw_votd_auto_study_now' );
+
+		self::run_daily_auto_studies( true );
+
+		$redirect = wp_get_referer() ? wp_get_referer() : admin_url( 'edit.php?post_type=hwbl_lesson&page=thw-premium-settings' );
+		wp_safe_redirect( add_query_arg( 'thw_votd_auto_study_ran', '1', $redirect ) );
+		exit;
 	}
 
 	/**
@@ -861,8 +1201,11 @@ class THW_Premium_Verse_Of_The_Day {
 		}
 
 		if ( '' === $text && ! empty( $remote['description_text'] ) ) {
-			$text  = $remote['description_text'];
-			$label = __( 'Bible.com', 'hidden-word-bible-lessons' );
+			$text = $remote['description_text'];
+			// Keep the requested translation’s label when known; Bible.com is only a last-resort source tag.
+			if ( '' === $label ) {
+				$label = __( 'Bible.com', 'hidden-word-bible-lessons' );
+			}
 		}
 
 		if ( '' === $text && ! empty( $remote['passage_id'] ) ) {

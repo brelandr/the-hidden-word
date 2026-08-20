@@ -23,6 +23,8 @@ class HWBL_Shortcodes {
 		add_shortcode( 'hwbl_lesson_list', array( $this, 'render_lesson_list' ) );
 		add_shortcode( 'hwbl_bible_reader', array( $this, 'render_bible_reader' ) );
 		add_shortcode( 'hwbl_memorize_verse', array( $this, 'render_memorize_verse' ) );
+		add_shortcode( 'hwbl_plan_list', array( $this, 'render_plan_list' ) );
+		add_shortcode( 'hwbl_plan', array( $this, 'render_plan' ) );
 	}
 
 	/**
@@ -155,5 +157,124 @@ class HWBL_Shortcodes {
 	 */
 	public function render_memorize_verse( $atts ) {
 		return HWBL_Verse_Memorize::render_shortcode( $atts );
+	}
+
+	/**
+	 * Reading plan list shortcode.
+	 *
+	 * @param array $atts Attributes.
+	 * @return string
+	 */
+	public function render_plan_list( $atts ) {
+		$atts = shortcode_atts(
+			array(
+				'topic' => '',
+			),
+			$atts,
+			'hwbl_plan_list'
+		);
+		$topic = sanitize_key( $atts['topic'] );
+		if ( ! $topic && class_exists( 'HWBL_User_Preferences' ) && HWBL_User_Preferences::get_bool_pref( HWBL_User_Preferences::META_KIDS_MODE ) ) {
+			$topic = 'kids';
+		}
+		return self::render_plans_markup( 0, $topic );
+	}
+
+	/**
+	 * Single reading plan shortcode.
+	 *
+	 * @param array $atts Attributes.
+	 * @return string
+	 */
+	public function render_plan( $atts ) {
+		$atts = shortcode_atts(
+			array(
+				'id'    => 0,
+				'topic' => '',
+			),
+			$atts,
+			'hwbl_plan'
+		);
+		$plan_id = absint( $atts['id'] );
+		// Prefer hwbl_plan_id — hwbl_plan is the CPT query var and 404s page routes.
+		if ( ! $plan_id && isset( $_GET['hwbl_plan_id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$plan_id = absint( wp_unslash( $_GET['hwbl_plan_id'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			HWBL_Cache::mark_page_uncacheable( 'hwbl_plan_query' );
+		}
+		return self::render_plans_markup( $plan_id, sanitize_key( $atts['topic'] ) );
+	}
+
+	/**
+	 * Shared plan / plan-list markup + assets.
+	 *
+	 * @param int    $plan_id Plan ID (0 = list).
+	 * @param string $topic   Topic filter.
+	 * @return string
+	 */
+	public static function render_plans_markup( $plan_id, $topic = '' ) {
+		wp_enqueue_style(
+			'hwbl-plan',
+			HWBL_PLUGIN_URL . 'public/css/plan.css',
+			array(),
+			HWBL_VERSION
+		);
+		wp_enqueue_script(
+			'hwbl-plan',
+			HWBL_PLUGIN_URL . 'public/js/plan.js',
+			array(),
+			HWBL_VERSION,
+			true
+		);
+
+		if ( $plan_id > 0 ) {
+			$plan = HWBL_CPT_Plan::get_plan_data( $plan_id );
+			if ( ! $plan || ( 'publish' !== $plan['status'] && ! current_user_can( 'read_post', $plan_id ) ) ) {
+				return '<p class="hwbl-empty">' . esc_html__( 'Plan not found.', 'hidden-word-bible-lessons' ) . '</p>';
+			}
+			unset( $plan['status'] );
+			$user_id  = get_current_user_id();
+			$progress = $user_id ? HWBL_Plan_Progress::get( $user_id, $plan_id ) : null;
+			$today    = null;
+			$preview  = false;
+			if ( $progress && (int) $progress['current_day'] > 0 ) {
+				$today = HWBL_CPT_Plan::get_day( $plan_id, (int) $progress['current_day'] );
+			} else {
+				// Preview day 1 so verse / explain / study are visible before starting.
+				$today   = HWBL_CPT_Plan::get_day( $plan_id, 1 );
+				$preview = (bool) $today;
+			}
+			$logged_in = (bool) $user_id;
+			ob_start();
+			include HWBL_PLUGIN_DIR . 'public/partials/plan-day.php';
+			return (string) ob_get_clean();
+		}
+
+		$query = array(
+			'post_type'      => HWBL_CPT_Plan::POST_TYPE,
+			'post_status'    => 'publish',
+			'posts_per_page' => 50,
+			'orderby'        => 'title',
+			'order'          => 'ASC',
+		);
+		if ( $topic ) {
+			$query['meta_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+				array(
+					'key'   => HWBL_CPT_Plan::META_TOPIC,
+					'value' => $topic,
+				),
+			);
+		}
+		$posts = get_posts( $query );
+		$plans = array();
+		foreach ( $posts as $post ) {
+			$data = HWBL_CPT_Plan::get_plan_data( $post->ID );
+			if ( $data ) {
+				unset( $data['content'], $data['days'], $data['status'] );
+				$plans[] = $data;
+			}
+		}
+		ob_start();
+		include HWBL_PLUGIN_DIR . 'public/partials/plan-list.php';
+		return (string) ob_get_clean();
 	}
 }

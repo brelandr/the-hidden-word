@@ -258,3 +258,17 @@
 .hwbl-bible-reader__research-post-wrap {
 	margin: 0.75rem 0 0;
 }
+
+.hwbl-easy-read.hwbl-bible-reader,
+.hwbl-easy-read .hwbl-bible-reader__content,
+html.hwbl-easy-read .hwbl-bible-reader__content {
+	font-family: "Atkinson Hyperlegible", "Comic Neue", "Segoe UI", Verdana, sans-serif;
+	line-height: 1.95;
+	letter-spacing: 0.05em;
+	word-spacing: 0.12em;
+}
+.hwbl-kids-mode.hwbl-bible-reader,
+html.hwbl-kids-mode .hwbl-bible-reader__content {
+	font-size: 1.15rem;
+	line-height: 1.9;
+}

@@ -23,10 +23,25 @@ class HWBL_PWA {
 	}
 
 	/**
-	 * Register lightweight service worker for lesson pages.
+	 * Inline SW registration snippet for standalone share pages.
+	 *
+	 * @return string
+	 */
+	public static function standalone_register_script() {
+		$sw = esc_url( HWBL_PLUGIN_URL . 'public/sw.js' );
+		$ver = esc_attr( HWBL_VERSION );
+		return '<script>(function(){if(!("serviceWorker" in navigator))return;navigator.serviceWorker.register("' . $sw . '?v=' . $ver . '",{scope:"/"}).catch(function(){});})();</script>';
+	}
+
+	/**
+	 * Register lightweight service worker for lesson pages and evangelism shells.
 	 */
 	public static function register_service_worker() {
-		if ( ! is_user_logged_in() ) {
+		$on_evangelism = is_singular() && (
+			(bool) get_query_var( 'hwbl_gospel_share' ) ||
+			(bool) get_query_var( 'hwbl_testimony_share' )
+		);
+		if ( ! is_user_logged_in() && ! $on_evangelism ) {
 			return;
 		}
 
@@ -44,6 +59,10 @@ class HWBL_PWA {
 			array(
 				'swUrl'   => HWBL_PLUGIN_URL . 'public/sw.js',
 				'version' => HWBL_VERSION,
+				'precache'=> array(
+					'/gospel/',
+					'/testimony/',
+				),
 			)
 		);
 	}

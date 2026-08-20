@@ -30,7 +30,7 @@
 			return;
 		}
 
-		var lesson = select.closest('.thw-lesson');
+		var lesson = select.closest('.hwbl-lesson, .thw-lesson');
 		if (!lesson) {
 			return;
 		}
@@ -55,19 +55,22 @@
 				if (!data.text) {
 					return;
 				}
-				var verseEl = lesson.querySelector('.thw-verse-text');
+				var verseEl = lesson.querySelector('.hwbl-verse-text, .thw-verse-text');
 				if (verseEl) {
 					verseEl.textContent = data.text;
 					verseEl.setAttribute('data-verse', data.text);
 				}
-				var memEl = lesson.querySelector('.thw-memorization');
+				var memEl = lesson.querySelector('.hwbl-memorization, .thw-memorization');
 				if (memEl) {
 					memEl.setAttribute('data-verse', data.text);
 					document.dispatchEvent(new CustomEvent('thw:translation-changed', {
 						detail: { widget: memEl }
 					}));
+					document.dispatchEvent(new CustomEvent('hwbl:translation-changed', {
+						detail: { widget: memEl }
+					}));
 				}
-				var copyrightEl = lesson.querySelector('.thw-copyright');
+				var copyrightEl = lesson.querySelector('.hwbl-copyright, .thw-copyright');
 				if (copyrightEl && data.copyright) {
 					copyrightEl.outerHTML = data.copyright;
 				}

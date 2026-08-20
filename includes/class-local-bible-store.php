@@ -697,9 +697,10 @@ class HWBL_Local_Bible_Store {
 	public static function search( $slug, $query, $limit = 12, $args = array() ) {
 		global $wpdb;
 
-		$slug  = sanitize_key( (string) $slug );
-		$query = trim( (string) $query );
-		$limit = max( 1, min( 100, (int) $limit ) );
+		$slug   = sanitize_key( (string) $slug );
+		$query  = trim( (string) $query );
+		$limit  = max( 1, min( 100, (int) $limit ) );
+		$offset = max( 0, (int) ( $args['offset'] ?? 0 ) );
 		if ( '' === $slug || '' === $query || ! self::is_installed( $slug ) ) {
 			return array();
 		}
@@ -727,14 +728,15 @@ class HWBL_Local_Bible_Store {
 				$sql = "SELECT book_id, chapter, verse, text FROM {$table}
 					WHERE translation = %s AND MATCH(text) AGAINST (%s IN BOOLEAN MODE){$book_sql}
 					ORDER BY book_id ASC, chapter ASC, verse ASC
-					LIMIT %d";
+					LIMIT %d OFFSET %d";
 				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 				$rows = $wpdb->get_results(
 					$wpdb->prepare(
 						$sql, // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name + optional testament clause.
 						$slug,
 						$boolean,
-						$limit
+						$limit,
+						$offset
 					),
 					ARRAY_A
 				);
@@ -749,14 +751,15 @@ class HWBL_Local_Bible_Store {
 			$sql  = "SELECT book_id, chapter, verse, text FROM {$table}
 				WHERE translation = %s AND text LIKE %s{$book_sql}
 				ORDER BY book_id ASC, chapter ASC, verse ASC
-				LIMIT %d";
+				LIMIT %d OFFSET %d";
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			$rows = $wpdb->get_results(
 				$wpdb->prepare(
 					$sql, // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name + optional testament clause.
 					$slug,
 					$like,
-					$limit
+					$limit,
+					$offset
 				),
 				ARRAY_A
 			);

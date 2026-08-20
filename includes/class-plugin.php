@@ -27,6 +27,12 @@ class HWBL_Plugin {
 		add_action( 'admin_notices', array( $this, 'duplicate_premium_plugin_notice' ) );
 
 		new HWBL_CPT_Lesson();
+		new HWBL_CPT_Plan();
+		HWBL_Plan_Rest::init();
+		HWBL_Plan_Seed::init();
+		HWBL_Plan_Day_Study::init();
+		HWBL_Plan_Journal::init();
+		HWBL_Liturgical_Calendar::init();
 		new HWBL_Lesson_Meta();
 		new HWBL_Settings();
 		new HWBL_Scheduler();
@@ -35,6 +41,9 @@ class HWBL_Plugin {
 		HWBL_Bible_Reader::init();
 		HWBL_Bible_Places::init();
 		HWBL_Bible_Concordance::init();
+		if ( class_exists( 'HWBL_Translation_Comparison' ) ) {
+			HWBL_Translation_Comparison::init();
+		}
 		HWBL_User_Preferences::init();
 		HWBL_Verse_Memorize::init();
 		HWBL_Memorization_SRS::init();
@@ -42,7 +51,19 @@ class HWBL_Plugin {
 		HWBL_App_Config::init();
 		HWBL_Church_Network::init();
 		HWBL_App_Connect::init();
+		if ( class_exists( 'HWBL_Auth_Apple' ) ) {
+			HWBL_Auth_Apple::init();
+		}
 		HWBL_Community_Safety::init();
+		HWBL_CPT_Testimony::init();
+		HWBL_Gospel_Share::init();
+		HWBL_Gospel_Response::init();
+		HWBL_Share_Links::init();
+		HWBL_Network_Impact::init();
+		HWBL_Verse_Share_Card::init();
+		HWBL_CPT_Prayer::init();
+		HWBL_Journal_Store::init();
+		HWBL_CPT_Apologetics::init();
 		HWBL_Account::init();
 		HWBL_Push_Notifications::init();
 		HWBL_Abilities::init();
@@ -72,7 +93,6 @@ class HWBL_Plugin {
 			'HWBL_Cohort_Leaderboard',
 			'HWBL_AI_Assistant_Unified',
 			'HWBL_Personalized_Digest',
-			'HWBL_Translation_Comparison',
 			'HWBL_Memorization_Audio',
 			'HWBL_PWA',
 		);

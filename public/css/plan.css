@@ -1,0 +1,182 @@
+.hwbl-plan-list__items {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: grid;
+	gap: 0.75rem;
+}
+
+.hwbl-plan-list__item {
+	margin: 0;
+}
+
+.hwbl-plan-list__link {
+	display: block;
+	padding: 0.85rem 1rem;
+	border: 1px solid rgba(0, 0, 0, 0.12);
+	text-decoration: none;
+	color: inherit;
+}
+
+.hwbl-plan-list__link:hover,
+.hwbl-plan-list__link:focus {
+	border-color: currentColor;
+}
+
+.hwbl-plan-list__title {
+	display: block;
+	font-size: 1.1rem;
+}
+
+.hwbl-plan-list__meta {
+	display: block;
+	opacity: 0.75;
+	font-size: 0.9rem;
+	margin-top: 0.2rem;
+}
+
+.hwbl-plan-list__excerpt {
+	display: block;
+	margin-top: 0.4rem;
+	font-size: 0.95rem;
+}
+
+.hwbl-plan__header {
+	margin-bottom: 1rem;
+}
+
+.hwbl-plan__actions {
+	margin-bottom: 1.25rem;
+}
+
+.hwbl-plan__status {
+	display: inline-block;
+	margin-left: 0.5rem;
+	font-size: 0.9rem;
+}
+
+.hwbl-plan-day {
+	padding: 1rem 0;
+	border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.hwbl-plan-day__verse {
+	margin: 1rem 0;
+	padding: 0;
+}
+
+.hwbl-plan-day__ref {
+	font-size: 0.95rem;
+	margin-bottom: 0.35rem;
+}
+
+.hwbl-plan-day__translation {
+	opacity: 0.65;
+	margin-left: 0.4rem;
+	font-weight: 500;
+	font-size: 0.85rem;
+}
+
+.hwbl-plan-day__verse-text {
+	margin: 0;
+	padding: 0.85rem 1rem;
+	border-left: 3px solid currentColor;
+	font-size: 1.05rem;
+	line-height: 1.55;
+}
+
+.hwbl-plan-day__body {
+	margin: 0.75rem 0 1rem;
+}
+
+.hwbl-plan-day__section-title {
+	margin: 1.25rem 0 0.35rem;
+	font-size: 1.05rem;
+}
+
+.hwbl-plan-day__section-hint {
+	margin: 0 0 0.75rem;
+	opacity: 0.8;
+	font-size: 0.92rem;
+}
+
+.hwbl-plan-day__explain,
+.hwbl-plan-day__study,
+.hwbl-plan-day__journal {
+	margin: 1rem 0 1.25rem;
+}
+
+.hwbl-plan-day__explain-status,
+.hwbl-plan-day__study-status,
+.hwbl-plan-day__journal-status {
+	margin-top: 0.5rem;
+	font-size: 0.9rem;
+}
+
+.hwbl-plan-day__explain-body,
+.hwbl-plan-day__study-body {
+	margin-top: 0.75rem;
+	line-height: 1.55;
+}
+
+.hwbl-plan-day__journal-input {
+	width: 100%;
+	max-width: 40rem;
+	display: block;
+	margin-bottom: 0.75rem;
+	padding: 0.65rem 0.75rem;
+	font: inherit;
+	line-height: 1.45;
+}
+
+.hwbl-plan-day__journal-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+}
+
+.hwbl-plan-day__journal-list {
+	margin-top: 1rem;
+	display: grid;
+	gap: 0.85rem;
+}
+
+.hwbl-plan-day__journal-entry {
+	padding: 0.85rem 1rem;
+	border: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.hwbl-plan-day__journal-entry-text {
+	white-space: pre-wrap;
+	line-height: 1.45;
+}
+
+.hwbl-plan-day__journal-reply {
+	margin-top: 0.75rem;
+	padding-top: 0.75rem;
+	border-top: 1px solid rgba(0, 0, 0, 0.08);
+	line-height: 1.5;
+}
+
+.hwbl-crisis-banner {
+	padding: 0.85rem 1rem;
+	border: 2px solid #8b1e1e;
+	background: #fff7f7;
+	color: #3b1212;
+}
+
+.hwbl-crisis-banner ul {
+	margin: 0.5rem 0 0.75rem 1.2rem;
+}
+
+.hwbl-plan-day__journal-entry--crisis {
+	border-color: #8b1e1e;
+}
+
+.hwbl-plan__outline {
+	margin-top: 1.5rem;
+}
+
+.hwbl-plan__days {
+	margin: 0.75rem 0 0 1.25rem;
+}

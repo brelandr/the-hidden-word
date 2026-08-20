@@ -453,6 +453,33 @@
 	color: #0e3a56;
 }
 
+/* Gold pill CTA — matches theme .thw-btn--primary when present; self-contained fallback otherwise. */
+.thw-votd__explain-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0.85rem 1.5rem;
+	border-radius: 999px;
+	border: 2px solid #c9a227;
+	background: #c9a227;
+	color: #142028;
+	font-weight: 700;
+	font-size: 1rem;
+	line-height: 1.25;
+	text-decoration: none;
+	cursor: pointer;
+	transition: background 0.2s, color 0.2s, border-color 0.2s, opacity 0.2s;
+}
+
+.thw-votd__explain-btn:hover,
+.thw-votd__explain-btn:focus-visible {
+	background: #b8921f;
+	border-color: #b8921f;
+	color: #142028;
+	text-decoration: none;
+}
+
+.thw-votd__explain-btn.is-loading,
 .thw-votd__explain-link.is-loading {
 	opacity: 0.65;
 	pointer-events: none;
@@ -487,6 +514,26 @@
 }
 
 /* Saved VOTD explanation posts (plugin fallback when theme has no entry-content styles) */
+.thw-votd-explain__featured {
+	margin: 0 0 1.25rem;
+	padding: 0;
+	border: 0;
+}
+
+.thw-votd-explain__featured-img {
+	display: block;
+	width: 100%;
+	max-width: 40rem;
+	height: auto;
+	border-radius: 6px;
+}
+
+.thw-votd-explain__featured-caption {
+	margin: 0.4rem 0 0;
+	font-size: 0.85rem;
+	color: #64748b;
+}
+
 .entry-content.thw-votd-explain blockquote.thw-votd-explain__verse {
 	font-family: Georgia, "Times New Roman", serif;
 	font-size: 1.2rem;
@@ -523,4 +570,20 @@
 .entry-content.thw-votd-explain .thw-votd-explain__body p {
 	margin: 0 0 0.75rem;
 	line-height: 1.55;
+}
+
+.thw-votd-explain__study {
+	margin: 2rem 0 0;
+	padding: 1.25rem 0 0;
+	border-top: 1px solid #e2e8f0;
+}
+
+.thw-votd-explain__study-intro {
+	margin: 0 0 0.75rem;
+	color: #475569;
+	line-height: 1.5;
+}
+
+.thw-votd-explain__study .hwbl-verse-study__heading {
+	margin-top: 0;
 }

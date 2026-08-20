@@ -45,6 +45,9 @@ class THW_Premium {
 		THW_Premium_Memorization::init();
 		THW_Premium_Progress::init();
 		THW_Premium_PDF_Export::init();
+		if ( class_exists( 'THW_Premium_Explains_Rest' ) ) {
+			THW_Premium_Explains_Rest::init();
+		}
 		THW_Premium_AI_Assist::init();
 		THW_Premium_AI_Explain::init();
 		THW_Premium_Bible_Reader_Explain::init();

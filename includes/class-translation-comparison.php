@@ -19,13 +19,13 @@ class HWBL_Translation_Comparison {
 	 */
 	public static function init() {
 		add_shortcode( 'hwbl_translation_compare', array( __CLASS__, 'render_shortcode' ) );
-		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
+		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'maybe_enqueue_from_content' ) );
 	}
 
 	/**
 	 * Enqueue comparison script when shortcode is present.
 	 */
-	public static function enqueue_assets() {
+	public static function maybe_enqueue_from_content() {
 		if ( ! is_singular() ) {
 			return;
 		}
@@ -34,6 +34,27 @@ class HWBL_Translation_Comparison {
 		if ( ! $post instanceof WP_Post || ! has_shortcode( $post->post_content, 'hwbl_translation_compare' ) ) {
 			return;
 		}
+
+		self::enqueue_assets( true );
+	}
+
+	/**
+	 * Enqueue comparison assets.
+	 *
+	 * @param bool $force When true, enqueue even without shortcode in content.
+	 */
+	public static function enqueue_assets( $force = false ) {
+		static $done = false;
+		if ( $done && ! $force ) {
+			return;
+		}
+
+		wp_enqueue_style(
+			'hwbl-lesson',
+			HWBL_PLUGIN_URL . 'public/css/lesson.css',
+			array(),
+			HWBL_VERSION
+		);
 
 		wp_enqueue_script(
 			'hwbl-translation-compare',
@@ -51,6 +72,8 @@ class HWBL_Translation_Comparison {
 				'nonce'   => wp_create_nonce( 'wp_rest' ),
 			)
 		);
+
+		$done = true;
 	}
 
 	/**
@@ -69,6 +92,22 @@ class HWBL_Translation_Comparison {
 			$atts,
 			'hwbl_translation_compare'
 		);
+
+		// Allow query-string override when shortcode is on a dedicated compare page.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- public read-only deep link.
+		if ( isset( $_GET['hwbl_compare_ref'] ) ) {
+			$atts['ref'] = sanitize_text_field( wp_unslash( (string) $_GET['hwbl_compare_ref'] ) );
+		}
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET['hwbl_compare_left'] ) ) {
+			$atts['left'] = sanitize_key( wp_unslash( (string) $_GET['hwbl_compare_left'] ) );
+		}
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET['hwbl_compare_right'] ) ) {
+			$atts['right'] = sanitize_key( wp_unslash( (string) $_GET['hwbl_compare_right'] ) );
+		}
+
+		self::enqueue_assets( true );
 
 		return sprintf(
 			'<div class="hwbl-translation-compare" data-left="%1$s" data-right="%2$s" data-ref="%3$s"><div class="hwbl-translation-compare__col" data-col="left"></div><div class="hwbl-translation-compare__col" data-col="right"></div></div>',

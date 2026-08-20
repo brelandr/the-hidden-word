@@ -1,0 +1,10 @@
+{
+  "source": "Public domain Strong's Exhaustive Concordance (1890); occurrence index derived from open KJV+Strong's data.",
+  "license": "Public domain",
+  "counts": {
+    "lexicon": 12040,
+    "hebrew_occurrences": 8330,
+    "greek_occurrences": 5324,
+    "english_index": 8225
+  }
+}

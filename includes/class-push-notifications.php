@@ -237,6 +237,27 @@ class HWBL_Push_Notifications {
 				);
 			}
 
+			if ( class_exists( 'HWBL_Plan_Progress' ) ) {
+				$active = HWBL_Plan_Progress::get_active_for_user( $user_id );
+				if ( $active ) {
+					$first = $active[0];
+					$day_n = (int) ( $first['progress']['current_day'] ?? 0 );
+					$ptitle = isset( $first['title'] ) ? (string) $first['title'] : __( 'your plan', 'hidden-word-bible-lessons' );
+					$messages[] = array(
+						'title' => __( 'Reading plan', 'hidden-word-bible-lessons' ),
+						'body'  => sprintf(
+							/* translators: 1: plan title, 2: day number */
+							__( '%1$s — Day %2$d is ready', 'hidden-word-bible-lessons' ),
+							$ptitle,
+							$day_n
+						),
+						'data'  => array(
+							'url' => 'hwbl://plans/' . (int) $first['plan_id'],
+						),
+					);
+				}
+			}
+
 			foreach ( $messages as $message ) {
 				self::send_to_tokens( $tokens, $message );
 			}

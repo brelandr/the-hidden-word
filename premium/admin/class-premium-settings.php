@@ -92,9 +92,14 @@ class THW_Premium_Settings {
 			'thw_ai_compliance_failure_action',
 			'thw_votd_ai_explain',
 			'thw_votd_show_image',
+			'thw_votd_explain_featured_image',
 			'thw_votd_source',
 			'thw_votd_translation',
 			'thw_votd_explain_delivery',
+			'thw_votd_auto_explain_enabled',
+			'thw_votd_auto_explain_translations',
+			'thw_votd_auto_study_enabled',
+			'thw_votd_auto_study_translations',
 		);
 
 		$digest = array(
@@ -166,9 +171,14 @@ class THW_Premium_Settings {
 			'thw_ai_compliance_failure_action'    => array( __CLASS__, 'sanitize_compliance_failure_action' ),
 			'thw_votd_ai_explain'                 => 'rest_sanitize_boolean',
 			'thw_votd_show_image'                 => 'rest_sanitize_boolean',
+			'thw_votd_explain_featured_image'     => 'rest_sanitize_boolean',
 			'thw_votd_source'                     => array( __CLASS__, 'sanitize_votd_source' ),
 			'thw_votd_translation'                => 'sanitize_key',
 			'thw_votd_explain_delivery'           => array( __CLASS__, 'sanitize_votd_explain_delivery' ),
+			'thw_votd_auto_explain_enabled'       => 'rest_sanitize_boolean',
+			'thw_votd_auto_explain_translations'  => array( __CLASS__, 'sanitize_votd_auto_explain_translations' ),
+			'thw_votd_auto_study_enabled'         => 'rest_sanitize_boolean',
+			'thw_votd_auto_study_translations'    => array( __CLASS__, 'sanitize_votd_auto_study_translations' ),
 		);
 
 		$groups = self::get_option_group_map();
@@ -180,6 +190,9 @@ class THW_Premium_Settings {
 			'thw_ai_ask_include_lessons',
 			'thw_votd_ai_explain',
 			'thw_votd_show_image',
+			'thw_votd_explain_featured_image',
+			'thw_votd_auto_explain_enabled',
+			'thw_votd_auto_study_enabled',
 			'thw_votd_digest_enabled',
 			'thw_votd_digest_include_explain',
 			'thw_votd_digest_generate_explain',
@@ -192,7 +205,7 @@ class THW_Premium_Settings {
 			if ( in_array( $key, $bools, true ) ) {
 				$type = 'boolean';
 			}
-			if ( in_array( $key, array( 'thw_ai_church_subject_rules', 'thw_ai_enabled_traditions' ), true ) ) {
+			if ( in_array( $key, array( 'thw_ai_church_subject_rules', 'thw_ai_enabled_traditions', 'thw_votd_auto_explain_translations', 'thw_votd_auto_study_translations' ), true ) ) {
 				$type = 'array';
 			}
 			$group = isset( $groups[ $key ] ) ? $groups[ $key ] : self::GROUP_MAIN;
@@ -370,6 +383,67 @@ class THW_Premium_Settings {
 	public static function sanitize_votd_explain_delivery( $value ) {
 		$slug = sanitize_key( (string) $value );
 		return in_array( $slug, array( 'inline', 'redirect' ), true ) ? $slug : 'redirect';
+	}
+
+	/**
+	 * Sanitize translations selected for daily auto-explain.
+	 *
+	 * @param mixed $value Input value.
+	 * @return string[]
+	 */
+	public static function sanitize_votd_auto_explain_translations( $value ) {
+		// When every box is unchecked, the field is absent from POST.
+		if ( ! is_array( $value ) && isset( $_POST['option_page'] ) && ! isset( $_POST['thw_votd_auto_explain_translations'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			$value = array();
+		}
+		if ( ! is_array( $value ) ) {
+			return array();
+		}
+		$choices = class_exists( 'THW_Premium_Verse_Of_The_Day' )
+			? THW_Premium_Verse_Of_The_Day::get_translation_choices()
+			: array();
+		$out     = array();
+		foreach ( $value as $slug ) {
+			$slug = sanitize_key( (string) $slug );
+			if ( '' === $slug ) {
+				continue;
+			}
+			if ( ! empty( $choices ) && ! isset( $choices[ $slug ] ) ) {
+				continue;
+			}
+			$out[] = $slug;
+		}
+		return array_values( array_unique( $out ) );
+	}
+
+	/**
+	 * Sanitize translations selected for daily auto-study.
+	 *
+	 * @param mixed $value Input value.
+	 * @return string[]
+	 */
+	public static function sanitize_votd_auto_study_translations( $value ) {
+		if ( ! is_array( $value ) && isset( $_POST['option_page'] ) && ! isset( $_POST['thw_votd_auto_study_translations'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			$value = array();
+		}
+		if ( ! is_array( $value ) ) {
+			return array();
+		}
+		$choices = class_exists( 'THW_Premium_Verse_Of_The_Day' )
+			? THW_Premium_Verse_Of_The_Day::get_translation_choices()
+			: array();
+		$out     = array();
+		foreach ( $value as $slug ) {
+			$slug = sanitize_key( (string) $slug );
+			if ( '' === $slug ) {
+				continue;
+			}
+			if ( ! empty( $choices ) && ! isset( $choices[ $slug ] ) ) {
+				continue;
+			}
+			$out[] = $slug;
+		}
+		return array_values( array_unique( $out ) );
 	}
 
 	/**
@@ -875,6 +949,19 @@ class THW_Premium_Settings {
 						</td>
 					</tr>
 					<tr>
+						<th><?php esc_html_e( 'Explain featured image', 'hidden-word-bible-lessons' ); ?></th>
+						<td>
+							<input type="hidden" name="thw_votd_explain_featured_image" value="0" />
+							<label>
+								<input type="checkbox" name="thw_votd_explain_featured_image" value="1" <?php checked( get_option( 'thw_votd_explain_featured_image', true ) ); ?> />
+								<?php esc_html_e( 'Attach and show the Verse of the Day image on saved explanation posts (default on)', 'hidden-word-bible-lessons' ); ?>
+							</label>
+							<p class="description">
+								<?php esc_html_e( 'When a new VOTD explanation is published, the Bible.com / YouVersion image is saved as the post featured image. You can also set or replace it manually under Bible Lessons → VOTD Explanations. Turn off to hide featured images on explanation pages.', 'hidden-word-bible-lessons' ); ?>
+							</p>
+						</td>
+					</tr>
+					<tr>
 						<th><label for="thw_votd_explain_delivery"><?php esc_html_e( 'Saved explanation delivery', 'hidden-word-bible-lessons' ); ?></label></th>
 						<td>
 							<?php $votd_delivery = sanitize_key( (string) get_option( 'thw_votd_explain_delivery', 'redirect' ) ); ?>
@@ -891,6 +978,180 @@ class THW_Premium_Settings {
 							</p>
 						</td>
 					</tr>
+					<tr>
+						<th><?php esc_html_e( 'Daily auto-explain', 'hidden-word-bible-lessons' ); ?></th>
+						<td>
+							<input type="hidden" name="thw_votd_auto_explain_enabled" value="0" />
+							<label>
+								<input type="checkbox" name="thw_votd_auto_explain_enabled" value="1" <?php checked( get_option( 'thw_votd_auto_explain_enabled', false ) ); ?> />
+								<?php esc_html_e( 'Automatically generate today’s Verse of the Day explanations for selected Bible versions (default off)', 'hidden-word-bible-lessons' ); ?>
+							</label>
+							<p class="description">
+								<?php esc_html_e( 'Enable on hub sites like thehiddenword.org so NIV, NLT, KJV (or other selected versions) are ready each morning. Leave off on church sites that prefer on-demand explains only. Uses AI credits once per version per day; skips versions that already have a saved post.', 'hidden-word-bible-lessons' ); ?>
+							</p>
+							<?php if ( class_exists( 'HWBL_Church_Network' ) && HWBL_Church_Network::is_hub() ) : ?>
+								<p class="description">
+									<strong><?php esc_html_e( 'Hub site:', 'hidden-word-bible-lessons' ); ?></strong>
+									<?php esc_html_e( 'This network hub can safely enable daily auto-explain for popular translations. Connected church sites keep their own settings and stay off unless they opt in.', 'hidden-word-bible-lessons' ); ?>
+								</p>
+							<?php endif; ?>
+							<?php
+							$auto_selected = class_exists( 'THW_Premium_Verse_Of_The_Day' )
+								? THW_Premium_Verse_Of_The_Day::get_auto_explain_translations()
+								: array();
+							$auto_choices  = class_exists( 'THW_Premium_Verse_Of_The_Day' )
+								? THW_Premium_Verse_Of_The_Day::get_translation_choices()
+								: array();
+							?>
+							<fieldset style="margin-top:0.75em">
+								<legend class="screen-reader-text"><?php esc_html_e( 'Auto-explain translations', 'hidden-word-bible-lessons' ); ?></legend>
+								<p><strong><?php esc_html_e( 'Generate for these translations:', 'hidden-word-bible-lessons' ); ?></strong></p>
+								<?php if ( empty( $auto_choices ) ) : ?>
+									<p class="description"><?php esc_html_e( 'No Bible translations are available yet. Configure Hello AO / local Bibles / API keys first.', 'hidden-word-bible-lessons' ); ?></p>
+								<?php else : ?>
+									<ul style="columns:2;max-width:36em;margin:0.5em 0 0;padding:0;list-style:none">
+										<?php foreach ( $auto_choices as $slug => $label ) : ?>
+											<li style="margin:0 0 0.35em;break-inside:avoid">
+												<label>
+													<input
+														type="checkbox"
+														name="thw_votd_auto_explain_translations[]"
+														value="<?php echo esc_attr( $slug ); ?>"
+														<?php checked( in_array( $slug, $auto_selected, true ) ); ?>
+													/>
+													<?php echo esc_html( $label ); ?>
+												</label>
+											</li>
+										<?php endforeach; ?>
+									</ul>
+								<?php endif; ?>
+							</fieldset>
+							<?php
+							$auto_status = get_option( 'thw_votd_auto_explain_status', array() );
+							$auto_last   = get_option( 'thw_votd_auto_explain_last', array() );
+							if ( ! empty( $_GET['thw_votd_auto_explain_ran'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+								?>
+								<div class="notice notice-success inline" style="margin:0.75em 0 0"><p><?php esc_html_e( 'Daily auto-explain ran for today.', 'hidden-word-bible-lessons' ); ?></p></div>
+							<?php endif; ?>
+							<?php if ( is_array( $auto_status ) && ( ! empty( $auto_status['generated'] ) || ! empty( $auto_status['skipped'] ) || ! empty( $auto_status['errors'] ) ) ) : ?>
+								<p class="description" style="margin-top:0.75em">
+									<?php
+									printf(
+										/* translators: 1: day, 2: generated list, 3: skipped list */
+										esc_html__( 'Last run (%1$s): generated %2$s; already saved %3$s.', 'hidden-word-bible-lessons' ),
+										esc_html( (string) ( $auto_status['day'] ?? '' ) ),
+										esc_html( ! empty( $auto_status['generated'] ) ? implode( ', ', array_map( 'strtoupper', (array) $auto_status['generated'] ) ) : '—' ),
+										esc_html( ! empty( $auto_status['skipped'] ) ? implode( ', ', array_map( 'strtoupper', (array) $auto_status['skipped'] ) ) : '—' )
+									);
+									?>
+									<?php if ( ! empty( $auto_status['errors'] ) && is_array( $auto_status['errors'] ) ) : ?>
+										<br />
+										<?php
+										foreach ( $auto_status['errors'] as $err_slug => $err_msg ) {
+											echo esc_html( ( '_' === (string) $err_slug ? '' : strtoupper( (string) $err_slug ) . ': ' ) . (string) $err_msg ) . '<br />';
+										}
+										?>
+									<?php endif; ?>
+									<?php if ( is_array( $auto_last ) && ! empty( $auto_last['at'] ) ) : ?>
+										<br /><?php echo esc_html( sprintf( /* translators: %s: mysql datetime */ __( 'Completed at %s', 'hidden-word-bible-lessons' ), (string) $auto_last['at'] ) ); ?>
+									<?php endif; ?>
+								</p>
+							<?php endif; ?>
+							<p style="margin-top:0.75em">
+								<a class="button button-secondary" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=thw_votd_auto_explain_now' ), 'thw_votd_auto_explain_now' ) ); ?>">
+									<?php esc_html_e( 'Generate selected explains now', 'hidden-word-bible-lessons' ); ?>
+								</a>
+							</p>
+						</td>
+					</tr>
+					<?php if ( class_exists( 'THW_Premium_Bible_Study_Card' ) ) : ?>
+					<tr>
+						<th><?php esc_html_e( 'Daily auto-study', 'hidden-word-bible-lessons' ); ?></th>
+						<td>
+							<input type="hidden" name="thw_votd_auto_study_enabled" value="0" />
+							<label>
+								<input type="checkbox" name="thw_votd_auto_study_enabled" value="1" <?php checked( get_option( 'thw_votd_auto_study_enabled', false ) ); ?> />
+								<?php esc_html_e( 'Automatically generate today’s Verse of the Day “Study this verse” cards for selected Bible versions (default off)', 'hidden-word-bible-lessons' ); ?>
+							</label>
+							<p class="description">
+								<?php esc_html_e( 'Enable on hub sites like thehiddenword.org so NIV, NLT, KJV (or other selected versions) have Study this verse ready each morning—guests can open the card without signing in. Leave off on church sites that prefer on-demand study only. Uses AI credits once per version per day; skips versions that already have a cached study card.', 'hidden-word-bible-lessons' ); ?>
+							</p>
+							<?php if ( class_exists( 'HWBL_Church_Network' ) && HWBL_Church_Network::is_hub() ) : ?>
+								<p class="description">
+									<strong><?php esc_html_e( 'Hub site:', 'hidden-word-bible-lessons' ); ?></strong>
+									<?php esc_html_e( 'This network hub can safely enable daily auto-study for popular translations. Connected church sites keep their own settings and stay off unless they opt in.', 'hidden-word-bible-lessons' ); ?>
+								</p>
+							<?php endif; ?>
+							<?php
+							$study_selected = class_exists( 'THW_Premium_Verse_Of_The_Day' )
+								? THW_Premium_Verse_Of_The_Day::get_auto_study_translations()
+								: array();
+							$study_choices  = class_exists( 'THW_Premium_Verse_Of_The_Day' )
+								? THW_Premium_Verse_Of_The_Day::get_translation_choices()
+								: array();
+							?>
+							<fieldset style="margin-top:0.75em">
+								<legend class="screen-reader-text"><?php esc_html_e( 'Auto-study translations', 'hidden-word-bible-lessons' ); ?></legend>
+								<p><strong><?php esc_html_e( 'Generate for these translations:', 'hidden-word-bible-lessons' ); ?></strong></p>
+								<?php if ( empty( $study_choices ) ) : ?>
+									<p class="description"><?php esc_html_e( 'No Bible translations are available yet. Configure Hello AO / local Bibles / API keys first.', 'hidden-word-bible-lessons' ); ?></p>
+								<?php else : ?>
+									<ul style="columns:2;max-width:36em;margin:0.5em 0 0;padding:0;list-style:none">
+										<?php foreach ( $study_choices as $slug => $label ) : ?>
+											<li style="margin:0 0 0.35em;break-inside:avoid">
+												<label>
+													<input
+														type="checkbox"
+														name="thw_votd_auto_study_translations[]"
+														value="<?php echo esc_attr( $slug ); ?>"
+														<?php checked( in_array( $slug, $study_selected, true ) ); ?>
+													/>
+													<?php echo esc_html( $label ); ?>
+												</label>
+											</li>
+										<?php endforeach; ?>
+									</ul>
+								<?php endif; ?>
+							</fieldset>
+							<?php
+							$study_status = get_option( 'thw_votd_auto_study_status', array() );
+							$study_last   = get_option( 'thw_votd_auto_study_last', array() );
+							if ( ! empty( $_GET['thw_votd_auto_study_ran'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+								?>
+								<div class="notice notice-success inline" style="margin:0.75em 0 0"><p><?php esc_html_e( 'Daily auto-study ran for today.', 'hidden-word-bible-lessons' ); ?></p></div>
+							<?php endif; ?>
+							<?php if ( is_array( $study_status ) && ( ! empty( $study_status['generated'] ) || ! empty( $study_status['skipped'] ) || ! empty( $study_status['errors'] ) ) ) : ?>
+								<p class="description" style="margin-top:0.75em">
+									<?php
+									printf(
+										/* translators: 1: day, 2: generated list, 3: skipped list */
+										esc_html__( 'Last run (%1$s): generated %2$s; already cached %3$s.', 'hidden-word-bible-lessons' ),
+										esc_html( (string) ( $study_status['day'] ?? '' ) ),
+										esc_html( ! empty( $study_status['generated'] ) ? implode( ', ', array_map( 'strtoupper', (array) $study_status['generated'] ) ) : '—' ),
+										esc_html( ! empty( $study_status['skipped'] ) ? implode( ', ', array_map( 'strtoupper', (array) $study_status['skipped'] ) ) : '—' )
+									);
+									?>
+									<?php if ( ! empty( $study_status['errors'] ) && is_array( $study_status['errors'] ) ) : ?>
+										<br />
+										<?php
+										foreach ( $study_status['errors'] as $err_slug => $err_msg ) {
+											echo esc_html( ( '_' === (string) $err_slug ? '' : strtoupper( (string) $err_slug ) . ': ' ) . (string) $err_msg ) . '<br />';
+										}
+										?>
+									<?php endif; ?>
+									<?php if ( is_array( $study_last ) && ! empty( $study_last['at'] ) ) : ?>
+										<br /><?php echo esc_html( sprintf( /* translators: %s: mysql datetime */ __( 'Completed at %s', 'hidden-word-bible-lessons' ), (string) $study_last['at'] ) ); ?>
+									<?php endif; ?>
+								</p>
+							<?php endif; ?>
+							<p style="margin-top:0.75em">
+								<a class="button button-secondary" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=thw_votd_auto_study_now' ), 'thw_votd_auto_study_now' ) ); ?>">
+									<?php esc_html_e( 'Generate selected study cards now', 'hidden-word-bible-lessons' ); ?>
+								</a>
+							</p>
+						</td>
+					</tr>
+					<?php endif; ?>
 					<tr>
 						<th><label for="thw_votd_translation"><?php esc_html_e( 'Translation override', 'hidden-word-bible-lessons' ); ?></label></th>
 						<td>

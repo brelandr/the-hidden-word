@@ -233,6 +233,13 @@ class HWBL_Cohort_Leaderboard {
 			<ol class="hwbl-cohort-leaderboard__list"></ol>
 		</div>
 		<?php
-		return (string) ob_get_clean();
+		$html = (string) ob_get_clean();
+		if ( class_exists( 'HWBL_CPT_Prayer' ) && class_exists( 'THW_Premium_Cohort' ) ) {
+			$cohort_id = (int) get_user_meta( get_current_user_id(), THW_Premium_Cohort::MEMBER_META, true );
+			if ( $cohort_id > 0 ) {
+				$html .= HWBL_CPT_Prayer::render_cohort_wall( $cohort_id );
+			}
+		}
+		return $html;
 	}
 }

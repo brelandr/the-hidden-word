@@ -118,20 +118,27 @@ class HWBL_Bible_Concordance {
 	/**
 	 * Run a concordance lookup.
 	 *
-	 * @param string $query       Search query.
-	 * @param string $translation Translation slug.
-	 * @param int    $limit       Max hits.
-	 * @param string $testament   ot|nt|''.
+	 * @param string               $query       Search query.
+	 * @param string               $translation Translation slug.
+	 * @param int                  $limit       Max hits.
+	 * @param string               $testament   ot|nt|''.
+	 * @param array<string, mixed> $args        Optional: offset, mode (word|strongs|auto).
 	 * @return array<string, mixed>
 	 */
-	public static function lookup( $query, $translation = '', $limit = 50, $testament = '' ) {
+	public static function lookup( $query, $translation = '', $limit = 50, $testament = '', $args = array() ) {
 		if ( class_exists( 'HWBL_Bible_Text_Search' ) ) {
 			$query = HWBL_Bible_Text_Search::normalize_query( $query );
 		} else {
 			$query = trim( (string) $query );
 		}
 
-		$limit = max( 1, min( 100, (int) $limit ) );
+		$limit  = max( 1, min( 100, (int) $limit ) );
+		$offset = max( 0, (int) ( $args['offset'] ?? 0 ) );
+		$mode   = sanitize_key( (string) ( $args['mode'] ?? 'auto' ) );
+		if ( ! in_array( $mode, array( 'auto', 'word', 'strongs' ), true ) ) {
+			$mode = 'auto';
+		}
+
 		$testament = sanitize_key( (string) $testament );
 		if ( ! in_array( $testament, array( 'ot', 'nt' ), true ) ) {
 			$testament = '';
@@ -149,17 +156,63 @@ class HWBL_Bible_Concordance {
 			'translation'           => $translation,
 			'requested_translation' => $translation,
 			'testament'             => $testament,
+			'mode'                  => 'word',
 			'backend'               => 'unavailable',
 			'count'                 => 0,
+			'total'                 => null,
+			'offset'                => $offset,
+			'limit'                 => $limit,
+			'has_more'              => false,
 			'truncated'               => false,
 			'results'               => array(),
+			'strongs'               => null,
+			'candidates'            => array(),
 			'error'                 => '',
 			'message'               => '',
 		);
 
 		if ( '' === $query ) {
 			$payload['error']   = 'invalid_query';
-			$payload['message'] = __( 'Enter a word or phrase to search.', 'hidden-word-bible-lessons' );
+			$payload['message'] = __( 'Enter a word, phrase, or Strong\'s number (e.g. G25).', 'hidden-word-bible-lessons' );
+			return $payload;
+		}
+
+		$use_strongs = false;
+		if ( 'strongs' === $mode ) {
+			$use_strongs = true;
+		} elseif ( 'auto' === $mode && class_exists( 'HWBL_Bible_Strongs' ) && HWBL_Bible_Strongs::is_available() ) {
+			$use_strongs = HWBL_Bible_Strongs::looks_like_number( $query );
+		}
+
+		if ( $use_strongs && class_exists( 'HWBL_Bible_Strongs' ) && HWBL_Bible_Strongs::is_available() ) {
+			if ( HWBL_Bible_Strongs::looks_like_number( $query ) ) {
+				$strongs_payload = HWBL_Bible_Strongs::lookup( $query, $limit, $offset, $testament, $translation );
+				$strongs_payload['requested_translation'] = $translation;
+				$strongs_payload['testament']             = $testament;
+				return $strongs_payload;
+			}
+
+			// English gloss → candidate Strong's numbers.
+			$candidates = HWBL_Bible_Strongs::suggest_from_english( $query, 16 );
+			$payload['mode']       = 'strongs';
+			$payload['backend']    = 'strongs';
+			$payload['candidates'] = $candidates;
+			if ( empty( $candidates ) ) {
+				$payload['error']   = 'no_strongs_match';
+				$payload['message'] = __( 'No Strong\'s numbers matched that English word. Try G25 / H2617, or switch to word search.', 'hidden-word-bible-lessons' );
+				return $payload;
+			}
+			// Auto-run the top candidate.
+			$top = $candidates[0]['number'] ?? '';
+			if ( $top ) {
+				$strongs_payload = HWBL_Bible_Strongs::lookup( $top, $limit, $offset, $testament, $translation );
+				$strongs_payload['requested_translation'] = $translation;
+				$strongs_payload['testament']             = $testament;
+				$strongs_payload['candidates']            = $candidates;
+				$strongs_payload['query']                 = $query;
+				return $strongs_payload;
+			}
+			$payload['message'] = __( 'Choose a Strong\'s number below.', 'hidden-word-bible-lessons' );
 			return $payload;
 		}
 
@@ -171,23 +224,30 @@ class HWBL_Bible_Concordance {
 
 		$backend = self::resolve_backend( $translation );
 		$payload['backend'] = $backend;
+		$payload['mode']    = 'word';
 
 		if ( 'local' === $backend ) {
 			$results = HWBL_Local_Bible_Store::search(
 				$translation,
 				$query,
 				$limit,
-				array( 'testament' => $testament )
+				array(
+					'testament' => $testament,
+					'offset'    => $offset,
+				)
 			);
-			$payload['results']   = self::normalize_results( $results, $query );
-			$payload['count']     = count( $payload['results'] );
-			$payload['truncated'] = $payload['count'] >= $limit;
+			$payload['results']  = self::normalize_results( $results, $query );
+			$payload['count']    = count( $payload['results'] );
+			$payload['has_more'] = $payload['count'] >= $limit;
+			$payload['truncated'] = $payload['has_more'];
 			return $payload;
 		}
 
 		if ( 'biblia' === $backend ) {
-			$detailed = THW_Premium_Biblia::search_bible_detailed( $translation, $query, $limit );
-			$results  = isset( $detailed['results'] ) && is_array( $detailed['results'] ) ? $detailed['results'] : array();
+			// Biblia search has a hard remote cap; offset paginates the returned page only.
+			$fetch_limit = min( 25, $limit + $offset );
+			$detailed    = THW_Premium_Biblia::search_bible_detailed( $translation, $query, $fetch_limit );
+			$results     = isset( $detailed['results'] ) && is_array( $detailed['results'] ) ? $detailed['results'] : array();
 			if ( $testament ) {
 				$results = array_values(
 					array_filter(
@@ -199,9 +259,11 @@ class HWBL_Bible_Concordance {
 					)
 				);
 			}
-			$payload['results']     = self::normalize_results( $results, $query );
+			$sliced                 = array_slice( $results, $offset, $limit );
+			$payload['results']     = self::normalize_results( $sliced, $query );
 			$payload['count']       = count( $payload['results'] );
-			$payload['truncated']   = $payload['count'] >= $limit;
+			$payload['has_more']    = ( $offset + $payload['count'] ) < count( $results ) || count( $results ) >= $fetch_limit;
+			$payload['truncated']   = $payload['has_more'];
 			$payload['translation'] = ! empty( $detailed['translation'] ) ? (string) $detailed['translation'] : $translation;
 			if ( empty( $payload['results'] ) && ! empty( $detailed['error'] ) ) {
 				$payload['error']   = (string) $detailed['error'];
@@ -333,24 +395,46 @@ class HWBL_Bible_Concordance {
 			$reader_url = (string) apply_filters( 'hwbl_bible_reader_page_url', '' );
 		}
 
+		$compare_right = 'web';
+		if ( isset( $translations['web'] ) ) {
+			$compare_right = 'web';
+		} elseif ( isset( $translations['bsb'] ) ) {
+			$compare_right = 'bsb';
+		} elseif ( isset( $translations['asv'] ) ) {
+			$compare_right = 'asv';
+		} elseif ( $default ) {
+			$compare_right = $default;
+		}
+
 		return array(
-			'enabled'       => self::is_enabled(),
-			'restUrl'       => rest_url( 'hwbl/v1/bible/concordance' ),
-			'nonce'         => wp_create_nonce( 'wp_rest' ),
-			'translations'  => $translations,
+			'enabled'            => self::is_enabled(),
+			'restUrl'            => rest_url( 'hwbl/v1/bible/concordance' ),
+			'nonce'              => wp_create_nonce( 'wp_rest' ),
+			'translations'       => $translations,
 			'defaultTranslation' => $default,
 			'bibliaAvailable'    => class_exists( 'THW_Premium_Biblia' ) && THW_Premium_Biblia::is_available(),
+			'strongsAvailable'   => class_exists( 'HWBL_Bible_Strongs' ) && HWBL_Bible_Strongs::is_available(),
 			'readerUrl'          => $reader_url,
+			'compareRight'       => $compare_right,
+			'pageSize'           => 50,
 			'i18n'               => array(
-				'placeholder'   => __( 'e.g. love, faith, Jerusalem', 'hidden-word-bible-lessons' ),
+				'placeholder'   => __( 'e.g. love, G25, H2617, Jerusalem', 'hidden-word-bible-lessons' ),
 				'search'        => __( 'Search concordance', 'hidden-word-bible-lessons' ),
 				'loading'       => __( 'Searching…', 'hidden-word-bible-lessons' ),
 				'empty'         => __( 'No matches found.', 'hidden-word-bible-lessons' ),
-				'truncated'     => __( 'Showing the first %d matches. Refine your search for more specific results.', 'hidden-word-bible-lessons' ),
+				'truncated'     => __( 'More matches available — use Next to continue.', 'hidden-word-bible-lessons' ),
 				'localHint'     => __( 'Searching your installed Local Bible (offline).', 'hidden-word-bible-lessons' ),
 				'bibliaHint'    => __( 'Searching via Biblia.com (licensed translation).', 'hidden-word-bible-lessons' ),
+				'strongsHint'   => __( 'Strong\'s number concordance (public domain).', 'hidden-word-bible-lessons' ),
 				'openReader'    => __( 'Open in Bible reader', 'hidden-word-bible-lessons' ),
+				'compare'       => __( 'Compare', 'hidden-word-bible-lessons' ),
 				'resultsLabel'  => __( '%d matches', 'hidden-word-bible-lessons' ),
+				'pageLabel'     => __( 'Showing %1$d–%2$d', 'hidden-word-bible-lessons' ),
+				'prev'          => __( 'Previous', 'hidden-word-bible-lessons' ),
+				'next'          => __( 'Next', 'hidden-word-bible-lessons' ),
+				'modeWord'      => __( 'Word / phrase', 'hidden-word-bible-lessons' ),
+				'modeStrongs'   => __( 'Strong\'s', 'hidden-word-bible-lessons' ),
+				'candidates'    => __( 'Matching Strong\'s numbers', 'hidden-word-bible-lessons' ),
 				'allTestament'  => __( 'Whole Bible', 'hidden-word-bible-lessons' ),
 				'ot'            => __( 'Old Testament', 'hidden-word-bible-lessons' ),
 				'nt'            => __( 'New Testament', 'hidden-word-bible-lessons' ),
@@ -385,6 +469,16 @@ class HWBL_Bible_Concordance {
 						'sanitize_callback' => 'absint',
 						'default'           => 50,
 					),
+					'offset'      => array(
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+						'default'           => 0,
+					),
+					'mode'        => array(
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_key',
+						'default'           => 'auto',
+					),
 					'testament'   => array(
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_key',
@@ -417,7 +511,11 @@ class HWBL_Bible_Concordance {
 			(string) $request->get_param( 'q' ),
 			(string) $request->get_param( 'translation' ),
 			(int) $request->get_param( 'limit' ),
-			(string) $request->get_param( 'testament' )
+			(string) $request->get_param( 'testament' ),
+			array(
+				'offset' => (int) $request->get_param( 'offset' ),
+				'mode'   => (string) $request->get_param( 'mode' ),
+			)
 		);
 
 		return rest_ensure_response( $payload );
@@ -450,6 +548,9 @@ class HWBL_Bible_Concordance {
 		wp_enqueue_style( 'hwbl-bible-concordance' );
 		wp_enqueue_script( 'hwbl-bible-concordance' );
 		wp_localize_script( 'hwbl-bible-concordance', 'hwblBibleConcordance', self::get_front_config() );
+		if ( class_exists( 'HWBL_Translation_Comparison' ) ) {
+			HWBL_Translation_Comparison::enqueue_assets( true );
+		}
 	}
 
 	/**
@@ -495,13 +596,23 @@ class HWBL_Bible_Concordance {
 				<h3 class="hwbl-bible-concordance__heading"><?php echo esc_html( $title ); ?></h3>
 			<?php endif; ?>
 			<p class="hwbl-bible-concordance__intro description">
-				<?php esc_html_e( 'Look up a word or phrase across Scripture. Free Local Bibles search offline; NIV/NLT use Biblia.com when configured.', 'hidden-word-bible-lessons' ); ?>
+				<?php esc_html_e( 'Look up a word, phrase, or Strong\'s number across Scripture. Free Local Bibles search offline; NIV/NLT use Biblia.com when configured.', 'hidden-word-bible-lessons' ); ?>
 			</p>
 			<form class="hwbl-bible-concordance__form" action="#" method="get">
 				<label class="hwbl-bible-concordance__field hwbl-bible-concordance__field--query">
-					<span class="screen-reader-text"><?php esc_html_e( 'Word or phrase', 'hidden-word-bible-lessons' ); ?></span>
-					<input type="search" class="hwbl-bible-concordance__query" name="q" value="<?php echo esc_attr( $query ); ?>" placeholder="<?php esc_attr_e( 'e.g. love, faith, Jerusalem', 'hidden-word-bible-lessons' ); ?>" autocomplete="off" />
+					<span class="screen-reader-text"><?php esc_html_e( 'Word, phrase, or Strong\'s number', 'hidden-word-bible-lessons' ); ?></span>
+					<input type="search" class="hwbl-bible-concordance__query" name="q" value="<?php echo esc_attr( $query ); ?>" placeholder="<?php esc_attr_e( 'e.g. love, G25, H2617, Jerusalem', 'hidden-word-bible-lessons' ); ?>" autocomplete="off" />
 				</label>
+				<?php if ( ! empty( $config['strongsAvailable'] ) ) : ?>
+					<label class="hwbl-bible-concordance__field">
+						<span><?php esc_html_e( 'Mode', 'hidden-word-bible-lessons' ); ?></span>
+						<select class="hwbl-bible-concordance__mode">
+							<option value="auto"><?php esc_html_e( 'Auto', 'hidden-word-bible-lessons' ); ?></option>
+							<option value="word"><?php esc_html_e( 'Word / phrase', 'hidden-word-bible-lessons' ); ?></option>
+							<option value="strongs"><?php esc_html_e( 'Strong\'s', 'hidden-word-bible-lessons' ); ?></option>
+						</select>
+					</label>
+				<?php endif; ?>
 				<label class="hwbl-bible-concordance__field">
 					<span><?php esc_html_e( 'Translation', 'hidden-word-bible-lessons' ); ?></span>
 					<select class="hwbl-bible-concordance__translation">
@@ -531,7 +642,14 @@ class HWBL_Bible_Concordance {
 				</p>
 			<?php endif; ?>
 			<p class="hwbl-bible-concordance__status" role="status" aria-live="polite"></p>
+			<div class="hwbl-bible-concordance__strongs-meta" hidden></div>
+			<div class="hwbl-bible-concordance__candidates" hidden></div>
 			<ol class="hwbl-bible-concordance__results" hidden></ol>
+			<nav class="hwbl-bible-concordance__pager" hidden aria-label="<?php esc_attr_e( 'Concordance results pages', 'hidden-word-bible-lessons' ); ?>">
+				<button type="button" class="hwbl-btn hwbl-btn-secondary hwbl-bible-concordance__prev"><?php esc_html_e( 'Previous', 'hidden-word-bible-lessons' ); ?></button>
+				<span class="hwbl-bible-concordance__page-label"></span>
+				<button type="button" class="hwbl-btn hwbl-btn-secondary hwbl-bible-concordance__next"><?php esc_html_e( 'Next', 'hidden-word-bible-lessons' ); ?></button>
+			</nav>
 		</div>
 		<?php
 		return (string) ob_get_clean();

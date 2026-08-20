@@ -496,6 +496,62 @@
 	margin: 0.5rem 0 0;
 }
 
+.hwbl-translation-compare-modal {
+	position: fixed;
+	inset: 0;
+	z-index: 100000;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 1rem;
+}
+
+.hwbl-translation-compare-modal[hidden] {
+	display: none;
+}
+
+.hwbl-translation-compare-modal__backdrop {
+	position: absolute;
+	inset: 0;
+	background: rgba(15, 23, 42, 0.45);
+}
+
+.hwbl-translation-compare-modal__dialog {
+	position: relative;
+	z-index: 1;
+	width: min(52rem, 100%);
+	max-height: min(90vh, 40rem);
+	overflow: auto;
+	background: #fff;
+	border-radius: 8px;
+	padding: 1rem 1.15rem 1.25rem;
+	box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+}
+
+.hwbl-translation-compare-modal__header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.75rem;
+	margin-bottom: 0.75rem;
+}
+
+.hwbl-translation-compare-modal__header h3 {
+	margin: 0;
+	font-size: 1.15rem;
+}
+
+.hwbl-translation-compare-modal .hwbl-translation-compare {
+	margin: 0;
+}
+
+@media (max-width: 640px) {
+	.hwbl-translation-compare,
+	.hwbl-translation-compare-modal .hwbl-translation-compare {
+		grid-template-columns: 1fr;
+	}
+}
+
 .hwbl-cohort-leaderboard__list {
 	padding-left: 1.25rem;
 }
@@ -548,4 +604,29 @@
 		background: none;
 		border-left-color: #000;
 	}
+}
+
+/* Easy-read / dyslexia-friendly + kids mode */
+.hwbl-easy-read.hwbl-lesson,
+.hwbl-easy-read .hwbl-lesson,
+html.hwbl-easy-read .hwbl-lesson {
+	font-family: "Atkinson Hyperlegible", "Comic Neue", "Segoe UI", Verdana, sans-serif;
+	line-height: 1.9;
+	letter-spacing: 0.05em;
+	word-spacing: 0.12em;
+}
+.hwbl-easy-read.hwbl-lesson .hwbl-tab-panel,
+.hwbl-easy-read .hwbl-verse-text {
+	line-height: 1.95;
+	max-width: 42rem;
+}
+.hwbl-kids-mode.hwbl-lesson,
+html.hwbl-kids-mode .hwbl-lesson {
+	font-size: 1.12rem;
+	line-height: 1.85;
+}
+.hwbl-btn.is-active[data-hwbl-easy-read-toggle],
+.hwbl-btn.is-active[data-hwbl-kids-mode-toggle] {
+	outline: 2px solid currentColor;
+	outline-offset: 2px;
 }

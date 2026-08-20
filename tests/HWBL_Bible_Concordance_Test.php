@@ -46,4 +46,30 @@ class HWBL_Bible_Concordance_Test extends TestCase {
 		$this->assertSame( 'ot', HWBL_Books::get_testament( 1 ) );
 		$this->assertSame( 'nt', HWBL_Books::get_testament( 43 ) );
 	}
+
+	/**
+	 * Strong's number lookup returns paginated occurrence results when data is present.
+	 */
+	public function test_strongs_lookup_g25() {
+		require_once HWBL_PLUGIN_DIR . 'includes/class-bible-strongs.php';
+		if ( ! HWBL_Bible_Strongs::is_available() ) {
+			$this->markTestSkipped( 'Strong\'s data packs not installed.' );
+		}
+		$payload = HWBL_Bible_Concordance::lookup(
+			'G25',
+			'kjv',
+			10,
+			'',
+			array(
+				'mode'   => 'strongs',
+				'offset' => 0,
+			)
+		);
+		$this->assertSame( 'strongs', $payload['mode'] );
+		$this->assertNotEmpty( $payload['strongs'] );
+		$this->assertSame( 'G25', $payload['strongs']['number'] );
+		$this->assertGreaterThan( 0, (int) $payload['total'] );
+		$this->assertNotEmpty( $payload['results'] );
+		$this->assertArrayHasKey( 'has_more', $payload );
+	}
 }

@@ -68,6 +68,7 @@ if ( ! function_exists( 'thw_premium_autoload' ) ) {
 			'THW_Premium_Memorization'          => 'class-memorization-pro.php',
 			'THW_Premium_Progress'              => 'class-progress.php',
 			'THW_Premium_PDF_Export'            => 'class-pdf-export.php',
+			'THW_Premium_Explains_Rest'         => 'class-explains-rest.php',
 			'THW_Premium_AI_Assist'             => 'class-ai-assist.php',
 			'THW_Premium_AI_Client'             => 'class-ai-client.php',
 			'THW_Premium_AI_Explain'            => 'class-ai-explain.php',

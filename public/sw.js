@@ -1,8 +1,19 @@
-/* Hidden Word Bible Lessons — offline cache for memorization pack */
-var HWBL_CACHE = 'hwbl-offline-v1';
-var HWBL_OFFLINE_URLS = [
-	'/wp-json/hwbl/v1/memorize/offline-pack'
-];
+/* Hidden Word Bible Lessons — offline cache for memorize pack + evangelism pages */
+var HWBL_CACHE = 'hwbl-offline-v2';
+
+function hwblIsEvangelismPath(url) {
+	try {
+		var u = new URL(url);
+		return u.pathname.indexOf('/gospel/') === 0 || u.pathname.indexOf('/testimony/') === 0;
+	} catch (e) {
+		return false;
+	}
+}
+
+function hwblIsApiCacheable(url) {
+	return url.indexOf('/wp-json/hwbl/v1/memorize/offline-pack') !== -1 ||
+		url.indexOf('/wp-json/hwbl/v1/memorize/review-queue') !== -1;
+}
 
 self.addEventListener('install', function (event) {
 	event.waitUntil(self.skipWaiting());
@@ -24,8 +35,12 @@ self.addEventListener('activate', function (event) {
 
 self.addEventListener('fetch', function (event) {
 	var url = event.request.url;
-	if (url.indexOf('/wp-json/hwbl/v1/memorize/offline-pack') === -1 &&
-		url.indexOf('/wp-json/hwbl/v1/memorize/review-queue') === -1) {
+	var evangelism = hwblIsEvangelismPath(url);
+	var api = hwblIsApiCacheable(url);
+	if (!evangelism && !api) {
+		return;
+	}
+	if (event.request.method !== 'GET') {
 		return;
 	}
 

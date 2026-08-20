@@ -374,6 +374,100 @@ class THW_Premium_Bible_Study_Card {
 	}
 
 	/**
+	 * Ensure a Verse Study Card is cached for the site-default tradition (guest path).
+	 *
+	 * Used by daily auto-study cron so visitors can open “Study this verse” without signing in.
+	 * Skips AI when a valid transient already exists.
+	 *
+	 * @param int    $book_id     Book ID.
+	 * @param int    $chapter     Chapter.
+	 * @param int    $verse       Verse.
+	 * @param string $translation Translation slug.
+	 * @param string $tradition   Optional tradition override (empty = same as guest default).
+	 * @return array{status:string,preset?:string,card?:array<string,mixed>}|WP_Error
+	 */
+	public static function ensure_cached_card( $book_id, $chapter, $verse, $translation, $tradition = '' ) {
+		$book_id     = max( 1, (int) $book_id );
+		$chapter     = max( 1, (int) $chapter );
+		$verse       = max( 1, (int) $verse );
+		$translation = sanitize_key( (string) $translation );
+
+		if ( ! class_exists( 'HWBL_Bible_Reader' ) || ! HWBL_Bible_Reader::is_enabled() ) {
+			return new WP_Error(
+				'hwbl_reader_disabled',
+				__( 'The Bible reader is not available.', 'hidden-word-bible-lessons' )
+			);
+		}
+
+		if ( ! class_exists( 'THW_Premium_Bible_Reader_Explain' ) ) {
+			return new WP_Error(
+				'hwbl_study_unavailable',
+				__( 'Verse study is not available on this site.', 'hidden-word-bible-lessons' )
+			);
+		}
+
+		if ( class_exists( 'HWBL_Bible_Reader' ) ) {
+			$resolved_translation = HWBL_Bible_Reader::resolve_translation_for_request( $translation );
+			if ( $resolved_translation ) {
+				$translation = $resolved_translation;
+			}
+		}
+
+		$payload = THW_Premium_Bible_Reader_Explain::build_payload(
+			$book_id,
+			$chapter,
+			$verse,
+			$translation,
+			'verse'
+		);
+		if ( is_wp_error( $payload ) ) {
+			return $payload;
+		}
+
+		$context  = (string) ( $payload['reference'] ?? '' );
+		$resolved = function_exists( 'thw_premium_resolve_explain_rules_for_request' )
+			? thw_premium_resolve_explain_rules_for_request( sanitize_key( (string) $tradition ), $context )
+			: array(
+				'preset' => 'site',
+				'rules'  => '',
+			);
+		$preset   = sanitize_key( (string) ( $resolved['preset'] ?? 'site' ) );
+		if ( '' === $preset ) {
+			$preset = 'site';
+		}
+
+		$cache_key = self::cache_key( $book_id, $chapter, $verse, $translation, $preset );
+		$cached    = get_transient( $cache_key );
+		if ( is_array( $cached ) && self::is_valid_card( $cached ) ) {
+			return array(
+				'status' => 'skipped',
+				'preset' => $preset,
+				'card'   => $cached,
+			);
+		}
+
+		if ( ! class_exists( 'THW_Premium_AI_Client' ) || ! THW_Premium_AI_Client::is_configured() ) {
+			return new WP_Error(
+				'thw_ai_disabled',
+				__( 'AI study is not enabled on this site.', 'hidden-word-bible-lessons' )
+			);
+		}
+
+		$card = self::generate_card( $payload, $preset, $resolved );
+		if ( is_wp_error( $card ) ) {
+			return $card;
+		}
+
+		set_transient( $cache_key, $card, self::CACHE_TTL );
+
+		return array(
+			'status' => 'generated',
+			'preset' => $preset,
+			'card'   => $card,
+		);
+	}
+
+	/**
 	 * Generate structured study sections via AI.
 	 *
 	 * @param array<string, mixed> $payload  Passage payload from build_payload.

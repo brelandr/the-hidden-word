@@ -242,6 +242,55 @@
 			}
 			if (memorizeBar) {
 				memorizeBar.hidden = !highlight;
+				var shareBtn = qs(root, '.hwbl-bible-reader__share-btn');
+				if (shareBtn && highlight) {
+					var verseEl = elContent
+						? elContent.querySelector(
+								'.hwbl-bible-reader__verse[data-verse="' + highlight + '"]'
+						  )
+						: null;
+					var verseText = verseEl
+						? (verseEl.textContent || '').replace(/^\s*\d+\s*/, '').trim()
+						: '';
+					var book = state.books.find(function (b) {
+						return b.id === state.bookId;
+					});
+					var ref =
+						(book && book.name ? book.name : 'Book ' + state.bookId) +
+						' ' +
+						state.chapter +
+						':' +
+						highlight;
+					shareBtn.setAttribute('data-verse', verseText);
+					shareBtn.setAttribute('data-ref', ref);
+					shareBtn.hidden = !verseText;
+					var shareMsg =
+						ref +
+						'\n' +
+						verseText +
+						'\n' +
+						(window.location.origin || '');
+					var wa = qs(root, '.hwbl-bible-reader__share-wa');
+					var sms = qs(root, '.hwbl-bible-reader__share-sms');
+					if (wa) {
+						wa.href = 'https://wa.me/?text=' + encodeURIComponent(shareMsg);
+						wa.hidden = !verseText;
+					}
+					if (sms) {
+						sms.href = 'sms:?&body=' + encodeURIComponent(shareMsg);
+						sms.hidden = !verseText;
+					}
+				} else if (shareBtn) {
+					shareBtn.hidden = true;
+					var waHide = qs(root, '.hwbl-bible-reader__share-wa');
+					var smsHide = qs(root, '.hwbl-bible-reader__share-sms');
+					if (waHide) {
+						waHide.hidden = true;
+					}
+					if (smsHide) {
+						smsHide.hidden = true;
+					}
+				}
 			}
 
 			if (highlight) {

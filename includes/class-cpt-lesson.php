@@ -93,6 +93,13 @@ class HWBL_CPT_Lesson {
 		$video_url           = (string) get_post_meta( $lesson_id, '_hwbl_video_url', true );
 		$lesson['video_url'] = (string) apply_filters( 'hwbl_lesson_video_url', $video_url, $lesson_id );
 
+		$leader_available = class_exists( 'THW_Premium_PDF_Export' )
+			&& THW_Premium_PDF_Export::can_download_leader_guide( $lesson_id );
+		$lesson['leader_guide_available'] = (bool) $leader_available;
+		$lesson['leader_guide_url']       = $leader_available
+			? (string) THW_Premium_PDF_Export::get_leader_guide_url( $lesson_id )
+			: '';
+
 		return rest_ensure_response( $lesson );
 	}
 

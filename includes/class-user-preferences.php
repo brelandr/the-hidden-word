@@ -14,9 +14,13 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class HWBL_User_Preferences {
 
-	const META_TRANSLATION   = '_hwbl_preferred_translation';
+	const META_TRANSLATION    = '_hwbl_preferred_translation';
+	const META_EASY_READ      = '_hwbl_easy_read';
+	const META_KIDS_MODE      = '_hwbl_kids_mode';
 	const STORAGE_TRANSLATION = 'hwbl_preferred_translation';
 	const STORAGE_TRADITION   = 'thw_ai_tradition_preset';
+	const STORAGE_EASY_READ   = 'hwbl_easy_read';
+	const STORAGE_KIDS_MODE   = 'hwbl_kids_mode';
 
 	/**
 	 * Register hooks.
@@ -136,15 +140,49 @@ class HWBL_User_Preferences {
 			: false;
 
 		return array(
-			'restUrl'                 => esc_url_raw( rest_url( 'hwbl/v1/user-preferences' ) ),
-			'nonce'                   => wp_create_nonce( 'wp_rest' ),
-			'loggedIn'                => is_user_logged_in(),
-			'userTradition'           => $user_tradition,
-			'preferredTranslation'    => self::get_preferred_translation(),
-			'translationStorageKey'   => self::STORAGE_TRANSLATION,
-			'traditionStorageKey'     => self::STORAGE_TRADITION,
+			'restUrl'                     => esc_url_raw( rest_url( 'hwbl/v1/user-preferences' ) ),
+			'nonce'                       => wp_create_nonce( 'wp_rest' ),
+			'loggedIn'                    => is_user_logged_in(),
+			'userTradition'               => $user_tradition,
+			'preferredTranslation'        => self::get_preferred_translation(),
+			'easyRead'                    => self::get_bool_pref( self::META_EASY_READ ),
+			'kidsMode'                    => self::get_bool_pref( self::META_KIDS_MODE ),
+			'translationStorageKey'       => self::STORAGE_TRANSLATION,
+			'traditionStorageKey'         => self::STORAGE_TRADITION,
+			'easyReadStorageKey'          => self::STORAGE_EASY_READ,
+			'kidsModeStorageKey'          => self::STORAGE_KIDS_MODE,
 			'legacyTranslationStorageKey' => 'thw_votd_translation',
 		);
+	}
+
+	/**
+	 * Read a boolean user-meta preference (current user).
+	 *
+	 * @param string $meta_key Meta key.
+	 * @param int    $user_id  User ID (0 = current).
+	 * @return bool
+	 */
+	public static function get_bool_pref( $meta_key, $user_id = 0 ) {
+		$user_id = $user_id ? (int) $user_id : get_current_user_id();
+		if ( $user_id < 1 ) {
+			return false;
+		}
+		return (bool) get_user_meta( $user_id, $meta_key, true );
+	}
+
+	/**
+	 * Persist a boolean preference.
+	 *
+	 * @param int    $user_id  User ID.
+	 * @param string $meta_key Meta key.
+	 * @param bool   $value    Value.
+	 */
+	public static function set_bool_pref( $user_id, $meta_key, $value ) {
+		$user_id = (int) $user_id;
+		if ( $user_id < 1 ) {
+			return;
+		}
+		update_user_meta( $user_id, $meta_key, $value ? 1 : 0 );
 	}
 
 	/**
@@ -247,6 +285,8 @@ class HWBL_User_Preferences {
 			'translations'        => $translations,
 			'traditions'          => $traditions,
 			'showTraditionPicker' => $show_tradition,
+			'easyRead'            => self::get_bool_pref( self::META_EASY_READ, $user_id ),
+			'kidsMode'            => self::get_bool_pref( self::META_KIDS_MODE, $user_id ),
 		);
 	}
 
@@ -280,6 +320,14 @@ class HWBL_User_Preferences {
 					'required'          => false,
 					'default'           => '',
 					'sanitize_callback' => 'sanitize_key',
+				),
+				'easyRead'    => array(
+					'type'     => 'boolean',
+					'required' => false,
+				),
+				'kidsMode'    => array(
+					'type'     => 'boolean',
+					'required' => false,
 				),
 			),
 		);
@@ -335,6 +383,13 @@ class HWBL_User_Preferences {
 
 		$saved_translation = self::get_preferred_translation( $user_id );
 		$saved_tradition   = '';
+
+		if ( array_key_exists( 'easyRead', $params ) ) {
+			self::set_bool_pref( $user_id, self::META_EASY_READ, rest_sanitize_boolean( $params['easyRead'] ) );
+		}
+		if ( array_key_exists( 'kidsMode', $params ) ) {
+			self::set_bool_pref( $user_id, self::META_KIDS_MODE, rest_sanitize_boolean( $params['kidsMode'] ) );
+		}
 
 		if ( '' !== $translation_in ) {
 			if ( ! self::is_valid_translation( $translation_in ) ) {

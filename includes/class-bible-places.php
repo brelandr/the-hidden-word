@@ -31,6 +31,96 @@ class HWBL_Bible_Places {
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'register_assets' ) );
 		add_shortcode( 'hwbl_bible_map', array( __CLASS__, 'render_shortcode' ) );
 		add_filter( 'hwbl_bible_reader_features', array( __CLASS__, 'filter_reader_features' ) );
+		add_filter( 'hwbl_lesson_tabs', array( __CLASS__, 'filter_lesson_tabs' ), 20, 2 );
+		add_action( 'hwbl_lesson_render_panels', array( __CLASS__, 'render_lesson_places_panel' ), 10, 3 );
+	}
+
+	/**
+	 * Add a Places tab when the lesson passage has geocoded locations.
+	 *
+	 * @param array<string, string> $tabs      Tabs.
+	 * @param int                   $lesson_id Lesson ID.
+	 * @return array<string, string>
+	 */
+	public static function filter_lesson_tabs( $tabs, $lesson_id ) {
+		if ( ! self::is_enabled() || ! is_array( $tabs ) ) {
+			return $tabs;
+		}
+		$lesson = class_exists( 'HWBL_CPT_Lesson' ) ? HWBL_CPT_Lesson::get_lesson_data( (int) $lesson_id ) : null;
+		if ( ! is_array( $lesson ) ) {
+			return $tabs;
+		}
+		$book_id = isset( $lesson['book_id'] ) ? (int) $lesson['book_id'] : 0;
+		$chapter = isset( $lesson['chapter'] ) ? (int) $lesson['chapter'] : 0;
+		$verse   = isset( $lesson['verse_start'] ) ? (int) $lesson['verse_start'] : ( isset( $lesson['verse'] ) ? (int) $lesson['verse'] : 0 );
+		if ( $book_id < 1 || $chapter < 1 ) {
+			return $tabs;
+		}
+		$places = self::get_places( $book_id, $chapter, $verse );
+		if ( empty( $places ) ) {
+			// Fall back to chapter places so a verse without its own pin still surfaces the map.
+			$places = self::get_places( $book_id, $chapter, 0 );
+		}
+		if ( empty( $places ) ) {
+			return $tabs;
+		}
+		$tabs['places'] = __( 'Places', 'hidden-word-bible-lessons' );
+		return $tabs;
+	}
+
+	/**
+	 * Render the lesson Places panel.
+	 *
+	 * @param int                  $lesson_id Lesson ID.
+	 * @param array<string, mixed> $lesson    Lesson data.
+	 * @param array<string, mixed> $args      Render args.
+	 */
+	public static function render_lesson_places_panel( $lesson_id, $lesson, $args ) {
+		unset( $args );
+		if ( ! self::is_enabled() || ! is_array( $lesson ) ) {
+			return;
+		}
+		$book_id = isset( $lesson['book_id'] ) ? (int) $lesson['book_id'] : 0;
+		$chapter = isset( $lesson['chapter'] ) ? (int) $lesson['chapter'] : 0;
+		$verse   = isset( $lesson['verse_start'] ) ? (int) $lesson['verse_start'] : ( isset( $lesson['verse'] ) ? (int) $lesson['verse'] : 0 );
+		if ( $book_id < 1 || $chapter < 1 ) {
+			return;
+		}
+		$places = self::get_places( $book_id, $chapter, $verse );
+		$scope  = 'verse';
+		if ( empty( $places ) ) {
+			$places = self::get_places( $book_id, $chapter, 0 );
+			$verse  = 0;
+			$scope  = 'chapter';
+		}
+		if ( empty( $places ) ) {
+			return;
+		}
+		?>
+		<section
+			id="hwbl-panel-places-<?php echo esc_attr( (string) $lesson_id ); ?>"
+			class="hwbl-tab-panel"
+			role="tabpanel"
+			data-panel="places"
+			hidden
+		>
+			<h3><?php esc_html_e( 'Places — Map this passage', 'hidden-word-bible-lessons' ); ?></h3>
+			<p class="description">
+				<?php esc_html_e( 'Locations mentioned in this lesson passage. Switch to Whole book or Journey mode on the map for a broader view.', 'hidden-word-bible-lessons' ); ?>
+			</p>
+			<?php
+			echo self::render_shortcode( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shortcode returns escaped HTML.
+				array(
+					'book'    => $book_id,
+					'chapter' => $chapter,
+					'verse'   => $verse,
+					'scope'   => $scope,
+					'height'  => 360,
+				)
+			);
+			?>
+		</section>
+		<?php
 	}
 
 	/**
@@ -529,7 +619,16 @@ class HWBL_Bible_Places {
 	 * @return array<string, mixed>
 	 */
 	private static function normalize_place( $row, $sort_keys = array() ) {
-		$verses = self::format_verse_refs_from_sort_keys( $sort_keys );
+		$keys = array();
+		foreach ( (array) $sort_keys as $key ) {
+			$key = (string) $key;
+			if ( preg_match( '/^\d{8}$/', $key ) ) {
+				$keys[] = $key;
+			}
+		}
+		$keys = array_values( array_unique( $keys ) );
+		sort( $keys, SORT_STRING );
+		$verses = self::format_verse_refs_from_sort_keys( $keys );
 
 		return array(
 			'id'               => isset( $row['id'] ) ? (string) $row['id'] : '',
@@ -542,6 +641,8 @@ class HWBL_Bible_Places {
 			'country'          => isset( $row['country'] ) ? (string) $row['country'] : '',
 			'types'            => isset( $row['types'] ) && is_array( $row['types'] ) ? array_values( $row['types'] ) : array(),
 			'verses'           => $verses,
+			'sort_keys'        => $keys,
+			'first_key'        => ! empty( $keys ) ? (string) $keys[0] : '',
 		);
 	}
 
@@ -641,6 +742,7 @@ class HWBL_Bible_Places {
 	public static function register_assets() {
 		$leaflet_js = HWBL_PLUGIN_DIR . 'public/vendor/leaflet/leaflet.js';
 		$mapbox_js  = HWBL_PLUGIN_DIR . 'public/vendor/mapbox-gl/mapbox-gl.js';
+		$cluster_js = HWBL_PLUGIN_DIR . 'public/vendor/leaflet.markercluster/leaflet.markercluster.js';
 
 		if ( is_readable( $leaflet_js ) ) {
 			wp_register_style(
@@ -654,6 +756,28 @@ class HWBL_Bible_Places {
 				HWBL_PLUGIN_URL . 'public/vendor/leaflet/leaflet.js',
 				array(),
 				'1.9.4',
+				true
+			);
+		}
+
+		if ( is_readable( $cluster_js ) && wp_script_is( 'hwbl-leaflet', 'registered' ) ) {
+			wp_register_style(
+				'hwbl-leaflet-markercluster',
+				HWBL_PLUGIN_URL . 'public/vendor/leaflet.markercluster/MarkerCluster.css',
+				array( 'hwbl-leaflet' ),
+				'1.5.3'
+			);
+			wp_register_style(
+				'hwbl-leaflet-markercluster-default',
+				HWBL_PLUGIN_URL . 'public/vendor/leaflet.markercluster/MarkerCluster.Default.css',
+				array( 'hwbl-leaflet-markercluster' ),
+				'1.5.3'
+			);
+			wp_register_script(
+				'hwbl-leaflet-markercluster',
+				HWBL_PLUGIN_URL . 'public/vendor/leaflet.markercluster/leaflet.markercluster.js',
+				array( 'hwbl-leaflet' ),
+				'1.5.3',
 				true
 			);
 		}
@@ -674,7 +798,7 @@ class HWBL_Bible_Places {
 			);
 		}
 
-		$style_deps = array();
+		$style_deps  = array();
 		$script_deps = array();
 		if ( 'mapbox' === self::get_provider() && wp_script_is( 'hwbl-mapbox-gl', 'registered' ) ) {
 			$style_deps[]  = 'hwbl-mapbox-gl';
@@ -682,6 +806,10 @@ class HWBL_Bible_Places {
 		} elseif ( wp_script_is( 'hwbl-leaflet', 'registered' ) ) {
 			$style_deps[]  = 'hwbl-leaflet';
 			$script_deps[] = 'hwbl-leaflet';
+			if ( wp_script_is( 'hwbl-leaflet-markercluster', 'registered' ) ) {
+				$style_deps[]  = 'hwbl-leaflet-markercluster-default';
+				$script_deps[] = 'hwbl-leaflet-markercluster';
+			}
 		}
 
 		wp_register_style(
@@ -713,6 +841,11 @@ class HWBL_Bible_Places {
 		} elseif ( wp_script_is( 'hwbl-leaflet', 'registered' ) ) {
 			wp_enqueue_style( 'hwbl-leaflet' );
 			wp_enqueue_script( 'hwbl-leaflet' );
+			if ( wp_script_is( 'hwbl-leaflet-markercluster', 'registered' ) ) {
+				wp_enqueue_style( 'hwbl-leaflet-markercluster' );
+				wp_enqueue_style( 'hwbl-leaflet-markercluster-default' );
+				wp_enqueue_script( 'hwbl-leaflet-markercluster' );
+			}
 		}
 
 		wp_enqueue_style( 'hwbl-bible-map' );

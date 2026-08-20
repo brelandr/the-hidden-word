@@ -2,9 +2,9 @@
 Contributors: brelandr
 Tags: bible, scripture, discipleship, memorization, verse of the day
 Requires at least: 6.2
-Tested up to: 7.0
+Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.2.0
+Stable tag: 2.3.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -117,6 +117,10 @@ Yes. Use the shortcode `[hwbl_lesson]` in any page builder text widget or the Gu
 
 Email sales@landtechwebdesigns.com with the subject “The hidden word iphone or andrid app testing program to participate.” and say whether you want to test on iPhone, Android, or both.
 
+= Privacy Policy =
+
+The hub operator’s policy for The Hidden Word (accounts, AI Ask, gospel-response contact details, testimonies, and prayer requests) is published at https://thehiddenword.org/privacy-policy . Church sites that run this plugin process most member data under that church’s own practices; review their privacy information as well.
+
 == Screenshots ==
 
 1. Tabbed lesson view with scripture, context, narrative, echo, and discussion tabs
@@ -126,6 +130,31 @@ Email sales@landtechwebdesigns.com with the subject “The hidden word iphone or
 5. Plugin settings — schedule mode and translation switcher
 
 == Changelog ==
+
+= 2.3.5 =
+* Sign in with Apple: verify identity tokens signed with Apple’s RS256 keys (fixes login failures when only ES256 was accepted)
+* Gospel presentation responses: privacy notice, required consent checkbox, and REST rejection without consent
+* Admin hint on Gospel Responses list: review new responses promptly (private CPT + admin email path)
+
+= 2.3.4 =
+* Companion / hub auth polish for Sign in with Apple account create-or-link flows
+* Privacy policy alignment for Apple Hide My Email and opaque Apple user identifiers
+
+= 2.3.3 =
+* Rich Bible study plans: study-voice day template (Open → Text → Heart → Practice) and expanded plan seed topics
+* Plan slug in REST; Faith Formation / Grow surfaces and deep-link paths for plans
+
+= 2.3.2 =
+* Strong’s concordance index data and study tooling for Local Bibles / reader workflows
+* Gospel share pages: public `/gospel/{id}` presentation, QR, WhatsApp/SMS share helpers
+
+= 2.3.1 =
+* Gospel response capture: optional email/location, nearby church match, private `hwbl_gospel_resp` CPT, admin (+ matched church) email notify
+* Testimony and prayer request CPTs with account-scoped create flows and safety report hooks
+
+= 2.3.0 =
+* Reading plans CPT, progress, REST, shortcodes/blocks, digest/push hooks, and sample plan seeds
+* Discipleship outreach foundations (plans + outward sharing scaffolding)
 
 = 2.2.0 =
 * Memorization Flip cards: SM-2 adaptive blank ratio, swipe-to-flip, and “Listen to verse” speaks the exact verse (device/browser TTS) instead of the full chapter
@@ -253,6 +282,12 @@ Email sales@landtechwebdesigns.com with the subject “The hidden word iphone or
 * Gutenberg block and shortcodes
 
 == Upgrade Notice ==
+
+= 2.3.5 =
+Fixes Sign in with Apple (RS256), and adds gospel-response consent plus privacy notice on public gospel forms.
+
+= 2.3.0 =
+Adds reading plans, gospel/testimony/prayer outreach features, and related REST surfaces.
 
 = 2.2.0 =
 Improves Flip memorization and Bible Maps, and announces coming iPhone/Android companion apps with a volunteer testing call.

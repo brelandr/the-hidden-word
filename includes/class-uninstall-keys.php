@@ -47,6 +47,14 @@ class HWBL_Uninstall_Keys {
 			'thw_votd_source',
 			'thw_votd_translation',
 			'thw_votd_explain_delivery',
+			'thw_votd_auto_explain_enabled',
+			'thw_votd_auto_explain_translations',
+			'thw_votd_auto_explain_last',
+			'thw_votd_auto_explain_status',
+			'thw_votd_auto_study_enabled',
+			'thw_votd_auto_study_translations',
+			'thw_votd_auto_study_last',
+			'thw_votd_auto_study_status',
 			'thw_ai_explain_rules',
 			'thw_ai_explain_rules_preset',
 			'thw_ai_study_rules',
@@ -73,6 +81,12 @@ class HWBL_Uninstall_Keys {
 			'thw_explain_pack_catalog_url',
 			'hwbl_bible_explain_db_version',
 			'hwbl_bible_explain_cpt_migrate_offset',
+			'hwbl_plan_sample_seeded',
+			'hwbl_testimony_rewrite_flushed',
+			'hwbl_gospel_rewrite_flushed',
+			'hwbl_journal_db_version',
+			'hwbl_plan_day_studies_db_version',
+			'hwbl_plan_journal_db_version',
 		);
 	}
 

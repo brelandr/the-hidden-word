@@ -939,6 +939,9 @@ class HWBL_Bible_Reader {
 		if ( ! empty( $features['concordance'] ) && class_exists( 'HWBL_Bible_Concordance' ) ) {
 			HWBL_Bible_Concordance::enqueue_assets();
 		}
+		if ( class_exists( 'HWBL_Verse_Share_Card' ) ) {
+			HWBL_Verse_Share_Card::enqueue();
+		}
 
 		wp_enqueue_style( 'hwbl-bible-reader' );
 		wp_enqueue_script( 'hwbl-bible-reader' );
@@ -1074,6 +1077,7 @@ class HWBL_Bible_Reader {
 					<span class="hwbl-bible-reader__label"><?php esc_html_e( 'Audio narrator', 'hidden-word-bible-lessons' ); ?></span>
 					<select class="hwbl-bible-reader__narrator"></select>
 				</label>
+				<button type="button" class="hwbl-btn hwbl-btn-secondary" data-hwbl-easy-read-toggle="1" aria-pressed="false"><?php esc_html_e( 'Easy read', 'hidden-word-bible-lessons' ); ?></button>
 			</div>
 			<div class="hwbl-bible-reader__audio-wrap">
 				<audio class="hwbl-bible-reader__audio" controls preload="none"></audio>
@@ -1086,6 +1090,9 @@ class HWBL_Bible_Reader {
 			<div class="hwbl-bible-reader__memorize-bar" hidden>
 				<p class="hwbl-bible-reader__memorize-hint"><?php esc_html_e( 'Click a verse, then start memorization practice.', 'hidden-word-bible-lessons' ); ?></p>
 				<button type="button" class="hwbl-btn hwbl-bible-reader__memorize-btn"><?php esc_html_e( 'Memorize this verse', 'hidden-word-bible-lessons' ); ?></button>
+				<button type="button" class="hwbl-btn hwbl-btn-secondary hwbl-bible-reader__share-btn" data-hwbl-share-verse="1" data-verse="" data-ref=""><?php esc_html_e( 'Share as image', 'hidden-word-bible-lessons' ); ?></button>
+				<a class="hwbl-btn hwbl-btn-secondary hwbl-bible-reader__share-wa" href="#" hidden target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'WhatsApp', 'hidden-word-bible-lessons' ); ?></a>
+				<a class="hwbl-btn hwbl-btn-secondary hwbl-bible-reader__share-sms" href="#" hidden><?php esc_html_e( 'SMS', 'hidden-word-bible-lessons' ); ?></a>
 			</div>
 			<div class="hwbl-bible-reader__memorize-panel" hidden></div>
 			<?php if ( ! empty( $features['research'] ) ) : ?>

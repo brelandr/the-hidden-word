@@ -23,6 +23,7 @@ class THW_Premium_Votd_Explain_Store {
 	const META_TRANS = '_thw_votd_translation';
 	const META_REF  = '_thw_votd_reference';
 	const META_FLAG = '_thw_votd_flagged';
+	const EXPLAIN_FEATURED_IMAGE_OPT = 'thw_votd_explain_featured_image';
 
 	/**
 	 * Register CPT.
@@ -36,6 +37,15 @@ class THW_Premium_Votd_Explain_Store {
 	}
 
 	/**
+	 * Whether explain posts should show / auto-attach a featured image.
+	 *
+	 * @return bool
+	 */
+	public static function is_featured_image_enabled() {
+		return (bool) get_option( self::EXPLAIN_FEATURED_IMAGE_OPT, true );
+	}
+
+	/**
 	 * Repair markdown-fenced / plain-text AI bodies when rendering a saved explanation.
 	 *
 	 * @param string $content Post content.
@@ -46,18 +56,119 @@ class THW_Premium_Votd_Explain_Store {
 			return $content;
 		}
 
-		if ( ! class_exists( 'THW_Premium_AI_Client' ) ) {
-			return $content;
+		$repaired = (string) $content;
+		if ( class_exists( 'THW_Premium_AI_Client' ) ) {
+			if ( ! preg_match( '/^(.*)<div class="thw-votd-explain__body[^"]*">(.*)<\/div>\s*$/is', $repaired, $m ) ) {
+				$repaired = THW_Premium_AI_Client::format_html_response( $repaired );
+			} else {
+				$prefix   = $m[1];
+				$body     = THW_Premium_AI_Client::format_html_response( $m[2] );
+				$repaired = $prefix . '<div class="thw-votd-explain__body thw-votd-explain-output">' . $body . '</div>';
+			}
 		}
 
-		if ( ! preg_match( '/^(.*)<div class="thw-votd-explain__body[^"]*">(.*)<\/div>\s*$/is', (string) $content, $m ) ) {
-			return THW_Premium_AI_Client::format_html_response( $content );
+		// Themes that use single.php / the_content without a featured-image block.
+		$already = ! empty( $GLOBALS['thw_votd_explain_featured_rendered'] )
+			|| preg_match( '/thw-votd-explain__featured/', $repaired );
+		if ( self::is_featured_image_enabled() && has_post_thumbnail() && ! $already ) {
+			$repaired = self::render_featured_image_html( get_the_ID() ) . $repaired;
 		}
 
-		$prefix = $m[1];
-		$body   = THW_Premium_AI_Client::format_html_response( $m[2] );
+		if ( false === strpos( $repaired, 'thw-votd-explain__study' ) ) {
+			$study = self::render_study_card_for_current_post();
+			if ( $study ) {
+				$repaired .= $study;
+			}
+		}
 
-		return $prefix . '<div class="thw-votd-explain__body thw-votd-explain-output">' . $body . '</div>';
+		return $repaired;
+	}
+
+	/**
+	 * Verse Study Card CTA for the explained VOTD reference.
+	 *
+	 * @return string
+	 */
+	public static function render_study_card_for_current_post() {
+		if ( ! class_exists( 'THW_Premium_Bible_Study_Card' ) || ! class_exists( 'HWBL_Books' ) ) {
+			return '';
+		}
+
+		$post_id = get_the_ID();
+		if ( ! $post_id ) {
+			return '';
+		}
+
+		$reference = self::normalize_reference( (string) get_post_meta( $post_id, self::META_REF, true ) );
+		if ( '' === $reference ) {
+			return '';
+		}
+
+		$parsed = HWBL_Books::parse_reference( $reference );
+		if ( ! is_array( $parsed ) || (int) $parsed['book_id'] < 1 || (int) $parsed['chapter'] < 1 || (int) $parsed['verse'] < 1 ) {
+			return '';
+		}
+
+		$translation = sanitize_key( (string) get_post_meta( $post_id, self::META_TRANS, true ) );
+		if ( 'default' === $translation ) {
+			$translation = '';
+		}
+
+		$card = THW_Premium_Bible_Study_Card::render_shortcode(
+			array(
+				'book_id'     => (int) $parsed['book_id'],
+				'chapter'     => (int) $parsed['chapter'],
+				'verse'       => (int) $parsed['verse'],
+				'translation' => $translation,
+				'title'       => __( 'Study this verse', 'hidden-word-bible-lessons' ),
+				'picker'      => '0',
+			)
+		);
+
+		if ( ! is_string( $card ) || '' === trim( $card ) || false === strpos( $card, 'hwbl-verse-study' ) ) {
+			return '';
+		}
+
+		return '<section class="thw-votd-explain__study" aria-label="' . esc_attr__( 'Study this verse', 'hidden-word-bible-lessons' ) . '">'
+			. '<p class="thw-votd-explain__study-intro">'
+			. esc_html__( 'Go deeper with a Verse Study Card — plain words, context, key words, cross-references, and a reflection.', 'hidden-word-bible-lessons' )
+			. '</p>'
+			. $card
+			. '</section>';
+	}
+
+	/**
+	 * Featured image markup for a VOTD explanation post.
+	 *
+	 * @param int $post_id Post ID.
+	 * @return string
+	 */
+	public static function render_featured_image_html( $post_id ) {
+		$post_id = absint( $post_id );
+		if ( $post_id < 1 || ! has_post_thumbnail( $post_id ) ) {
+			return '';
+		}
+
+		$img = get_the_post_thumbnail(
+			$post_id,
+			'large',
+			array(
+				'class'   => 'thw-votd-explain__featured-img',
+				'loading' => 'lazy',
+			)
+		);
+		if ( ! $img ) {
+			return '';
+		}
+
+		$caption = get_the_post_thumbnail_caption( $post_id );
+		$html    = '<figure class="thw-votd-explain__featured">' . $img;
+		if ( is_string( $caption ) && '' !== trim( $caption ) ) {
+			$html .= '<figcaption class="thw-votd-explain__featured-caption">' . esc_html( $caption ) . '</figcaption>';
+		}
+		$html .= '</figure>';
+
+		return $html;
 	}
 
 	/**
@@ -70,6 +181,10 @@ class THW_Premium_Votd_Explain_Store {
 
 		if ( wp_style_is( 'thw-premium', 'registered' ) ) {
 			wp_enqueue_style( 'thw-premium' );
+		}
+
+		if ( class_exists( 'THW_Premium_Bible_Study_Card' ) ) {
+			THW_Premium_Bible_Study_Card::enqueue_assets();
 		}
 	}
 
@@ -200,7 +315,7 @@ class THW_Premium_Votd_Explain_Store {
 					'slug'       => 'verse-of-the-day-explanation',
 					'with_front' => false,
 				),
-				'supports'            => array( 'title', 'editor', 'author' ),
+				'supports'            => array( 'title', 'editor', 'author', 'thumbnail' ),
 				'exclude_from_search' => true,
 				'capability_type'     => 'post',
 				'map_meta_cap'        => true,
@@ -558,10 +673,19 @@ class THW_Premium_Votd_Explain_Store {
 		$trans_label = '';
 		if ( ! empty( $payload['translation_label'] ) ) {
 			$trans_label = (string) $payload['translation_label'];
-		} elseif ( class_exists( 'HWBL_Translation_Service' ) ) {
+		}
+		// Never persist the Bible.com source tag as the translation name when we have a real slug.
+		if (
+			( '' === $trans_label || 0 === strcasecmp( $trans_label, 'Bible.com' ) )
+			&& 'default' !== $translation
+			&& class_exists( 'HWBL_Translation_Service' )
+		) {
 			$svc = HWBL_Translation_Service::instance();
 			if ( method_exists( $svc, 'get_translation_label' ) ) {
-				$trans_label = (string) $svc->get_translation_label( $translation );
+				$resolved = (string) $svc->get_translation_label( $translation );
+				if ( '' !== $resolved ) {
+					$trans_label = $resolved;
+				}
 			}
 		}
 		if ( '' === $trans_label ) {
@@ -617,11 +741,89 @@ class THW_Premium_Votd_Explain_Store {
 		update_post_meta( $post_id, self::META_REF, $reference );
 		update_post_meta( $post_id, self::META_FLAG, $flagged ? 1 : 0 );
 
+		if ( self::is_featured_image_enabled() && empty( get_post_thumbnail_id( $post_id ) ) ) {
+			$image_url = isset( $payload['image'] ) ? esc_url_raw( (string) $payload['image'] ) : '';
+			if ( $image_url ) {
+				self::maybe_set_featured_image_from_url(
+					(int) $post_id,
+					$image_url,
+					$reference ? $reference : $title
+				);
+			}
+		}
+
 		// Pretty permalinks 404 until CPT rewrite rules exist — flush now if needed.
 		self::maybe_flush_rewrites();
 
 		$post = get_post( $post_id );
 		return $post instanceof WP_Post ? $post : null;
+	}
+
+	/**
+	 * Sideload a remote image and set it as the post featured image.
+	 *
+	 * @param int    $post_id   Post ID.
+	 * @param string $image_url Remote image URL.
+	 * @param string $title     Attachment title / alt.
+	 * @return int Attachment ID or 0.
+	 */
+	public static function maybe_set_featured_image_from_url( $post_id, $image_url, $title = '' ) {
+		$post_id   = absint( $post_id );
+		$image_url = esc_url_raw( (string) $image_url );
+		if ( $post_id < 1 || '' === $image_url ) {
+			return 0;
+		}
+		if ( ! empty( get_post_thumbnail_id( $post_id ) ) ) {
+			return (int) get_post_thumbnail_id( $post_id );
+		}
+
+		if ( ! function_exists( 'media_handle_sideload' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+			require_once ABSPATH . 'wp-admin/includes/media.php';
+			require_once ABSPATH . 'wp-admin/includes/image.php';
+		}
+
+		$tmp = download_url( $image_url, 30 );
+		if ( is_wp_error( $tmp ) ) {
+			return 0;
+		}
+
+		$path = wp_parse_url( $image_url, PHP_URL_PATH );
+		$name = is_string( $path ) ? basename( $path ) : '';
+		if ( '' === $name || false === strpos( $name, '.' ) ) {
+			$name = 'votd-' . $post_id . '.jpg';
+		}
+		$name = sanitize_file_name( $name );
+
+		$file_array = array(
+			'name'     => $name,
+			'tmp_name' => $tmp,
+		);
+
+		$attachment_id = media_handle_sideload(
+			$file_array,
+			$post_id,
+			$title ? sanitize_text_field( $title ) : ''
+		);
+
+		if ( is_wp_error( $attachment_id ) ) {
+			if ( is_string( $tmp ) && file_exists( $tmp ) ) {
+				wp_delete_file( $tmp );
+			}
+			return 0;
+		}
+
+		set_post_thumbnail( $post_id, (int) $attachment_id );
+
+		if ( $title ) {
+			update_post_meta(
+				(int) $attachment_id,
+				'_wp_attachment_image_alt',
+				sanitize_text_field( $title )
+			);
+		}
+
+		return (int) $attachment_id;
 	}
 
 	/**

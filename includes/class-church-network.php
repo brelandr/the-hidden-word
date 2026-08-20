@@ -750,7 +750,16 @@ class HWBL_Church_Network {
 					'details' => array(
 						array(
 							'appID' => $app_id,
-							'paths' => array( '/app/join', '/app/join/*' ),
+							'paths' => array(
+								'/app/join',
+								'/app/join/*',
+								'/bible-plan',
+								'/bible-plan/*',
+								'/reading-plans',
+								'/reading-plans/*',
+								'/faith-formation',
+								'/faith-formation/*',
+							),
 						),
 					),
 				),

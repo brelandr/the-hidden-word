@@ -33,7 +33,8 @@
 
 .hwbl-bible-concordance__query,
 .hwbl-bible-concordance__translation,
-.hwbl-bible-concordance__testament {
+.hwbl-bible-concordance__testament,
+.hwbl-bible-concordance__mode {
 	padding: 0.45rem 0.6rem;
 	border: 1px solid #c5d0da;
 	border-radius: 4px;
@@ -64,6 +65,13 @@
 	background: #fff;
 }
 
+.hwbl-bible-concordance__actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.5rem 0.75rem;
+}
+
 .hwbl-bible-concordance__ref {
 	font-weight: 700;
 	color: #1a5276;
@@ -75,9 +83,58 @@
 	text-decoration: underline;
 }
 
+.hwbl-bible-concordance__compare {
+	font-size: 0.85rem;
+	padding: 0.2rem 0.55rem;
+}
+
 .hwbl-bible-concordance__text {
 	margin: 0.35rem 0 0;
 	line-height: 1.45;
+}
+
+.hwbl-bible-concordance__strongs-meta {
+	margin: 0 0 0.65rem;
+	padding: 0.55rem 0.7rem;
+	border-left: 3px solid #b45309;
+	background: #fffbeb;
+	font-size: 0.95rem;
+}
+
+.hwbl-bible-concordance__candidates {
+	margin: 0 0 0.75rem;
+}
+
+.hwbl-bible-concordance__candidates-label {
+	margin: 0 0 0.35rem;
+	font-size: 0.9rem;
+	color: #555;
+}
+
+.hwbl-bible-concordance__candidates-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.4rem;
+}
+
+.hwbl-bible-concordance__candidate {
+	font-size: 0.85rem;
+}
+
+.hwbl-bible-concordance__pager {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.5rem 0.75rem;
+	margin: 0.75rem 0 0;
+}
+
+.hwbl-bible-concordance__page-label {
+	font-size: 0.9rem;
+	color: #555;
 }
 
 .hwbl-bible-concordance__text mark {

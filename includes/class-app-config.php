@@ -108,6 +108,8 @@ class HWBL_App_Config {
 		$votd         = class_exists( 'THW_Premium_Verse_Of_The_Day' );
 		$memorize     = class_exists( 'HWBL_Memorization_SRS' );
 		$cohort       = class_exists( 'THW_Premium_Cohort' ) && class_exists( 'HWBL_Cohort_Leaderboard' );
+		$concordance  = class_exists( 'HWBL_Bible_Concordance' ) && HWBL_Bible_Concordance::is_enabled();
+		$bible_maps   = class_exists( 'HWBL_Bible_Places' ) && HWBL_Bible_Places::is_enabled();
 
 		$primary   = (string) get_option( 'hwbl_app_primary_color', '' );
 		$secondary = (string) get_option( 'hwbl_app_secondary_color', '' );
@@ -150,6 +152,13 @@ class HWBL_App_Config {
 				),
 				'remotePush'            => class_exists( 'HWBL_Push_Notifications' )
 					&& HWBL_Push_Notifications::is_configured(),
+				'concordance'           => (bool) $concordance,
+				'bibleMaps'             => (bool) $bible_maps,
+				'plans'                 => true,
+				'testimony'             => true,
+				'prayer'                => true,
+				'journal'               => true,
+				'apologetics'           => true,
 			),
 			'deepLink'     => 'hwbl://church?url=' . rawurlencode( $site_url ),
 			'joinUrl'      => class_exists( 'HWBL_Church_Network' )

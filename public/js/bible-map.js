@@ -29,8 +29,11 @@
 		return shown + '; +' + (verses.length - limit) + ' more';
 	}
 
-	function placePopupHtml(place) {
+	function placePopupHtml(place, stopIndex) {
 		var parts = ['<strong>' + escapeHtml(place.name || '') + '</strong>'];
+		if (typeof stopIndex === 'number' && stopIndex >= 0) {
+			parts.unshift('<em>Stop ' + (stopIndex + 1) + '</em><br>');
+		}
 		if (place.modern_name) {
 			parts.push('<br>' + escapeHtml(place.modern_name));
 		}
@@ -47,20 +50,12 @@
 		}
 		if (place.confidence) {
 			parts.push(
-				'<br><em>' +
-					escapeHtml(place.confidence) +
-					' confidence</em>'
+				'<br><em>' + escapeHtml(place.confidence) + ' confidence</em>'
 			);
 		}
 		return parts.join('');
 	}
 
-	/**
-	 * Two-line label: biblical name + modern location (when different).
-	 *
-	 * @param {object} place
-	 * @returns {string}
-	 */
 	function formatPlaceLabel(place) {
 		var name = String((place && place.name) || '').trim();
 		var modern = String((place && place.modern_name) || '').trim();
@@ -73,16 +68,13 @@
 		return name + '\n' + modern + ' (today)';
 	}
 
-	/**
-	 * HTML for Leaflet tooltip / DivIcon labels.
-	 *
-	 * @param {object} place
-	 * @returns {string}
-	 */
 	function formatPlaceLabelHtml(place) {
 		var name = String((place && place.name) || '').trim();
 		var modern = String((place && place.modern_name) || '').trim();
-		var html = '<span class="hwbl-bible-map__label-biblical">' + escapeHtml(name) + '</span>';
+		var html =
+			'<span class="hwbl-bible-map__label-biblical">' +
+			escapeHtml(name) +
+			'</span>';
 		if (modern && modern.toLowerCase() !== name.toLowerCase()) {
 			html +=
 				'<span class="hwbl-bible-map__label-modern">' +
@@ -92,13 +84,8 @@
 		return html;
 	}
 
-	/**
-	 * Build a GeoJSON FeatureCollection from place hits.
-	 *
-	 * @param {Array<object>} places
-	 * @returns {object}
-	 */
-	function placesToGeoJSON(places) {
+	function placesToGeoJSON(places, opts) {
+		opts = opts || {};
 		var features = [];
 		(places || []).forEach(function (place, index) {
 			if (place.lat == null || place.lng == null) {
@@ -116,6 +103,8 @@
 					modern_name: place.modern_name || '',
 					label: formatPlaceLabel(place),
 					confidence: place.confidence || '',
+					popup: placePopupHtml(place, opts.numbered ? index : undefined),
+					stop: opts.numbered ? index + 1 : 0,
 				},
 			});
 		});
@@ -125,8 +114,35 @@
 		};
 	}
 
+	function sortPlacesForJourney(places) {
+		return (places || [])
+			.filter(function (p) {
+				return p && p.lat != null && p.lng != null;
+			})
+			.slice()
+			.sort(function (a, b) {
+				var ka = String(a.first_key || '');
+				var kb = String(b.first_key || '');
+				if (ka && kb && ka !== kb) {
+					return ka < kb ? -1 : 1;
+				}
+				if (ka && !kb) {
+					return -1;
+				}
+				if (!ka && kb) {
+					return 1;
+				}
+				return String(a.name || '').localeCompare(String(b.name || ''));
+			});
+	}
+
 	var MAPBOX_SOURCE_ID = 'hwbl-biblical-places';
+	var MAPBOX_CLUSTER_LAYER = 'hwbl-biblical-clusters';
+	var MAPBOX_CLUSTER_COUNT = 'hwbl-biblical-cluster-count';
+	var MAPBOX_UNCLUSTERED = 'hwbl-biblical-unclustered';
 	var MAPBOX_LABEL_LAYER_ID = 'hwbl-biblical-place-labels';
+	var MAPBOX_ROUTE_SOURCE = 'hwbl-biblical-route';
+	var MAPBOX_ROUTE_LAYER = 'hwbl-biblical-route-line';
 
 	function fetchPlaces(bookId, chapter, verse, scope) {
 		var conf = cfg();
@@ -161,6 +177,7 @@
 	}
 
 	function destroyMap(widget) {
+		stopJourneyPlayback(widget);
 		if (widget._hwblMapMarkers && widget._hwblMapMarkers.length) {
 			widget._hwblMapMarkers.forEach(function (marker) {
 				if (marker && typeof marker.remove === 'function') {
@@ -168,16 +185,29 @@
 				}
 			});
 		}
+		if (widget._hwblClusterGroup && widget._hwblMap) {
+			try {
+				widget._hwblMap.removeLayer(widget._hwblClusterGroup);
+			} catch (e) {
+				// ignore
+			}
+		}
 		if (widget._hwblMap && typeof widget._hwblMap.remove === 'function') {
 			widget._hwblMap.remove();
 		}
 		widget._hwblMap = null;
 		widget._hwblMapMarkers = null;
+		widget._hwblClusterGroup = null;
 		widget._hwblMapPlaces = null;
-		var styleWrap = widget.querySelector('.hwbl-bible-map__style-bar');
-		if (styleWrap) {
-			styleWrap.parentNode.removeChild(styleWrap);
-		}
+		widget._hwblJourneyStops = null;
+		['.hwbl-bible-map__style-bar', '.hwbl-bible-map__journey-bar'].forEach(
+			function (sel) {
+				var el = widget.querySelector(sel);
+				if (el && el.parentNode) {
+					el.parentNode.removeChild(el);
+				}
+			}
+		);
 	}
 
 	function scopeStorageKey() {
@@ -210,8 +240,27 @@
 
 	function resolveWidgetScope(widget) {
 		var attr = widget.getAttribute('data-scope') || 'passage';
-		// Prefer session choice so reader chapter changes keep Whole book.
 		return readStoredScope(attr === 'book' ? 'book' : 'passage');
+	}
+
+	function journeyStorageKey() {
+		return 'hwbl_bible_map_journey';
+	}
+
+	function readJourneyEnabled() {
+		try {
+			return window.sessionStorage.getItem(journeyStorageKey()) === '1';
+		} catch (e) {
+			return false;
+		}
+	}
+
+	function writeJourneyEnabled(on) {
+		try {
+			window.sessionStorage.setItem(journeyStorageKey(), on ? '1' : '0');
+		} catch (e) {
+			// ignore
+		}
 	}
 
 	function ensureScopeBar(widget) {
@@ -262,6 +311,141 @@
 		});
 
 		return select;
+	}
+
+	function ensureJourneyBar(widget, places) {
+		var canvas = widget.querySelector('.hwbl-bible-map__canvas');
+		if (!canvas || !canvas.parentNode) {
+			return null;
+		}
+		var existing = widget.querySelector('.hwbl-bible-map__journey-bar');
+		if (existing) {
+			existing.parentNode.removeChild(existing);
+		}
+		var stops = sortPlacesForJourney(places);
+		if (stops.length < 2) {
+			widget._hwblJourneyEnabled = false;
+			return null;
+		}
+
+		var enabled = readJourneyEnabled();
+		widget._hwblJourneyEnabled = enabled;
+
+		var bar = document.createElement('div');
+		bar.className = 'hwbl-bible-map__journey-bar';
+
+		var toggleLabel = document.createElement('label');
+		toggleLabel.className = 'hwbl-bible-map__journey-toggle';
+		var checkbox = document.createElement('input');
+		checkbox.type = 'checkbox';
+		checkbox.className = 'hwbl-bible-map__journey-checkbox';
+		checkbox.checked = enabled;
+		toggleLabel.appendChild(checkbox);
+		toggleLabel.appendChild(document.createTextNode(' Journey mode'));
+		bar.appendChild(toggleLabel);
+
+		var controls = document.createElement('div');
+		controls.className = 'hwbl-bible-map__journey-controls';
+		controls.hidden = !enabled;
+
+		var prev = document.createElement('button');
+		prev.type = 'button';
+		prev.className = 'hwbl-btn hwbl-btn-secondary hwbl-bible-map__journey-prev';
+		prev.textContent = 'Prev stop';
+		var play = document.createElement('button');
+		play.type = 'button';
+		play.className = 'hwbl-btn hwbl-btn-secondary hwbl-bible-map__journey-play';
+		play.textContent = 'Play';
+		var next = document.createElement('button');
+		next.type = 'button';
+		next.className = 'hwbl-btn hwbl-btn-secondary hwbl-bible-map__journey-next';
+		next.textContent = 'Next stop';
+		var status = document.createElement('span');
+		status.className = 'hwbl-bible-map__journey-status';
+		controls.appendChild(prev);
+		controls.appendChild(play);
+		controls.appendChild(next);
+		controls.appendChild(status);
+		bar.appendChild(controls);
+
+		canvas.parentNode.insertBefore(bar, canvas.nextSibling);
+
+		checkbox.addEventListener('change', function () {
+			writeJourneyEnabled(checkbox.checked);
+			widget._hwblJourneyEnabled = checkbox.checked;
+			if (typeof widget._hwblReloadPlaces === 'function') {
+				widget._hwblReloadPlaces();
+			}
+		});
+		prev.addEventListener('click', function () {
+			stepJourney(widget, -1);
+		});
+		next.addEventListener('click', function () {
+			stepJourney(widget, 1);
+		});
+		play.addEventListener('click', function () {
+			toggleJourneyPlayback(widget, play);
+		});
+
+		return bar;
+	}
+
+	function stopJourneyPlayback(widget) {
+		if (widget._hwblJourneyTimer) {
+			window.clearInterval(widget._hwblJourneyTimer);
+			widget._hwblJourneyTimer = null;
+		}
+		var play = widget.querySelector('.hwbl-bible-map__journey-play');
+		if (play) {
+			play.textContent = 'Play';
+		}
+	}
+
+	function toggleJourneyPlayback(widget, playBtn) {
+		if (widget._hwblJourneyTimer) {
+			stopJourneyPlayback(widget);
+			return;
+		}
+		if (playBtn) {
+			playBtn.textContent = 'Pause';
+		}
+		widget._hwblJourneyTimer = window.setInterval(function () {
+			var stops = widget._hwblJourneyStops || [];
+			var idx = widget._hwblJourneyIndex || 0;
+			if (idx >= stops.length - 1) {
+				stopJourneyPlayback(widget);
+				return;
+			}
+			stepJourney(widget, 1);
+		}, 1800);
+	}
+
+	function updateJourneyStatus(widget) {
+		var status = widget.querySelector('.hwbl-bible-map__journey-status');
+		var stops = widget._hwblJourneyStops || [];
+		var idx = widget._hwblJourneyIndex || 0;
+		if (!status || !stops.length) {
+			return;
+		}
+		var place = stops[idx];
+		status.textContent =
+			'Stop ' +
+			(idx + 1) +
+			' / ' +
+			stops.length +
+			(place && place.name ? ': ' + place.name : '');
+	}
+
+	function stepJourney(widget, delta) {
+		var stops = widget._hwblJourneyStops || [];
+		if (!stops.length) {
+			return;
+		}
+		var idx = widget._hwblJourneyIndex || 0;
+		idx = Math.max(0, Math.min(stops.length - 1, idx + delta));
+		widget._hwblJourneyIndex = idx;
+		updateJourneyStatus(widget);
+		focusPlace(widget, stops[idx]);
 	}
 
 	function styleStorageKey() {
@@ -330,6 +514,25 @@
 		return select;
 	}
 
+	function clearMapboxLayers(map) {
+		[
+			MAPBOX_LABEL_LAYER_ID,
+			MAPBOX_CLUSTER_COUNT,
+			MAPBOX_CLUSTER_LAYER,
+			MAPBOX_UNCLUSTERED,
+			MAPBOX_ROUTE_LAYER,
+		].forEach(function (id) {
+			if (map.getLayer(id)) {
+				map.removeLayer(id);
+			}
+		});
+		[MAPBOX_SOURCE_ID, MAPBOX_ROUTE_SOURCE].forEach(function (id) {
+			if (map.getSource(id)) {
+				map.removeSource(id);
+			}
+		});
+	}
+
 	function clearMapboxMarkers(widget) {
 		if (!widget._hwblMapMarkers) {
 			return;
@@ -342,44 +545,122 @@
 		widget._hwblMapMarkers = [];
 	}
 
-	function upsertMapboxLabelLayer(map, places) {
-		var geojson = placesToGeoJSON(places);
-		if (map.getSource(MAPBOX_SOURCE_ID)) {
-			map.getSource(MAPBOX_SOURCE_ID).setData(geojson);
+	function addMapboxJourney(map, places) {
+		var coords = places.map(function (p) {
+			return [p.lng, p.lat];
+		});
+		if (coords.length < 2) {
+			return;
+		}
+		map.addSource(MAPBOX_ROUTE_SOURCE, {
+			type: 'geojson',
+			data: {
+				type: 'Feature',
+				geometry: { type: 'LineString', coordinates: coords },
+			},
+		});
+		map.addLayer({
+			id: MAPBOX_ROUTE_LAYER,
+			type: 'line',
+			source: MAPBOX_ROUTE_SOURCE,
+			layout: { 'line-join': 'round', 'line-cap': 'round' },
+			paint: {
+				'line-color': '#b45309',
+				'line-width': 3,
+				'line-opacity': 0.85,
+			},
+		});
+	}
+
+	function addMapboxClustered(widget, map, places, fit, journey) {
+		clearMapboxMarkers(widget);
+		clearMapboxLayers(map);
+		var list = journey ? sortPlacesForJourney(places) : places || [];
+		var geojson = placesToGeoJSON(list, { numbered: !!journey });
+
+		map.addSource(MAPBOX_SOURCE_ID, {
+			type: 'geojson',
+			data: geojson,
+			cluster: !journey,
+			clusterMaxZoom: 12,
+			clusterRadius: 50,
+		});
+
+		if (journey) {
+			addMapboxJourney(map, list);
+			widget._hwblJourneyStops = list;
+			widget._hwblJourneyIndex = 0;
+			updateJourneyStatus(widget);
 		} else {
-			map.addSource(MAPBOX_SOURCE_ID, {
-				type: 'geojson',
-				data: geojson,
+			widget._hwblJourneyStops = null;
+		}
+
+		if (!journey) {
+			map.addLayer({
+				id: MAPBOX_CLUSTER_LAYER,
+				type: 'circle',
+				source: MAPBOX_SOURCE_ID,
+				filter: ['has', 'point_count'],
+				paint: {
+					'circle-color': [
+						'step',
+						['get', 'point_count'],
+						'#93c5fd',
+						10,
+						'#60a5fa',
+						30,
+						'#2563eb',
+					],
+					'circle-radius': [
+						'step',
+						['get', 'point_count'],
+						16,
+						10,
+						22,
+						30,
+						28,
+					],
+				},
+			});
+			map.addLayer({
+				id: MAPBOX_CLUSTER_COUNT,
+				type: 'symbol',
+				source: MAPBOX_SOURCE_ID,
+				filter: ['has', 'point_count'],
+				layout: {
+					'text-field': ['get', 'point_count_abbreviated'],
+					'text-size': 12,
+				},
+				paint: { 'text-color': '#0f172a' },
 			});
 		}
 
-		if (map.getLayer(MAPBOX_LABEL_LAYER_ID)) {
-			return;
-		}
+		map.addLayer({
+			id: MAPBOX_UNCLUSTERED,
+			type: 'circle',
+			source: MAPBOX_SOURCE_ID,
+			filter: journey ? ['all'] : ['!', ['has', 'point_count']],
+			paint: {
+				'circle-color': journey ? '#b45309' : '#b91c1c',
+				'circle-radius': journey ? 7 : 6,
+				'circle-stroke-width': 2,
+				'circle-stroke-color': '#fff8f0',
+			},
+		});
 
 		map.addLayer({
 			id: MAPBOX_LABEL_LAYER_ID,
 			type: 'symbol',
 			source: MAPBOX_SOURCE_ID,
+			filter: journey ? ['all'] : ['!', ['has', 'point_count']],
 			layout: {
-				'text-field': ['get', 'label'],
+				'text-field': journey
+					? ['concat', ['to-string', ['get', 'stop']], '. ', ['get', 'name']]
+					: ['get', 'label'],
 				'text-font': ['DIN Pro Bold', 'Arial Unicode MS Bold'],
-				'text-size': [
-					'interpolate',
-					['linear'],
-					['zoom'],
-					4,
-					12,
-					10,
-					17,
-				],
+				'text-size': 12,
 				'text-variable-anchor': ['top', 'bottom', 'left', 'right'],
 				'text-radial-offset': 0.9,
-				'text-justify': 'auto',
-				'text-line-height': 1.15,
-				'text-max-width': 10,
-				'text-allow-overlap': false,
-				'text-ignore-placement': false,
 				'text-optional': true,
 			},
 			paint: {
@@ -388,40 +669,54 @@
 				'text-halo-width': 2,
 			},
 		});
-	}
 
-	function addMapboxMarkers(widget, map, places, fit) {
-		clearMapboxMarkers(widget);
-		widget._hwblMapMarkers = [];
+		if (!map._hwblClusterClickBound) {
+			map.on('click', MAPBOX_CLUSTER_LAYER, function (e) {
+				var features = map.queryRenderedFeatures(e.point, {
+					layers: [MAPBOX_CLUSTER_LAYER],
+				});
+				var clusterId = features[0] && features[0].properties.cluster_id;
+				var source = map.getSource(MAPBOX_SOURCE_ID);
+				if (!source || clusterId == null) {
+					return;
+				}
+				source.getClusterExpansionZoom(clusterId, function (err, zoom) {
+					if (err) {
+						return;
+					}
+					map.easeTo({
+						center: features[0].geometry.coordinates,
+						zoom: zoom,
+					});
+				});
+			});
+			map.on('click', MAPBOX_UNCLUSTERED, function (e) {
+				var feature = e.features && e.features[0];
+				if (!feature) {
+					return;
+				}
+				new window.mapboxgl.Popup({ offset: 12 })
+					.setLngLat(feature.geometry.coordinates)
+					.setHTML(feature.properties.popup || feature.properties.name)
+					.addTo(map);
+			});
+			map._hwblClusterClickBound = true;
+		}
+
 		var bounds = new window.mapboxgl.LngLatBounds();
 		var hasPoint = false;
-		(places || []).forEach(function (place) {
+		list.forEach(function (place) {
 			if (place.lat == null || place.lng == null) {
 				return;
 			}
 			hasPoint = true;
-			var popup = new window.mapboxgl.Popup({ offset: 16 }).setHTML(
-				placePopupHtml(place)
-			);
-			var marker = new window.mapboxgl.Marker()
-				.setLngLat([place.lng, place.lat])
-				.setPopup(popup)
-				.addTo(map);
-			widget._hwblMapMarkers.push(marker);
 			bounds.extend([place.lng, place.lat]);
 		});
-
-		try {
-			upsertMapboxLabelLayer(map, places);
-		} catch (err) {
-			// Style may still be loading; caller retries on style.load.
-		}
-
 		if (fit && hasPoint) {
-			if (places.length === 1) {
-				map.jumpTo({ center: [places[0].lng, places[0].lat], zoom: 8 });
+			if (list.length === 1) {
+				map.jumpTo({ center: [list[0].lng, list[0].lat], zoom: 8 });
 			} else {
-				map.fitBounds(bounds, { padding: 40, maxZoom: 10 });
+				map.fitBounds(bounds, { padding: 40, maxZoom: journey ? 9 : 10 });
 			}
 		}
 		return hasPoint;
@@ -457,8 +752,11 @@
 			? wrap.querySelector('.hwbl-bible-map__places-summary')
 			: null;
 		list.innerHTML = '';
+		var display = widget._hwblJourneyEnabled
+			? sortPlacesForJourney(places)
+			: places || [];
 
-		if (!places.length) {
+		if (!display.length) {
 			if (wrap) {
 				wrap.hidden = true;
 			}
@@ -473,17 +771,18 @@
 		}
 		if (summary) {
 			summary.textContent =
-				places.length === 1
-					? '1 place'
-					: places.length + ' places';
+				display.length === 1 ? '1 place' : display.length + ' places';
 		}
 
-		places.forEach(function (place) {
+		display.forEach(function (place, index) {
 			var li = document.createElement('li');
 			li.className = 'hwbl-bible-map__list-item';
 			var nameEl = document.createElement('span');
 			nameEl.className = 'hwbl-bible-map__list-name';
 			var label = place.name || '';
+			if (widget._hwblJourneyEnabled) {
+				label = index + 1 + '. ' + label;
+			}
 			if (place.modern_name && place.modern_name !== place.name) {
 				label += ' — ' + place.modern_name;
 			}
@@ -498,22 +797,22 @@
 				li.appendChild(verseEl);
 			}
 
-			var titleBits = [];
-			if (place.verses && place.verses.length) {
-				titleBits.push(place.verses.join('; '));
-			}
-			if (place.confidence) {
-				titleBits.push(place.confidence + ' confidence');
-			}
-			li.title = titleBits.join(' · ');
 			li.setAttribute('role', 'button');
 			li.tabIndex = 0;
 			li.addEventListener('click', function () {
+				if (widget._hwblJourneyEnabled) {
+					widget._hwblJourneyIndex = index;
+					updateJourneyStatus(widget);
+				}
 				focusPlace(widget, place);
 			});
 			li.addEventListener('keydown', function (event) {
 				if (event.key === 'Enter' || event.key === ' ') {
 					event.preventDefault();
+					if (widget._hwblJourneyEnabled) {
+						widget._hwblJourneyIndex = index;
+						updateJourneyStatus(widget);
+					}
 					focusPlace(widget, place);
 				}
 			});
@@ -536,11 +835,19 @@
 		}
 	}
 
-	function initLeaflet(canvas, places) {
+	function numberedIcon(index) {
+		return window.L.divIcon({
+			className: 'hwbl-bible-map__stop-icon',
+			html: '<span>' + (index + 1) + '</span>',
+			iconSize: [26, 26],
+			iconAnchor: [13, 13],
+		});
+	}
+
+	function initLeaflet(widget, canvas, places, journey) {
 		if (typeof window.L === 'undefined') {
 			throw new Error('Leaflet is not loaded.');
 		}
-		// Marker images live beside leaflet.css (vendored).
 		if (window.L.Icon && window.L.Icon.Default) {
 			var leafletCss = document.querySelector('link[href*="leaflet.css"]');
 			var iconBase = leafletCss
@@ -561,29 +868,69 @@
 				'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
 		}).addTo(map);
 
+		var list = journey ? sortPlacesForJourney(places) : places || [];
 		var bounds = [];
-		var permanentLabels = (places || []).length <= 12;
-		places.forEach(function (place) {
+		var permanentLabels = !journey && list.length <= 12;
+		var useCluster =
+			!journey &&
+			list.length > 12 &&
+			window.L.markerClusterGroup &&
+			typeof window.L.markerClusterGroup === 'function';
+
+		var layerTarget = map;
+		if (useCluster) {
+			widget._hwblClusterGroup = window.L.markerClusterGroup({
+				showCoverageOnHover: false,
+				maxClusterRadius: 50,
+			});
+			map.addLayer(widget._hwblClusterGroup);
+			layerTarget = widget._hwblClusterGroup;
+		}
+
+		if (journey && list.length > 1) {
+			var latlngs = list.map(function (p) {
+				return [p.lat, p.lng];
+			});
+			window.L.polyline(latlngs, {
+				color: '#b45309',
+				weight: 3,
+				opacity: 0.85,
+			}).addTo(map);
+			widget._hwblJourneyStops = list;
+			widget._hwblJourneyIndex = 0;
+			updateJourneyStatus(widget);
+		} else {
+			widget._hwblJourneyStops = null;
+		}
+
+		list.forEach(function (place, index) {
 			if (place.lat == null || place.lng == null) {
 				return;
 			}
-			var marker = window.L.marker([place.lat, place.lng]).addTo(map);
-			marker.bindPopup(placePopupHtml(place));
-			marker.bindTooltip(formatPlaceLabelHtml(place), {
-				permanent: permanentLabels,
-				direction: 'top',
-				offset: [0, -8],
-				opacity: 1,
-				className: 'hwbl-bible-map__label',
-				sticky: !permanentLabels,
-			});
+			var marker = journey
+				? window.L.marker([place.lat, place.lng], {
+						icon: numberedIcon(index),
+				  })
+				: window.L.marker([place.lat, place.lng]);
+			marker.bindPopup(placePopupHtml(place, journey ? index : undefined));
+			if (!journey) {
+				marker.bindTooltip(formatPlaceLabelHtml(place), {
+					permanent: permanentLabels,
+					direction: 'top',
+					offset: [0, -8],
+					opacity: 1,
+					className: 'hwbl-bible-map__label',
+					sticky: !permanentLabels,
+				});
+			}
+			layerTarget.addLayer(marker);
 			bounds.push([place.lat, place.lng]);
 		});
 
 		if (bounds.length === 1) {
 			map.setView(bounds[0], 8);
 		} else if (bounds.length > 1) {
-			map.fitBounds(bounds, { padding: [24, 24], maxZoom: 10 });
+			map.fitBounds(bounds, { padding: [24, 24], maxZoom: journey ? 9 : 10 });
 		} else {
 			map.setView([31.7683, 35.2137], 6);
 		}
@@ -595,7 +942,7 @@
 		return map;
 	}
 
-	function initMapbox(widget, canvas, places) {
+	function initMapbox(widget, canvas, places, journey) {
 		if (typeof window.mapboxgl === 'undefined') {
 			throw new Error('Mapbox GL is not loaded.');
 		}
@@ -608,7 +955,6 @@
 		var styles = conf.mapboxStyles || [];
 		var selectedKey = readStoredStyleKey(conf.mapboxStyleKey || 'outdoors');
 		var styleUrl = resolveStyleUrl(selectedKey, styles, conf.mapboxStyle);
-		// If stored key is no longer available (e.g. custom removed), fall back.
 		if (!styles.some(function (s) { return s.key === selectedKey; }) && styles.length) {
 			selectedKey = conf.mapboxStyleKey || styles[0].key;
 			styleUrl = resolveStyleUrl(selectedKey, styles, conf.mapboxStyle);
@@ -627,7 +973,7 @@
 		map.addControl(new window.mapboxgl.NavigationControl(), 'top-right');
 
 		map.on('load', function () {
-			addMapboxMarkers(widget, map, places, true);
+			addMapboxClustered(widget, map, places, true, journey);
 			map.resize();
 		});
 
@@ -638,7 +984,13 @@
 				writeStoredStyleKey(nextKey);
 				map.setStyle(nextUrl);
 				map.once('style.load', function () {
-					addMapboxMarkers(widget, map, widget._hwblMapPlaces || places, true);
+					addMapboxClustered(
+						widget,
+						map,
+						widget._hwblMapPlaces || places,
+						true,
+						!!widget._hwblJourneyEnabled
+					);
 					map.resize();
 				});
 			});
@@ -647,11 +999,16 @@
 		return map;
 	}
 
-	function statusForPlaces(places, scope) {
+	function statusForPlaces(places, scope, journey) {
 		if (!places.length) {
 			return scope === 'book'
 				? 'No catalogued places for this book.'
 				: 'No catalogued places for this passage.';
+		}
+		if (journey) {
+			return places.length === 1
+				? 'Journey: 1 stop'
+				: 'Journey: ' + places.length + ' stops (verse order)';
 		}
 		if (scope === 'book') {
 			return places.length === 1
@@ -671,24 +1028,27 @@
 		destroyMap(widget);
 		canvas.innerHTML = '';
 		ensureScopeBar(widget);
+		ensureJourneyBar(widget, places);
+		var journey = !!widget._hwblJourneyEnabled && places.length > 1;
 
 		if (!places.length) {
 			if (status) {
-				status.textContent = statusForPlaces(places, scope);
+				status.textContent = statusForPlaces(places, scope, false);
 			}
 			return;
 		}
 
 		if (status) {
-			status.textContent = statusForPlaces(places, scope);
+			status.textContent = statusForPlaces(places, scope, journey);
 		}
 
 		var provider = cfg().provider || 'leaflet';
 		try {
 			widget._hwblMap =
 				provider === 'mapbox'
-					? initMapbox(widget, canvas, places)
-					: initLeaflet(canvas, places);
+					? initMapbox(widget, canvas, places, journey)
+					: initLeaflet(widget, canvas, places, journey);
+			widget._hwblMapPlaces = places;
 		} catch (err) {
 			if (status) {
 				status.textContent =
@@ -715,9 +1075,7 @@
 		if (!bookId || (scope !== 'book' && !chapter)) {
 			if (status) {
 				status.textContent =
-					scope === 'book'
-						? 'Choose a book.'
-						: 'Choose a book and chapter.';
+					scope === 'book' ? 'Choose a book.' : 'Choose a book and chapter.';
 			}
 			return Promise.resolve();
 		}
@@ -733,8 +1091,10 @@
 				}
 				var places = data.places || [];
 				var resolvedScope = normalizeScope(data.scope || scope);
-				renderList(widget, places);
+				widget._hwblJourneyEnabled =
+					readJourneyEnabled() && sortPlacesForJourney(places).length > 1;
 				renderMap(widget, places, resolvedScope);
+				renderList(widget, places);
 				return data;
 			})
 			.catch(function (err) {
@@ -756,15 +1116,6 @@
 		loadWidget(widget);
 	}
 
-	/**
-	 * Render places into a reader map panel (canvas + list + status).
-	 *
-	 * @param {HTMLElement} panel Panel root with map child nodes.
-	 * @param {number} bookId
-	 * @param {number} chapter
-	 * @param {number} verse 0 = chapter.
-	 * @returns {Promise}
-	 */
 	function renderIntoPanel(panel, bookId, chapter, verse) {
 		if (!panel) {
 			return Promise.resolve();
@@ -776,14 +1127,42 @@
 		return loadWidget(panel);
 	}
 
+	function invalidateVisibleMaps(root) {
+		(root || document)
+			.querySelectorAll('.hwbl-bible-map')
+			.forEach(function (widget) {
+				var map = widget._hwblMap;
+				if (!map) {
+					return;
+				}
+				if (typeof map.invalidateSize === 'function') {
+					map.invalidateSize();
+				} else if (typeof map.resize === 'function') {
+					map.resize();
+				}
+			});
+	}
+
 	window.hwblBibleMapApi = {
 		initWidget: initWidget,
 		loadWidget: loadWidget,
 		renderIntoPanel: renderIntoPanel,
 		fetchPlaces: fetchPlaces,
+		invalidateVisibleMaps: invalidateVisibleMaps,
 	};
 
 	document.addEventListener('DOMContentLoaded', function () {
 		document.querySelectorAll('.hwbl-bible-map').forEach(initWidget);
+	});
+
+	document.addEventListener('click', function (e) {
+		var btn = e.target && e.target.closest && e.target.closest('.hwbl-tab-button');
+		if (!btn) {
+			return;
+		}
+		window.setTimeout(function () {
+			var lesson = btn.closest('.hwbl-lesson');
+			invalidateVisibleMaps(lesson || document);
+		}, 50);
 	});
 })();

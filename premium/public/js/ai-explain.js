@@ -84,10 +84,29 @@
 		return config.error;
 	}
 
+	function findLessonWrap(root) {
+		if (!root) {
+			return null;
+		}
+		return root.closest('.hwbl-lesson, .thw-lesson');
+	}
+
 	function ensurePanel(root, lessonWrap, lessonId) {
-		var panel = lessonWrap.querySelector('.thw-ai-explain-panel');
+		var host = lessonWrap || (root && root.parentNode) || null;
+		if (!host) {
+			return null;
+		}
+
+		var panel = host.querySelector
+			? host.querySelector('.thw-ai-explain-panel')
+			: null;
 		if (panel) {
 			return panel;
+		}
+
+		// Controls render the panel as a sibling; check that first.
+		if (root && root.nextElementSibling && root.nextElementSibling.classList.contains('thw-ai-explain-panel')) {
+			return root.nextElementSibling;
 		}
 
 		panel = document.createElement('div');
@@ -99,10 +118,14 @@
 			'<h3 class="thw-panel-title">AI Explanation</h3>' +
 			'<div class="thw-ai-explain-output" aria-live="polite"></div>';
 
-		if (root.nextSibling) {
-			root.parentNode.insertBefore(panel, root.nextSibling);
+		if (root && root.parentNode) {
+			if (root.nextSibling) {
+				root.parentNode.insertBefore(panel, root.nextSibling);
+			} else {
+				root.parentNode.appendChild(panel);
+			}
 		} else {
-			root.parentNode.appendChild(panel);
+			host.appendChild(panel);
 		}
 
 		return panel;
@@ -262,20 +285,20 @@
 	function handleExplainClick(trigger) {
 		var config = getExplainConfig();
 		var root = trigger.closest('.thw-ai-explain-controls');
-		var lessonWrap = root ? root.closest('.thw-lesson') : null;
+		var lessonWrap = findLessonWrap(root) || findLessonWrap(trigger);
 		var scopeSelect = root ? root.querySelector('.thw-ai-explain-scope') : null;
 		var traditionSelect = root ? root.querySelector('.thw-ai-explain-tradition, [data-thw-tradition-select]') : null;
 		var lessonId = resolveLessonId(root, lessonWrap, trigger);
 
-		if (!root || !lessonWrap) {
+		if (!root) {
 			window.alert((config && config.noPanel) || '');
 			return;
 		}
 
 		var panel = ensurePanel(root, lessonWrap, lessonId);
-		var output = panel.querySelector('.thw-ai-explain-output');
+		var output = panel ? panel.querySelector('.thw-ai-explain-output') : null;
 
-		if (!output) {
+		if (!panel || !output) {
 			window.alert((config && config.noPanel) || '');
 			return;
 		}

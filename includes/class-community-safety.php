@@ -98,6 +98,26 @@ class HWBL_Community_Safety {
 
 		register_rest_route(
 			'hwbl/v1',
+			'/testimony/report',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( __CLASS__, 'rest_report_testimony' ),
+				'permission_callback' => $auth,
+			)
+		);
+
+		register_rest_route(
+			'hwbl/v1',
+			'/prayer/report',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( __CLASS__, 'rest_report_prayer' ),
+				'permission_callback' => $auth,
+			)
+		);
+
+		register_rest_route(
+			'hwbl/v1',
 			'/account/blocks',
 			array(
 				'methods'             => 'GET',
@@ -461,6 +481,93 @@ class HWBL_Community_Safety {
 				'reported_user_id' => $target,
 				'reason'           => $reason,
 				'details'          => $details,
+			)
+		);
+
+		if ( ! $report_id ) {
+			return new WP_Error(
+				'hwbl_report_failed',
+				__( 'Could not save that report. Try again.', 'hidden-word-bible-lessons' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		return new WP_REST_Response(
+			array(
+				'ok'       => true,
+				'reportId' => $report_id,
+				'message'  => __( 'Thanks — your report was submitted for review.', 'hidden-word-bible-lessons' ),
+			),
+			201
+		);
+	}
+
+	/**
+	 * POST report a public testimony.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public static function rest_report_testimony( $request ) {
+		return self::rest_report_content_target( $request, 'testimony', 'testimony_id' );
+	}
+
+	/**
+	 * POST report a prayer request.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public static function rest_report_prayer( $request ) {
+		return self::rest_report_content_target( $request, 'prayer', 'prayer_id' );
+	}
+
+	/**
+	 * Shared content report (testimony / prayer).
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @param string          $type    Report type.
+	 * @param string          $id_key  Body param for target post ID.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	private static function rest_report_content_target( $request, $type, $id_key ) {
+		$rate = self::check_report_rate_limit();
+		if ( is_wp_error( $rate ) ) {
+			return $rate;
+		}
+
+		$params = $request->get_json_params();
+		$params = is_array( $params ) ? $params : $request->get_params();
+		$reason = self::sanitize_reason( isset( $params['reason'] ) ? (string) $params['reason'] : '' );
+		if ( is_wp_error( $reason ) ) {
+			return $reason;
+		}
+		if ( 'account_deletion' === $reason ) {
+			return new WP_Error(
+				'hwbl_invalid_reason',
+				__( 'Choose a valid report reason.', 'hidden-word-bible-lessons' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$target_post = isset( $params[ $id_key ] ) ? (int) $params[ $id_key ] : ( isset( $params['id'] ) ? (int) $params['id'] : 0 );
+		$post        = $target_post ? get_post( $target_post ) : null;
+		if ( ! $post ) {
+			return new WP_Error(
+				'hwbl_invalid_target',
+				__( 'That content could not be found.', 'hidden-word-bible-lessons' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$details   = isset( $params['details'] ) ? (string) $params['details'] : '';
+		$report_id = self::create_report(
+			array(
+				'type'             => $type,
+				'reporter_id'      => get_current_user_id(),
+				'reported_user_id' => (int) $post->post_author,
+				'reason'           => $reason,
+				'details'          => $details . "\n[" . $type . ' #' . $target_post . ']',
 			)
 		);
 

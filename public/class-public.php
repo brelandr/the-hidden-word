@@ -20,6 +20,7 @@ class HWBL_Public {
 	public function __construct() {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 		add_filter( 'the_content', array( $this, 'append_lesson_to_single' ) );
+		add_filter( 'the_content', array( $this, 'append_plan_to_single' ) );
 		add_filter( 'template_include', array( $this, 'lesson_archive_template' ) );
 		add_action( 'widgets_init', array( $this, 'register_widgets' ) );
 	}
@@ -233,5 +234,25 @@ class HWBL_Public {
 		);
 
 		return $content . $lesson_html;
+	}
+
+	/**
+	 * Append interactive plan UI to single reading-plan posts.
+	 *
+	 * @param string $content Post content.
+	 * @return string
+	 */
+	public function append_plan_to_single( $content ) {
+		static $busy = false;
+		if ( $busy || ! is_singular( HWBL_CPT_Plan::POST_TYPE ) || ! in_the_loop() || ! is_main_query() ) {
+			return $content;
+		}
+
+		// Guard against re-entry: get_plan_data() applies the_content to the plan body.
+		$busy = true;
+		$html = HWBL_Shortcodes::render_plans_markup( (int) get_the_ID() );
+		$busy = false;
+
+		return $content . $html;
 	}
 }

@@ -19,6 +19,7 @@ class HWBL_Personalized_Digest {
 	 */
 	public static function init() {
 		add_filter( 'hwbl_digest_email_sections', array( __CLASS__, 'append_srs_section' ), 10, 2 );
+		add_filter( 'hwbl_digest_email_sections', array( __CLASS__, 'append_plan_section' ), 15, 2 );
 	}
 
 	/**
@@ -55,6 +56,47 @@ class HWBL_Personalized_Digest {
 			)
 		) . '</p>';
 
+		return $sections;
+	}
+
+	/**
+	 * Append today's reading-plan day when the user has an active plan.
+	 *
+	 * @param array<int, string> $sections Existing HTML sections.
+	 * @param int                $user_id  Recipient user ID.
+	 * @return array<int, string>
+	 */
+	public static function append_plan_section( $sections, $user_id ) {
+		if ( ! class_exists( 'HWBL_Plan_Progress' ) || ! class_exists( 'HWBL_CPT_Plan' ) ) {
+			return $sections;
+		}
+
+		$active = HWBL_Plan_Progress::get_active_for_user( (int) $user_id );
+		if ( ! $active ) {
+			return $sections;
+		}
+
+		$first = $active[0];
+		$title = isset( $first['title'] ) ? (string) $first['title'] : '';
+		$today = isset( $first['today'] ) && is_array( $first['today'] ) ? $first['today'] : null;
+		$day_n = $today ? (int) $today['day'] : (int) ( $first['progress']['current_day'] ?? 0 );
+		$day_t = $today && ! empty( $today['title'] ) ? (string) $today['title'] : '';
+		$ref   = $today && ! empty( $today['verse_ref'] ) ? (string) $today['verse_ref'] : '';
+
+		$line = sprintf(
+			/* translators: 1: plan title, 2: day number */
+			__( "Today's plan reading: %1\$s — Day %2\$d", 'hidden-word-bible-lessons' ),
+			$title,
+			$day_n
+		);
+		if ( $day_t ) {
+			$line .= ': ' . $day_t;
+		}
+		if ( $ref ) {
+			$line .= ' (' . $ref . ')';
+		}
+
+		$sections[] = '<p>' . esc_html( $line ) . '</p>';
 		return $sections;
 	}
 }

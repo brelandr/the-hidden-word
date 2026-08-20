@@ -155,6 +155,26 @@ class HWBL_Blocks {
 				),
 			)
 		);
+
+		wp_register_script(
+			'hwbl-plan-block',
+			HWBL_PLUGIN_URL . 'blocks/plan-block/index.js',
+			array( 'wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-i18n' ),
+			HWBL_VERSION,
+			true
+		);
+
+		register_block_type(
+			'hwbl/plan',
+			array(
+				'editor_script'   => 'hwbl-plan-block',
+				'render_callback' => array( $this, 'render_plan_block' ),
+				'attributes'      => array(
+					'planId' => array( 'type' => 'string', 'default' => '' ),
+					'topic'  => array( 'type' => 'string', 'default' => '' ),
+				),
+			)
+		);
 	}
 
 	/**
@@ -262,5 +282,17 @@ class HWBL_Blocks {
 				'title'       => isset( $attributes['title'] ) ? $attributes['title'] : __( 'Bible Concordance', 'hidden-word-bible-lessons' ),
 			)
 		);
+	}
+
+	/**
+	 * Server-side render for Reading Plan block.
+	 *
+	 * @param array $attributes Block attributes.
+	 * @return string
+	 */
+	public function render_plan_block( $attributes ) {
+		$plan_id = ! empty( $attributes['planId'] ) ? absint( $attributes['planId'] ) : 0;
+		$topic   = isset( $attributes['topic'] ) ? sanitize_key( (string) $attributes['topic'] ) : '';
+		return HWBL_Shortcodes::render_plans_markup( $plan_id, $topic );
 	}
 }

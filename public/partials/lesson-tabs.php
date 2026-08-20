@@ -34,7 +34,10 @@ $lesson_title = isset( $lesson['title'] ) ? (string) $lesson['title'] : '';
 			<button type="button" class="hwbl-btn hwbl-print-lesson"><?php esc_html_e( 'Print verse', 'hidden-word-bible-lessons' ); ?></button>
 			<?php if ( $verse_text ) : ?>
 				<button type="button" class="hwbl-btn hwbl-btn-secondary hwbl-copy-verse" data-verse="<?php echo esc_attr( $verse_text ); ?>"><?php esc_html_e( 'Copy verse', 'hidden-word-bible-lessons' ); ?></button>
+				<?php echo HWBL_Verse_Share_Card::button_html( $verse_text, isset( $lesson['reference'] ) ? (string) $lesson['reference'] : '' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 			<?php endif; ?>
+			<button type="button" class="hwbl-btn hwbl-btn-secondary" data-hwbl-easy-read-toggle="1" aria-pressed="false"><?php esc_html_e( 'Easy read', 'hidden-word-bible-lessons' ); ?></button>
+			<button type="button" class="hwbl-btn hwbl-btn-secondary" data-hwbl-kids-mode-toggle="1" aria-pressed="false"><?php esc_html_e( 'Kids mode', 'hidden-word-bible-lessons' ); ?></button>
 			<span class="hwbl-copy-status" role="status" aria-live="polite"></span>
 		</div>
 		<?php do_action( 'hwbl_lesson_render_before_tabs', $lesson_id ); ?>
@@ -284,9 +287,29 @@ $lesson_title = isset( $lesson['title'] ) ? (string) $lesson['title'] : '';
 		>
 			<h3><?php esc_html_e( 'Discussion', 'hidden-word-bible-lessons' ); ?></h3>
 			<?php if ( ! empty( $lesson['discussion_questions'] ) ) : ?>
+				<?php
+				if ( is_user_logged_in() && class_exists( 'HWBL_Journal_Store' ) ) {
+					HWBL_Journal_Store::enqueue_for_lesson( $lesson_id );
+				}
+				?>
 				<ol class="hwbl-discussion-questions">
-					<?php foreach ( $lesson['discussion_questions'] as $question ) : ?>
-						<li><?php echo esc_html( $question ); ?></li>
+					<?php foreach ( $lesson['discussion_questions'] as $q_index => $question ) : ?>
+						<li>
+							<p class="hwbl-discussion-question"><?php echo esc_html( $question ); ?></p>
+							<?php if ( is_user_logged_in() ) : ?>
+								<label class="screen-reader-text" for="hwbl-journal-<?php echo esc_attr( (string) $lesson_id ); ?>-<?php echo esc_attr( (string) $q_index ); ?>">
+									<?php esc_html_e( 'Your journal response', 'hidden-word-bible-lessons' ); ?>
+								</label>
+								<textarea
+									id="hwbl-journal-<?php echo esc_attr( (string) $lesson_id ); ?>-<?php echo esc_attr( (string) $q_index ); ?>"
+									class="hwbl-journal-response"
+									data-question-index="<?php echo esc_attr( (string) $q_index ); ?>"
+									rows="3"
+									placeholder="<?php esc_attr_e( 'Write your thoughts…', 'hidden-word-bible-lessons' ); ?>"
+								></textarea>
+								<span class="hwbl-journal-status" role="status" aria-live="polite"></span>
+							<?php endif; ?>
+						</li>
 					<?php endforeach; ?>
 				</ol>
 			<?php else : ?>
