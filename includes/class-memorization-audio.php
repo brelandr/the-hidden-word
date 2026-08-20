@@ -63,7 +63,9 @@ class HWBL_Memorization_Audio {
 	/**
 	 * Resolve chapter audio, falling back across Hello AO-capable translations.
 	 *
-	 * Site default is often NIV (bundled, no Hello AO audio). Fall back to KJV/WEB/BSB.
+	 * Site default is often NIV (bundled, no Hello AO audio). For English
+	 * requests, fall back to KJV/WEB/BSB. Non-English Hello AO editions must
+	 * not silently play English chapter audio.
 	 *
 	 * @param int    $book_id     Book ID.
 	 * @param int    $chapter     Chapter.
@@ -83,16 +85,23 @@ class HWBL_Memorization_Audio {
 			);
 		}
 
-		$candidates = array_values(
-			array_unique(
-				array_filter(
-					array_merge(
-						array( $translation ),
-						self::$audio_fallback_order
+		$allow_english_fallback = ! $translation
+			|| ! HWBL_HelloAO_Provider::get_helloao_id( $translation )
+			|| HWBL_HelloAO_Provider::is_english_translation( $translation );
+
+		$candidates = array( $translation );
+		if ( $allow_english_fallback ) {
+			$candidates = array_values(
+				array_unique(
+					array_filter(
+						array_merge(
+							array( $translation ),
+							self::$audio_fallback_order
+						)
 					)
 				)
-			)
-		);
+			);
+		}
 
 		foreach ( $candidates as $slug ) {
 			if ( ! HWBL_HelloAO_Provider::get_helloao_id( $slug ) ) {
@@ -125,10 +134,19 @@ class HWBL_Memorization_Audio {
 			);
 		}
 
+		$no_audio = __( 'No chapter audio is available for this passage right now.', 'hidden-word-bible-lessons' );
+		if ( $translation && HWBL_HelloAO_Provider::get_helloao_id( $translation ) && ! HWBL_HelloAO_Provider::is_english_translation( $translation ) ) {
+			$no_audio = sprintf(
+				/* translators: %s: translation slug */
+				__( 'No chapter audio is available for %s (text only).', 'hidden-word-bible-lessons' ),
+				strtoupper( $translation )
+			);
+		}
+
 		return array(
 			'audio'       => array(),
 			'translation' => $translation,
-			'message'     => __( 'No chapter audio is available for this passage right now.', 'hidden-word-bible-lessons' ),
+			'message'     => $no_audio,
 		);
 	}
 

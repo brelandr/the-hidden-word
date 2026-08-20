@@ -21,18 +21,91 @@ class HWBL_HelloAO_Provider implements HWBL_Translation_Provider {
 	/**
 	 * Site slug => Hello AO translation ID.
 	 *
+	 * Curated allowlist only — do not auto-import the full Hello AO catalog.
+	 *
 	 * @var array<string, string>
 	 */
 	private static $translation_ids = array(
-		'bsb' => 'BSB',
-		'web' => 'ENGWEBP',
-		'kjv' => 'eng_kjv',
-		'asv' => 'eng_asv',
-		'bbe' => 'eng_bbe',
-		'dby' => 'eng_dby',
-		'ylt' => 'YLT',
-		'gnv' => 'eng_gnv',
-		'lsv' => 'eng_lsv',
+		'bsb'     => 'BSB',
+		'web'     => 'ENGWEBP',
+		'kjv'     => 'eng_kjv',
+		'asv'     => 'eng_asv',
+		'bbe'     => 'eng_bbe',
+		'dby'     => 'eng_dby',
+		'ylt'     => 'eng_ylt',
+		'gnv'     => 'eng_gnv',
+		'lsv'     => 'eng_lsv',
+		'spa_r09' => 'spa_r09',
+		'spa_bes' => 'spa_bes',
+		'por_blj' => 'por_blj',
+	);
+
+	/**
+	 * Light language metadata per site slug (for pickers / audio policy).
+	 *
+	 * @var array<string, array{language:string,language_label:string,rtl:bool}>
+	 */
+	private static $translation_meta = array(
+		'bsb'     => array(
+			'language'       => 'en',
+			'language_label' => 'English',
+			'rtl'            => false,
+		),
+		'web'     => array(
+			'language'       => 'en',
+			'language_label' => 'English',
+			'rtl'            => false,
+		),
+		'kjv'     => array(
+			'language'       => 'en',
+			'language_label' => 'English',
+			'rtl'            => false,
+		),
+		'asv'     => array(
+			'language'       => 'en',
+			'language_label' => 'English',
+			'rtl'            => false,
+		),
+		'bbe'     => array(
+			'language'       => 'en',
+			'language_label' => 'English',
+			'rtl'            => false,
+		),
+		'dby'     => array(
+			'language'       => 'en',
+			'language_label' => 'English',
+			'rtl'            => false,
+		),
+		'ylt'     => array(
+			'language'       => 'en',
+			'language_label' => 'English',
+			'rtl'            => false,
+		),
+		'gnv'     => array(
+			'language'       => 'en',
+			'language_label' => 'English',
+			'rtl'            => false,
+		),
+		'lsv'     => array(
+			'language'       => 'en',
+			'language_label' => 'English',
+			'rtl'            => false,
+		),
+		'spa_r09' => array(
+			'language'       => 'es',
+			'language_label' => 'Spanish',
+			'rtl'            => false,
+		),
+		'spa_bes' => array(
+			'language'       => 'es',
+			'language_label' => 'Spanish',
+			'rtl'            => false,
+		),
+		'por_blj' => array(
+			'language'       => 'pt',
+			'language_label' => 'Portuguese',
+			'rtl'            => false,
+		),
 	);
 
 	/**
@@ -60,6 +133,31 @@ class HWBL_HelloAO_Provider implements HWBL_Translation_Provider {
 	public static function get_helloao_id( $translation ) {
 		$translation = strtolower( (string) $translation );
 		return isset( self::$translation_ids[ $translation ] ) ? self::$translation_ids[ $translation ] : null;
+	}
+
+	/**
+	 * Language metadata for a registered Hello AO site slug.
+	 *
+	 * @param string $translation Translation slug.
+	 * @return array{language:string,language_label:string,rtl:bool}|null
+	 */
+	public static function get_language_meta( $translation ) {
+		$translation = strtolower( (string) $translation );
+		if ( ! isset( self::$translation_meta[ $translation ] ) ) {
+			return null;
+		}
+		return self::$translation_meta[ $translation ];
+	}
+
+	/**
+	 * Whether a Hello AO slug is English (safe for English audio fallbacks).
+	 *
+	 * @param string $translation Translation slug.
+	 * @return bool
+	 */
+	public static function is_english_translation( $translation ) {
+		$meta = self::get_language_meta( $translation );
+		return is_array( $meta ) && 'en' === ( $meta['language'] ?? '' );
 	}
 
 	/**
@@ -289,15 +387,18 @@ class HWBL_HelloAO_Provider implements HWBL_Translation_Provider {
 		}
 
 		return array(
-			'bsb' => __( 'Berean Standard Bible (BSB)', 'hidden-word-bible-lessons' ),
-			'web' => __( 'World English Bible (WEB)', 'hidden-word-bible-lessons' ),
-			'kjv' => __( 'King James Version (KJV)', 'hidden-word-bible-lessons' ),
-			'asv' => __( 'American Standard Version (ASV)', 'hidden-word-bible-lessons' ),
-			'bbe' => __( 'Bible in Basic English (BBE)', 'hidden-word-bible-lessons' ),
-			'dby' => __( 'Darby Translation (DARBY)', 'hidden-word-bible-lessons' ),
-			'ylt' => __( "Young's Literal Translation (YLT)", 'hidden-word-bible-lessons' ),
-			'gnv' => __( 'Geneva Bible 1599 (GNV)', 'hidden-word-bible-lessons' ),
-			'lsv' => __( 'Literal Standard Version (LSV)', 'hidden-word-bible-lessons' ),
+			'bsb'     => __( 'Berean Standard Bible (BSB)', 'hidden-word-bible-lessons' ),
+			'web'     => __( 'World English Bible (WEB)', 'hidden-word-bible-lessons' ),
+			'kjv'     => __( 'King James Version (KJV)', 'hidden-word-bible-lessons' ),
+			'asv'     => __( 'American Standard Version (ASV)', 'hidden-word-bible-lessons' ),
+			'bbe'     => __( 'Bible in Basic English (BBE)', 'hidden-word-bible-lessons' ),
+			'dby'     => __( 'Darby Translation (DARBY)', 'hidden-word-bible-lessons' ),
+			'ylt'     => __( "Young's Literal Translation (YLT)", 'hidden-word-bible-lessons' ),
+			'gnv'     => __( 'Geneva Bible 1599 (GNV)', 'hidden-word-bible-lessons' ),
+			'lsv'     => __( 'Literal Standard Version (LSV)', 'hidden-word-bible-lessons' ),
+			'spa_r09' => __( 'Reina-Valera 1909 (ES)', 'hidden-word-bible-lessons' ),
+			'spa_bes' => __( 'Biblia en Español Sencillo (BES)', 'hidden-word-bible-lessons' ),
+			'por_blj' => __( 'Bíblia Livre (PT)', 'hidden-word-bible-lessons' ),
 		);
 	}
 

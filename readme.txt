@@ -4,7 +4,7 @@ Tags: bible, scripture, discipleship, memorization, verse of the day
 Requires at least: 6.2
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.3.5
+Stable tag: 2.3.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -130,6 +130,10 @@ The hub operator’s policy for The Hidden Word (accounts, AI Ask, gospel-respon
 5. Plugin settings — schedule mode and translation switcher
 
 == Changelog ==
+
+= 2.3.6 =
+* Hello AO: Spanish (Reina-Valera 1909, Biblia en Español Sencillo) and Portuguese (Bíblia Livre) for the Bible reader — text only where AO has no chapter audio
+* Fix Young’s Literal Translation map (`ylt` → `eng_ylt`); non-English editions do not fall back to English chapter audio
 
 = 2.3.5 =
 * Sign in with Apple: verify identity tokens signed with Apple’s RS256 keys (fixes login failures when only ES256 was accepted)
@@ -282,6 +286,9 @@ The hub operator’s policy for The Hidden Word (accounts, AI Ask, gospel-respon
 * Gutenberg block and shortcodes
 
 == Upgrade Notice ==
+
+= 2.3.6 =
+Adds Spanish and Portuguese Hello AO Bibles to the reader; fixes YLT mapping and non-English audio fallback.
 
 = 2.3.5 =
 Fixes Sign in with Apple (RS256), and adds gospel-response consent plus privacy notice on public gospel forms.

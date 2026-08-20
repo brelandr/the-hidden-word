@@ -61,4 +61,40 @@ class HWBL_HelloAO_Provider_Test extends TestCase {
 		$provider = new HWBL_HelloAO_Provider();
 		$this->assertNull( $provider->get_verse( 49, 6, 13, 'niv' ) );
 	}
+
+	/**
+	 * Curated allowlist maps site slugs to Hello AO IDs (incl. ES/PT + YLT fix).
+	 */
+	public function test_helloao_id_mappings() {
+		$this->assertSame( 'eng_ylt', HWBL_HelloAO_Provider::get_helloao_id( 'ylt' ) );
+		$this->assertSame( 'spa_r09', HWBL_HelloAO_Provider::get_helloao_id( 'spa_r09' ) );
+		$this->assertSame( 'spa_bes', HWBL_HelloAO_Provider::get_helloao_id( 'spa_bes' ) );
+		$this->assertSame( 'por_blj', HWBL_HelloAO_Provider::get_helloao_id( 'por_blj' ) );
+		$this->assertNull( HWBL_HelloAO_Provider::get_helloao_id( 'spa_unknown' ) );
+	}
+
+	/**
+	 * Language metadata distinguishes English from ES/PT for audio policy.
+	 */
+	public function test_language_meta_and_english_helper() {
+		$es = HWBL_HelloAO_Provider::get_language_meta( 'spa_r09' );
+		$this->assertIsArray( $es );
+		$this->assertSame( 'es', $es['language'] );
+		$this->assertFalse( $es['rtl'] );
+		$this->assertFalse( HWBL_HelloAO_Provider::is_english_translation( 'spa_r09' ) );
+		$this->assertFalse( HWBL_HelloAO_Provider::is_english_translation( 'por_blj' ) );
+		$this->assertTrue( HWBL_HelloAO_Provider::is_english_translation( 'kjv' ) );
+	}
+
+	/**
+	 * Supported list includes Spanish and Portuguese editions when enabled.
+	 */
+	public function test_supported_translations_include_spanish_portuguese() {
+		update_option( 'hwbl_helloao_enabled', true );
+		$provider = new HWBL_HelloAO_Provider();
+		$supported = $provider->get_supported_translations();
+		$this->assertArrayHasKey( 'spa_r09', $supported );
+		$this->assertArrayHasKey( 'spa_bes', $supported );
+		$this->assertArrayHasKey( 'por_blj', $supported );
+	}
 }

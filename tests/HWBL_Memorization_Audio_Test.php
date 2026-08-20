@@ -30,4 +30,17 @@ class HWBL_Memorization_Audio_Test extends TestCase {
 		$this->assertNotEmpty( $resolved['message'] );
 		$this->assertStringContainsString( 'Hello AO', $resolved['message'] );
 	}
+
+	/**
+	 * Non-English Hello AO editions do not fall back to English chapter audio.
+	 */
+	public function test_non_english_does_not_fallback_to_english_audio() {
+		update_option( 'hwbl_helloao_enabled', true );
+		$resolved = HWBL_Memorization_Audio::resolve_chapter_audio( 43, 3, 'spa_r09' );
+		$this->assertIsArray( $resolved );
+		$this->assertSame( array(), $resolved['audio'] );
+		$this->assertSame( 'spa_r09', $resolved['translation'] );
+		$this->assertStringContainsString( 'text only', strtolower( $resolved['message'] ) );
+		$this->assertStringNotContainsString( 'playing the chapter in', strtolower( $resolved['message'] ) );
+	}
 }
