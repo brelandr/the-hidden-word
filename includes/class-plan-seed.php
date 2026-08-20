@@ -45,6 +45,10 @@ class HWBL_Plan_Seed {
 			self::seed_phase8_rich_plans();
 			$ver = 3;
 		}
+		if ( $ver < 4 ) {
+			self::seed_phase9_life_plans();
+			$ver = 4;
+		}
 		update_option( self::OPT_SEEDED, (string) $ver, false );
 	}
 
@@ -623,6 +627,32 @@ class HWBL_Plan_Seed {
 			return;
 		}
 		foreach ( hwbl_plan_seed_phase8_definitions() as $plan ) {
+			if ( empty( $plan['title'] ) || empty( $plan['days'] ) ) {
+				continue;
+			}
+			self::upsert_plan(
+				(string) $plan['title'],
+				(string) ( $plan['topic'] ?? 'other' ),
+				! empty( $plan['shareable'] ),
+				(array) $plan['days'],
+				(string) ( $plan['excerpt'] ?? '' )
+			);
+		}
+	}
+
+	/**
+	 * Phase 9: life-issues rich plans (health, addiction, finances, DV, doubt, etc.).
+	 */
+	public static function seed_phase9_life_plans() {
+		$path = HWBL_PLUGIN_DIR . 'includes/data/plan-seed-phase9.php';
+		if ( ! is_readable( $path ) ) {
+			return;
+		}
+		require_once $path;
+		if ( ! function_exists( 'hwbl_plan_seed_phase9_definitions' ) ) {
+			return;
+		}
+		foreach ( hwbl_plan_seed_phase9_definitions() as $plan ) {
 			if ( empty( $plan['title'] ) || empty( $plan['days'] ) ) {
 				continue;
 			}

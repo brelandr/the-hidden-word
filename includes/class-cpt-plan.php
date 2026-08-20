@@ -44,6 +44,15 @@ class HWBL_CPT_Plan {
 			'forgiveness',
 			'purpose',
 			'discipleship',
+			'life-problems',
+			'health',
+			'alcoholism',
+			'addiction',
+			'finances',
+			'domestic-violence',
+			'doubt',
+			'loneliness',
+			'depression',
 			'other',
 		);
 	}

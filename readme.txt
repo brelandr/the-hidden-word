@@ -4,7 +4,7 @@ Tags: bible, scripture, discipleship, memorization, verse of the day
 Requires at least: 6.2
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.3.8
+Stable tag: 2.3.9
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -133,6 +133,10 @@ The hub operator’s policy for The Hidden Word (accounts, AI Ask, gospel-respon
 5. Plugin settings — schedule mode and translation switcher
 
 == Changelog ==
+
+= 2.3.9 =
+* Reading plans: ten new 7-day life-issues studies (overwhelm, health, marriage strain, alcohol, addiction, finances, domestic violence, doubt, loneliness, depression) in Hidden Word study voice
+* New plan topics for filtering; hub “Life’s Hard Places” page
 
 = 2.3.8 =
 * Performance: plan list / outline pages no longer fetch Scripture for every day (fixes slow loads and 504s on Faith Formation & Reading Plans)
@@ -300,6 +304,9 @@ The hub operator’s policy for The Hidden Word (accounts, AI Ask, gospel-respon
 * Gutenberg block and shortcodes
 
 == Upgrade Notice ==
+
+= 2.3.9 =
+Adds ten pastoral life-issues reading plans for hard seasons (health, addiction, finances, depression, and more).
 
 = 2.3.8 =
 Reading plans, gospel share, Strong’s tooling, Spanish/Portuguese Hello AO Bibles, Sign in with Apple fixes, and faster plan list pages (since 2.2.0).
