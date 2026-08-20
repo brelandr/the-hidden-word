@@ -4,7 +4,7 @@ Tags: bible, scripture, discipleship, memorization, verse of the day
 Requires at least: 6.2
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.3.12
+Stable tag: 2.3.13
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -133,6 +133,9 @@ The hub operator’s policy for The Hidden Word (accounts, AI Ask, gospel-respon
 5. Plugin settings — schedule mode and translation switcher
 
 == Changelog ==
+
+= 2.3.13 =
+* Reading plans: add love, community, peace, contentment, generosity, Holy Spirit, Scripture, worship, integrity, and conflict plans
 
 = 2.3.12 =
 * Reading plans: add chronological Big Story plus waiting, rest, humility, temptation, joy, singleness, witness, wisdom, and suffering plans
@@ -313,6 +316,9 @@ The hub operator’s policy for The Hidden Word (accounts, AI Ask, gospel-respon
 * Gutenberg block and shortcodes
 
 == Upgrade Notice ==
+
+= 2.3.13 =
+Ten more reading plans on love, community, peace, Spirit, Scripture, worship, and related formation themes.
 
 = 2.3.12 =
 Ten more reading plans: Bible storyline and formation themes (waiting, rest, humility, joy, witness, and more).

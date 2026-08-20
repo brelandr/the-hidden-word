@@ -66,6 +66,16 @@ class HWBL_CPT_Plan {
 			'witness',
 			'wisdom',
 			'suffering',
+			'love',
+			'community',
+			'peace',
+			'contentment',
+			'generosity',
+			'holy-spirit',
+			'scripture',
+			'worship',
+			'integrity',
+			'conflict',
 			'other',
 		);
 	}
