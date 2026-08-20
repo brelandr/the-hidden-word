@@ -227,7 +227,8 @@ class HWBL_Shortcodes {
 		);
 
 		if ( $plan_id > 0 ) {
-			$plan = HWBL_CPT_Plan::get_plan_data( $plan_id );
+			// Outline does not need verse text for every day — only enrich the active/preview day.
+			$plan = HWBL_CPT_Plan::get_plan_data( $plan_id, false );
 			if ( ! $plan || ( 'publish' !== $plan['status'] && ! current_user_can( 'read_post', $plan_id ) ) ) {
 				return '<p class="hwbl-empty">' . esc_html__( 'Plan not found.', 'hidden-word-bible-lessons' ) . '</p>';
 			}
@@ -267,7 +268,8 @@ class HWBL_Shortcodes {
 		$posts = get_posts( $query );
 		$plans = array();
 		foreach ( $posts as $post ) {
-			$data = HWBL_CPT_Plan::get_plan_data( $post->ID );
+			// Card lists never show verse text — skip remote/local enrich for every day.
+			$data = HWBL_CPT_Plan::get_plan_data( $post->ID, false );
 			if ( $data ) {
 				unset( $data['content'], $data['days'], $data['status'] );
 				$plans[] = $data;

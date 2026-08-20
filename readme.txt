@@ -4,7 +4,7 @@ Tags: bible, scripture, discipleship, memorization, verse of the day
 Requires at least: 6.2
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.3.7
+Stable tag: 2.3.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -130,6 +130,9 @@ The hub operator’s policy for The Hidden Word (accounts, AI Ask, gospel-respon
 5. Plugin settings — schedule mode and translation switcher
 
 == Changelog ==
+
+= 2.3.8 =
+* Performance: plan list / outline pages no longer fetch Scripture for every day (fixes slow loads and 504s on Faith Formation & Reading Plans)
 
 = 2.3.7 =
 * Reading plans: review previous days via Previous/Next and a clickable plan outline (progress stays on the current day)
@@ -289,6 +292,9 @@ The hub operator’s policy for The Hidden Word (accounts, AI Ask, gospel-respon
 * Gutenberg block and shortcodes
 
 == Upgrade Notice ==
+
+= 2.3.8 =
+Speeds up reading-plan list pages that were timing out under load.
 
 = 2.3.7 =
 Lets you reopen earlier reading-plan days without losing progress.

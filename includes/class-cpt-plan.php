@@ -445,18 +445,25 @@ class HWBL_CPT_Plan {
 	 * @param int $plan_id Plan ID.
 	 * @return array<string, mixed>|null
 	 */
-	public static function get_plan_data( $plan_id ) {
+	/**
+	 * @param int  $plan_id     Plan post ID.
+	 * @param bool $enrich_days When true, resolve Scripture text for every day (slow; often remote).
+	 *                          Lists and outlines should pass false and use get_day() for the active day.
+	 */
+	public static function get_plan_data( $plan_id, $enrich_days = true ) {
 		$post = get_post( (int) $plan_id );
 		if ( ! $post || self::POST_TYPE !== $post->post_type ) {
 			return null;
 		}
 		$days = self::get_days( $plan_id );
-		$days = array_map(
-			static function ( $day ) {
-				return self::enrich_day_verse( is_array( $day ) ? $day : array() );
-			},
-			$days
-		);
+		if ( $enrich_days ) {
+			$days = array_map(
+				static function ( $day ) {
+					return self::enrich_day_verse( is_array( $day ) ? $day : array() );
+				},
+				$days
+			);
+		}
 		return array(
 			'id'          => (int) $plan_id,
 			'title'       => get_the_title( $plan_id ),

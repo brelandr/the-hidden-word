@@ -146,7 +146,7 @@ class HWBL_Plan_Rest {
 		$posts = get_posts( $args );
 		$out   = array();
 		foreach ( $posts as $post ) {
-			$data = HWBL_CPT_Plan::get_plan_data( $post->ID );
+			$data = HWBL_CPT_Plan::get_plan_data( $post->ID, false );
 			if ( ! $data ) {
 				continue;
 			}
@@ -165,7 +165,8 @@ class HWBL_Plan_Rest {
 	 */
 	public static function rest_get( $request ) {
 		$plan_id = (int) $request['id'];
-		$data    = HWBL_CPT_Plan::get_plan_data( $plan_id );
+		// Outline days keep refs/titles only; verse text comes from today / day endpoints.
+		$data = HWBL_CPT_Plan::get_plan_data( $plan_id, false );
 		if ( ! $data || ( 'publish' !== $data['status'] && ! current_user_can( 'read_post', $plan_id ) ) ) {
 			return new WP_Error( 'hwbl_plan_not_found', __( 'Plan not found.', 'hidden-word-bible-lessons' ), array( 'status' => 404 ) );
 		}
@@ -177,10 +178,10 @@ class HWBL_Plan_Rest {
 			$data['progress'] = $progress;
 			$data['today']    = $progress['current_day'] > 0
 				? HWBL_CPT_Plan::get_day( $plan_id, (int) $progress['current_day'] )
-				: null;
+				: HWBL_CPT_Plan::get_day( $plan_id, 1 );
 		} else {
 			$data['progress'] = null;
-			$data['today']    = null;
+			$data['today']    = HWBL_CPT_Plan::get_day( $plan_id, 1 );
 		}
 
 		return rest_ensure_response( $data );
