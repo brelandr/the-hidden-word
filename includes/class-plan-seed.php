@@ -49,6 +49,14 @@ class HWBL_Plan_Seed {
 			self::seed_phase9_life_plans();
 			$ver = 4;
 		}
+		if ( $ver < 5 ) {
+			self::seed_phase10_plans();
+			$ver = 5;
+		}
+		if ( $ver < 6 ) {
+			self::seed_phase11_plans();
+			$ver = 6;
+		}
 		update_option( self::OPT_SEEDED, (string) $ver, false );
 	}
 
@@ -653,6 +661,58 @@ class HWBL_Plan_Seed {
 			return;
 		}
 		foreach ( hwbl_plan_seed_phase9_definitions() as $plan ) {
+			if ( empty( $plan['title'] ) || empty( $plan['days'] ) ) {
+				continue;
+			}
+			self::upsert_plan(
+				(string) $plan['title'],
+				(string) ( $plan['topic'] ?? 'other' ),
+				! empty( $plan['shareable'] ),
+				(array) $plan['days'],
+				(string) ( $plan['excerpt'] ?? '' )
+			);
+		}
+	}
+
+	/**
+	 * Phase 10: upgrade thin samples + parenting / character plans.
+	 */
+	public static function seed_phase10_plans() {
+		$path = HWBL_PLUGIN_DIR . 'includes/data/plan-seed-phase10.php';
+		if ( ! is_readable( $path ) ) {
+			return;
+		}
+		require_once $path;
+		if ( ! function_exists( 'hwbl_plan_seed_phase10_definitions' ) ) {
+			return;
+		}
+		foreach ( hwbl_plan_seed_phase10_definitions() as $plan ) {
+			if ( empty( $plan['title'] ) || empty( $plan['days'] ) ) {
+				continue;
+			}
+			self::upsert_plan(
+				(string) $plan['title'],
+				(string) ( $plan['topic'] ?? 'other' ),
+				! empty( $plan['shareable'] ),
+				(array) $plan['days'],
+				(string) ( $plan['excerpt'] ?? '' )
+			);
+		}
+	}
+
+	/**
+	 * Phase 11: chronological overview + formation themes (waiting, rest, etc.).
+	 */
+	public static function seed_phase11_plans() {
+		$path = HWBL_PLUGIN_DIR . 'includes/data/plan-seed-phase11.php';
+		if ( ! is_readable( $path ) ) {
+			return;
+		}
+		require_once $path;
+		if ( ! function_exists( 'hwbl_plan_seed_phase11_definitions' ) ) {
+			return;
+		}
+		foreach ( hwbl_plan_seed_phase11_definitions() as $plan ) {
 			if ( empty( $plan['title'] ) || empty( $plan['days'] ) ) {
 				continue;
 			}
