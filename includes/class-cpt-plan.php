@@ -76,6 +76,16 @@ class HWBL_CPT_Plan {
 			'worship',
 			'integrity',
 			'conflict',
+			'friendship',
+			'caregiving',
+			'hospitality',
+			'mercy',
+			'leadership',
+			'purity',
+			'persecution',
+			'envy',
+			'hurry',
+			'return',
 			'other',
 		);
 	}

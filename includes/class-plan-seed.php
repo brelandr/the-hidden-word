@@ -61,6 +61,10 @@ class HWBL_Plan_Seed {
 			self::seed_phase12_plans();
 			$ver = 7;
 		}
+		if ( $ver < 8 ) {
+			self::seed_phase13_plans();
+			$ver = 8;
+		}
 		update_option( self::OPT_SEEDED, (string) $ver, false );
 	}
 
@@ -743,6 +747,32 @@ class HWBL_Plan_Seed {
 			return;
 		}
 		foreach ( hwbl_plan_seed_phase12_definitions() as $plan ) {
+			if ( empty( $plan['title'] ) || empty( $plan['days'] ) ) {
+				continue;
+			}
+			self::upsert_plan(
+				(string) $plan['title'],
+				(string) ( $plan['topic'] ?? 'other' ),
+				! empty( $plan['shareable'] ),
+				(array) $plan['days'],
+				(string) ( $plan['excerpt'] ?? '' )
+			);
+		}
+	}
+
+	/**
+	 * Phase 13: friendship, caregiving, hospitality, mercy, leadership, etc.
+	 */
+	public static function seed_phase13_plans() {
+		$path = HWBL_PLUGIN_DIR . 'includes/data/plan-seed-phase13.php';
+		if ( ! is_readable( $path ) ) {
+			return;
+		}
+		require_once $path;
+		if ( ! function_exists( 'hwbl_plan_seed_phase13_definitions' ) ) {
+			return;
+		}
+		foreach ( hwbl_plan_seed_phase13_definitions() as $plan ) {
 			if ( empty( $plan['title'] ) || empty( $plan['days'] ) ) {
 				continue;
 			}
