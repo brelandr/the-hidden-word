@@ -59,10 +59,27 @@ class HWBL_Public {
 			HWBL_VERSION
 		);
 
+		wp_register_style(
+			'hwbl-journal-export',
+			HWBL_PLUGIN_URL . 'public/css/journal-export.css',
+			array(),
+			HWBL_VERSION
+		);
+
+		wp_register_script(
+			'hwbl-journal-export-menu',
+			HWBL_PLUGIN_URL . 'public/js/journal-export-menu.js',
+			array(),
+			HWBL_VERSION,
+			true
+		);
+
+		wp_enqueue_style( 'hwbl-journal-export' );
+
 		wp_register_script(
 			'hwbl-lesson-tabs',
 			HWBL_PLUGIN_URL . 'public/js/lesson-tabs.js',
-			array(),
+			array( 'hwbl-journal-export-menu' ),
 			HWBL_VERSION,
 			true
 		);
@@ -70,7 +87,7 @@ class HWBL_Public {
 		wp_register_script(
 			'hwbl-memorization-basic',
 			HWBL_PLUGIN_URL . 'public/js/memorization-basic.js',
-			array(),
+			array( 'hwbl-journal-export-menu' ),
 			HWBL_VERSION,
 			true
 		);

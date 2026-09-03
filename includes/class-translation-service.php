@@ -126,26 +126,49 @@ class HWBL_Translation_Service {
 			$translation = get_option( 'hwbl_active_translation', 'niv' );
 		}
 
-		$translation = strtolower( $translation );
-		$text        = $this->get_verse_text( $book_id, $chapter, $verse, $translation );
+		$translation = strtolower( (string) $translation );
+		$book_id     = (int) $book_id;
+		$chapter     = (int) $chapter;
+		$verse       = (int) $verse;
 
-		if ( $text ) {
-			return array(
-				'text'         => $text,
-				'translation'  => $translation,
-			);
-		}
-
+		// Local curriculum / echo cache first — never block on remote for a cache miss later.
 		$cached = HWBL_Curriculum::get_echo_verse_text( $book_id, $chapter, $verse, $translation );
 		if ( $cached ) {
 			return $cached;
 		}
 
-		if ( 'niv' === $translation ) {
-			$web = HWBL_Curriculum::get_echo_verse_text( $book_id, $chapter, $verse, 'web' );
-			if ( $web ) {
-				return $web;
+		/*
+		 * Licensed display translations often are not fully available locally. Prefer fast
+		 * public-domain locals before remote chapter fetches that can stall ~1s+ per verse.
+		 */
+		$licensed = array( 'niv', 'esv', 'nlt', 'nasb', 'csb', 'nkjv', 'amp', 'msg' );
+		if ( in_array( $translation, $licensed, true ) ) {
+			foreach ( array( 'web', 'bsb', 'kjv' ) as $fallback ) {
+				$fb = HWBL_Curriculum::get_echo_verse_text( $book_id, $chapter, $verse, $fallback );
+				if ( $fb ) {
+					return $fb;
+				}
+				$text = $this->get_verse_text( $book_id, $chapter, $verse, $fallback );
+				if ( $text ) {
+					return array(
+						'text'        => $text,
+						'translation' => $fallback,
+					);
+				}
 			}
+			// Do not stall on remote licensed chapter fetches for verses outside local packs.
+			return array(
+				'text'        => '',
+				'translation' => '',
+			);
+		}
+
+		$text = $this->get_verse_text( $book_id, $chapter, $verse, $translation );
+		if ( $text ) {
+			return array(
+				'text'        => $text,
+				'translation' => $translation,
+			);
 		}
 
 		return array(

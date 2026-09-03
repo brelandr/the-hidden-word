@@ -65,6 +65,26 @@ class HWBL_Plan_Seed {
 			self::seed_phase13_plans();
 			$ver = 8;
 		}
+		if ( $ver < 9 ) {
+			self::seed_phase14_plans();
+			$ver = 9;
+		}
+		if ( $ver < 10 ) {
+			self::seed_phase15_plans();
+			$ver = 10;
+		}
+		if ( $ver < 11 ) {
+			self::seed_phase16_plans();
+			$ver = 11;
+		}
+		if ( $ver < 12 ) {
+			self::seed_phase17_plans();
+			$ver = 12;
+		}
+		if ( $ver < 13 ) {
+			self::seed_phase18_plans();
+			$ver = 13;
+		}
 		update_option( self::OPT_SEEDED, (string) $ver, false );
 	}
 
@@ -773,6 +793,72 @@ class HWBL_Plan_Seed {
 			return;
 		}
 		foreach ( hwbl_plan_seed_phase13_definitions() as $plan ) {
+			if ( empty( $plan['title'] ) || empty( $plan['days'] ) ) {
+				continue;
+			}
+			self::upsert_plan(
+				(string) $plan['title'],
+				(string) ( $plan['topic'] ?? 'other' ),
+				! empty( $plan['shareable'] ),
+				(array) $plan['days'],
+				(string) ( $plan['excerpt'] ?? '' )
+			);
+		}
+	}
+
+	/**
+	 * Phase 14: divorce topic + priority second plans for high-need topics.
+	 */
+	public static function seed_phase14_plans() {
+		self::seed_phase_definitions_file( 14 );
+	}
+
+	/**
+	 * Phase 15: second plans for Hard Places + Life Season leftovers.
+	 */
+	public static function seed_phase15_plans() {
+		self::seed_phase_definitions_file( 15 );
+	}
+
+	/**
+	 * Phase 16: second plans for character and calling topics.
+	 */
+	public static function seed_phase16_plans() {
+		self::seed_phase_definitions_file( 16 );
+	}
+
+	/**
+	 * Phase 17: second plans for love, community, Spirit, Word, and leadership.
+	 */
+	public static function seed_phase17_plans() {
+		self::seed_phase_definitions_file( 17 );
+	}
+
+	/**
+	 * Phase 18: remaining second plans (purity–kids, gospel, foundations, chronological, seasons).
+	 */
+	public static function seed_phase18_plans() {
+		self::seed_phase_definitions_file( 18 );
+	}
+
+	/**
+	 * Load and upsert plans from includes/data/plan-seed-phase{N}.php.
+	 *
+	 * @param int $phase Phase number.
+	 * @return void
+	 */
+	private static function seed_phase_definitions_file( $phase ) {
+		$phase = (int) $phase;
+		$path  = HWBL_PLUGIN_DIR . 'includes/data/plan-seed-phase' . $phase . '.php';
+		if ( ! is_readable( $path ) ) {
+			return;
+		}
+		require_once $path;
+		$fn = 'hwbl_plan_seed_phase' . $phase . '_definitions';
+		if ( ! function_exists( $fn ) ) {
+			return;
+		}
+		foreach ( call_user_func( $fn ) as $plan ) {
 			if ( empty( $plan['title'] ) || empty( $plan['days'] ) ) {
 				continue;
 			}

@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class HWBL_Plan_Day_Study {
 
-	const DB_VERSION = '1.0.0';
+	const DB_VERSION = '1.1.0';
 	const OPT_DB     = 'hwbl_plan_day_studies_db_version';
 	const RATE_LIMIT = 8;
 	const RATE_WINDOW = 3600;
@@ -61,15 +61,23 @@ class HWBL_Plan_Day_Study {
 			plan_id bigint(20) unsigned NOT NULL,
 			day_num int(11) NOT NULL,
 			tradition varchar(64) NOT NULL DEFAULT '',
+			style varchar(32) NOT NULL DEFAULT 'devotional',
 			verse_ref varchar(191) NOT NULL DEFAULT '',
 			translation varchar(32) NOT NULL DEFAULT '',
 			content longtext NOT NULL,
 			created_at datetime NOT NULL,
 			PRIMARY KEY  (id),
-			UNIQUE KEY plan_day_tradition (plan_id, day_num, tradition),
+			UNIQUE KEY plan_day_tradition_style (plan_id, day_num, tradition, style),
 			KEY tradition (tradition)
 		) {$charset};";
 		dbDelta( $sql );
+
+		// dbDelta adds the new compound key but does not remove the obsolete
+		// three-column unique key, which would prevent saving multiple styles.
+		$old_key = $wpdb->get_var( "SHOW INDEX FROM {$table} WHERE Key_name = 'plan_day_tradition'" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery
+		if ( $old_key ) {
+			$wpdb->query( "ALTER TABLE {$table} DROP INDEX plan_day_tradition" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.SchemaChange
+		}
 	}
 
 	/**
@@ -103,6 +111,11 @@ class HWBL_Plan_Day_Study {
 							'sanitize_callback' => 'sanitize_key',
 							'default'           => '',
 						),
+						'style'     => array(
+							'type'              => 'string',
+							'sanitize_callback' => 'sanitize_key',
+							'default'           => '',
+						),
 					),
 				),
 				array(
@@ -113,6 +126,11 @@ class HWBL_Plan_Day_Study {
 					},
 					'args'                => $args + array(
 						'tradition' => array(
+							'type'              => 'string',
+							'sanitize_callback' => 'sanitize_key',
+							'default'           => '',
+						),
+						'style'     => array(
 							'type'              => 'string',
 							'sanitize_callback' => 'sanitize_key',
 							'default'           => '',
@@ -152,16 +170,18 @@ class HWBL_Plan_Day_Study {
 	 * @param int    $plan_id   Plan ID.
 	 * @param int    $day_num   Day number.
 	 * @param string $tradition Tradition slug.
+	 * @param string $style     Study style.
 	 * @return array<string, mixed>|null
 	 */
-	public static function find( $plan_id, $day_num, $tradition ) {
+	public static function find( $plan_id, $day_num, $tradition, $style = 'devotional' ) {
 		global $wpdb;
 		$row = $wpdb->get_row(
 			$wpdb->prepare(
-				'SELECT * FROM ' . self::table_name() . ' WHERE plan_id = %d AND day_num = %d AND tradition = %s LIMIT 1', // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+				'SELECT * FROM ' . self::table_name() . ' WHERE plan_id = %d AND day_num = %d AND tradition = %s AND style = %s LIMIT 1', // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 				(int) $plan_id,
 				(int) $day_num,
-				sanitize_key( (string) $tradition )
+				sanitize_key( (string) $tradition ),
+				HWBL_Plan_Study_Styles::resolve( $style )
 			),
 			ARRAY_A
 		);
@@ -181,13 +201,15 @@ class HWBL_Plan_Day_Study {
 	 * @param int    $plan_id     Plan ID.
 	 * @param int    $day_num     Day number.
 	 * @param string $tradition   Tradition.
+	 * @param string $style       Study style.
 	 * @param string $verse_ref   Verse reference.
 	 * @param string $translation Translation.
 	 * @param string $content     HTML content.
 	 * @return array<string, mixed>|null
 	 */
-	public static function save( $plan_id, $day_num, $tradition, $verse_ref, $translation, $content ) {
-		$existing = self::find( $plan_id, $day_num, $tradition );
+	public static function save( $plan_id, $day_num, $tradition, $style, $verse_ref, $translation, $content ) {
+		$style    = HWBL_Plan_Study_Styles::resolve( $style );
+		$existing = self::find( $plan_id, $day_num, $tradition, $style );
 		if ( $existing ) {
 			return $existing;
 		}
@@ -200,18 +222,19 @@ class HWBL_Plan_Day_Study {
 				'plan_id'     => (int) $plan_id,
 				'day_num'     => (int) $day_num,
 				'tradition'   => sanitize_key( (string) $tradition ),
+				'style'       => $style,
 				'verse_ref'   => sanitize_text_field( (string) $verse_ref ),
 				'translation' => sanitize_key( (string) $translation ),
 				'content'     => wp_kses_post( (string) $content ),
 				'created_at'  => $now,
 			),
-			array( '%d', '%d', '%s', '%s', '%s', '%s', '%s' )
+			array( '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s' )
 		);
 		if ( ! $ok ) {
 			// Race: another request may have inserted.
-			return self::find( $plan_id, $day_num, $tradition );
+			return self::find( $plan_id, $day_num, $tradition, $style );
 		}
-		return self::find( $plan_id, $day_num, $tradition );
+		return self::find( $plan_id, $day_num, $tradition, $style );
 	}
 
 	/**
@@ -227,6 +250,7 @@ class HWBL_Plan_Day_Study {
 				'content'     => '',
 				'cached'      => false,
 				'tradition'   => '',
+				'style'       => 'devotional',
 				'verse_ref'   => '',
 				'translation' => '',
 			);
@@ -235,6 +259,7 @@ class HWBL_Plan_Day_Study {
 			'content'     => (string) $row['content'],
 			'cached'      => (bool) $cached,
 			'tradition'   => (string) $row['tradition'],
+			'style'       => isset( $row['style'] ) ? (string) $row['style'] : 'devotional',
 			'verse_ref'   => (string) $row['verse_ref'],
 			'translation' => (string) $row['translation'],
 			'created_at'  => (string) $row['created_at'],
@@ -256,7 +281,8 @@ class HWBL_Plan_Day_Study {
 			return new WP_Error( 'hwbl_plan_day_not_found', __( 'Plan day not found.', 'hidden-word-bible-lessons' ), array( 'status' => 404 ) );
 		}
 		$tradition = self::resolve_tradition( (string) $request->get_param( 'tradition' ), $day, (string) ( $plan['topic'] ?? '' ) );
-		$row       = self::find( $plan_id, $day_num, $tradition );
+		$style     = HWBL_Plan_Study_Styles::resolve( $request->get_param( 'style' ) );
+		$row       = self::find( $plan_id, $day_num, $tradition, $style );
 		return rest_ensure_response( self::format_row( $row, true ) );
 	}
 
@@ -277,11 +303,12 @@ class HWBL_Plan_Day_Study {
 
 		$topic     = (string) ( $plan['topic'] ?? '' );
 		$tradition = self::resolve_tradition( (string) $request->get_param( 'tradition' ), $day, $topic );
+		$style     = HWBL_Plan_Study_Styles::resolve( $request->get_param( 'style' ) );
 		if ( is_user_logged_in() && function_exists( 'thw_premium_user_tradition_enabled' ) && thw_premium_user_tradition_enabled() && 'site' !== $tradition && function_exists( 'thw_premium_set_user_tradition_preset' ) ) {
 			thw_premium_set_user_tradition_preset( get_current_user_id(), $tradition );
 		}
 
-		$cached = self::find( $plan_id, $day_num, $tradition );
+		$cached = self::find( $plan_id, $day_num, $tradition, $style );
 		if ( $cached ) {
 			return rest_ensure_response( self::format_row( $cached, true ) );
 		}
@@ -313,10 +340,8 @@ class HWBL_Plan_Day_Study {
 			: $rules;
 
 		$prompt  = "You are a biblical teacher writing a short Bible study for a multi-day reading plan.\n";
-		$prompt .= "Write exactly 4 or 5 short paragraphs in HTML using only <p> tags (no headings, lists, or markdown).\n";
-		$prompt .= "Return raw HTML only — do not wrap it in markdown code fences.\n";
-		$prompt .= "Ground the study in the verse and the plan subject. Give concrete examples of how to apply this truth in daily life today.\n";
-		$prompt .= "Stay pastoral, warm, and Scripture-first. Do not invent Bible quotations beyond the text supplied.\n\n";
+		$styles  = HWBL_Plan_Study_Styles::all();
+		$prompt .= (string) $styles[ $style ]['prompt_instructions'] . "\n\n";
 		$prompt .= 'Plan title: ' . (string) ( $plan['title'] ?? '' ) . "\n";
 		$prompt .= 'Plan topic: ' . $topic . "\n";
 		$prompt .= 'Day ' . (int) $day_num . ': ' . (string) ( $day['title'] ?? '' ) . "\n";
@@ -346,6 +371,7 @@ class HWBL_Plan_Day_Study {
 			$plan_id,
 			$day_num,
 			$tradition,
+			$style,
 			(string) ( $day['verse_ref'] ?? '' ),
 			(string) ( $day['translation'] ?? '' ),
 			$html
@@ -354,7 +380,7 @@ class HWBL_Plan_Day_Study {
 	}
 
 	/**
-	 * Normalize AI HTML to paragraphs.
+	 * Normalize AI study HTML.
 	 *
 	 * @param string $raw Raw AI output.
 	 * @return string
@@ -374,7 +400,15 @@ class HWBL_Plan_Day_Study {
 			}
 			return $html;
 		}
-		return wp_kses_post( $raw );
+		return wp_kses(
+			$raw,
+			array(
+				'p'      => array(),
+				'ol'     => array(),
+				'li'     => array(),
+				'strong' => array(),
+			)
+		);
 	}
 
 	/**

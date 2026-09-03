@@ -20,91 +20,72 @@ foreach ( (array) $plans as $plan_row ) {
 	}
 }
 $topic_slugs = array_keys( $topic_slugs );
-sort( $topic_slugs );
-
-$preferred = array(
-	'prayer',
-	'identity',
-	'forgiveness',
-	'purpose',
-	'discipleship',
-	'anxiety',
-	'life-problems',
-	'health',
-	'marriage',
-	'alcoholism',
-	'addiction',
-	'finances',
-	'domestic-violence',
-	'doubt',
-	'loneliness',
-	'depression',
-	'anger',
-	'hope',
-	'gratitude',
-	'fear',
-	'waiting',
-	'rest',
-	'humility',
-	'temptation',
-	'joy',
-	'singleness',
-	'witness',
-	'wisdom',
-	'suffering',
-	'love',
-	'community',
-	'peace',
-	'contentment',
-	'generosity',
-	'holy-spirit',
-	'scripture',
-	'worship',
-	'integrity',
-	'conflict',
-	'friendship',
-	'caregiving',
-	'hospitality',
-	'mercy',
-	'leadership',
-	'purity',
-	'persecution',
-	'envy',
-	'hurry',
-	'return',
-	'gospel',
-	'foundations',
-	'grief',
-	'new-believer',
-	'advent',
-	'lent',
-	'kids',
-	'parenting',
-	'chronological',
-	'other',
+// Alphabetical by display label (e.g. "Holy Spirit", "New Believer").
+usort(
+	$topic_slugs,
+	static function ( $a, $b ) {
+		$la = ucwords( str_replace( '-', ' ', (string) $a ) );
+		$lb = ucwords( str_replace( '-', ' ', (string) $b ) );
+		return strcasecmp( $la, $lb );
+	}
 );
-$ordered = array();
-foreach ( $preferred as $pref ) {
-	if ( in_array( $pref, $topic_slugs, true ) ) {
-		$ordered[] = $pref;
-	}
-}
-foreach ( $topic_slugs as $slug ) {
-	if ( ! in_array( $slug, $ordered, true ) ) {
-		$ordered[] = $slug;
-	}
-}
+$ordered = $topic_slugs;
 
 $show_filter = ( '' === (string) $topic ) && count( $ordered ) > 1;
 $filter_id   = function_exists( 'wp_unique_id' )
 	? wp_unique_id( 'hwbl-plan-topic-filter-' )
 	: 'hwbl-plan-topic-filter-' . uniqid();
+
+$active_plans = array();
+if ( is_user_logged_in() && class_exists( 'HWBL_Plan_Progress' ) ) {
+	$active_plans = array_slice( HWBL_Plan_Progress::get_active_for_user( get_current_user_id() ), 0, 3 );
+}
 ?>
 <div
 	class="hwbl-plan-list"
 	data-topic="<?php echo esc_attr( $topic ); ?>"
 	data-filterable="<?php echo $show_filter ? '1' : '0'; ?>"
 >
+	<?php if ( ! empty( $active_plans ) ) : ?>
+		<section class="hwbl-plan-list__continue" aria-label="<?php esc_attr_e( 'Continue reading plans', 'hidden-word-bible-lessons' ); ?>">
+			<h3 class="hwbl-plan-list__continue-title"><?php esc_html_e( 'Continue where you left off', 'hidden-word-bible-lessons' ); ?></h3>
+			<ul class="hwbl-plan-list__continue-items">
+				<?php foreach ( $active_plans as $active ) : ?>
+					<?php
+					$day_num  = (int) ( $active['progress']['current_day'] ?? 0 );
+					$plan_url = ! empty( $active['url'] ) ? (string) $active['url'] : get_permalink( (int) $active['plan_id'] );
+					$day_url  = $day_num > 0 ? add_query_arg( 'hwbl_plan_day', $day_num, $plan_url ) : $plan_url;
+					$day_title = is_array( $active['today'] ?? null ) && ! empty( $active['today']['title'] )
+						? (string) $active['today']['title']
+						: '';
+					?>
+					<li class="hwbl-plan-list__continue-item">
+						<a class="hwbl-plan-list__continue-link" href="<?php echo esc_url( $day_url ); ?>">
+							<strong><?php echo esc_html( (string) ( $active['title'] ?? '' ) ); ?></strong>
+							<span>
+								<?php
+								echo esc_html(
+									$day_title
+										? sprintf(
+											/* translators: 1: day number, 2: day title */
+											__( 'Continue day %1$d — %2$s', 'hidden-word-bible-lessons' ),
+											$day_num,
+											$day_title
+										)
+										: sprintf(
+											/* translators: %d: day number */
+											__( 'Continue day %d', 'hidden-word-bible-lessons' ),
+											$day_num
+										)
+								);
+								?>
+							</span>
+						</a>
+					</li>
+				<?php endforeach; ?>
+			</ul>
+		</section>
+	<?php endif; ?>
 	<?php if ( empty( $plans ) ) : ?>
 		<p class="hwbl-empty"><?php esc_html_e( 'No reading plans found.', 'hidden-word-bible-lessons' ); ?></p>
 	<?php else : ?>

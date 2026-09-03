@@ -17,10 +17,40 @@ class HWBL_User_Preferences {
 	const META_TRANSLATION    = '_hwbl_preferred_translation';
 	const META_EASY_READ      = '_hwbl_easy_read';
 	const META_KIDS_MODE      = '_hwbl_kids_mode';
+	const META_STUDY_STYLE    = '_hwbl_study_style';
 	const STORAGE_TRANSLATION = 'hwbl_preferred_translation';
 	const STORAGE_TRADITION   = 'thw_ai_tradition_preset';
 	const STORAGE_EASY_READ   = 'hwbl_easy_read';
 	const STORAGE_KIDS_MODE   = 'hwbl_kids_mode';
+	const STORAGE_STUDY_STYLE = 'hwbl_study_style';
+
+	/**
+	 * Get a validated study style.
+	 *
+	 * @param int $user_id User ID.
+	 * @return string
+	 */
+	public static function get_study_style( $user_id = 0 ) {
+		$user_id = $user_id ? (int) $user_id : get_current_user_id();
+		$value   = $user_id > 0 ? get_user_meta( $user_id, self::META_STUDY_STYLE, true ) : '';
+		return HWBL_Plan_Study_Styles::resolve( $value );
+	}
+
+	/**
+	 * Save a validated study style.
+	 *
+	 * @param int    $user_id User ID.
+	 * @param string $style   Style slug.
+	 * @return bool
+	 */
+	public static function set_study_style( $user_id, $style ) {
+		$style = sanitize_key( (string) $style );
+		if ( (int) $user_id < 1 || ! isset( HWBL_Plan_Study_Styles::all()[ $style ] ) ) {
+			return false;
+		}
+		update_user_meta( (int) $user_id, self::META_STUDY_STYLE, $style );
+		return true;
+	}
 
 	/**
 	 * Register hooks.
@@ -147,10 +177,12 @@ class HWBL_User_Preferences {
 			'preferredTranslation'        => self::get_preferred_translation(),
 			'easyRead'                    => self::get_bool_pref( self::META_EASY_READ ),
 			'kidsMode'                    => self::get_bool_pref( self::META_KIDS_MODE ),
+			'studyStyle'                  => self::get_study_style(),
 			'translationStorageKey'       => self::STORAGE_TRANSLATION,
 			'traditionStorageKey'         => self::STORAGE_TRADITION,
 			'easyReadStorageKey'          => self::STORAGE_EASY_READ,
 			'kidsModeStorageKey'          => self::STORAGE_KIDS_MODE,
+			'studyStyleStorageKey'        => self::STORAGE_STUDY_STYLE,
 			'legacyTranslationStorageKey' => 'thw_votd_translation',
 		);
 	}
@@ -287,6 +319,8 @@ class HWBL_User_Preferences {
 			'showTraditionPicker' => $show_tradition,
 			'easyRead'            => self::get_bool_pref( self::META_EASY_READ, $user_id ),
 			'kidsMode'            => self::get_bool_pref( self::META_KIDS_MODE, $user_id ),
+			'studyStyle'          => self::get_study_style( $user_id ),
+			'studyStyles'         => HWBL_Plan_Study_Styles::all(),
 		);
 	}
 
@@ -328,6 +362,11 @@ class HWBL_User_Preferences {
 				'kidsMode'    => array(
 					'type'     => 'boolean',
 					'required' => false,
+				),
+				'studyStyle'  => array(
+					'type'              => 'string',
+					'required'          => false,
+					'sanitize_callback' => 'sanitize_key',
 				),
 			),
 		);
@@ -380,6 +419,7 @@ class HWBL_User_Preferences {
 
 		$translation_in = isset( $params['translation'] ) ? sanitize_key( (string) $params['translation'] ) : '';
 		$tradition_in   = isset( $params['tradition'] ) ? sanitize_key( (string) $params['tradition'] ) : '';
+		$study_style_in = isset( $params['studyStyle'] ) ? sanitize_key( (string) $params['studyStyle'] ) : '';
 
 		$saved_translation = self::get_preferred_translation( $user_id );
 		$saved_tradition   = '';
@@ -389,6 +429,13 @@ class HWBL_User_Preferences {
 		}
 		if ( array_key_exists( 'kidsMode', $params ) ) {
 			self::set_bool_pref( $user_id, self::META_KIDS_MODE, rest_sanitize_boolean( $params['kidsMode'] ) );
+		}
+		if ( '' !== $study_style_in && ! self::set_study_style( $user_id, $study_style_in ) ) {
+			return new WP_Error(
+				'hwbl_prefs_invalid_study_style',
+				__( 'That study style is not available.', 'hidden-word-bible-lessons' ),
+				array( 'status' => 400 )
+			);
 		}
 
 		if ( '' !== $translation_in ) {

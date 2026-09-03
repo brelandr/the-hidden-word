@@ -221,7 +221,7 @@ class HWBL_Shortcodes {
 		wp_enqueue_script(
 			'hwbl-plan',
 			HWBL_PLUGIN_URL . 'public/js/plan.js',
-			array(),
+			array( 'hwbl-journal-export-menu' ),
 			HWBL_VERSION,
 			true
 		);
@@ -237,12 +237,17 @@ class HWBL_Shortcodes {
 			$progress = $user_id ? HWBL_Plan_Progress::get( $user_id, $plan_id ) : null;
 			$today    = null;
 			$preview  = false;
+			$req_day  = isset( $_GET['hwbl_plan_day'] ) ? absint( wp_unslash( $_GET['hwbl_plan_day'] ) ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			if ( $progress && (int) $progress['current_day'] > 0 ) {
-				$today = HWBL_CPT_Plan::get_day( $plan_id, (int) $progress['current_day'] );
+				$view_day = $req_day > 0 ? $req_day : (int) $progress['current_day'];
+				$today    = HWBL_CPT_Plan::get_day( $plan_id, $view_day );
+				if ( ! $today ) {
+					$today = HWBL_CPT_Plan::get_day( $plan_id, (int) $progress['current_day'] );
+				}
 			} else {
 				// Preview day 1 so verse / explain / study are visible before starting.
-				$today   = HWBL_CPT_Plan::get_day( $plan_id, 1 );
-				$preview = (bool) $today;
+				$today   = HWBL_CPT_Plan::get_day( $plan_id, $req_day > 0 ? $req_day : 1 );
+				$preview = (bool) $today && ( ! $progress || (int) $progress['current_day'] < 1 );
 			}
 			$logged_in = (bool) $user_id;
 			ob_start();
@@ -253,7 +258,7 @@ class HWBL_Shortcodes {
 		$query = array(
 			'post_type'      => HWBL_CPT_Plan::POST_TYPE,
 			'post_status'    => 'publish',
-			'posts_per_page' => 50,
+			'posts_per_page' => 200,
 			'orderby'        => 'title',
 			'order'          => 'ASC',
 		);

@@ -360,7 +360,7 @@ class THW_Premium_Verse_Of_The_Day {
 
 		ob_start();
 		?>
-		<div class="thw-votd" data-thw-votd="1" data-votd-day="<?php echo esc_attr( (string) $payload['day'] ); ?>" data-reference="<?php echo esc_attr( $payload['reference'] ); ?>">
+		<div class="thw-votd" data-thw-votd="1" data-votd-day="<?php echo esc_attr( (string) $payload['day'] ); ?>" data-reference="<?php echo esc_attr( $payload['reference'] ); ?>" data-site-name="<?php echo esc_attr( (string) get_bloginfo( 'name' ) ); ?>">
 			<p class="thw-votd__eyebrow"><?php esc_html_e( 'Bible.com Verse of the Day', 'hidden-word-bible-lessons' ); ?></p>
 			<?php if ( $show_image && ! empty( $payload['image'] ) ) : ?>
 				<figure class="thw-votd__figure">
@@ -439,6 +439,10 @@ class THW_Premium_Verse_Of_The_Day {
 					</p>
 					<div class="thw-votd__explain-panel" hidden>
 						<div class="thw-votd__explain-output" aria-live="polite"></div>
+						<div class="thw-votd__explain-actions hwbl-journal-export-actions" hidden>
+							<span class="hwbl-journal-export-mount"></span>
+							<p class="thw-votd__journal-status description" role="status" aria-live="polite"></p>
+						</div>
 					</div>
 				</div>
 			<?php endif; ?>
@@ -1624,9 +1628,10 @@ class THW_Premium_Verse_Of_The_Day {
 
 		wp_enqueue_style( 'thw-premium' );
 
-		$votd_deps = wp_script_is( 'hwbl-user-preferences', 'registered' )
-			? array( 'hwbl-user-preferences' )
-			: array();
+		$votd_deps = array( 'hwbl-journal-export-menu' );
+		if ( wp_script_is( 'hwbl-user-preferences', 'registered' ) ) {
+			$votd_deps[] = 'hwbl-user-preferences';
+		}
 		wp_enqueue_script(
 			'thw-votd',
 			THW_PREMIUM_URL . 'public/js/votd.js',

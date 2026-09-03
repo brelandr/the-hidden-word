@@ -156,6 +156,16 @@ class THW_Premium {
 	 */
 	public static function enqueue_assets() {
 		$pref_deps = self::preference_script_deps();
+		if ( ! wp_script_is( 'hwbl-journal-export-menu', 'registered' ) ) {
+			wp_register_script(
+				'hwbl-journal-export-menu',
+				HWBL_PLUGIN_URL . 'public/js/journal-export-menu.js',
+				array(),
+				HWBL_VERSION,
+				true
+			);
+		}
+		$journal_deps = array_merge( $pref_deps, array( 'hwbl-journal-export-menu' ) );
 
 		wp_register_style(
 			'thw-premium',
@@ -183,7 +193,7 @@ class THW_Premium {
 		wp_register_script(
 			'thw-ai-explain',
 			THW_PREMIUM_URL . 'public/js/ai-explain.js',
-			$pref_deps,
+			$journal_deps,
 			THW_PREMIUM_VERSION,
 			true
 		);

@@ -25,6 +25,9 @@ $completed   = ( $progress && ! empty( $progress['completed_days'] ) && is_array
 	: array();
 $explain_url = rest_url( 'hwbl/v1/bible-explain' );
 $tradition   = '';
+$study_styles = HWBL_Plan_Study_Styles::all();
+$study_style  = class_exists( 'HWBL_User_Preferences' ) ? HWBL_User_Preferences::get_study_style() : 'devotional';
+$plan_shape   = HWBL_CPT_Plan::resolve_shape( $plan['shape'] ?? '' );
 if ( function_exists( 'thw_premium_get_user_tradition_preset' ) ) {
 	$tradition = (string) thw_premium_get_user_tradition_preset( get_current_user_id() );
 }
@@ -42,6 +45,7 @@ if ( function_exists( 'thw_premium_get_user_tradition_preset' ) ) {
 	data-plan-length="<?php echo esc_attr( (string) $plan_length ); ?>"
 	data-viewing-day="<?php echo esc_attr( (string) $viewing_day ); ?>"
 	data-preview="<?php echo $preview ? '1' : '0'; ?>"
+	data-site-name="<?php echo esc_attr( (string) get_bloginfo( 'name' ) ); ?>"
 >
 	<header class="hwbl-plan__header">
 		<h2 class="hwbl-plan__title"><?php echo esc_html( $plan['title'] ); ?></h2>
@@ -118,6 +122,9 @@ if ( function_exists( 'thw_premium_get_user_tradition_preset' ) ) {
 				);
 				?>
 			</h3>
+			<p class="hwbl-plan-day__framing" <?php echo ( 'daily' === $plan_shape || empty( $today['framing'] ) ) ? 'hidden' : ''; ?>>
+				<?php echo ! empty( $today['framing'] ) ? esc_html( (string) $today['framing'] ) : ''; ?>
+			</p>
 
 			<div class="hwbl-plan-day__verse-wrap">
 			<?php if ( ! empty( $today['verse_ref'] ) || ! empty( $today['verse_text'] ) ) : ?>
@@ -135,14 +142,42 @@ if ( function_exists( 'thw_premium_get_user_tradition_preset' ) ) {
 				</figure>
 			<?php endif; ?>
 			</div>
+			<button type="button" class="hwbl-btn hwbl-btn-secondary hwbl-plan-compare" aria-expanded="false" <?php echo empty( $today['verse_ref'] ) ? 'hidden' : ''; ?>><?php esc_html_e( 'Compare translations', 'hidden-word-bible-lessons' ); ?></button>
+			<div class="hwbl-plan-day__compare hwbl-translation-compare" hidden></div>
+
+			<div class="hwbl-plan-day__share-bar" role="group" aria-label="<?php esc_attr_e( 'Copy or share this day', 'hidden-word-bible-lessons' ); ?>">
+				<button type="button" class="hwbl-btn hwbl-btn-secondary hwbl-plan-copy-verse"><?php esc_html_e( 'Copy verse', 'hidden-word-bible-lessons' ); ?></button>
+				<button type="button" class="hwbl-btn hwbl-btn-secondary hwbl-plan-copy-study"><?php esc_html_e( 'Copy study', 'hidden-word-bible-lessons' ); ?></button>
+				<button type="button" class="hwbl-btn hwbl-btn-secondary hwbl-plan-copy-ask"><?php esc_html_e( 'Copy Ask reply', 'hidden-word-bible-lessons' ); ?></button>
+				<button type="button" class="hwbl-btn hwbl-btn-secondary hwbl-plan-copy-day"><?php esc_html_e( 'Copy day', 'hidden-word-bible-lessons' ); ?></button>
+				<button type="button" class="hwbl-btn hwbl-btn-secondary hwbl-plan-share-day"><?php esc_html_e( 'Share day', 'hidden-word-bible-lessons' ); ?></button>
+				<span class="hwbl-plan-add-journal-wrap">
+					<button type="button" class="hwbl-btn hwbl-btn-secondary hwbl-plan-add-journal" aria-expanded="false" aria-haspopup="true"><?php esc_html_e( 'Add to journal', 'hidden-word-bible-lessons' ); ?></button>
+				</span>
+				<span class="hwbl-plan-day__share-status" role="status" aria-live="polite"></span>
+			</div>
 
 			<div class="hwbl-plan-day__body"><?php echo ! empty( $today['body'] ) ? wp_kses_post( $today['body'] ) : ''; ?></div>
 
 			<div class="hwbl-plan-day__study">
+				<label class="hwbl-plan-day__style-label">
+					<span><?php esc_html_e( 'Study style', 'hidden-word-bible-lessons' ); ?></span>
+					<select class="hwbl-plan-study-style">
+						<?php foreach ( $study_styles as $style_slug => $style_data ) : ?>
+							<option value="<?php echo esc_attr( $style_slug ); ?>" title="<?php echo esc_attr( $style_data['description'] ); ?>" <?php selected( $study_style, $style_slug ); ?>><?php echo esc_html( $style_data['label'] ); ?></option>
+						<?php endforeach; ?>
+					</select>
+				</label>
 				<h4 class="hwbl-plan-day__section-title"><?php esc_html_e( 'Today’s Bible study', 'hidden-word-bible-lessons' ); ?></h4>
+				<button type="button" class="hwbl-btn hwbl-btn-secondary hwbl-plan-listen" hidden><?php esc_html_e( 'Listen', 'hidden-word-bible-lessons' ); ?></button>
 				<div class="hwbl-plan-day__study-status" role="status" aria-live="polite"><?php esc_html_e( 'Loading study…', 'hidden-word-bible-lessons' ); ?></div>
 				<div class="hwbl-plan-day__study-body" hidden></div>
 			</div>
+
+			<details class="hwbl-plan-day__word-study" <?php echo empty( $today['strongs_words'] ) ? 'hidden' : ''; ?>>
+				<summary><?php esc_html_e( 'Word study', 'hidden-word-bible-lessons' ); ?></summary>
+				<div class="hwbl-plan-day__word-study-body"></div>
+			</details>
 
 			<?php if ( $logged_in && ! $preview ) : ?>
 				<div class="hwbl-plan-day__journal">
@@ -162,6 +197,11 @@ if ( function_exists( 'thw_premium_get_user_tradition_preset' ) ) {
 				<h4 class="hwbl-plan-day__section-title"><?php esc_html_e( 'Verse explanation', 'hidden-word-bible-lessons' ); ?></h4>
 				<div class="hwbl-plan-day__explain-status" role="status" aria-live="polite"><?php esc_html_e( 'Loading explanation…', 'hidden-word-bible-lessons' ); ?></div>
 				<div class="hwbl-plan-day__explain-body" hidden></div>
+				<div class="hwbl-plan-day__explain-actions" hidden>
+					<button type="button" class="hwbl-btn hwbl-btn-secondary hwbl-plan-copy-explain"><?php esc_html_e( 'Copy explanation', 'hidden-word-bible-lessons' ); ?></button>
+					<button type="button" class="hwbl-btn hwbl-btn-secondary hwbl-plan-share-explain"><?php esc_html_e( 'Share explanation', 'hidden-word-bible-lessons' ); ?></button>
+					<span class="hwbl-journal-export-mount"></span>
+				</div>
 			</div>
 
 			<p class="hwbl-plan-day__lesson-link" <?php echo empty( $today['lesson_id'] ) ? 'hidden' : ''; ?>>

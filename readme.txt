@@ -4,7 +4,7 @@ Tags: bible, scripture, discipleship, memorization, verse of the day
 Requires at least: 6.2
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.3.14
+Stable tag: 2.3.25
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -133,6 +133,31 @@ The hub operator’s policy for The Hidden Word (accounts, AI Ask, gospel-respon
 5. Plugin settings — schedule mode and translation switcher
 
 == Changelog ==
+
+= 2.3.25 =
+* Add to journal: put journal= first in QuillDay/Day One deep links so long iOS URLs keep the preferred journal name
+
+= 2.3.24 =
+* Add to journal: shared export menu on VOTD, Bible reader explain, lesson AI explain, and memorization (not only plan days)
+
+= 2.3.23 =
+* Add to journal: prefer a named QuillDay or Day One journal via local preference (web + companion)
+
+= 2.3.22 =
+* Reading plans: add selectable study styles, translation comparison, Strong's word studies, device narration, character/book framing, and plan shapes
+* Learning tracks: add Foundations CPT, REST endpoints, and ordered shortcode navigation
+
+= 2.3.21 =
+* Reading plans: continue-where-you-left-off, plan journal Q&A timeline, and copy/share for plan days
+
+= 2.3.20 =
+* Reading plans: Phases 15–18 second plans for all remaining single-plan topics (seed v10–v13); every topic except `other` now has at least two plans
+
+= 2.3.16 =
+* Performance: stop stalling reading-plan verse lookup on remote licensed translations; fall back to local BSB/WEB/KJV first
+
+= 2.3.15 =
+* Reading plans: add Divorce topic plan plus second plans for anxiety, grief, depression, loneliness, doubt, finances, health, parenting, prayer, forgiveness, identity, and new believer
 
 = 2.3.14 =
 * Reading plans: add friendship, caregiving, hospitality, mercy, leadership, purity, persecution, envy, hurry, and Christ’s return plans
@@ -319,6 +344,15 @@ The hub operator’s policy for The Hidden Word (accounts, AI Ask, gospel-respon
 * Gutenberg block and shortcodes
 
 == Upgrade Notice ==
+
+= 2.3.20 =
+Forty-six additional reading plans so every topic category has a second complementary plan.
+
+= 2.3.16 =
+Faster reading-plan pages: verse text uses local translations when NIV/ESV/etc. are not available on-site.
+
+= 2.3.15 =
+Divorce reading plan plus additional plans for high-need topics (anxiety, grief, depression, and more).
 
 = 2.3.14 =
 Ten more reading plans: friendship, caregiving, hospitality, mercy, leadership, purity, persecution, envy, hurry, and living for Christ’s return.

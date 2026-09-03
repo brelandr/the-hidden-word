@@ -116,7 +116,8 @@
 		panel.hidden = true;
 		panel.innerHTML =
 			'<h3 class="thw-panel-title">AI Explanation</h3>' +
-			'<div class="thw-ai-explain-output" aria-live="polite"></div>';
+			'<div class="thw-ai-explain-output" aria-live="polite"></div>' +
+			'<div class="hwbl-journal-export-actions" hidden><span class="hwbl-journal-export-mount"></span></div>';
 
 		if (root && root.parentNode) {
 			if (root.nextSibling) {
@@ -131,7 +132,7 @@
 		return panel;
 	}
 
-	function renderFinalContent(output, data, config) {
+	function renderFinalContent(output, data, config, panel, root) {
 		var content = data && data.content ? String(data.content) : '';
 		if (!content) {
 			output.innerHTML = '<p class="thw-notice thw-notice-info">' + config.error + '</p>';
@@ -143,6 +144,51 @@
 			html = '<p class="thw-ai-explain-disclaimer thw-ai-compliance-flagged">' + config.complianceFlagged + '</p>' + html;
 		}
 		output.innerHTML = html;
+		mountLessonExplainJournal(panel, output, root);
+	}
+
+	function mountLessonExplainJournal(panel, output, root) {
+		if (!window.HWBLJournalExport || !panel || !output) {
+			return;
+		}
+		var lessonWrap = findLessonWrap(root) || root;
+		var titleEl = lessonWrap
+			? lessonWrap.querySelector('.hwbl-lesson-title, .entry-title, h1')
+			: null;
+		var refEl = lessonWrap
+			? lessonWrap.querySelector('.hwbl-lesson-reference')
+			: null;
+		var title = titleEl ? String(titleEl.textContent || '').trim() : 'Lesson explanation';
+		var ref = refEl ? String(refEl.textContent || '').trim() : '';
+		var statusEl = panel.querySelector('.hwbl-journal-export-status');
+		window.HWBLJournalExport.ensureExplainActions(
+			panel,
+			function () {
+				var parts = [];
+				if (title) {
+					parts.push(title);
+				}
+				if (ref && ref !== title) {
+					parts.push(ref);
+				}
+				var explain = window.HWBLJournalExport.plainTextFromEl(output);
+				if (explain) {
+					parts.push(explain);
+				}
+				return parts.join('\n\n');
+			},
+			title,
+			lessonWrap || root,
+			function (msg) {
+				if (!statusEl) {
+					statusEl = document.createElement('p');
+					statusEl.className = 'hwbl-journal-export-status description';
+					statusEl.setAttribute('role', 'status');
+					panel.appendChild(statusEl);
+				}
+				statusEl.textContent = msg || '';
+			}
+		);
 	}
 
 	function escapeHtml(text) {
@@ -340,7 +386,7 @@
 					output.innerHTML = '<p class="thw-notice thw-notice-info">' + formatErrorMessage(result, config) + '</p>';
 					return;
 				}
-				renderFinalContent(output, result.data, config);
+				renderFinalContent(output, result.data, config, panel, root);
 			})
 			.catch(function () {
 				// Streaming path failed — fall back to classic JSON.
@@ -351,7 +397,7 @@
 							output.innerHTML = '<p class="thw-notice thw-notice-info">' + formatErrorMessage(result, config) + '</p>';
 							return;
 						}
-						renderFinalContent(output, result.data, config);
+						renderFinalContent(output, result.data, config, panel, root);
 					});
 				}
 				output.innerHTML = '<p class="thw-notice thw-notice-info">' + config.error + '</p>';

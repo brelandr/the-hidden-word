@@ -20,6 +20,7 @@ class HWBL_CPT_Plan {
 	const META_TOPIC     = '_hwbl_plan_topic';
 	const META_LENGTH    = '_hwbl_plan_length';
 	const META_SHAREABLE = '_hwbl_plan_shareable';
+	const META_SHAPE     = '_hwbl_plan_shape';
 
 	/**
 	 * Known plan topics.
@@ -32,6 +33,7 @@ class HWBL_CPT_Plan {
 			'grief',
 			'marriage',
 			'parenting',
+			'divorce',
 			'new-believer',
 			'chronological',
 			'gospel',
@@ -175,6 +177,16 @@ class HWBL_CPT_Plan {
 		);
 		register_post_meta(
 			self::POST_TYPE,
+			self::META_SHAPE,
+			array(
+				'show_in_rest'  => true,
+				'single'        => true,
+				'type'          => 'string',
+				'auth_callback' => array( $this, 'meta_auth' ),
+			)
+		);
+		register_post_meta(
+			self::POST_TYPE,
 			self::META_DAYS,
 			array(
 				'show_in_rest'  => array(
@@ -188,6 +200,7 @@ class HWBL_CPT_Plan {
 								'title'     => array( 'type' => 'string' ),
 								'body'      => array( 'type' => 'string' ),
 								'verse_ref' => array( 'type' => 'string' ),
+								'framing'   => array( 'type' => 'string' ),
 							),
 						),
 					),
@@ -271,6 +284,7 @@ class HWBL_CPT_Plan {
 		wp_nonce_field( 'hwbl_save_plan_meta', 'hwbl_plan_meta_nonce' );
 		$topic     = (string) get_post_meta( $post->ID, self::META_TOPIC, true );
 		$shareable = (bool) get_post_meta( $post->ID, self::META_SHAREABLE, true );
+		$shape     = self::resolve_shape( get_post_meta( $post->ID, self::META_SHAPE, true ) );
 		?>
 		<p>
 			<label for="hwbl_plan_topic"><strong><?php esc_html_e( 'Topic', 'hidden-word-bible-lessons' ); ?></strong></label><br />
@@ -280,6 +294,14 @@ class HWBL_CPT_Plan {
 						<?php echo esc_html( ucwords( str_replace( '-', ' ', $slug ) ) ); ?>
 					</option>
 				<?php endforeach; ?>
+			</select>
+		</p>
+		<p>
+			<label for="hwbl_plan_shape"><strong><?php esc_html_e( 'Plan shape', 'hidden-word-bible-lessons' ); ?></strong></label><br />
+			<select name="hwbl_plan_shape" id="hwbl_plan_shape" class="widefat">
+				<option value="daily" <?php selected( $shape, 'daily' ); ?>><?php esc_html_e( 'Daily', 'hidden-word-bible-lessons' ); ?></option>
+				<option value="character" <?php selected( $shape, 'character' ); ?>><?php esc_html_e( 'Character', 'hidden-word-bible-lessons' ); ?></option>
+				<option value="book" <?php selected( $shape, 'book' ); ?>><?php esc_html_e( 'Book overview', 'hidden-word-bible-lessons' ); ?></option>
 			</select>
 		</p>
 		<p>
@@ -311,6 +333,7 @@ class HWBL_CPT_Plan {
 					'title'     => '',
 					'body'      => '',
 					'verse_ref' => '',
+					'framing'   => '',
 				),
 			);
 		}
@@ -336,6 +359,7 @@ class HWBL_CPT_Plan {
 					'title'     => '',
 					'body'      => '',
 					'verse_ref' => '',
+					'framing'   => '',
 				)
 			);
 			?>
@@ -355,8 +379,15 @@ class HWBL_CPT_Plan {
 		$body      = isset( $day['body'] ) ? (string) $day['body'] : '';
 		$verse_ref = isset( $day['verse_ref'] ) ? (string) $day['verse_ref'] : '';
 		$day_num   = isset( $day['day'] ) ? (int) $day['day'] : 0;
+		$framing   = isset( $day['framing'] ) ? (string) $day['framing'] : '';
 		?>
 		<div class="hwbl-plan-day-row" style="border:1px solid #ccd0d4;padding:12px;margin-bottom:10px;background:#fff;">
+			<p>
+				<label>
+					<?php esc_html_e( 'Why this passage (character/book plans)', 'hidden-word-bible-lessons' ); ?>
+					<input type="text" class="widefat hwbl-plan-framing" name="hwbl_plan_days[<?php echo esc_attr( (string) $index ); ?>][framing]" value="<?php echo esc_attr( $framing ); ?>" />
+				</label>
+			</p>
 			<p>
 				<label>
 					<?php esc_html_e( 'Day #', 'hidden-word-bible-lessons' ); ?>
@@ -416,6 +447,8 @@ class HWBL_CPT_Plan {
 		}
 		update_post_meta( $post_id, self::META_TOPIC, $topic );
 		update_post_meta( $post_id, self::META_SHAREABLE, ! empty( $_POST['hwbl_plan_shareable'] ) ? 1 : 0 );
+		$shape = isset( $_POST['hwbl_plan_shape'] ) ? self::resolve_shape( sanitize_key( wp_unslash( $_POST['hwbl_plan_shape'] ) ) ) : 'daily';
+		update_post_meta( $post_id, self::META_SHAPE, $shape );
 
 		$raw_days = isset( $_POST['hwbl_plan_days'] ) && is_array( $_POST['hwbl_plan_days'] ) ? wp_unslash( $_POST['hwbl_plan_days'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		$days     = self::sanitize_days( $raw_days );
@@ -442,6 +475,7 @@ class HWBL_CPT_Plan {
 			$body  = isset( $row['body'] ) ? wp_kses_post( (string) $row['body'] ) : '';
 			$ref   = isset( $row['verse_ref'] ) ? sanitize_text_field( (string) $row['verse_ref'] ) : '';
 			$lid   = isset( $row['lesson_id'] ) ? absint( $row['lesson_id'] ) : 0;
+			$framing = isset( $row['framing'] ) ? sanitize_text_field( (string) $row['framing'] ) : '';
 			if ( ! $title && ! $body && ! $ref && ! $lid ) {
 				continue;
 			}
@@ -451,6 +485,7 @@ class HWBL_CPT_Plan {
 				'title'     => $title,
 				'body'      => $body,
 				'verse_ref' => $ref,
+				'framing'   => $framing,
 			);
 		}
 		usort(
@@ -517,6 +552,7 @@ class HWBL_CPT_Plan {
 			'topic'       => (string) get_post_meta( $plan_id, self::META_TOPIC, true ),
 			'length'      => (int) ( get_post_meta( $plan_id, self::META_LENGTH, true ) ?: count( $days ) ),
 			'shareable'   => (bool) get_post_meta( $plan_id, self::META_SHAREABLE, true ),
+			'shape'       => self::resolve_shape( get_post_meta( $plan_id, self::META_SHAPE, true ) ),
 			'days'        => $days,
 			'link'        => get_permalink( $plan_id ),
 			'status'      => $post->post_status,
@@ -538,10 +574,65 @@ class HWBL_CPT_Plan {
 					$day['title'] = get_the_title( (int) $day['lesson_id'] );
 				}
 				$day['lesson_link'] = ! empty( $day['lesson_id'] ) ? get_permalink( (int) $day['lesson_id'] ) : '';
-				return self::enrich_day_verse( $day );
+				$day = self::enrich_day_verse( $day );
+				$day['strongs_words'] = self::get_day_strongs_words( $day );
+				return $day;
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Normalize a plan shape.
+	 *
+	 * @param string $shape Shape.
+	 * @return string
+	 */
+	public static function resolve_shape( $shape ) {
+		$shape = sanitize_key( (string) $shape );
+		return in_array( $shape, array( 'character', 'book' ), true ) ? $shape : 'daily';
+	}
+
+	/**
+	 * Find English-word Strong's candidates occurring in this verse.
+	 *
+	 * @param array<string, mixed> $day Day.
+	 * @return array<int, array<string, mixed>>
+	 */
+	public static function get_day_strongs_words( array $day ) {
+		if ( empty( $day['verse_text'] ) || empty( $day['book_id'] ) || empty( $day['chapter'] ) || empty( $day['verse'] ) || ! class_exists( 'HWBL_Bible_Strongs' ) || ! HWBL_Bible_Strongs::is_available() ) {
+			return array();
+		}
+		$target = strtolower( preg_replace( '/\s+/', '', HWBL_Books::format_reference( (int) $day['book_id'], (int) $day['chapter'], (int) $day['verse'] ) ) );
+		$tokens = array_values( array_unique( preg_split( '/[^a-z]+/', strtolower( (string) $day['verse_text'] ), -1, PREG_SPLIT_NO_EMPTY ) ) );
+		$out    = array();
+		foreach ( $tokens as $word ) {
+			if ( strlen( $word ) < 4 ) {
+				continue;
+			}
+			foreach ( HWBL_Bible_Strongs::suggest_from_english( $word, 6 ) as $entry ) {
+				$number = (string) ( $entry['number'] ?? '' );
+				$refs   = HWBL_Bible_Strongs::get_occurrence_refs( $number );
+				$match  = false;
+				foreach ( $refs as $ref ) {
+					if ( strtolower( preg_replace( '/\s+/', '', (string) $ref ) ) === $target ) {
+						$match = true;
+						break;
+					}
+				}
+				if ( $match && ! isset( $out[ $number ] ) ) {
+					$out[ $number ] = array(
+						'word'   => $word,
+						'number' => $number,
+						'gloss'  => (string) ( $entry['definition'] ?? $entry['gloss'] ?? '' ),
+					);
+				}
+				if ( count( $out ) >= 5 ) {
+					return array_values( $out );
+				}
+			}
+		}
+		return array_values( $out );
 	}
 
 	/**
@@ -600,7 +691,11 @@ class HWBL_CPT_Plan {
 		$day['verse']       = $verse;
 		$day['verse_end']   = $verse_end;
 		$day['translation'] = $translation;
-		$day['verse_text']  = self::resolve_day_verse_text( $book_id, $chapter, $verse, $verse_end, $translation );
+		$resolved_tr        = $translation;
+		$day['verse_text']  = self::resolve_day_verse_text( $book_id, $chapter, $verse, $verse_end, $resolved_tr );
+		if ( is_string( $resolved_tr ) && '' !== $resolved_tr ) {
+			$day['translation'] = sanitize_key( $resolved_tr );
+		}
 
 		return $day;
 	}
@@ -608,14 +703,14 @@ class HWBL_CPT_Plan {
 	/**
 	 * Resolve Scripture text for a verse range.
 	 *
-	 * @param int    $book_id     Book ID.
-	 * @param int    $chapter     Chapter.
-	 * @param int    $verse_start Start verse.
-	 * @param int    $verse_end   End verse.
-	 * @param string $translation Translation slug.
+	 * @param int         $book_id     Book ID.
+	 * @param int         $chapter     Chapter.
+	 * @param int         $verse_start Start verse.
+	 * @param int         $verse_end   End verse.
+	 * @param string      $translation Translation slug (may be updated to a local fallback).
 	 * @return string
 	 */
-	public static function resolve_day_verse_text( $book_id, $chapter, $verse_start, $verse_end, $translation ) {
+	public static function resolve_day_verse_text( $book_id, $chapter, $verse_start, $verse_end, &$translation = '' ) {
 		$book_id     = (int) $book_id;
 		$chapter     = (int) $chapter;
 		$verse_start = (int) $verse_start;
@@ -629,20 +724,52 @@ class HWBL_CPT_Plan {
 			return '';
 		}
 
-		$svc   = HWBL_Translation_Service::instance();
-		$parts = array();
+		$svc       = HWBL_Translation_Service::instance();
+		$parts     = array();
+		$used_tr   = $translation;
+		$licensed  = array( 'niv', 'esv', 'nlt', 'nasb', 'csb', 'nkjv', 'amp', 'msg' );
+		$fallbacks = array_values(
+			array_unique(
+				array_filter(
+					array_merge(
+						array( $translation ),
+						array( 'bsb', 'web', 'kjv' )
+					)
+				)
+			)
+		);
+
 		for ( $v = $verse_start; $v <= $verse_end; $v++ ) {
 			$text = '';
-			if ( method_exists( $svc, 'get_echo_verse_text' ) ) {
-				$row  = $svc->get_echo_verse_text( $book_id, $chapter, $v, $translation );
-				$text = is_array( $row ) && ! empty( $row['text'] ) ? (string) $row['text'] : '';
-			}
-			if ( '' === $text ) {
-				$text = (string) $svc->get_verse_text( $book_id, $chapter, $v, $translation );
+			foreach ( $fallbacks as $tr ) {
+				// Avoid remote licensed misses: only use echo helper (local-first) for those.
+				if ( method_exists( $svc, 'get_echo_verse_text' ) ) {
+					$row  = $svc->get_echo_verse_text( $book_id, $chapter, $v, $tr );
+					$text = is_array( $row ) && ! empty( $row['text'] ) ? (string) $row['text'] : '';
+					if ( '' !== $text ) {
+						if ( is_array( $row ) && ! empty( $row['translation'] ) ) {
+							$used_tr = sanitize_key( (string) $row['translation'] );
+						} else {
+							$used_tr = $tr;
+						}
+						break;
+					}
+				}
+				if ( '' === $text && ! in_array( $tr, $licensed, true ) ) {
+					$text = (string) $svc->get_verse_text( $book_id, $chapter, $v, $tr );
+					if ( '' !== $text ) {
+						$used_tr = $tr;
+						break;
+					}
+				}
 			}
 			if ( '' !== $text ) {
 				$parts[] = $text;
 			}
+		}
+
+		if ( '' !== $used_tr ) {
+			$translation = $used_tr;
 		}
 
 		$text = trim( implode( ' ', $parts ) );

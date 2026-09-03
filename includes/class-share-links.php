@@ -48,6 +48,77 @@ class HWBL_Share_Links {
 	}
 
 	/**
+	 * Day One deep link (prefilled entry).
+	 *
+	 * @param string            $text    Entry body.
+	 * @param array<int,string> $tags    Optional tags.
+	 * @param string            $journal Optional journal name (Day One journal title).
+	 * @return string
+	 */
+	public static function dayone_url( $text, $tags = array(), $journal = '' ) {
+		$parts   = array();
+		$journal = trim( (string) $journal );
+		if ( '' !== $journal ) {
+			$parts[] = 'journal=' . rawurlencode( $journal );
+		}
+		$parts[] = 'entry=' . rawurlencode( (string) $text );
+		$clean   = array();
+		if ( is_array( $tags ) ) {
+			foreach ( $tags as $tag ) {
+				$tag = sanitize_text_field( (string) $tag );
+				if ( '' !== $tag ) {
+					$clean[] = $tag;
+				}
+			}
+		}
+		if ( $clean ) {
+			$parts[] = 'tags=' . rawurlencode( implode( ',', $clean ) );
+		}
+		return 'dayone://post?' . implode( '&', $parts );
+	}
+
+	/**
+	 * QuillDay deep link (prefilled entry).
+	 *
+	 * @param string $text    Entry body.
+	 * @param string $title   Optional title.
+	 * @param string $journal Optional journal name or id.
+	 * @return string
+	 */
+	public static function quillday_url( $text, $title = '', $journal = '' ) {
+		$parts   = array();
+		$journal = trim( (string) $journal );
+		if ( '' !== $journal ) {
+			$parts[] = 'journal=' . rawurlencode( $journal );
+		}
+		$parts[] = 'body=' . rawurlencode( (string) $text );
+		$title   = trim( (string) $title );
+		if ( '' !== $title ) {
+			$parts[] = 'title=' . rawurlencode( $title );
+		}
+		return 'quillday://new?' . implode( '&', $parts );
+	}
+
+	/**
+	 * Append site attribution for journal / share exports.
+	 *
+	 * @param string $text Body text.
+	 * @return string
+	 */
+	public static function with_site_attribution( $text ) {
+		$text = trim( (string) $text );
+		$site = trim( (string) get_bloginfo( 'name' ) );
+		$line = $site
+			? sprintf(
+				/* translators: %s: site name */
+				__( '— via %s, Hidden Word Bible Lessons', 'hidden-word-bible-lessons' ),
+				$site
+			)
+			: __( '— via Hidden Word Bible Lessons', 'hidden-word-bible-lessons' );
+		return $text ? ( $text . "\n\n" . $line ) : $line;
+	}
+
+	/**
 	 * Compose share body from optional title + URL.
 	 *
 	 * @param string $url   URL (may be empty when title already includes body).

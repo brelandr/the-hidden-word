@@ -27,13 +27,14 @@ class HWBL_Plan_Progress {
 	/**
 	 * Empty progress shape.
 	 *
-	 * @return array{current_day:int,started_at:string,completed_days:array<int,int>}
+	 * @return array{current_day:int,started_at:string,last_advanced_at:string,completed_days:array<int,int>}
 	 */
 	public static function empty_progress() {
 		return array(
-			'current_day'     => 0,
-			'started_at'      => '',
-			'completed_days'  => array(),
+			'current_day'       => 0,
+			'started_at'        => '',
+			'last_advanced_at'  => '',
+			'completed_days'    => array(),
 		);
 	}
 
@@ -42,7 +43,7 @@ class HWBL_Plan_Progress {
 	 *
 	 * @param int $user_id User ID.
 	 * @param int $plan_id Plan ID.
-	 * @return array{current_day:int,started_at:string,completed_days:array<int,int>}
+	 * @return array{current_day:int,started_at:string,last_advanced_at:string,completed_days:array<int,int>}
 	 */
 	public static function get( $user_id, $plan_id ) {
 		$raw = get_user_meta( (int) $user_id, self::meta_key( $plan_id ), true );
@@ -55,10 +56,16 @@ class HWBL_Plan_Progress {
 				$completed[] = (int) $d;
 			}
 		}
+		$started = isset( $raw['started_at'] ) ? (string) $raw['started_at'] : '';
+		$last    = isset( $raw['last_advanced_at'] ) ? (string) $raw['last_advanced_at'] : '';
+		if ( '' === $last && '' !== $started ) {
+			$last = $started;
+		}
 		return array(
-			'current_day'    => isset( $raw['current_day'] ) ? (int) $raw['current_day'] : 0,
-			'started_at'     => isset( $raw['started_at'] ) ? (string) $raw['started_at'] : '',
-			'completed_days' => array_values( array_unique( $completed ) ),
+			'current_day'      => isset( $raw['current_day'] ) ? (int) $raw['current_day'] : 0,
+			'started_at'       => $started,
+			'last_advanced_at' => $last,
+			'completed_days'   => array_values( array_unique( $completed ) ),
 		);
 	}
 
@@ -71,9 +78,10 @@ class HWBL_Plan_Progress {
 	 */
 	public static function save( $user_id, $plan_id, $progress ) {
 		$normalized = array(
-			'current_day'    => isset( $progress['current_day'] ) ? (int) $progress['current_day'] : 0,
-			'started_at'     => isset( $progress['started_at'] ) ? (string) $progress['started_at'] : '',
-			'completed_days' => array(),
+			'current_day'      => isset( $progress['current_day'] ) ? (int) $progress['current_day'] : 0,
+			'started_at'       => isset( $progress['started_at'] ) ? (string) $progress['started_at'] : '',
+			'last_advanced_at' => isset( $progress['last_advanced_at'] ) ? (string) $progress['last_advanced_at'] : '',
+			'completed_days'   => array(),
 		);
 		if ( ! empty( $progress['completed_days'] ) && is_array( $progress['completed_days'] ) ) {
 			foreach ( $progress['completed_days'] as $d ) {
@@ -111,7 +119,7 @@ class HWBL_Plan_Progress {
 	 *
 	 * @param int $user_id User ID.
 	 * @param int $plan_id Plan ID.
-	 * @return array{current_day:int,started_at:string,completed_days:array<int,int>}|WP_Error
+	 * @return array{current_day:int,started_at:string,last_advanced_at:string,completed_days:array<int,int>}|WP_Error
 	 */
 	public static function start( $user_id, $plan_id ) {
 		$plan_id = (int) $plan_id;
@@ -128,10 +136,12 @@ class HWBL_Plan_Progress {
 		if ( $existing['current_day'] > 0 && '' !== $existing['started_at'] ) {
 			return $existing;
 		}
+		$now      = gmdate( 'c' );
 		$progress = array(
-			'current_day'    => 1,
-			'started_at'     => gmdate( 'c' ),
-			'completed_days' => array(),
+			'current_day'      => 1,
+			'started_at'       => $now,
+			'last_advanced_at' => $now,
+			'completed_days'   => array(),
 		);
 		self::save( $user_id, $plan_id, $progress );
 		return $progress;
@@ -142,7 +152,7 @@ class HWBL_Plan_Progress {
 	 *
 	 * @param int $user_id User ID.
 	 * @param int $plan_id Plan ID.
-	 * @return array{current_day:int,started_at:string,completed_days:array<int,int>,completed:bool}|WP_Error
+	 * @return array{current_day:int,started_at:string,last_advanced_at:string,completed_days:array<int,int>,completed:bool}|WP_Error
 	 */
 	public static function advance( $user_id, $plan_id ) {
 		$plan_id  = (int) $plan_id;
@@ -165,6 +175,7 @@ class HWBL_Plan_Progress {
 		if ( ! $completed && $current < $length ) {
 			$progress['current_day'] = $current + 1;
 		}
+		$progress['last_advanced_at'] = gmdate( 'c' );
 		self::save( $user_id, $plan_id, $progress );
 
 		return array_merge(
@@ -174,10 +185,10 @@ class HWBL_Plan_Progress {
 	}
 
 	/**
-	 * Active plans for a user (started, not finished).
+	 * Active plans for a user (started, not finished), most recently advanced first.
 	 *
 	 * @param int $user_id User ID.
-	 * @return array<int, array{plan_id:int,progress:array<string,mixed>,today:array<string,mixed>|null}>
+	 * @return array<int, array{plan_id:int,title:string,url:string,progress:array<string,mixed>,today:array<string,mixed>|null}>
 	 */
 	public static function get_active_for_user( $user_id ) {
 		$user_id = (int) $user_id;
@@ -200,10 +211,27 @@ class HWBL_Plan_Progress {
 			$out[]    = array(
 				'plan_id'  => $plan_id,
 				'title'    => get_the_title( $plan_id ),
+				'url'      => (string) get_permalink( $plan_id ),
 				'progress' => $progress,
 				'today'    => $today,
 			);
 		}
+
+		usort(
+			$out,
+			static function ( $a, $b ) {
+				$ta = (string) ( $a['progress']['last_advanced_at'] ?? '' );
+				$tb = (string) ( $b['progress']['last_advanced_at'] ?? '' );
+				if ( '' === $ta ) {
+					$ta = (string) ( $a['progress']['started_at'] ?? '' );
+				}
+				if ( '' === $tb ) {
+					$tb = (string) ( $b['progress']['started_at'] ?? '' );
+				}
+				return strcmp( $tb, $ta );
+			}
+		);
+
 		return $out;
 	}
 }

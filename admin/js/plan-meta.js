@@ -27,6 +27,13 @@
 		});
 	}
 
+	function updateShapeFields() {
+		var shaped = $('#hwbl_plan_shape').val() !== 'daily';
+		$('#hwbl-plan-days .hwbl-plan-framing').each(function () {
+			$(this).closest('p').toggle(shaped);
+		});
+	}
+
 	$(function () {
 		$('#hwbl-plan-add-day').on('click', function (e) {
 			e.preventDefault();
@@ -38,6 +45,7 @@
 			var html = tpl.replace(/__INDEX__/g, String(idx));
 			$('#hwbl-plan-days').append(html);
 			renumberDays();
+			updateShapeFields();
 		});
 
 		$('#hwbl-plan-days').on('click', '.hwbl-plan-remove-day', function (e) {
@@ -49,5 +57,7 @@
 			$(this).closest('.hwbl-plan-day-row').remove();
 			renumberDays();
 		});
+		$('#hwbl_plan_shape').on('change', updateShapeFields);
+		updateShapeFields();
 	});
 })(jQuery);

@@ -50,6 +50,46 @@
 		return '';
 	}
 
+	function mountResearchJournal(root, elTitle, elOutput) {
+		if (!window.HWBLJournalExport || !root || !elOutput) {
+			return;
+		}
+		var panel = qs(root, '.hwbl-bible-reader__research-panel');
+		if (!panel) {
+			return;
+		}
+		var title =
+			(elTitle && String(elTitle.textContent || '').trim()) ||
+			'Bible explanation';
+		var statusEl = panel.querySelector('.hwbl-journal-export-status');
+		window.HWBLJournalExport.ensureExplainActions(
+			panel,
+			function () {
+				var parts = [];
+				if (title) {
+					parts.push(title);
+				}
+				var explain = window.HWBLJournalExport.plainTextFromEl(elOutput);
+				if (explain) {
+					parts.push(explain);
+				}
+				return parts.join('\n\n');
+			},
+			title,
+			root,
+			function (msg) {
+				if (!statusEl) {
+					statusEl = document.createElement('p');
+					statusEl.className =
+						'hwbl-journal-export-status hwbl-bible-reader__research-status description';
+					statusEl.setAttribute('role', 'status');
+					panel.appendChild(statusEl);
+				}
+				statusEl.textContent = msg || '';
+			}
+		);
+	}
+
 	function setSavedLink(elSaved, url, label) {
 		if (!elSaved) {
 			return;
@@ -253,6 +293,7 @@
 							html = '<p class="hwbl-bible-reader__research-flag">' + explainCfg.complianceFlagged + '</p>' + html;
 						}
 						elOutput.innerHTML = html;
+						mountResearchJournal(root, elTitle, elOutput);
 					}
 					if (elLesson && payload.lessonUrl) {
 						elLesson.href = payload.lessonUrl;

@@ -877,6 +877,44 @@
 				resetState();
 			});
 		}
+
+		bindMemorizationJournal(widget);
+	}
+
+	function bindMemorizationJournal(widget) {
+		if (!window.HWBLJournalExport || !widget) {
+			return;
+		}
+		var mount = widget.querySelector('.hwbl-journal-export-mount');
+		if (!mount) {
+			return;
+		}
+		var lesson = widget.closest('.hwbl-lesson');
+		var ref = widget.getAttribute('data-reference') || '';
+		var verse = widget.getAttribute('data-verse') || '';
+		var title = ref || 'Memorization';
+		var feedback = widget.querySelector('.hwbl-memorization-review-feedback');
+		window.HWBLJournalExport.mountMenu(
+			mount,
+			function () {
+				var parts = [];
+				if (ref) {
+					parts.push(ref);
+				}
+				if (verse) {
+					parts.push(verse);
+				}
+				return parts.join('\n\n');
+			},
+			title,
+			lesson || widget,
+			function (msg) {
+				if (feedback) {
+					feedback.hidden = false;
+					feedback.textContent = msg || '';
+				}
+			}
+		);
 	}
 
 	window.hwblInitMemorization = initWidget;

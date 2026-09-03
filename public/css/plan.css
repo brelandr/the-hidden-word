@@ -1,9 +1,122 @@
+.hwbl-plan-list__continue {
+	margin: 0 0 1.25rem;
+	padding: 0.85rem 1rem;
+	border: 1px solid rgba(26, 82, 118, 0.28);
+	background: rgba(26, 82, 118, 0.05);
+}
+
+.hwbl-plan-list__continue-title {
+	margin: 0 0 0.65rem;
+	font-size: 1.05rem;
+}
+
+.hwbl-plan-list__continue-items {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: grid;
+	gap: 0.5rem;
+}
+
+.hwbl-plan-list__continue-link {
+	display: flex;
+	flex-direction: column;
+	gap: 0.15rem;
+	text-decoration: none;
+	color: inherit;
+	padding: 0.45rem 0;
+}
+
+.hwbl-plan-list__continue-link:hover,
+.hwbl-plan-list__continue-link:focus {
+	text-decoration: underline;
+}
+
 .hwbl-plan-list__items {
 	list-style: none;
 	margin: 0;
 	padding: 0;
 	display: grid;
 	gap: 0.75rem;
+}
+
+.hwbl-plan-day__share-bar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.45rem;
+	margin: 0.5rem 0 1rem;
+}
+
+.hwbl-plan-day__share-status {
+	font-size: 0.9rem;
+	opacity: 0.85;
+}
+
+.hwbl-plan-add-journal-wrap {
+	position: relative;
+	display: inline-block;
+}
+
+.hwbl-plan-add-journal-menu {
+	position: absolute;
+	z-index: 20;
+	left: 0;
+	top: calc(100% + 0.25rem);
+	min-width: 11rem;
+	padding: 0.35rem;
+	background: #fff;
+	border: 1px solid rgba(0, 0, 0, 0.16);
+	border-radius: 4px;
+	box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+	display: grid;
+	gap: 0.2rem;
+}
+
+.hwbl-plan-add-journal-menu[hidden] {
+	display: none;
+}
+
+.hwbl-plan-add-journal-menu button {
+	display: block;
+	width: 100%;
+	text-align: left;
+	padding: 0.45rem 0.6rem;
+	border: 0;
+	background: transparent;
+	font: inherit;
+	cursor: pointer;
+	border-radius: 3px;
+}
+
+.hwbl-plan-add-journal-menu button:hover,
+.hwbl-plan-add-journal-menu button:focus {
+	background: rgba(26, 82, 118, 0.08);
+}
+
+.hwbl-plan-add-journal-menu button.hwbl-plan-add-journal-pref {
+	font-weight: 500;
+	opacity: 0.9;
+	font-size: 0.92em;
+}
+
+.hwbl-plan-day__journal-export {
+	margin-top: 0.65rem;
+}
+
+.hwbl-plan-day__explain-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	align-items: center;
+}
+
+.hwbl-journal-export-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	align-items: center;
+	margin-top: 0.75rem;
 }
 
 .hwbl-plan-list__filter {
@@ -146,6 +259,40 @@
 .hwbl-plan-day__study-body {
 	margin-top: 0.75rem;
 	line-height: 1.55;
+}
+
+.hwbl-plan-day__style-label {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	align-items: center;
+}
+
+.hwbl-plan-day__compare {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 0.75rem;
+}
+
+.hwbl-plan-day__compare[hidden] {
+	display: none;
+}
+
+.hwbl-plan-day__compare .hwbl-translation-compare__col,
+.hwbl-plan-day__word-study-body article {
+	padding: 0.75rem;
+	border: 1px solid rgba(0, 0, 0, 0.12);
+	border-radius: 0.35rem;
+}
+
+.hwbl-plan-day__word-study {
+	margin: 1rem 0 1.25rem;
+}
+
+.hwbl-plan-day__word-study-body {
+	display: grid;
+	gap: 0.75rem;
+	margin-top: 0.75rem;
 }
 
 .hwbl-plan-day__journal-input {

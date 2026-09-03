@@ -64,6 +64,7 @@ class HWBL_Plugin {
 		HWBL_CPT_Prayer::init();
 		HWBL_Journal_Store::init();
 		HWBL_CPT_Apologetics::init();
+		HWBL_CPT_Foundations::init();
 		HWBL_Account::init();
 		HWBL_Push_Notifications::init();
 		HWBL_Abilities::init();

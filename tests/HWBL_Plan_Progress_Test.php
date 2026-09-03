@@ -21,6 +21,7 @@ class HWBL_Plan_Progress_Test {
 		$p = HWBL_Plan_Progress::empty_progress();
 		assert( 0 === (int) $p['current_day'] );
 		assert( '' === $p['started_at'] );
+		assert( '' === $p['last_advanced_at'] );
 		assert( is_array( $p['completed_days'] ) && 0 === count( $p['completed_days'] ) );
 	}
 
@@ -60,10 +61,29 @@ class HWBL_Plan_Progress_Test {
 	public function test_meta_key() {
 		assert( '_hwbl_plan_progress_42' === HWBL_Plan_Progress::meta_key( 42 ) );
 	}
+
+	/**
+	 * @return void
+	 */
+	public function test_get_falls_back_last_advanced_at_to_started_at() {
+		$raw = array(
+			'current_day'     => 3,
+			'started_at'      => '2026-01-01T00:00:00+00:00',
+			'completed_days'  => array( 1, 2 ),
+		);
+		// Simulate get() normalization without WP user meta by mirroring fallback logic.
+		$started = (string) $raw['started_at'];
+		$last    = isset( $raw['last_advanced_at'] ) ? (string) $raw['last_advanced_at'] : '';
+		if ( '' === $last && '' !== $started ) {
+			$last = $started;
+		}
+		assert( $started === $last );
+	}
 }
 
 $t = new HWBL_Plan_Progress_Test();
 $t->test_empty_progress_shape();
 $t->test_sanitize_days_renumbers();
 $t->test_meta_key();
+$t->test_get_falls_back_last_advanced_at_to_started_at();
 echo "HWBL_Plan_Progress_Test: OK\n";

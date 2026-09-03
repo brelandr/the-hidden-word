@@ -267,10 +267,22 @@ class HWBL_Journal_Store {
 		$response = self::rest_timeline();
 		$data     = $response->get_data();
 		$entries  = isset( $data['entries'] ) ? $data['entries'] : array();
+
+		$plan_entries = array();
+		if ( class_exists( 'HWBL_Plan_Journal' ) ) {
+			$plan_resp = HWBL_Plan_Journal::timeline_response( get_current_user_id(), 0, 1, 50 );
+			$plan_data = $plan_resp->get_data();
+			$plan_entries = isset( $plan_data['entries'] ) && is_array( $plan_data['entries'] ) ? $plan_data['entries'] : array();
+		}
+
 		ob_start();
-		echo '<div class="hwbl-my-journal"><h3>' . esc_html__( 'My Journal', 'hidden-word-bible-lessons' ) . '</h3>';
+		echo '<div class="hwbl-my-journal">';
+		echo '<h3>' . esc_html__( 'My Journal', 'hidden-word-bible-lessons' ) . '</h3>';
+
+		echo '<section class="hwbl-my-journal__section">';
+		echo '<h4>' . esc_html__( 'Lesson discussion', 'hidden-word-bible-lessons' ) . '</h4>';
 		if ( ! $entries ) {
-			echo '<p class="hwbl-empty">' . esc_html__( 'No journal entries yet.', 'hidden-word-bible-lessons' ) . '</p>';
+			echo '<p class="hwbl-empty">' . esc_html__( 'No lesson journal entries yet.', 'hidden-word-bible-lessons' ) . '</p>';
 		} else {
 			echo '<ol class="hwbl-my-journal__list">';
 			foreach ( $entries as $entry ) {
@@ -280,7 +292,73 @@ class HWBL_Journal_Store {
 			}
 			echo '</ol>';
 		}
+		echo '</section>';
+
+		echo '<section class="hwbl-my-journal__section hwbl-my-journal__plans">';
+		echo '<h4>' . esc_html__( 'Reading plan Q&amp;A', 'hidden-word-bible-lessons' ) . '</h4>';
+		if ( ! $plan_entries ) {
+			echo '<p class="hwbl-empty">' . esc_html__( 'No plan journal or Ask replies yet. Open a reading plan day to save reflections.', 'hidden-word-bible-lessons' ) . '</p>';
+		} else {
+			echo '<ol class="hwbl-my-journal__list">';
+			foreach ( $plan_entries as $entry ) {
+				$title = (string) ( $entry['plan_title'] ?? '' );
+				$day   = (int) ( $entry['day_num'] ?? 0 );
+				$url   = (string) ( $entry['day_url'] ?? $entry['plan_url'] ?? '' );
+				$crisis = ! empty( $entry['flagged_crisis'] );
+				$export_parts = array();
+				if ( $title ) {
+					$export_parts[] = $title;
+				}
+				if ( $day > 0 ) {
+					$export_parts[] = sprintf(
+						/* translators: %d: day number */
+						__( 'Day %d', 'hidden-word-bible-lessons' ),
+						$day
+					);
+				}
+				$export_parts[] = __( 'My reflection:', 'hidden-word-bible-lessons' ) . "\n" . (string) ( $entry['entry'] ?? '' );
+				if ( ! $crisis && ! empty( $entry['ai_reply'] ) ) {
+					$export_parts[] = __( 'Guidance:', 'hidden-word-bible-lessons' ) . "\n" . (string) $entry['ai_reply'];
+				}
+				$export_text = class_exists( 'HWBL_Share_Links' )
+					? HWBL_Share_Links::with_site_attribution( implode( "\n\n", $export_parts ) )
+					: implode( "\n\n", $export_parts );
+				echo '<li>';
+				if ( $url ) {
+					echo '<a href="' . esc_url( $url ) . '"><strong>' . esc_html( $title ) . '</strong></a>';
+				} else {
+					echo '<strong>' . esc_html( $title ) . '</strong>';
+				}
+				echo ' <span class="hwbl-my-journal__meta">' . esc_html(
+					sprintf(
+						/* translators: %d: day number */
+						__( 'Day %d', 'hidden-word-bible-lessons' ),
+						$day
+					)
+				) . '</span>';
+				echo '<p>' . esc_html( (string) ( $entry['entry'] ?? '' ) ) . '</p>';
+				if ( ! empty( $entry['ai_reply'] ) && ! $crisis ) {
+					echo '<p class="hwbl-my-journal__reply"><em>' . esc_html( (string) $entry['ai_reply'] ) . '</em></p>';
+				} elseif ( $crisis && ! empty( $entry['ai_reply_html'] ) ) {
+					echo '<div class="hwbl-my-journal__reply">' . wp_kses_post( (string) $entry['ai_reply_html'] ) . '</div>';
+				}
+				if ( class_exists( 'HWBL_Share_Links' ) && '' !== trim( (string) ( $entry['entry'] ?? '' ) ) ) {
+					$dayone   = HWBL_Share_Links::dayone_url( $export_text, array( 'HiddenWord' ) );
+					$quillday = HWBL_Share_Links::quillday_url( $export_text, $title );
+					echo '<p class="hwbl-my-journal__export">';
+					echo '<a class="button" href="' . esc_attr( $dayone ) . '">' . esc_html__( 'Day One', 'hidden-word-bible-lessons' ) . '</a> ';
+					echo '<a class="button" href="' . esc_attr( $quillday ) . '">' . esc_html__( 'QuillDay', 'hidden-word-bible-lessons' ) . '</a> ';
+					echo '<button type="button" class="button hwbl-journal-export-other" data-export-text="' . esc_attr( $export_text ) . '">' . esc_html__( 'Other journal app', 'hidden-word-bible-lessons' ) . '</button>';
+					echo '</p>';
+				}
+				echo '</li>';
+			}
+			echo '</ol>';
+		}
+		echo '</section>';
+
 		echo '</div>';
+		echo '<script>(function(){function pref(kind){try{return String(localStorage.getItem(kind==="dayone"?"hwbl_dayone_journal":"hwbl_quillday_journal")||"").trim();}catch(e){return"";}}function withJournal(url,kind){var j=pref(kind);if(!j||!url)return url;return url+(url.indexOf("?")>=0?"&":"?")+"journal="+encodeURIComponent(j);}document.addEventListener("click",function(e){var other=e.target.closest(".hwbl-journal-export-other");if(other){var t=other.getAttribute("data-export-text")||"";if(!t)return;if(navigator.share){navigator.share({text:t}).catch(function(){if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t);}});}else if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t);}return;}var a=e.target.closest("a[href^=\\"dayone:\\"],a[href^=\\"quillday:\\"]");if(!a)return;e.preventDefault();var href=a.getAttribute("href")||"";var kind=href.indexOf("dayone:")===0?"dayone":"quillday";window.location.href=withJournal(href,kind);});})();</script>';
 		return (string) ob_get_clean();
 	}
 }

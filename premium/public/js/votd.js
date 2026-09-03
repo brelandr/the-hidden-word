@@ -296,6 +296,49 @@
 		});
 	}
 
+	function mountVotdExplainJournal(root, output) {
+		if (!window.HWBLJournalExport || !root || !output) {
+			return;
+		}
+		var panel = root.querySelector('.thw-votd__explain-panel');
+		if (!panel) {
+			return;
+		}
+		var actions = panel.querySelector('.thw-votd__explain-actions');
+		if (!actions) {
+			return;
+		}
+		var refEl = root.querySelector('.thw-votd__ref');
+		var refText = refEl ? String(refEl.textContent || '').trim() : '';
+		var statusEl = panel.querySelector('.thw-votd__journal-status');
+		var mount = actions.querySelector('.hwbl-journal-export-mount');
+		if (!mount) {
+			return;
+		}
+		actions.hidden = false;
+		window.HWBLJournalExport.mountMenu(
+			mount,
+			function () {
+				var parts = [];
+				if (refText) {
+					parts.push(refText);
+				}
+				var explain = window.HWBLJournalExport.plainTextFromEl(output);
+				if (explain) {
+					parts.push(explain);
+				}
+				return parts.join('\n\n');
+			},
+			refText || 'Verse explanation',
+			root,
+			function (msg) {
+				if (statusEl) {
+					statusEl.textContent = msg || '';
+				}
+			}
+		);
+	}
+
 	function onExplainClick(event) {
 		var trigger = event.target.closest('.thw-votd__explain-trigger');
 		if (!trigger) {
@@ -396,6 +439,7 @@
 							html = '<p class="thw-votd__disclaimer">' + config.complianceFlagged + '</p>' + html;
 						}
 						output.innerHTML = html;
+						mountVotdExplainJournal(root, output);
 					} else {
 						output.innerHTML = '<p class="thw-votd__error">' + config.error + '</p>';
 					}

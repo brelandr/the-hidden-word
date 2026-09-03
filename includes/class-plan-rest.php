@@ -48,6 +48,16 @@ class HWBL_Plan_Rest {
 
 		register_rest_route(
 			'hwbl/v1',
+			'/plans/active',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( __CLASS__, 'rest_active' ),
+				'permission_callback' => $logged_in,
+			)
+		);
+
+		register_rest_route(
+			'hwbl/v1',
 			'/plans/(?P<id>\d+)',
 			array(
 				'methods'             => 'GET',
@@ -118,6 +128,22 @@ class HWBL_Plan_Rest {
 				),
 			)
 		);
+
+		foreach ( array( 'compare', 'word-study' ) as $mode ) {
+			register_rest_route(
+				'hwbl/v1',
+				'/plans/(?P<id>\d+)/days/(?P<day>\d+)/' . $mode,
+				array(
+					'methods'             => 'GET',
+					'callback'            => 'compare' === $mode ? array( __CLASS__, 'rest_compare' ) : array( __CLASS__, 'rest_word_study' ),
+					'permission_callback' => '__return_true',
+					'args'                => array(
+						'id'  => array( 'type' => 'integer', 'required' => true, 'sanitize_callback' => 'absint' ),
+						'day' => array( 'type' => 'integer', 'required' => true, 'sanitize_callback' => 'absint' ),
+					),
+				)
+			);
+		}
 	}
 
 	/**
@@ -131,7 +157,7 @@ class HWBL_Plan_Rest {
 		$args  = array(
 			'post_type'      => HWBL_CPT_Plan::POST_TYPE,
 			'post_status'    => 'publish',
-			'posts_per_page' => 100,
+			'posts_per_page' => 200,
 			'orderby'        => 'title',
 			'order'          => 'ASC',
 		);
@@ -143,8 +169,9 @@ class HWBL_Plan_Rest {
 				),
 			);
 		}
-		$posts = get_posts( $args );
-		$out   = array();
+		$posts   = get_posts( $args );
+		$user_id = get_current_user_id();
+		$out     = array();
 		foreach ( $posts as $post ) {
 			$data = HWBL_CPT_Plan::get_plan_data( $post->ID, false );
 			if ( ! $data ) {
@@ -152,7 +179,42 @@ class HWBL_Plan_Rest {
 			}
 			unset( $data['content'], $data['days'] );
 			$data['day_count'] = (int) $data['length'];
-			$out[]             = $data;
+			if ( $user_id ) {
+				$progress = HWBL_Plan_Progress::get( $user_id, (int) $post->ID );
+				$data['progress'] = ( $progress['current_day'] > 0 && '' !== $progress['started_at'] )
+					? $progress
+					: null;
+			} else {
+				$data['progress'] = null;
+			}
+			$out[] = $data;
+		}
+		return rest_ensure_response( array( 'plans' => $out ) );
+	}
+
+	/**
+	 * Active (in-progress) plans for the current user, most recent first.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response
+	 */
+	public static function rest_active( $request ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+		$active = HWBL_Plan_Progress::get_active_for_user( get_current_user_id() );
+		$out    = array();
+		foreach ( $active as $row ) {
+			$plan_id  = (int) $row['plan_id'];
+			$progress = is_array( $row['progress'] ) ? $row['progress'] : array();
+			$day_num  = isset( $progress['current_day'] ) ? (int) $progress['current_day'] : 0;
+			$out[]    = array(
+				'plan_id'   => $plan_id,
+				'title'     => (string) ( $row['title'] ?? '' ),
+				'url'       => (string) ( $row['url'] ?? get_permalink( $plan_id ) ),
+				'progress'  => $progress,
+				'today'     => $row['today'] ?? null,
+				'day_url'   => $day_num > 0
+					? add_query_arg( 'hwbl_plan_day', $day_num, (string) ( $row['url'] ?? get_permalink( $plan_id ) ) )
+					: (string) ( $row['url'] ?? get_permalink( $plan_id ) ),
+			);
 		}
 		return rest_ensure_response( array( 'plans' => $out ) );
 	}
@@ -256,5 +318,61 @@ class HWBL_Plan_Rest {
 		$lesson_id          = ! empty( $day['lesson_id'] ) ? (int) $day['lesson_id'] : 0;
 		$day['lesson_url']  = $lesson_id > 0 ? (string) get_permalink( $lesson_id ) : '';
 		return rest_ensure_response( $day );
+	}
+
+	/**
+	 * Compare configured translations for a plan-day verse.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public static function rest_compare( $request ) {
+		$day = HWBL_CPT_Plan::get_day( (int) $request['id'], (int) $request['day'] );
+		if ( ! $day || empty( $day['book_id'] ) || empty( $day['verse'] ) ) {
+			return new WP_Error( 'hwbl_plan_day_not_found', __( 'Plan day verse not found.', 'hidden-word-bible-lessons' ), array( 'status' => 404 ) );
+		}
+		$svc          = HWBL_Translation_Service::instance();
+		$available    = HWBL_User_Preferences::get_available_translations();
+		$preferred    = (string) ( $day['translation'] ?? '' );
+		$translations = array_values( array_unique( array_filter( array_merge( array( $preferred ), array_keys( $available ) ) ) ) );
+		$out          = array();
+		foreach ( array_slice( $translations, 0, 6 ) as $translation ) {
+			$text = $svc->get_verse_text( (int) $day['book_id'], (int) $day['chapter'], (int) $day['verse'], $translation );
+			if ( $text ) {
+				$out[] = array(
+					'translation_code'  => sanitize_key( $translation ),
+					'translation_label' => $svc->get_translation_label( $translation ),
+					'text'              => $text,
+				);
+			}
+			if ( count( $out ) >= 3 ) {
+				break;
+			}
+		}
+		return rest_ensure_response( array( 'translations' => $out ) );
+	}
+
+	/**
+	 * Return lexicon details for Strong's words in a plan day.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public static function rest_word_study( $request ) {
+		$day = HWBL_CPT_Plan::get_day( (int) $request['id'], (int) $request['day'] );
+		if ( ! $day ) {
+			return new WP_Error( 'hwbl_plan_day_not_found', __( 'Plan day not found.', 'hidden-word-bible-lessons' ), array( 'status' => 404 ) );
+		}
+		$out = array();
+		foreach ( (array) ( $day['strongs_words'] ?? array() ) as $word ) {
+			$number = (string) ( $word['number'] ?? '' );
+			$entry  = HWBL_Bible_Strongs::get_entry( $number );
+			if ( $entry ) {
+				$entry['word']             = (string) ( $word['word'] ?? '' );
+				$entry['cross_references'] = array_slice( HWBL_Bible_Strongs::get_occurrence_refs( $number ), 0, 3 );
+				$out[]                     = $entry;
+			}
+		}
+		return rest_ensure_response( array( 'words' => $out ) );
 	}
 }

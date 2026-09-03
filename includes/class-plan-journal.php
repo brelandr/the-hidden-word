@@ -138,6 +138,60 @@ class HWBL_Plan_Journal {
 				),
 			)
 		);
+
+		register_rest_route(
+			'hwbl/v1',
+			'/plans/journal',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( __CLASS__, 'rest_timeline' ),
+				'permission_callback' => $logged_in,
+				'args'                => array(
+					'plan_id'  => array(
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+						'default'           => 0,
+					),
+					'page'     => array(
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+						'default'           => 1,
+					),
+					'per_page' => array(
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+						'default'           => 40,
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			'hwbl/v1',
+			'/plans/(?P<id>\d+)/journal',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( __CLASS__, 'rest_timeline_for_plan' ),
+				'permission_callback' => $logged_in,
+				'args'                => array(
+					'id'       => array(
+						'type'              => 'integer',
+						'required'          => true,
+						'sanitize_callback' => 'absint',
+					),
+					'page'     => array(
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+						'default'           => 1,
+					),
+					'per_page' => array(
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+						'default'           => 40,
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -147,19 +201,131 @@ class HWBL_Plan_Journal {
 	 * @return array<string, mixed>
 	 */
 	public static function format_entry( array $row ) {
-		$crisis = ! empty( $row['flagged_crisis'] );
-		$reply  = (string) ( $row['ai_reply'] ?? '' );
+		$crisis  = ! empty( $row['flagged_crisis'] );
+		$reply   = (string) ( $row['ai_reply'] ?? '' );
+		$plan_id = (int) ( $row['plan_id'] ?? 0 );
+		$day_num = (int) ( $row['day_num'] ?? 0 );
+		$plan_url = $plan_id > 0 ? (string) get_permalink( $plan_id ) : '';
 		return array(
-			'id'              => (int) $row['id'],
-			'plan_id'         => (int) $row['plan_id'],
-			'day_num'         => (int) $row['day_num'],
-			'entry'           => (string) $row['entry'],
-			'ai_reply'        => $reply,
-			'ai_reply_html'   => $crisis && class_exists( 'HWBL_Crisis_Guard' )
+			'id'             => (int) ( $row['id'] ?? 0 ),
+			'plan_id'        => $plan_id,
+			'plan_title'     => $plan_id > 0 ? (string) get_the_title( $plan_id ) : '',
+			'day_num'        => $day_num,
+			'entry'          => (string) ( $row['entry'] ?? '' ),
+			'ai_reply'       => $reply,
+			'ai_reply_html'  => $crisis && class_exists( 'HWBL_Crisis_Guard' )
 				? HWBL_Crisis_Guard::helpline_html()
 				: ( $reply ? wpautop( esc_html( $reply ) ) : '' ),
-			'flagged_crisis'  => $crisis,
-			'updated_at'      => (string) $row['updated_at'],
+			'flagged_crisis' => $crisis,
+			'updated_at'     => (string) ( $row['updated_at'] ?? '' ),
+			'plan_url'       => $plan_url,
+			'day_url'        => ( $plan_url && $day_num > 0 )
+				? add_query_arg( 'hwbl_plan_day', $day_num, $plan_url )
+				: $plan_url,
+		);
+	}
+
+	/**
+	 * Timeline of journal/Ask entries for the current user.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response
+	 */
+	public static function rest_timeline( $request ) {
+		return self::timeline_response(
+			get_current_user_id(),
+			(int) $request->get_param( 'plan_id' ),
+			(int) $request->get_param( 'page' ),
+			(int) $request->get_param( 'per_page' )
+		);
+	}
+
+	/**
+	 * Timeline for a single plan.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public static function rest_timeline_for_plan( $request ) {
+		$plan_id = (int) $request['id'];
+		$post    = get_post( $plan_id );
+		if ( ! $post || HWBL_CPT_Plan::POST_TYPE !== $post->post_type ) {
+			return new WP_Error( 'hwbl_plan_not_found', __( 'Plan not found.', 'hidden-word-bible-lessons' ), array( 'status' => 404 ) );
+		}
+		return self::timeline_response(
+			get_current_user_id(),
+			$plan_id,
+			(int) $request->get_param( 'page' ),
+			(int) $request->get_param( 'per_page' )
+		);
+	}
+
+	/**
+	 * Build paginated timeline response.
+	 *
+	 * @param int $user_id  User ID.
+	 * @param int $plan_id  Optional plan filter (0 = all).
+	 * @param int $page     Page.
+	 * @param int $per_page Per page.
+	 * @return WP_REST_Response
+	 */
+	public static function timeline_response( $user_id, $plan_id = 0, $page = 1, $per_page = 40 ) {
+		$user_id  = (int) $user_id;
+		$plan_id  = (int) $plan_id;
+		$page     = max( 1, (int) $page );
+		$per_page = max( 1, min( 100, (int) $per_page ) );
+		$offset   = ( $page - 1 ) * $per_page;
+
+		global $wpdb;
+		$table = self::table_name();
+		if ( $plan_id > 0 ) {
+			$total = (int) $wpdb->get_var(
+				$wpdb->prepare(
+					"SELECT COUNT(*) FROM {$table} WHERE user_id = %d AND plan_id = %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					$user_id,
+					$plan_id
+				)
+			);
+			$rows = $wpdb->get_results(
+				$wpdb->prepare(
+					"SELECT * FROM {$table} WHERE user_id = %d AND plan_id = %d ORDER BY updated_at DESC, id DESC LIMIT %d OFFSET %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					$user_id,
+					$plan_id,
+					$per_page,
+					$offset
+				),
+				ARRAY_A
+			);
+		} else {
+			$total = (int) $wpdb->get_var(
+				$wpdb->prepare(
+					"SELECT COUNT(*) FROM {$table} WHERE user_id = %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					$user_id
+				)
+			);
+			$rows = $wpdb->get_results(
+				$wpdb->prepare(
+					"SELECT * FROM {$table} WHERE user_id = %d ORDER BY updated_at DESC, id DESC LIMIT %d OFFSET %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					$user_id,
+					$per_page,
+					$offset
+				),
+				ARRAY_A
+			);
+		}
+
+		$entries = array();
+		foreach ( (array) $rows as $row ) {
+			$entries[] = self::format_entry( $row );
+		}
+
+		return rest_ensure_response(
+			array(
+				'entries'  => $entries,
+				'total'    => $total,
+				'page'     => $page,
+				'per_page' => $per_page,
+			)
 		);
 	}
 

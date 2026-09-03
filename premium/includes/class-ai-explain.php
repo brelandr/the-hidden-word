@@ -262,6 +262,9 @@ class THW_Premium_AI_Explain {
 				<?php esc_html_e( 'AI Explanation', 'hidden-word-bible-lessons' ); ?>
 			</h3>
 			<div class="thw-ai-explain-output" aria-live="polite"></div>
+			<div class="hwbl-journal-export-actions" hidden>
+				<span class="hwbl-journal-export-mount"></span>
+			</div>
 			<p class="description thw-ai-explain-disclaimer">
 				<?php esc_html_e( 'AI-generated explanation based on your site rules. Always compare with Scripture and trusted teachers.', 'hidden-word-bible-lessons' ); ?>
 			</p>

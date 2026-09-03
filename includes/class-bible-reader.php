@@ -33,6 +33,16 @@ class HWBL_Bible_Reader {
 	 * Register front-end assets (enqueued when shortcode renders).
 	 */
 	public static function register_assets() {
+		if ( ! wp_script_is( 'hwbl-journal-export-menu', 'registered' ) ) {
+			wp_register_script(
+				'hwbl-journal-export-menu',
+				HWBL_PLUGIN_URL . 'public/js/journal-export-menu.js',
+				array(),
+				HWBL_VERSION,
+				true
+			);
+		}
+
 		wp_register_style(
 			'hwbl-bible-reader',
 			HWBL_PLUGIN_URL . 'public/css/bible-reader.css',
@@ -51,7 +61,7 @@ class HWBL_Bible_Reader {
 		wp_register_script(
 			'hwbl-bible-reader-research',
 			HWBL_PLUGIN_URL . 'public/js/bible-reader-research.js',
-			array( 'hwbl-bible-reader', 'hwbl-user-preferences' ),
+			array( 'hwbl-bible-reader', 'hwbl-user-preferences', 'hwbl-journal-export-menu' ),
 			HWBL_VERSION,
 			true
 		);

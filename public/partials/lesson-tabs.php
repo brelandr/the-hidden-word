@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 $lesson_id    = isset( $lesson['id'] ) ? (int) $lesson['id'] : 0;
 $lesson_title = isset( $lesson['title'] ) ? (string) $lesson['title'] : '';
 ?>
-<div class="hwbl-lesson" id="hwbl-lesson-<?php echo esc_attr( $lesson_id ); ?>" data-lesson-id="<?php echo esc_attr( $lesson_id ); ?>">
+<div class="hwbl-lesson" id="hwbl-lesson-<?php echo esc_attr( $lesson_id ); ?>" data-lesson-id="<?php echo esc_attr( $lesson_id ); ?>" data-site-name="<?php echo esc_attr( (string) get_bloginfo( 'name' ) ); ?>">
 	<header class="hwbl-lesson-header">
 		<h2 class="hwbl-lesson-title"><?php echo esc_html( $lesson_title ); ?></h2>
 		<?php if ( ! empty( $lesson['reference'] ) ) : ?>
@@ -172,6 +172,7 @@ $lesson_title = isset( $lesson['title'] ) ? (string) $lesson['title'] : '';
 						<button type="button" class="hwbl-btn hwbl-hide-random"><?php esc_html_e( 'Hide Random Words', 'hidden-word-bible-lessons' ); ?></button>
 						<button type="button" class="hwbl-btn hwbl-reveal-all"><?php esc_html_e( 'Reveal All', 'hidden-word-bible-lessons' ); ?></button>
 						<button type="button" class="hwbl-btn hwbl-reset-memorization"><?php esc_html_e( 'Reset', 'hidden-word-bible-lessons' ); ?></button>
+						<span class="hwbl-journal-export-mount"></span>
 					</div>
 					<div class="hwbl-memorization-quality" hidden role="group" aria-label="<?php esc_attr_e( 'How well did you recall this verse?', 'hidden-word-bible-lessons' ); ?>">
 						<p class="hwbl-memorization-quality-label"><?php esc_html_e( 'Rate your recall:', 'hidden-word-bible-lessons' ); ?></p>
