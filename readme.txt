@@ -4,7 +4,7 @@ Tags: bible, scripture, discipleship, memorization, verse of the day
 Requires at least: 6.2
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.3.25
+Stable tag: 2.3.26
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -133,6 +133,9 @@ The hub operator’s policy for The Hidden Word (accounts, AI Ask, gospel-respon
 5. Plugin settings — schedule mode and translation switcher
 
 == Changelog ==
+
+= 2.3.26 =
+* Reading plans: keep Mark day complete visible near the top of the day view, with a hint when reviewing another day
 
 = 2.3.25 =
 * Add to journal: put journal= first in QuillDay/Day One deep links so long iOS URLs keep the preferred journal name

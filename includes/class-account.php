@@ -252,6 +252,10 @@ class HWBL_Account {
 			$revoked = true;
 		}
 
+		if ( class_exists( 'HWBL_Auth_Restore' ) ) {
+			HWBL_Auth_Restore::delete_for_user( $user_id );
+		}
+
 		update_user_meta( $user_id, self::META_STATUS, self::STATUS_PENDING );
 		update_user_meta( $user_id, self::META_REQUESTED, time() );
 

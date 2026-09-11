@@ -190,6 +190,16 @@
 		if (advance) {
 			advance.hidden = preview || !current || viewing !== current;
 		}
+		var completeHint = root.querySelector('.hwbl-plan-day__complete-hint');
+		if (completeHint) {
+			completeHint.hidden = preview || !current || viewing === current;
+			if (!completeHint.hidden && current > 0) {
+				completeHint.textContent =
+					'Your progress is on day ' +
+					current +
+					'. Go back to today to mark that day complete.';
+			}
+		}
 
 		root.querySelectorAll('.hwbl-plan__day-btn').forEach(function (btn) {
 			var n = parseInt(btn.getAttribute('data-day') || '0', 10);

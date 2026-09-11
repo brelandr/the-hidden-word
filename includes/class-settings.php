@@ -61,6 +61,11 @@ class HWBL_Settings {
 			'default'           => 'david',
 		) );
 
+		register_setting( 'hwbl_settings', 'hwbl_google_oauth_audiences', array(
+			'type'              => 'string',
+			'sanitize_callback' => 'sanitize_textarea_field',
+			'default'           => '',
+		) );
 		register_setting( 'hwbl_settings', 'hwbl_companion_self_signup', array(
 			'type'              => 'boolean',
 			'sanitize_callback' => 'rest_sanitize_boolean',
@@ -189,6 +194,7 @@ class HWBL_Settings {
 		$reader_enabled   = (bool) get_option( 'hwbl_bible_reader_enabled', true );
 		$reader_narrator  = sanitize_key( (string) get_option( 'hwbl_bible_reader_narrator', 'david' ) );
 		$self_signup      = (bool) get_option( 'hwbl_companion_self_signup', false );
+		$google_audiences = (string) get_option( 'hwbl_google_oauth_audiences', '' );
 		$maps_enabled     = (bool) get_option( 'hwbl_bible_maps_enabled', true );
 		$maps_provider    = sanitize_key( (string) get_option( 'hwbl_bible_maps_provider', 'leaflet' ) );
 		if ( ! in_array( $maps_provider, array( 'leaflet', 'mapbox' ), true ) ) {
@@ -386,6 +392,15 @@ class HWBL_Settings {
 							</p>
 							<p class="description">
 								<code><?php echo esc_html( $connect_url ); ?></code>
+							</p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="hwbl_google_oauth_audiences"><?php esc_html_e( 'Google Sign-In client IDs', 'hidden-word-bible-lessons' ); ?></label></th>
+						<td>
+							<input name="hwbl_google_oauth_audiences" id="hwbl_google_oauth_audiences" type="text" class="large-text" value="<?php echo esc_attr( $google_audiences ); ?>" placeholder="….apps.googleusercontent.com, ….apps.googleusercontent.com" />
+							<p class="description">
+								<?php esc_html_e( 'OAuth client IDs allowed as JWT audience for POST /hwbl/v1/auth/google (web + iOS + Android). Comma-separated. Required for Sign in with Google in the companion app.', 'hidden-word-bible-lessons' ); ?>
 							</p>
 						</td>
 					</tr>

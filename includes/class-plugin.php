@@ -54,6 +54,12 @@ class HWBL_Plugin {
 		if ( class_exists( 'HWBL_Auth_Apple' ) ) {
 			HWBL_Auth_Apple::init();
 		}
+		if ( class_exists( 'HWBL_Auth_Google' ) ) {
+			HWBL_Auth_Google::init();
+		}
+		if ( class_exists( 'HWBL_Auth_Restore' ) ) {
+			HWBL_Auth_Restore::init();
+		}
 		HWBL_Community_Safety::init();
 		HWBL_CPT_Testimony::init();
 		HWBL_Gospel_Share::init();

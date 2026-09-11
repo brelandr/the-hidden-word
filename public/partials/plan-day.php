@@ -109,6 +109,22 @@ if ( function_exists( 'thw_premium_get_user_tradition_preset' ) ) {
 				<button type="button" class="hwbl-btn hwbl-btn-secondary hwbl-plan-day-next"><?php esc_html_e( 'Next day', 'hidden-word-bible-lessons' ); ?></button>
 			</div>
 			<p class="hwbl-plan-day__review-note" hidden></p>
+			<?php if ( $logged_in && $current_day > 0 ) : ?>
+				<div class="hwbl-plan-day__complete-wrap">
+					<button type="button" class="hwbl-btn hwbl-plan-advance" <?php echo ( $viewing_day !== $current_day || $preview ) ? 'hidden' : ''; ?>><?php esc_html_e( 'Mark day complete', 'hidden-word-bible-lessons' ); ?></button>
+					<p class="hwbl-plan-day__complete-hint" <?php echo ( $viewing_day === $current_day || $preview ) ? 'hidden' : ''; ?>>
+						<?php
+						echo esc_html(
+							sprintf(
+								/* translators: %d: current progress day number */
+								__( 'Your progress is on day %d. Go back to today to mark that day complete.', 'hidden-word-bible-lessons' ),
+								$current_day
+							)
+						);
+						?>
+					</p>
+				</div>
+			<?php endif; ?>
 
 			<h3 class="hwbl-plan-day__title">
 				<?php
@@ -209,9 +225,6 @@ if ( function_exists( 'thw_premium_get_user_tradition_preset' ) ) {
 					<?php esc_html_e( 'Open linked lesson', 'hidden-word-bible-lessons' ); ?>
 				</a>
 			</p>
-			<?php if ( $logged_in && $current_day > 0 ) : ?>
-				<button type="button" class="hwbl-btn hwbl-plan-advance" <?php echo ( $viewing_day !== $current_day || $preview ) ? 'hidden' : ''; ?>><?php esc_html_e( 'Mark day complete', 'hidden-word-bible-lessons' ); ?></button>
-			<?php endif; ?>
 		</section>
 	<?php endif; ?>
 

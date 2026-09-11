@@ -191,6 +191,16 @@
 	margin-bottom: 1.25rem;
 }
 
+.hwbl-plan-day__complete-wrap {
+	margin: 0.75rem 0 1rem;
+}
+
+.hwbl-plan-day__complete-hint {
+	margin: 0.5rem 0 0;
+	font-size: 0.9rem;
+	opacity: 0.8;
+}
+
 .hwbl-plan__status {
 	display: inline-block;
 	margin-left: 0.5rem;
