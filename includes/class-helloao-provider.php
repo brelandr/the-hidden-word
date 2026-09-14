@@ -277,6 +277,7 @@ class HWBL_HelloAO_Provider implements HWBL_Translation_Provider {
 			'verses'   => $parsed['verses'],
 			'headings' => $parsed['headings'],
 			'audio'    => self::get_chapter_audio_links( $body ),
+			'timings'  => self::get_chapter_audio_timing_links( $body ),
 		);
 	}
 
@@ -348,6 +349,99 @@ class HWBL_HelloAO_Provider implements HWBL_Translation_Provider {
 		}
 
 		return $audio;
+	}
+
+	/**
+	 * Extract narrator => audio timings API path/URL map from a Hello AO chapter response.
+	 *
+	 * @param array<string, mixed> $body Decoded chapter JSON.
+	 * @return array<string, string>
+	 */
+	public static function get_chapter_audio_timing_links( $body ) {
+		if ( empty( $body['thisChapterAudioTimings'] ) || ! is_array( $body['thisChapterAudioTimings'] ) ) {
+			return array();
+		}
+		$out = array();
+		foreach ( $body['thisChapterAudioTimings'] as $narrator => $path ) {
+			$narrator = sanitize_key( (string) $narrator );
+			$path     = trim( (string) $path );
+			if ( '' === $narrator || '' === $path ) {
+				continue;
+			}
+			if ( 0 === strpos( $path, 'http://' ) || 0 === strpos( $path, 'https://' ) ) {
+				$out[ $narrator ] = esc_url_raw( $path );
+			} else {
+				$path = ltrim( $path, '/' );
+				if ( 0 === strpos( $path, 'api/' ) ) {
+					$path = substr( $path, 4 );
+				}
+				$out[ $narrator ] = self::API_BASE . $path;
+			}
+		}
+		return $out;
+	}
+
+	/**
+	 * Fetch Hello AO verse start-time array for a narrator (seconds).
+	 *
+	 * @param int    $book_id     Book ID.
+	 * @param int    $chapter     Chapter.
+	 * @param string $translation Site translation slug.
+	 * @param string $narrator    Narrator key (david, hays, …).
+	 * @return array{starts:array<int,float>,duration:float,audio:string,narrator:string}|null
+	 */
+	public static function fetch_verse_timings( $book_id, $chapter, $translation, $narrator = 'david' ) {
+		if ( ! self::is_enabled() ) {
+			return null;
+		}
+		$ao_id = self::get_helloao_id( $translation );
+		$usfm  = HWBL_Books::get_usfm( (int) $book_id );
+		if ( ! $ao_id || ! $usfm || (int) $chapter < 1 ) {
+			return null;
+		}
+		$body = self::fetch_chapter_body( $ao_id, $usfm, (int) $chapter );
+		if ( ! $body ) {
+			return null;
+		}
+		$links    = self::get_chapter_audio_timing_links( $body );
+		$narrator = sanitize_key( (string) $narrator );
+		if ( '' === $narrator || empty( $links[ $narrator ] ) ) {
+			$narrator = ! empty( $links ) ? (string) array_key_first( $links ) : '';
+		}
+		if ( '' === $narrator || empty( $links[ $narrator ] ) ) {
+			return null;
+		}
+		$url       = $links[ $narrator ];
+		$cache_key = 'hwbl_ao_timing_' . md5( strtolower( $url ) );
+		$cached    = get_transient( $cache_key );
+		if ( is_array( $cached ) && ! empty( $cached['starts'] ) ) {
+			return $cached;
+		}
+
+		$response = wp_remote_get( $url, array( 'timeout' => 15 ) );
+		if ( is_wp_error( $response ) || ! HWBL_Http_Utils::response_ok( $response ) ) {
+			return null;
+		}
+		$decoded = json_decode( (string) wp_remote_retrieve_body( $response ), true );
+		if ( ! is_array( $decoded ) || empty( $decoded['verses'] ) || ! is_array( $decoded['verses'] ) ) {
+			return null;
+		}
+		$starts = array();
+		foreach ( $decoded['verses'] as $t ) {
+			$starts[] = (float) $t;
+		}
+		if ( empty( $starts ) ) {
+			return null;
+		}
+		$audio_links = self::get_chapter_audio_links( $body );
+		$payload     = array(
+			'starts'   => $starts,
+			'duration' => (float) end( $starts ) + 8.0,
+			'audio'    => isset( $audio_links[ $narrator ] ) ? (string) $audio_links[ $narrator ] : '',
+			'narrator' => $narrator,
+		);
+		set_transient( $cache_key, $payload, DAY_IN_SECONDS );
+		return $payload;
 	}
 
 	/**

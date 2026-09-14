@@ -69,6 +69,12 @@
 		var elSearchForm = qs(root, '.hwbl-bible-reader__search');
 		var elSearchInput = qs(root, '.hwbl-bible-reader__search-input');
 		var elSearchResults = qs(root, '.hwbl-bible-reader__search-results');
+		var elChips = qs(root, '.hwbl-bible-reader__context-chips');
+		var elCrossrefs = qs(root, '.hwbl-bible-reader__crossrefs');
+		var elCrossrefsList = qs(root, '.hwbl-bible-reader__crossrefs-list');
+		var audioCues = [];
+		var audioCueSource = '';
+		var lastAudioVerse = 0;
 
 		function setStatus(msg) {
 			if (elStatus) {
@@ -298,6 +304,207 @@
 					scrollToVerse(highlight);
 				});
 			}
+
+			loadContextChips();
+			if (highlight) {
+				loadCrossRefs(highlight);
+			} else if (elCrossrefs) {
+				elCrossrefs.hidden = true;
+			}
+			bindAudioCues(payload);
+		}
+
+		function loadContextChips() {
+			if (!elChips || !cfg.restUrl) {
+				return;
+			}
+			fetchJson(
+				cfg.restUrl +
+					'bible/book-intro?book_id=' +
+					encodeURIComponent(String(state.bookId)) +
+					'&chapter=' +
+					encodeURIComponent(String(state.chapter))
+			)
+				.then(function (body) {
+					var intro = body.intro;
+					if (!intro || !(intro.chips || []).length) {
+						elChips.hidden = true;
+						elChips.innerHTML = '';
+						return;
+					}
+					elChips.hidden = false;
+					var churchBadge = intro.church_intro
+						? '<p class="hwbl-bible-reader__chip-church">' +
+						  (intro.church_series
+								? 'Church intro · ' + intro.church_series
+								: 'Church intro') +
+						  '</p>'
+						: '';
+					elChips.innerHTML =
+						churchBadge +
+						'<div class="hwbl-bible-reader__chips">' +
+						(intro.chips || [])
+							.map(function (chip) {
+								return (
+									'<button type="button" class="hwbl-bible-reader__chip' +
+									(chip.key === 'church' ? ' is-church' : '') +
+									'" data-chip="' +
+									chip.key +
+									'" title="' +
+									(chip.value || '').replace(/"/g, '&quot;') +
+									'"><span>' +
+									chip.label +
+									'</span> ' +
+									(chip.key === 'church' ? '' : chip.value || '') +
+									'</button>'
+								);
+							})
+							.join('') +
+						'</div>' +
+						(intro.blurb
+							? '<p class="hwbl-bible-reader__chip-blurb" hidden data-default-blurb="1">' +
+							  intro.blurb +
+							  '</p>'
+							: '');
+					var blurb = elChips.querySelector('.hwbl-bible-reader__chip-blurb');
+					elChips.querySelectorAll('.hwbl-bible-reader__chip').forEach(function (btn) {
+						btn.addEventListener('click', function () {
+							if (!blurb) {
+								return;
+							}
+							var key = btn.getAttribute('data-chip');
+							if (key === 'church' && intro.church_body) {
+								blurb.textContent = intro.church_body;
+							} else if (intro.pack_blurb && key !== 'church') {
+								blurb.textContent = intro.chips
+									.filter(function (c) {
+										return c.key === key;
+									})
+									.map(function (c) {
+										return c.value;
+									})[0] || intro.pack_blurb;
+							}
+							blurb.hidden = !blurb.hidden;
+						});
+					});
+					if (intro.church_intro && blurb) {
+						blurb.hidden = false;
+					}
+				})
+				.catch(function () {
+					elChips.hidden = true;
+				});
+		}
+
+		function loadCrossRefs(verseNum) {
+			if (!elCrossrefs || !elCrossrefsList || !cfg.restUrl || !verseNum) {
+				return;
+			}
+			fetchJson(
+				cfg.restUrl +
+					'bible/cross-refs?book_id=' +
+					encodeURIComponent(String(state.bookId)) +
+					'&chapter=' +
+					encodeURIComponent(String(state.chapter)) +
+					'&verse=' +
+					encodeURIComponent(String(verseNum))
+			)
+				.then(function (body) {
+					var refs = body.refs || [];
+					elCrossrefsList.innerHTML = '';
+					if (!refs.length) {
+						elCrossrefs.hidden = true;
+						return;
+					}
+					elCrossrefs.hidden = false;
+					refs.forEach(function (ref) {
+						var li = document.createElement('li');
+						var a = document.createElement('a');
+						a.href = '#';
+						a.textContent = ref.reference || ref.book_id + ' ' + ref.chapter + ':' + ref.verse;
+						a.addEventListener('click', function (event) {
+							event.preventDefault();
+							goTo(ref.book_id, ref.chapter, ref.verse);
+						});
+						li.appendChild(a);
+						elCrossrefsList.appendChild(li);
+					});
+				})
+				.catch(function () {
+					elCrossrefs.hidden = true;
+				});
+		}
+
+		function setAudioHighlight(verseNum) {
+			if (!elContent || !verseNum || verseNum === lastAudioVerse) {
+				return;
+			}
+			lastAudioVerse = verseNum;
+			elContent.querySelectorAll('.hwbl-bible-reader__verse.is-audio').forEach(function (node) {
+				node.classList.remove('is-audio');
+			});
+			var target = elContent.querySelector('[data-verse="' + verseNum + '"]');
+			if (target) {
+				target.classList.add('is-audio');
+				target.classList.add('is-highlight');
+			}
+		}
+
+		function bindAudioCues(payload) {
+			audioCues = [];
+			audioCueSource = '';
+			lastAudioVerse = 0;
+			if (!elAudio || !cfg.restUrl) {
+				return;
+			}
+
+			function fetchCues() {
+				var duration = elAudio.duration && isFinite(elAudio.duration) ? elAudio.duration : 0;
+				fetchJson(
+					cfg.restUrl +
+						'bible/audio-cues?book_id=' +
+						encodeURIComponent(String(state.bookId)) +
+						'&chapter=' +
+						encodeURIComponent(String(state.chapter)) +
+						'&translation=' +
+						encodeURIComponent(state.translation) +
+						(duration ? '&duration=' + encodeURIComponent(String(duration)) : '')
+				)
+					.then(function (body) {
+						audioCues = body.cues || [];
+						audioCueSource = body.source || '';
+					})
+					.catch(function () {
+						audioCues = [];
+					});
+			}
+
+			fetchCues();
+
+			if (elAudio.dataset.hwblCueBound === '1') {
+				return;
+			}
+			elAudio.dataset.hwblCueBound = '1';
+			elAudio.addEventListener('timeupdate', function () {
+				if (!audioCues.length) {
+					return;
+				}
+				var t = elAudio.currentTime || 0;
+				var hit = null;
+				for (var i = 0; i < audioCues.length; i++) {
+					var cue = audioCues[i];
+					if (t >= cue.start && t < cue.end) {
+						hit = cue.verse;
+						break;
+					}
+				}
+				if (hit) {
+					setAudioHighlight(hit);
+				}
+			});
+			elAudio.addEventListener('loadedmetadata', function () {
+				fetchCues();
+			});
 		}
 
 		function loadBooks() {
@@ -497,6 +704,25 @@
 			var active = document.querySelector('.hwbl-bible-reader');
 			if (active && typeof active._hwblGoTo === 'function') {
 				active._hwblGoTo(bookId, chapter, verse || 0);
+			}
+		};
+		window.hwblBibleReaderApi.loadCrossRefs = function (verse) {
+			loadCrossRefs(verse || state.verse);
+		};
+		window.hwblBibleReaderApi.compareVerse = function (verse) {
+			state.verse = verse || state.verse;
+			var compareBtn = qs(root, '.hwbl-bible-reader__compare-btn, [data-hwbl-compare]');
+			if (compareBtn) {
+				compareBtn.click();
+			} else if (window.hwblTranslationComparison && window.hwblTranslationComparison.open) {
+				window.hwblTranslationComparison.open({
+					book_id: state.bookId,
+					chapter: state.chapter,
+					verse: state.verse,
+					translation: state.translation,
+				});
+			} else {
+				setStatus(i18n.compareHint || 'Open Compare from the reader toolbar to view parallel translations.');
 			}
 		};
 	}

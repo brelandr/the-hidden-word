@@ -4,11 +4,11 @@ Tags: bible, scripture, discipleship, memorization, verse of the day
 Requires at least: 6.2
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.3.26
+Stable tag: 2.3.31
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Bible discipleship with 500 NIV lessons, memorization, Bible reader, local public-domain Bibles, digests, and BYOK AI — all free.
+Bible discipleship with 500 NIV lessons, memorization, Bible study tools, local public-domain Bibles, digests, and BYOK AI — all free.
 
 == Description ==
 
@@ -26,8 +26,9 @@ Hidden Word Bible Lessons helps your church or ministry teach Scripture through 
 * King James Version and World English Bible (public domain) included
 * **Local Bibles** — download free public-domain translations (English, Spanish, French, German, Chinese, and more, including Catholic/Orthodox-scope texts) into your site database for offline reading and search
 * Spaced-repetition memorization (SM-2), Flip cards and other practice modes, and review queue
-* **Reading plans** — multi-day discipleship plans (anxiety, prayer, identity, gospel share, kids stories, Advent/Lent, and more) with progress tracking, day review navigation, and shortcodes/blocks
-* Bible chapter reader with Hello AO audio (no key); Spanish and Portuguese AO text editions; memorization “Listen to verse” speaks the exact verse text
+* **Bible study** — verse notes with SOAP/HEAR/Inductive frameworks, Related verses (Treasury of Scripture Knowledge pack), tap-to-define Strong’s, book/chapter context chips, verse-scoped translation compare, Practice this verse, and optional church Shared study notes
+* **Reading plans** — multi-day discipleship plans (anxiety, prayer, identity, gospel share, kids stories, Advent/Lent, and more) with progress tracking, day review navigation, shared reflections for leaders, and shortcodes/blocks
+* Bible chapter reader with Hello AO audio (no key) and verse-synced read-along when timings are available; Spanish and Portuguese AO text editions; memorization “Listen to verse” speaks the exact verse text
 * Bible Maps with biblical + modern place labels, passage/book toggle, and verse references
 * Bible Concordance / Strong’s study tooling (Local Bibles offline; NIV/NLT via Biblia when configured)
 * Optional BYOK: API.Bible, Biblia.com, YouVersion Platform, OpenAI / Claude (or WP AI Connectors)
@@ -38,15 +39,13 @@ Hidden Word Bible Lessons helps your church or ministry teach Scripture through 
 * Companion app support (church directory, app connect, Sign in with Apple, account deletion)
 * Gutenberg blocks and shortcodes; lesson catalog at `/bible-lesson/`
 
-= Coming soon: iPhone and Android apps =
+= Companion apps (iPhone and Android) =
 
-Native companion apps for iPhone and Android are coming soon. We are looking for volunteers to help test before public launch.
+Free native apps for iPhone and Android connect to your church site (or thehiddenword.org): Bible reading, memorization, reading plans, journal, and the same study tools above.
 
-To join the testing program, email **sales@landtechwebdesigns.com** with this subject line:
-
-`The hidden word iphone or andrid app testing program to participate.`
-
-Please tell us which phone you wish to test on (iPhone, Android, or both).
+* **App Store:** https://apps.apple.com/app/the-hidden-word/id6793653651
+* **Google Play:** https://play.google.com/store/apps/details?id=org.thehiddenword.companion
+* Hub: https://thehiddenword.org
 
 = Shortcodes =
 
@@ -71,7 +70,8 @@ The bundled NIV text is provided under Biblica's gratis use guidelines for non-c
 
 Bundled NIV/KJV/WEB text is stored locally. All other external calls are optional and only happen when a site administrator explicitly enables a feature, supplies keys, or starts an import:
 
-* Hello AO — free Bible text/audio API (no key)
+* Hello AO — free Bible text/audio API (no key); optional verse timing metadata for read-along highlight
+* Bundled cross-reference pack derived from CrossReferences.org / Treasury of Scripture Knowledge (CC BY 4.0); served locally — no phone-home for Related verses
 * API.Bible, Biblia.com, YouVersion Platform — optional translation providers (BYOK)
 * bible.com — Verse of the Day reference/image (when VOTD is enabled)
 * OpenAI or Anthropic — optional AI explain/study/ask (BYOK or Connectors)
@@ -116,9 +116,9 @@ Yes. Create new Bible Lessons or edit the seeded 500-lesson curriculum.
 
 Yes. Use the shortcode `[hwbl_lesson]` in any page builder text widget or the Gutenberg block.
 
-= How can I help test the iPhone or Android app? =
+= Where are the iPhone and Android apps? =
 
-Email sales@landtechwebdesigns.com with the subject “The hidden word iphone or andrid app testing program to participate.” and say whether you want to test on iPhone, Android, or both.
+Download **The Hidden Word** from the App Store or Google Play (links in the description). Point the app at your church site running this plugin, or use the free hub at https://thehiddenword.org .
 
 = Privacy Policy =
 
@@ -134,7 +134,17 @@ The hub operator’s policy for The Hidden Word (accounts, AI Ask, gospel-respon
 
 == Changelog ==
 
-= 2.3.26 =
+= 2.3.31 =
+* Bible study rollout: SOAP / HEAR / Inductive note frameworks, Related verses (expanded TSK pack), Practice this verse, My / Church notes
+* Tap-to-define Strong’s, book/chapter context chips, verse-scoped Compare translations
+* Audio read-along verse highlight (Hello AO timings when available), verse tags + memorize decks, plan reflections shared with leaders
+* Shared study notes admin: series, publish-on scheduling, intro-type church override, bulk markdown import, privacy-safe engagement counts
+* Companion REST routes for cross-refs, book intros, audio cues, pastor notes, and verse tags
+
+= 2.3.29 =
+* Bible reader: personal notes on verses and chapters, saved to your account and available later on web and in the companion app
+
+= 2.3.27 =
 * Reading plans: keep Mark day complete visible near the top of the day view, with a hint when reviewing another day
 
 = 2.3.25 =

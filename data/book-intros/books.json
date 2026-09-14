@@ -1,0 +1,464 @@
+{
+  "1": {
+    "author": "Moses",
+    "audience": "Israel",
+    "purpose": "Origins of creation, covenant, and Israel",
+    "date": "c. 1440–1400 BC",
+    "blurb": "Genesis opens Scripture with creation, the fall, and God's promise to Abraham."
+  },
+  "2": {
+    "author": "Moses",
+    "audience": "Israel",
+    "purpose": "Deliverance from Egypt and covenant at Sinai",
+    "date": "c. 1440–1400 BC",
+    "blurb": "Exodus tells how God rescues His people and forms them by His law."
+  },
+  "3": {
+    "author": "Moses",
+    "audience": "Israel",
+    "purpose": "Holiness and worship instructions",
+    "date": "c. 1440–1400 BC",
+    "blurb": "Leviticus teaches how a holy God dwells with His people."
+  },
+  "4": {
+    "author": "Moses",
+    "audience": "Israel",
+    "purpose": "Wilderness journey and census",
+    "date": "c. 1440–1400 BC",
+    "blurb": "Numbers records Israel's testing and God's faithfulness in the wilderness."
+  },
+  "5": {
+    "author": "Moses",
+    "audience": "Israel",
+    "purpose": "Covenant renewal before entering the land",
+    "date": "c. 1400 BC",
+    "blurb": "Deuteronomy calls Israel to love the Lord with all their heart."
+  },
+  "6": {
+    "author": "Joshua (trad.)",
+    "audience": "Israel",
+    "purpose": "Conquest and allotment of Canaan",
+    "date": "c. 1400–1370 BC",
+    "blurb": "Joshua shows God keeping His promise to give the land."
+  },
+  "7": {
+    "author": "Unknown",
+    "audience": "Israel",
+    "purpose": "Cycles of apostasy and deliverance",
+    "date": "c. 1050–1000 BC",
+    "blurb": "Judges warns that everyone did what was right in their own eyes."
+  },
+  "8": {
+    "author": "Unknown",
+    "audience": "Israel",
+    "purpose": "Loyalty, redemption, and David's ancestry",
+    "date": "c. 1000 BC",
+    "blurb": "Ruth highlights hesed love and God's providence."
+  },
+  "9": {
+    "author": "Samuel / others",
+    "audience": "Israel",
+    "purpose": "Rise of monarchy; Saul to David",
+    "date": "c. 930–700 BC",
+    "blurb": "1 Samuel traces Israel's request for a king and David's anointing."
+  },
+  "10": {
+    "author": "Samuel / others",
+    "audience": "Israel",
+    "purpose": "David's reign and covenant",
+    "date": "c. 930–700 BC",
+    "blurb": "2 Samuel shows David's triumphs and failures under God's covenant."
+  },
+  "11": {
+    "author": "Unknown",
+    "audience": "Israel / Judah",
+    "purpose": "Solomon to divided kingdom",
+    "date": "c. 560 BC",
+    "blurb": "1 Kings recounts wisdom, idolatry, and prophetic confrontation."
+  },
+  "12": {
+    "author": "Unknown",
+    "audience": "Israel / Judah",
+    "purpose": "Fall of Israel and Judah",
+    "date": "c. 560 BC",
+    "blurb": "2 Kings ends with exile—yet hope remains."
+  },
+  "13": {
+    "author": "Chronicler",
+    "audience": "Post-exilic Judah",
+    "purpose": "Temple-centered history of David",
+    "date": "c. 450–400 BC",
+    "blurb": "1 Chronicles encourages worship and covenant identity."
+  },
+  "14": {
+    "author": "Chronicler",
+    "audience": "Post-exilic Judah",
+    "purpose": "Judah's kings and temple restoration hope",
+    "date": "c. 450–400 BC",
+    "blurb": "2 Chronicles calls the people back to seeking the Lord."
+  },
+  "15": {
+    "author": "Ezra",
+    "audience": "Returned exiles",
+    "purpose": "Return and temple rebuilding",
+    "date": "c. 450–400 BC",
+    "blurb": "Ezra emphasizes Scripture, repentance, and restoration."
+  },
+  "16": {
+    "author": "Nehemiah",
+    "audience": "Returned exiles",
+    "purpose": "Wall rebuilding and covenant renewal",
+    "date": "c. 430 BC",
+    "blurb": "Nehemiah models prayerful leadership and reform."
+  },
+  "17": {
+    "author": "Unknown",
+    "audience": "Jews in Persia",
+    "purpose": "Providence protecting God's people",
+    "date": "c. 450–350 BC",
+    "blurb": "Esther shows God at work even when His name is not named."
+  },
+  "18": {
+    "author": "Unknown",
+    "audience": "Sufferers / wisdom seekers",
+    "purpose": "Faith amid unexplained suffering",
+    "date": "c. 2000–500 BC (setting earlier)",
+    "blurb": "Job wrestles with suffering and God's sovereignty."
+  },
+  "19": {
+    "author": "David and others",
+    "audience": "Worshipers of Israel",
+    "purpose": "Prayer, praise, and lament",
+    "date": "c. 1000–400 BC",
+    "blurb": "Psalms give voice to every season of the life of faith."
+  },
+  "20": {
+    "author": "Solomon and others",
+    "audience": "Youth / disciples",
+    "purpose": "Skill for godly living",
+    "date": "c. 950–700 BC",
+    "blurb": "Proverbs trains wisdom that fears the Lord."
+  },
+  "21": {
+    "author": "Qoheleth (trad. Solomon)",
+    "audience": "Seekers",
+    "purpose": "Meaning under the sun",
+    "date": "c. 930–200 BC",
+    "blurb": "Ecclesiastes pushes us beyond vanity to fear God."
+  },
+  "22": {
+    "author": "Solomon (trad.)",
+    "audience": "Covenant people",
+    "purpose": "Covenant love celebrated",
+    "date": "c. 950 BC",
+    "blurb": "Song of Songs celebrates faithful love."
+  },
+  "23": {
+    "author": "Isaiah",
+    "audience": "Judah / nations",
+    "purpose": "Judgment and messianic hope",
+    "date": "c. 740–680 BC",
+    "blurb": "Isaiah proclaims the Holy One who saves through the Servant."
+  },
+  "24": {
+    "author": "Jeremiah",
+    "audience": "Judah",
+    "purpose": "Call to repent before exile",
+    "date": "c. 626–580 BC",
+    "blurb": "Jeremiah weeps over sin and announces a new covenant."
+  },
+  "25": {
+    "author": "Jeremiah",
+    "audience": "Exiles",
+    "purpose": "Lament over Jerusalem",
+    "date": "c. 586 BC",
+    "blurb": "Lamentations mourns judgment while clinging to God's mercies."
+  },
+  "26": {
+    "author": "Ezekiel",
+    "audience": "Exiles in Babylon",
+    "purpose": "God's glory and future restoration",
+    "date": "c. 593–570 BC",
+    "blurb": "Ezekiel sees God's presence leave—and return—with hope."
+  },
+  "27": {
+    "author": "Daniel",
+    "audience": "Exiles",
+    "purpose": "Faithfulness under empire; apocalyptic hope",
+    "date": "c. 530 BC",
+    "blurb": "Daniel models courage and reveals God's everlasting kingdom."
+  },
+  "28": {
+    "author": "Hosea",
+    "audience": "Northern Israel",
+    "purpose": "Covenant love despite unfaithfulness",
+    "date": "c. 755–715 BC",
+    "blurb": "Hosea portrays God's relentless love for His people."
+  },
+  "29": {
+    "author": "Joel",
+    "audience": "Judah",
+    "purpose": "Day of the Lord and Spirit poured out",
+    "date": "c. 800–400 BC",
+    "blurb": "Joel calls for repentance and promises restoration."
+  },
+  "30": {
+    "author": "Amos",
+    "audience": "Northern Israel",
+    "purpose": "Justice and righteousness",
+    "date": "c. 760 BC",
+    "blurb": "Amos confronts empty religion and social injustice."
+  },
+  "31": {
+    "author": "Obadiah",
+    "audience": "Judah",
+    "purpose": "Judgment on Edom",
+    "date": "c. 586 BC",
+    "blurb": "Obadiah warns that pride will be brought low."
+  },
+  "32": {
+    "author": "Jonah",
+    "audience": "Israel / Nineveh",
+    "purpose": "God's mercy to the nations",
+    "date": "c. 760 BC",
+    "blurb": "Jonah reveals God's compassion beyond Israel's borders."
+  },
+  "33": {
+    "author": "Micah",
+    "audience": "Judah",
+    "purpose": "Justice, mercy, and messianic hope",
+    "date": "c. 740–700 BC",
+    "blurb": "Micah asks what the Lord requires: justice, kindness, humility."
+  },
+  "34": {
+    "author": "Nahum",
+    "audience": "Judah",
+    "purpose": "Fall of Nineveh",
+    "date": "c. 650 BC",
+    "blurb": "Nahum announces judgment on a violent empire."
+  },
+  "35": {
+    "author": "Habakkuk",
+    "audience": "Judah",
+    "purpose": "Faith when God seems silent",
+    "date": "c. 610 BC",
+    "blurb": "Habakkuk learns to live by faith amid injustice."
+  },
+  "36": {
+    "author": "Zephaniah",
+    "audience": "Judah",
+    "purpose": "Day of the Lord and remnant joy",
+    "date": "c. 640–620 BC",
+    "blurb": "Zephaniah warns of judgment and sings of God's rejoicing love."
+  },
+  "37": {
+    "author": "Haggai",
+    "audience": "Returned exiles",
+    "purpose": "Rebuild the temple",
+    "date": "520 BC",
+    "blurb": "Haggai urges putting God's house first."
+  },
+  "38": {
+    "author": "Zechariah",
+    "audience": "Returned exiles",
+    "purpose": "Encouragement and messianic visions",
+    "date": "c. 520–480 BC",
+    "blurb": "Zechariah points to the coming Branch and humble King."
+  },
+  "39": {
+    "author": "Malachi",
+    "audience": "Post-exilic Judah",
+    "purpose": "Covenant faithfulness; forerunner promise",
+    "date": "c. 430 BC",
+    "blurb": "Malachi confronts half-hearted worship and promises Elijah."
+  },
+  "40": {
+    "author": "Matthew",
+    "audience": "Jewish Christians",
+    "purpose": "Jesus the Messiah and King",
+    "date": "c. AD 60–70",
+    "blurb": "Matthew presents Jesus as Son of David who fulfills Scripture."
+  },
+  "41": {
+    "author": "Mark",
+    "audience": "Roman / Gentile believers",
+    "purpose": "Jesus the Servant Son of God",
+    "date": "c. AD 55–65",
+    "blurb": "Mark is a fast-paced gospel of the crucified King."
+  },
+  "42": {
+    "author": "Luke",
+    "audience": "Theophilus / Gentiles",
+    "purpose": "Jesus the Savior for all peoples",
+    "date": "c. AD 60–70",
+    "blurb": "Luke highlights mercy, prayer, and the Spirit."
+  },
+  "43": {
+    "author": "John",
+    "audience": "Church",
+    "purpose": "Believe that Jesus is the Christ",
+    "date": "c. AD 80–90",
+    "blurb": "John writes so that you may believe and have life."
+  },
+  "44": {
+    "author": "Luke",
+    "audience": "Church",
+    "purpose": "Spirit-empowered witness to the ends of the earth",
+    "date": "c. AD 62–70",
+    "blurb": "Acts continues Jesus' work through the Spirit and the church."
+  },
+  "45": {
+    "author": "Paul",
+    "audience": "Church in Rome",
+    "purpose": "Gospel righteousness by faith",
+    "date": "c. AD 57",
+    "blurb": "Romans unfolds the power of God for salvation."
+  },
+  "46": {
+    "author": "Paul",
+    "audience": "Church in Corinth",
+    "purpose": "Gospel unity and holy living",
+    "date": "c. AD 55",
+    "blurb": "1 Corinthians applies the cross to church life."
+  },
+  "47": {
+    "author": "Paul",
+    "audience": "Church in Corinth",
+    "purpose": "Apostolic ministry and reconciliation",
+    "date": "c. AD 56",
+    "blurb": "2 Corinthians reveals strength in weakness."
+  },
+  "48": {
+    "author": "Paul",
+    "audience": "Churches of Galatia",
+    "purpose": "Freedom in the gospel of grace",
+    "date": "c. AD 48–55",
+    "blurb": "Galatians defends justification by faith alone."
+  },
+  "49": {
+    "author": "Paul",
+    "audience": "Church in Ephesus",
+    "purpose": "Unity in Christ and new life",
+    "date": "c. AD 60–62",
+    "blurb": "Ephesians celebrates the church as Christ's body."
+  },
+  "50": {
+    "author": "Paul",
+    "audience": "Church in Philippi",
+    "purpose": "Joy in Christ amid suffering",
+    "date": "c. AD 60–62",
+    "blurb": "Philippians centers life on knowing Christ."
+  },
+  "51": {
+    "author": "Paul",
+    "audience": "Church in Colossae",
+    "purpose": "Christ's supremacy and sufficiency",
+    "date": "c. AD 60–62",
+    "blurb": "Colossians exalts Christ over every power."
+  },
+  "52": {
+    "author": "Paul",
+    "audience": "Church in Thessalonica",
+    "purpose": "Hope and holy waiting for Christ's return",
+    "date": "c. AD 50–51",
+    "blurb": "1 Thessalonians encourages steadfast faith."
+  },
+  "53": {
+    "author": "Paul",
+    "audience": "Church in Thessalonica",
+    "purpose": "Clarify the day of the Lord",
+    "date": "c. AD 51–52",
+    "blurb": "2 Thessalonians steadies believers under pressure."
+  },
+  "54": {
+    "author": "Paul",
+    "audience": "Timothy",
+    "purpose": "Guard the gospel; lead the church",
+    "date": "c. AD 62–64",
+    "blurb": "1 Timothy instructs church order and godliness."
+  },
+  "55": {
+    "author": "Paul",
+    "audience": "Timothy",
+    "purpose": "Endure and preach the word",
+    "date": "c. AD 64–67",
+    "blurb": "2 Timothy is Paul's farewell charge."
+  },
+  "56": {
+    "author": "Paul",
+    "audience": "Titus",
+    "purpose": "Sound doctrine and good works",
+    "date": "c. AD 62–64",
+    "blurb": "Titus plants healthy churches on Crete."
+  },
+  "57": {
+    "author": "Paul",
+    "audience": "Philemon",
+    "purpose": "Gospel reconciliation",
+    "date": "c. AD 60–62",
+    "blurb": "Philemon embodies forgiveness in Christ."
+  },
+  "58": {
+    "author": "Unknown (trad. Paul/ Apollos)",
+    "audience": "Jewish Christians",
+    "purpose": "Christ superior; endure in faith",
+    "date": "c. AD 60–70",
+    "blurb": "Hebrews presents Jesus as better High Priest."
+  },
+  "59": {
+    "author": "James",
+    "audience": "Scattered believers",
+    "purpose": "Living faith that works",
+    "date": "c. AD 45–49",
+    "blurb": "James calls for practical wisdom and integrity."
+  },
+  "60": {
+    "author": "Peter",
+    "audience": "Suffering churches",
+    "purpose": "Hope and holiness in exile",
+    "date": "c. AD 62–64",
+    "blurb": "1 Peter strengthens believers under trial."
+  },
+  "61": {
+    "author": "Peter",
+    "audience": "Church",
+    "purpose": "Grow in grace; watch for false teachers",
+    "date": "c. AD 64–68",
+    "blurb": "2 Peter urges diligence until the day of God."
+  },
+  "62": {
+    "author": "John",
+    "audience": "Church",
+    "purpose": "Assurance of eternal life",
+    "date": "c. AD 85–95",
+    "blurb": "1 John tests true fellowship with God."
+  },
+  "63": {
+    "author": "John",
+    "audience": "Elect lady / church",
+    "purpose": "Walk in truth and love",
+    "date": "c. AD 85–95",
+    "blurb": "2 John guards against deceivers."
+  },
+  "64": {
+    "author": "John",
+    "audience": "Gaius",
+    "purpose": "Hospitality for gospel workers",
+    "date": "c. AD 85–95",
+    "blurb": "3 John commends partners in the truth."
+  },
+  "65": {
+    "author": "Jude",
+    "audience": "Church",
+    "purpose": "Contend for the faith",
+    "date": "c. AD 65–80",
+    "blurb": "Jude warns against ungodly infiltrators."
+  },
+  "66": {
+    "author": "John",
+    "audience": "Churches of Asia",
+    "purpose": "Christ's victory and new creation",
+    "date": "c. AD 95",
+    "blurb": "Revelation unveils the Lamb who conquers."
+  }
+}

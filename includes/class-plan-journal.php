@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class HWBL_Plan_Journal {
 
-	const DB_VERSION  = '1.0.0';
+	const DB_VERSION  = '1.1.0';
 	const OPT_DB      = 'hwbl_plan_journal_db_version';
 	const RATE_LIMIT  = 12;
 	const RATE_WINDOW = 3600;
@@ -64,10 +64,12 @@ class HWBL_Plan_Journal {
 			entry longtext NOT NULL,
 			ai_reply longtext NULL,
 			flagged_crisis tinyint(1) NOT NULL DEFAULT 0,
+			share_with_leader tinyint(1) NOT NULL DEFAULT 0,
 			updated_at datetime NOT NULL,
 			PRIMARY KEY  (id),
 			KEY user_plan_day (user_id, plan_id, day_num),
-			KEY updated_at (updated_at)
+			KEY updated_at (updated_at),
+			KEY plan_shared (plan_id, share_with_leader, day_num)
 		) {$charset};";
 		dbDelta( $sql );
 	}
@@ -107,11 +109,47 @@ class HWBL_Plan_Journal {
 					'callback'            => array( __CLASS__, 'rest_create' ),
 					'permission_callback' => $logged_in,
 					'args'                => $id_day + array(
-						'entry' => array(
+						'entry'             => array(
 							'type'              => 'string',
 							'required'          => true,
 							'sanitize_callback' => 'sanitize_textarea_field',
 						),
+						'share_with_leader' => array(
+							'type'    => 'boolean',
+							'default' => false,
+						),
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			'hwbl/v1',
+			'/plans/(?P<id>\d+)/journal/shared',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( __CLASS__, 'rest_leader_inbox' ),
+				'permission_callback' => array( __CLASS__, 'can_view_shared' ),
+				'args'                => array(
+					'id'       => array(
+						'type'              => 'integer',
+						'required'          => true,
+						'sanitize_callback' => 'absint',
+					),
+					'day'      => array(
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+						'default'           => 0,
+					),
+					'page'     => array(
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+						'default'           => 1,
+					),
+					'per_page' => array(
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+						'default'           => 40,
 					),
 				),
 			)
@@ -206,23 +244,55 @@ class HWBL_Plan_Journal {
 		$plan_id = (int) ( $row['plan_id'] ?? 0 );
 		$day_num = (int) ( $row['day_num'] ?? 0 );
 		$plan_url = $plan_id > 0 ? (string) get_permalink( $plan_id ) : '';
+		$user_id = (int) ( $row['user_id'] ?? 0 );
+		$user    = $user_id ? get_userdata( $user_id ) : null;
 		return array(
-			'id'             => (int) ( $row['id'] ?? 0 ),
-			'plan_id'        => $plan_id,
-			'plan_title'     => $plan_id > 0 ? (string) get_the_title( $plan_id ) : '',
-			'day_num'        => $day_num,
-			'entry'          => (string) ( $row['entry'] ?? '' ),
-			'ai_reply'       => $reply,
-			'ai_reply_html'  => $crisis && class_exists( 'HWBL_Crisis_Guard' )
+			'id'                => (int) ( $row['id'] ?? 0 ),
+			'plan_id'           => $plan_id,
+			'plan_title'        => $plan_id > 0 ? (string) get_the_title( $plan_id ) : '',
+			'day_num'           => $day_num,
+			'entry'             => (string) ( $row['entry'] ?? '' ),
+			'ai_reply'          => $reply,
+			'ai_reply_html'     => $crisis && class_exists( 'HWBL_Crisis_Guard' )
 				? HWBL_Crisis_Guard::helpline_html()
 				: ( $reply ? wpautop( esc_html( $reply ) ) : '' ),
-			'flagged_crisis' => $crisis,
-			'updated_at'     => (string) ( $row['updated_at'] ?? '' ),
-			'plan_url'       => $plan_url,
-			'day_url'        => ( $plan_url && $day_num > 0 )
+			'flagged_crisis'    => $crisis,
+			'share_with_leader' => ! empty( $row['share_with_leader'] ),
+			'user_id'           => $user_id,
+			'user_display'      => $user ? (string) $user->display_name : '',
+			'updated_at'        => (string) ( $row['updated_at'] ?? '' ),
+			'plan_url'          => $plan_url,
+			'day_url'           => ( $plan_url && $day_num > 0 )
 				? add_query_arg( 'hwbl_plan_day', $day_num, $plan_url )
 				: $plan_url,
 		);
+	}
+
+	/**
+	 * Whether current user can view shared plan reflections.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return bool
+	 */
+	public static function can_view_shared( $request ) {
+		if ( ! is_user_logged_in() || ! current_user_can( 'read' ) ) {
+			return false;
+		}
+		if ( current_user_can( 'edit_posts' ) ) {
+			return true;
+		}
+		$plan_id = (int) $request['id'];
+		if ( $plan_id < 1 ) {
+			return false;
+		}
+		if ( (int) get_post_field( 'post_author', $plan_id ) === get_current_user_id() ) {
+			return true;
+		}
+		if ( class_exists( 'THW_Premium_Cohort' ) ) {
+			// Leaders with cohort edit capability can read shared reflections.
+			return current_user_can( 'edit_thw_cohorts' );
+		}
+		return false;
 	}
 
 	/**
@@ -360,6 +430,55 @@ class HWBL_Plan_Journal {
 	}
 
 	/**
+	 * Leader inbox: shared reflections for a plan.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public static function rest_leader_inbox( $request ) {
+		$plan_id  = (int) $request['id'];
+		$day_num  = (int) $request->get_param( 'day' );
+		$page     = max( 1, (int) $request->get_param( 'page' ) );
+		$per_page = min( 100, max( 1, (int) $request->get_param( 'per_page' ) ) );
+		$offset   = ( $page - 1 ) * $per_page;
+		if ( ! HWBL_CPT_Plan::get_plan_data( $plan_id ) ) {
+			return new WP_Error( 'hwbl_plan_not_found', __( 'Plan not found.', 'hidden-word-bible-lessons' ), array( 'status' => 404 ) );
+		}
+
+		global $wpdb;
+		$table = self::table_name();
+		if ( $day_num > 0 ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$rows = $wpdb->get_results(
+				$wpdb->prepare(
+					"SELECT * FROM {$table} WHERE plan_id = %d AND share_with_leader = 1 AND day_num = %d ORDER BY updated_at DESC LIMIT %d OFFSET %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					$plan_id,
+					$day_num,
+					$per_page,
+					$offset
+				),
+				ARRAY_A
+			);
+		} else {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$rows = $wpdb->get_results(
+				$wpdb->prepare(
+					"SELECT * FROM {$table} WHERE plan_id = %d AND share_with_leader = 1 ORDER BY day_num ASC, updated_at DESC LIMIT %d OFFSET %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					$plan_id,
+					$per_page,
+					$offset
+				),
+				ARRAY_A
+			);
+		}
+		$out = array();
+		foreach ( is_array( $rows ) ? $rows : array() as $row ) {
+			$out[] = self::format_entry( $row );
+		}
+		return rest_ensure_response( array( 'entries' => $out ) );
+	}
+
+	/**
 	 * Create a journal entry.
 	 *
 	 * @param WP_REST_Request $request Request.
@@ -378,21 +497,23 @@ class HWBL_Plan_Journal {
 
 		$crisis = class_exists( 'HWBL_Crisis_Guard' ) && HWBL_Crisis_Guard::is_crisis( $entry );
 		$reply  = $crisis && class_exists( 'HWBL_Crisis_Guard' ) ? HWBL_Crisis_Guard::helpline_plain() : null;
+		$share  = ! empty( $request->get_param( 'share_with_leader' ) );
 
 		global $wpdb;
 		$now = current_time( 'mysql' );
 		$ok  = $wpdb->insert(
 			self::table_name(),
 			array(
-				'user_id'         => get_current_user_id(),
-				'plan_id'         => $plan_id,
-				'day_num'         => $day_num,
-				'entry'           => $entry,
-				'ai_reply'        => $reply,
-				'flagged_crisis'  => $crisis ? 1 : 0,
-				'updated_at'      => $now,
+				'user_id'           => get_current_user_id(),
+				'plan_id'           => $plan_id,
+				'day_num'           => $day_num,
+				'entry'             => $entry,
+				'ai_reply'          => $reply,
+				'flagged_crisis'    => $crisis ? 1 : 0,
+				'share_with_leader' => $share ? 1 : 0,
+				'updated_at'        => $now,
 			),
-			array( '%d', '%d', '%d', '%s', '%s', '%d', '%s' )
+			array( '%d', '%d', '%d', '%s', '%s', '%d', '%d', '%s' )
 		);
 		if ( ! $ok ) {
 			return new WP_Error( 'hwbl_journal_save_failed', __( 'Could not save journal entry.', 'hidden-word-bible-lessons' ), array( 'status' => 500 ) );

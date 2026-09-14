@@ -129,7 +129,14 @@
 		var i18n = cfg.i18n || {};
 		var bar = root.querySelector('.hwbl-bible-reader__memorize-bar');
 		var button = root.querySelector('.hwbl-bible-reader__memorize-btn');
+		var practiceBtn = root.querySelector('.hwbl-bible-reader__practice-btn');
+		var relatedBtn = root.querySelector('.hwbl-bible-reader__related-btn');
+		var defineBtn = root.querySelector('.hwbl-bible-reader__define-btn');
+		var compareBtn = root.querySelector('.hwbl-bible-reader__compare-verse-btn');
 		var panel = root.querySelector('.hwbl-bible-reader__memorize-panel');
+		var defineSheet = root.querySelector('.hwbl-bible-reader__define-sheet');
+		var defineTitle = root.querySelector('.hwbl-bible-reader__define-title');
+		var defineBody = root.querySelector('.hwbl-bible-reader__define-body');
 		var content = root.querySelector('.hwbl-bible-reader__content');
 		var selected = {
 			bookId: parseInt(root.dataset.book || '0', 10),
@@ -166,7 +173,7 @@
 			}
 		}
 
-		function loadMemorizePanel() {
+		function loadMemorizePanel(openPractice) {
 			if (!panel || !selected.verse) {
 				return;
 			}
@@ -203,6 +210,9 @@
 							window.hwblInitMemorization(widget);
 						});
 					}
+					if (openPractice && panel.querySelector('.hwbl-memorization')) {
+						panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+					}
 				})
 				.catch(function (err) {
 					var msg = i18n.memorizeError || 'Could not load memorization practice.';
@@ -210,6 +220,72 @@
 						msg = err.message;
 					}
 					panel.innerHTML = '<p class="hwbl-bible-reader__memorize-error">' + msg + '</p>';
+				});
+		}
+
+		function loadCrossRefs() {
+			if (window.hwblBibleReaderApi && typeof window.hwblBibleReaderApi.loadCrossRefs === 'function') {
+				window.hwblBibleReaderApi.loadCrossRefs(selected.verse);
+			}
+		}
+
+		function defineWord() {
+			var word = window.prompt(i18n.definePrompt || 'Enter a word to look up in Strong’s:');
+			if (!word || !word.trim() || !defineSheet || !defineBody) {
+				return;
+			}
+			defineSheet.hidden = false;
+			if (defineTitle) {
+				defineTitle.textContent = word.trim();
+			}
+			defineBody.textContent = i18n.defineLoading || 'Looking up…';
+			fetch(
+				cfg.restUrl +
+					'bible/concordance?query=' +
+					encodeURIComponent(word.trim()) +
+					'&mode=strongs&limit=5',
+				{
+					credentials: 'same-origin',
+					headers: {
+						Accept: 'application/json',
+						'X-WP-Nonce': cfg.nonce || '',
+					},
+				}
+			)
+				.then(function (res) {
+					return res.json();
+				})
+				.then(function (body) {
+					var candidates = body.candidates || [];
+					if (body.entry) {
+						candidates = [body.entry].concat(candidates);
+					}
+					if (!candidates.length) {
+						defineBody.textContent = i18n.defineEmpty || 'No Strong’s match found.';
+						return;
+					}
+					defineBody.innerHTML = candidates
+						.slice(0, 5)
+						.map(function (row) {
+							var lemma = row.lemma || '';
+							var translit = row.transliteration || '';
+							var gloss = row.gloss || '';
+							var num = row.number || '';
+							return (
+								'<div class="hwbl-bible-reader__define-entry"><strong>' +
+								(num ? num + ' · ' : '') +
+								lemma +
+								'</strong>' +
+								(translit ? ' <em>(' + translit + ')</em>' : '') +
+								'<p>' +
+								gloss +
+								'</p></div>'
+							);
+						})
+						.join('');
+				})
+				.catch(function () {
+					defineBody.textContent = i18n.defineError || 'Could not look up that word.';
 				});
 		}
 
@@ -228,6 +304,7 @@
 					panel.hidden = true;
 					panel.innerHTML = '';
 				}
+				loadCrossRefs();
 			});
 		}
 
@@ -239,7 +316,42 @@
 				if (!selected.verse) {
 					return;
 				}
-				loadMemorizePanel();
+				loadMemorizePanel(false);
+			});
+		}
+
+		if (practiceBtn) {
+			practiceBtn.addEventListener('click', function () {
+				if (!selected.verse) {
+					selected.verse = parseInt(root.dataset.verse || '0', 10);
+				}
+				if (!selected.verse) {
+					return;
+				}
+				loadMemorizePanel(true);
+			});
+		}
+
+		if (relatedBtn) {
+			relatedBtn.addEventListener('click', function () {
+				var drawer = root.querySelector('.hwbl-bible-reader__crossrefs');
+				if (drawer) {
+					drawer.hidden = false;
+					drawer.open = true;
+				}
+				loadCrossRefs();
+			});
+		}
+
+		if (defineBtn) {
+			defineBtn.addEventListener('click', defineWord);
+		}
+
+		if (compareBtn) {
+			compareBtn.addEventListener('click', function () {
+				if (window.hwblBibleReaderApi && typeof window.hwblBibleReaderApi.compareVerse === 'function') {
+					window.hwblBibleReaderApi.compareVerse(selected.verse);
+				}
 			});
 		}
 

@@ -85,6 +85,7 @@ class HWBL_Uninstall_Keys {
 			'hwbl_testimony_rewrite_flushed',
 			'hwbl_gospel_rewrite_flushed',
 			'hwbl_journal_db_version',
+			'hwbl_bible_notes_db_version',
 			'hwbl_plan_day_studies_db_version',
 			'hwbl_plan_journal_db_version',
 		);

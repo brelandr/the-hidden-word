@@ -37,6 +37,13 @@ class HWBL_Memorization_SRS {
 				'methods'             => 'GET',
 				'callback'            => array( __CLASS__, 'rest_review_queue' ),
 				'permission_callback' => array( __CLASS__, 'logged_in_permission' ),
+				'args'                => array(
+					'tag' => array(
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_title',
+						'default'           => '',
+					),
+				),
 			)
 		);
 
@@ -152,35 +159,51 @@ class HWBL_Memorization_SRS {
 	/**
 	 * GET review queue for current user.
 	 *
+	 * @param WP_REST_Request $request Request.
 	 * @return WP_REST_Response
 	 */
-	public static function rest_review_queue() {
+	public static function rest_review_queue( $request = null ) {
 		$user_id = get_current_user_id();
 		self::maybe_migrate_legacy_progress( $user_id );
+		$tag = '';
+		if ( $request instanceof WP_REST_Request ) {
+			$tag = sanitize_title( (string) $request->get_param( 'tag' ) );
+		}
 
-		return new WP_REST_Response( self::build_queue_payload( $user_id ) );
+		return new WP_REST_Response( self::build_queue_payload( $user_id, $tag ) );
 	}
 
 	/**
 	 * Build review queue payload for a user.
 	 *
-	 * @param int $user_id User ID.
+	 * @param int    $user_id User ID.
+	 * @param string $tag     Optional verse-tag filter.
 	 * @return array<string, mixed>
 	 */
-	public static function build_queue_payload( $user_id ) {
+	public static function build_queue_payload( $user_id, $tag = '' ) {
 		$all   = self::get_progress_map( $user_id );
 		$today = wp_date( 'Y-m-d' );
 		$due   = array();
 		$new   = array();
+		$tag   = sanitize_title( (string) $tag );
+		$refs  = $tag ? self::tagged_reference_set( $user_id, $tag ) : null;
 
 		foreach ( self::get_review_lesson_ids( $user_id ) as $lesson_id ) {
 			if ( isset( $all[ $lesson_id ] ) ) {
-				$row = $all[ $lesson_id ];
+				$row  = $all[ $lesson_id ];
+				$item = self::format_queue_item( $lesson_id, $row );
+				if ( null !== $refs && ! self::queue_item_matches_tag( $item, $refs, $tag ) ) {
+					continue;
+				}
 				if ( ! empty( $row['due_date'] ) && $row['due_date'] <= $today ) {
-					$due[] = self::format_queue_item( $lesson_id, $row );
+					$due[] = $item;
 				}
 			} else {
-				$new[] = self::format_queue_item( $lesson_id, self::default_card( $lesson_id ) );
+				$item = self::format_queue_item( $lesson_id, self::default_card( $lesson_id ) );
+				if ( null !== $refs && ! self::queue_item_matches_tag( $item, $refs, $tag ) ) {
+					continue;
+				}
+				$new[] = $item;
 			}
 		}
 
@@ -189,7 +212,73 @@ class HWBL_Memorization_SRS {
 			'new'    => array_slice( $new, 0, 5 ),
 			'streak' => self::get_streak( $user_id ),
 			'stats'  => self::get_progress_stats( $user_id ),
+			'tag'    => $tag ? $tag : null,
 		);
+	}
+
+	/**
+	 * Reference strings for a user's verse tag.
+	 *
+	 * @param int    $user_id User ID.
+	 * @param string $tag     Tag.
+	 * @return array<string, true>
+	 */
+	private static function tagged_reference_set( $user_id, $tag ) {
+		$out = array();
+		if ( ! class_exists( 'HWBL_Verse_Tags' ) || '' === $tag ) {
+			return $out;
+		}
+		global $wpdb;
+		$table = HWBL_Verse_Tags::table_name();
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT book_id, chapter, verse FROM {$table} WHERE user_id = %d AND tag = %s LIMIT 500", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				(int) $user_id,
+				$tag
+			),
+			ARRAY_A
+		);
+		foreach ( is_array( $rows ) ? $rows : array() as $row ) {
+			$book_id = (int) ( $row['book_id'] ?? 0 );
+			$chapter = (int) ( $row['chapter'] ?? 0 );
+			$verse   = (int) ( $row['verse'] ?? 0 );
+			if ( $book_id < 1 || $chapter < 1 || $verse < 1 ) {
+				continue;
+			}
+			$ref = class_exists( 'HWBL_Books' )
+				? HWBL_Books::format_reference( $book_id, $chapter, $verse )
+				: ( $book_id . ' ' . $chapter . ':' . $verse );
+			$out[ strtolower( trim( $ref ) ) ] = true;
+		}
+		return $out;
+	}
+
+	/**
+	 * Whether a queue item matches a tag filter.
+	 *
+	 * @param array<string, mixed> $item Queue item.
+	 * @param array<string, true>  $refs Tagged refs.
+	 * @param string               $tag  Tag key.
+	 * @return bool
+	 */
+	private static function queue_item_matches_tag( array $item, array $refs, $tag ) {
+		$ref = strtolower( trim( (string) ( $item['reference'] ?? '' ) ) );
+		if ( $ref && isset( $refs[ $ref ] ) ) {
+			return true;
+		}
+		$card_tags = array();
+		if ( ! empty( $item['card']['tags'] ) && is_array( $item['card']['tags'] ) ) {
+			$card_tags = $item['card']['tags'];
+		} elseif ( ! empty( $item['tags'] ) && is_array( $item['tags'] ) ) {
+			$card_tags = $item['tags'];
+		}
+		foreach ( $card_tags as $card_tag ) {
+			if ( sanitize_title( (string) $card_tag ) === $tag ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**

@@ -70,7 +70,9 @@ function hwbl_run_uninstall() {
 	wp_clear_scheduled_hook( 'thw_seed_curriculum_batch' );
 	wp_clear_scheduled_hook( 'thw_sync_curriculum_content' );
 
-	delete_option( 'hwbl_local_bible_import_queue' );
+	delete_option( 'hwbl_pastor_note_views' );
+	delete_option( 'hwbl_pastor_note_chapter_views' );
+	delete_option( 'hwbl_pastor_notes_db_version' );
 	delete_option( 'thw_explain_preload_job' );
 	delete_option( 'thw_explain_pack_export_job' );
 	delete_option( 'thw_explain_pack_import_job' );
@@ -101,6 +103,24 @@ function hwbl_run_uninstall() {
 		require_once $explain_store;
 		if ( class_exists( 'THW_Premium_Bible_Reader_Explain_Store' ) ) {
 			THW_Premium_Bible_Reader_Explain_Store::drop_table();
+		}
+	}
+
+	if ( class_exists( 'HWBL_Bible_Notes' ) ) {
+		HWBL_Bible_Notes::drop_table();
+	} else {
+		$notes_store = plugin_dir_path( __FILE__ ) . 'includes/class-bible-notes.php';
+		if ( is_readable( $notes_store ) ) {
+			require_once $notes_store;
+			if ( class_exists( 'HWBL_Bible_Notes' ) ) {
+				HWBL_Bible_Notes::drop_table();
+			}
+		}
+	}
+
+	foreach ( array( 'HWBL_Pastor_Notes', 'HWBL_Verse_Tags' ) as $hwbl_table_class ) {
+		if ( class_exists( $hwbl_table_class ) && method_exists( $hwbl_table_class, 'drop_table' ) ) {
+			call_user_func( array( $hwbl_table_class, 'drop_table' ) );
 		}
 	}
 

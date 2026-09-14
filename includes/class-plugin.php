@@ -39,6 +39,13 @@ class HWBL_Plugin {
 		HWBL_Local_Bible_Importer::init();
 		HWBL_Local_Bible_Provider::init();
 		HWBL_Bible_Reader::init();
+		HWBL_Bible_Notes::init();
+		HWBL_Bible_Cross_Refs::init();
+		HWBL_Pastor_Notes::init();
+		HWBL_Book_Intros::init();
+		HWBL_Verse_Tags::init();
+		HWBL_Audio_Cues::init();
+		HWBL_Church_Study_Docs::init();
 		HWBL_Bible_Places::init();
 		HWBL_Bible_Concordance::init();
 		if ( class_exists( 'HWBL_Translation_Comparison' ) ) {

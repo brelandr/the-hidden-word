@@ -1,0 +1,9 @@
+{
+  "source": "CrossReferences.org TSK-derived (CC BY 4.0)",
+  "source_url": "https://github.com/CrossReferences-org/bible-cross-references",
+  "built_from": "tsv/crossreferences_kjv.tsv",
+  "verse_keys": 28786,
+  "total_links": 292669,
+  "max_per_verse": 16,
+  "attribution": "Cross-reference data \u00a9 CrossReferences.org, derived from the public-domain Treasury of Scripture Knowledge. Licensed CC BY 4.0."
+}

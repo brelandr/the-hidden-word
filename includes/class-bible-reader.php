@@ -65,6 +65,14 @@ class HWBL_Bible_Reader {
 			HWBL_VERSION,
 			true
 		);
+
+		wp_register_script(
+			'hwbl-bible-reader-notes',
+			HWBL_PLUGIN_URL . 'public/js/bible-reader-notes.js',
+			array( 'hwbl-bible-reader' ),
+			HWBL_VERSION,
+			true
+		);
 	}
 
 	/**
@@ -956,6 +964,7 @@ class HWBL_Bible_Reader {
 		wp_enqueue_style( 'hwbl-bible-reader' );
 		wp_enqueue_script( 'hwbl-bible-reader' );
 		wp_enqueue_script( 'hwbl-bible-reader-research' );
+		wp_enqueue_script( 'hwbl-bible-reader-notes' );
 		wp_enqueue_style( 'hwbl-verse-memorize' );
 		wp_enqueue_style( 'hwbl-lesson' );
 		wp_enqueue_script( 'hwbl-lesson-tabs' );
@@ -1032,6 +1041,19 @@ class HWBL_Bible_Reader {
 					'mapHint'               => __( 'Click a verse, then map its places — or map the whole chapter.', 'hidden-word-bible-lessons' ),
 					'mapEmpty'              => __( 'No catalogued places for this passage.', 'hidden-word-bible-lessons' ),
 					'concordanceBtn'        => __( 'Concordance', 'hidden-word-bible-lessons' ),
+					'notesTitle'            => __( 'Your notes', 'hidden-word-bible-lessons' ),
+					'notesHint'             => __( 'Notes are private to your account and sync across devices.', 'hidden-word-bible-lessons' ),
+					'notesLogin'            => __( 'Sign in to save personal notes on verses and chapters.', 'hidden-word-bible-lessons' ),
+					'notesPickVerse'        => __( 'Click a verse to take a note, or switch to chapter note.', 'hidden-word-bible-lessons' ),
+					'notesVerse'            => __( 'Note for verse', 'hidden-word-bible-lessons' ),
+					'notesChapter'          => __( 'Note for this chapter', 'hidden-word-bible-lessons' ),
+					'notesSaving'           => __( 'Saving…', 'hidden-word-bible-lessons' ),
+					'notesSaved'            => __( 'Saved', 'hidden-word-bible-lessons' ),
+					'notesError'            => __( 'Could not save note.', 'hidden-word-bible-lessons' ),
+					'notesScope'            => __( 'Note for', 'hidden-word-bible-lessons' ),
+					'notesScopeVerse'       => __( 'This verse', 'hidden-word-bible-lessons' ),
+					'notesScopeChapter'     => __( 'This chapter', 'hidden-word-bible-lessons' ),
+					'notesPlaceholder'      => __( 'Write your thoughts, prayers, or questions…', 'hidden-word-bible-lessons' ),
 				),
 				'explainRestUrl' => class_exists( 'THW_Premium_Bible_Reader_Explain' )
 					? esc_url_raw( rest_url( 'hwbl/v1/bible-explain' ) )
@@ -1040,6 +1062,7 @@ class HWBL_Bible_Reader {
 					? esc_url_raw( rest_url( 'hwbl/v1/bible/study-card' ) )
 					: '',
 				'loggedIn'       => is_user_logged_in(),
+				'loginUrl'       => esc_url_raw( wp_login_url( get_permalink() ? get_permalink() : home_url( '/' ) ) ),
 				'maps'           => class_exists( 'HWBL_Bible_Places' ) ? HWBL_Bible_Places::get_front_config() : array( 'enabled' => false ),
 			)
 		);
@@ -1098,11 +1121,19 @@ class HWBL_Bible_Reader {
 			</nav>
 			<div class="hwbl-bible-reader__status" role="status" aria-live="polite"></div>
 			<div class="hwbl-bible-reader__memorize-bar" hidden>
-				<p class="hwbl-bible-reader__memorize-hint"><?php esc_html_e( 'Click a verse, then start memorization practice.', 'hidden-word-bible-lessons' ); ?></p>
-				<button type="button" class="hwbl-btn hwbl-bible-reader__memorize-btn"><?php esc_html_e( 'Memorize this verse', 'hidden-word-bible-lessons' ); ?></button>
+				<p class="hwbl-bible-reader__memorize-hint"><?php esc_html_e( 'Click a verse, then practice or add it to your memorize queue.', 'hidden-word-bible-lessons' ); ?></p>
+				<button type="button" class="hwbl-btn hwbl-bible-reader__practice-btn"><?php esc_html_e( 'Practice this verse', 'hidden-word-bible-lessons' ); ?></button>
+				<button type="button" class="hwbl-btn hwbl-btn-secondary hwbl-bible-reader__memorize-btn"><?php esc_html_e( 'Add to Memorize', 'hidden-word-bible-lessons' ); ?></button>
+				<button type="button" class="hwbl-btn hwbl-btn-secondary hwbl-bible-reader__related-btn"><?php esc_html_e( 'Related verses', 'hidden-word-bible-lessons' ); ?></button>
+				<button type="button" class="hwbl-btn hwbl-btn-secondary hwbl-bible-reader__define-btn"><?php esc_html_e( 'Define a word', 'hidden-word-bible-lessons' ); ?></button>
+				<button type="button" class="hwbl-btn hwbl-btn-secondary hwbl-bible-reader__compare-verse-btn"><?php esc_html_e( 'Compare translations', 'hidden-word-bible-lessons' ); ?></button>
 				<button type="button" class="hwbl-btn hwbl-btn-secondary hwbl-bible-reader__share-btn" data-hwbl-share-verse="1" data-verse="" data-ref=""><?php esc_html_e( 'Share as image', 'hidden-word-bible-lessons' ); ?></button>
 				<a class="hwbl-btn hwbl-btn-secondary hwbl-bible-reader__share-wa" href="#" hidden target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'WhatsApp', 'hidden-word-bible-lessons' ); ?></a>
 				<a class="hwbl-btn hwbl-btn-secondary hwbl-bible-reader__share-sms" href="#" hidden><?php esc_html_e( 'SMS', 'hidden-word-bible-lessons' ); ?></a>
+			</div>
+			<div class="hwbl-bible-reader__define-sheet" hidden>
+				<p class="hwbl-bible-reader__define-title"></p>
+				<div class="hwbl-bible-reader__define-body"></div>
 			</div>
 			<div class="hwbl-bible-reader__memorize-panel" hidden></div>
 			<?php if ( ! empty( $features['research'] ) ) : ?>
@@ -1180,10 +1211,68 @@ class HWBL_Bible_Reader {
 					<?php endif; ?>
 				</div>
 			<?php endif; ?>
+			<div class="hwbl-bible-reader__context-chips" hidden></div>
 			<article class="hwbl-bible-reader__body">
 				<h2 class="hwbl-bible-reader__reference"></h2>
 				<div class="hwbl-bible-reader__content"></div>
 			</article>
+			<section class="hwbl-bible-reader__notes" aria-label="<?php esc_attr_e( 'Personal notes', 'hidden-word-bible-lessons' ); ?>">
+				<div class="hwbl-bible-reader__notes-bar">
+					<h3 class="hwbl-bible-reader__notes-title"><?php esc_html_e( 'Your notes', 'hidden-word-bible-lessons' ); ?></h3>
+					<p class="hwbl-bible-reader__notes-hint"><?php esc_html_e( 'Notes are private to your account and sync across devices.', 'hidden-word-bible-lessons' ); ?></p>
+					<p class="hwbl-bible-reader__notes-login" <?php echo is_user_logged_in() ? 'hidden' : ''; ?>>
+						<a class="hwbl-btn" href="<?php echo esc_url( wp_login_url( get_permalink() ? get_permalink() : home_url( '/' ) ) ); ?>"><?php esc_html_e( 'Sign in to save notes', 'hidden-word-bible-lessons' ); ?></a>
+					</p>
+					<div class="hwbl-bible-reader__notes-composer" <?php echo is_user_logged_in() ? '' : 'hidden'; ?>>
+						<label class="hwbl-bible-reader__field hwbl-bible-reader__field--notes-scope">
+							<span class="hwbl-bible-reader__label"><?php esc_html_e( 'Note for', 'hidden-word-bible-lessons' ); ?></span>
+							<select class="hwbl-bible-reader__notes-scope">
+								<option value="verse"><?php esc_html_e( 'This verse', 'hidden-word-bible-lessons' ); ?></option>
+								<option value="chapter"><?php esc_html_e( 'This chapter', 'hidden-word-bible-lessons' ); ?></option>
+							</select>
+						</label>
+						<label class="hwbl-bible-reader__field hwbl-bible-reader__field--notes-framework">
+							<span class="hwbl-bible-reader__label"><?php esc_html_e( 'Framework', 'hidden-word-bible-lessons' ); ?></span>
+							<select class="hwbl-bible-reader__notes-framework">
+								<option value="free"><?php esc_html_e( 'Free note', 'hidden-word-bible-lessons' ); ?></option>
+								<option value="soap"><?php esc_html_e( 'S.O.A.P.', 'hidden-word-bible-lessons' ); ?></option>
+								<option value="hear"><?php esc_html_e( 'H.E.A.R.', 'hidden-word-bible-lessons' ); ?></option>
+								<option value="inductive"><?php esc_html_e( 'Inductive', 'hidden-word-bible-lessons' ); ?></option>
+							</select>
+						</label>
+						<div class="hwbl-bible-reader__notes-fields" data-framework="free">
+							<textarea class="hwbl-bible-reader__notes-input" data-section="body" rows="4" placeholder="<?php esc_attr_e( 'Write your thoughts, prayers, or questions…', 'hidden-word-bible-lessons' ); ?>"></textarea>
+						</div>
+						<div class="hwbl-bible-reader__notes-fields" data-framework="soap" hidden>
+							<label><span><?php esc_html_e( 'Scripture', 'hidden-word-bible-lessons' ); ?></span><textarea data-section="scripture" rows="2"></textarea></label>
+							<label><span><?php esc_html_e( 'Observation', 'hidden-word-bible-lessons' ); ?></span><textarea data-section="observation" rows="2"></textarea></label>
+							<label><span><?php esc_html_e( 'Application', 'hidden-word-bible-lessons' ); ?></span><textarea data-section="application" rows="2"></textarea></label>
+							<label><span><?php esc_html_e( 'Prayer', 'hidden-word-bible-lessons' ); ?></span><textarea data-section="prayer" rows="2"></textarea></label>
+						</div>
+						<div class="hwbl-bible-reader__notes-fields" data-framework="hear" hidden>
+							<label><span><?php esc_html_e( 'Highlight', 'hidden-word-bible-lessons' ); ?></span><textarea data-section="highlight" rows="2"></textarea></label>
+							<label><span><?php esc_html_e( 'Explain', 'hidden-word-bible-lessons' ); ?></span><textarea data-section="explain" rows="2"></textarea></label>
+							<label><span><?php esc_html_e( 'Apply', 'hidden-word-bible-lessons' ); ?></span><textarea data-section="apply" rows="2"></textarea></label>
+							<label><span><?php esc_html_e( 'Respond', 'hidden-word-bible-lessons' ); ?></span><textarea data-section="respond" rows="2"></textarea></label>
+						</div>
+						<div class="hwbl-bible-reader__notes-fields" data-framework="inductive" hidden>
+							<label><span><?php esc_html_e( 'What does it say?', 'hidden-word-bible-lessons' ); ?></span><textarea data-section="says" rows="2"></textarea></label>
+							<label><span><?php esc_html_e( 'What does it mean?', 'hidden-word-bible-lessons' ); ?></span><textarea data-section="means" rows="2"></textarea></label>
+							<label><span><?php esc_html_e( 'What does it mean for me?', 'hidden-word-bible-lessons' ); ?></span><textarea data-section="forme" rows="2"></textarea></label>
+						</div>
+						<div class="hwbl-bible-reader__notes-layer" hidden>
+							<button type="button" class="hwbl-btn hwbl-btn-secondary hwbl-bible-reader__notes-layer-mine is-active"><?php esc_html_e( 'My notes', 'hidden-word-bible-lessons' ); ?></button>
+							<button type="button" class="hwbl-btn hwbl-btn-secondary hwbl-bible-reader__notes-layer-church"><?php esc_html_e( 'Church notes', 'hidden-word-bible-lessons' ); ?></button>
+						</div>
+						<div class="hwbl-bible-reader__church-notes" hidden></div>
+						<p class="hwbl-bible-reader__notes-status" role="status" aria-live="polite"></p>
+					</div>
+				</div>
+			</section>
+			<details class="hwbl-bible-reader__crossrefs" hidden>
+				<summary><?php esc_html_e( 'Related verses', 'hidden-word-bible-lessons' ); ?></summary>
+				<ul class="hwbl-bible-reader__crossrefs-list"></ul>
+			</details>
 			<footer class="hwbl-bible-reader__copyright"></footer>
 		</div>
 		<?php

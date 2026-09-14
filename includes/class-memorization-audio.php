@@ -165,13 +165,38 @@ class HWBL_Memorization_Audio {
 		$narrator = class_exists( 'HWBL_Bible_Reader' )
 			? HWBL_Bible_Reader::get_default_narrator()
 			: 'david';
+		$requested_narrator = sanitize_key( (string) $request->get_param( 'narrator' ) );
+		if ( $requested_narrator ) {
+			$narrator = $requested_narrator;
+		}
+
+		$verse_timings = array();
+		$timing_source = '';
+		if ( class_exists( 'HWBL_Audio_Cues' ) ) {
+			$cues = HWBL_Audio_Cues::build_cues(
+				$book_id,
+				$chapter,
+				$resolved['translation'],
+				0.0,
+				$narrator
+			);
+			if ( ! empty( $cues['cues'] ) && is_array( $cues['cues'] ) ) {
+				$verse_timings = $cues['cues'];
+				$timing_source = isset( $cues['source'] ) ? (string) $cues['source'] : '';
+				if ( ! empty( $cues['narrator'] ) ) {
+					$narrator = (string) $cues['narrator'];
+				}
+			}
+		}
 
 		return new WP_REST_Response(
 			array(
-				'audio'       => $resolved['audio'],
-				'translation' => $resolved['translation'],
-				'narrator'    => $narrator,
-				'message'     => $resolved['message'],
+				'audio'          => $resolved['audio'],
+				'translation'    => $resolved['translation'],
+				'narrator'       => $narrator,
+				'message'        => $resolved['message'],
+				'verse_timings'  => $verse_timings,
+				'timing_source'  => $timing_source,
 			)
 		);
 	}
@@ -179,8 +204,8 @@ class HWBL_Memorization_Audio {
 	/**
 	 * Render listen button markup for a lesson.
 	 *
-	 * Speaks the exact verse via browser TTS when possible. Chapter MP3 is only
-	 * a fallback (Hello AO has no verse-level timestamps).
+	 * Speaks the exact verse via browser TTS when possible. Chapter MP3 uses
+	 * Hello AO verse timings when available for read-along highlight.
 	 *
 	 * @param int                  $lesson_id  Lesson post ID.
 	 * @param array<string, mixed> $lesson     Lesson data.
