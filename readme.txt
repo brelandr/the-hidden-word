@@ -4,7 +4,7 @@ Tags: bible, scripture, discipleship, memorization, verse of the day
 Requires at least: 6.2
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.3.31
+Stable tag: 2.3.32
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -33,10 +33,10 @@ Hidden Word Bible Lessons helps your church or ministry teach Scripture through 
 * Bible Concordance / Strong’s study tooling (Local Bibles offline; NIV/NLT via Biblia when configured)
 * Optional BYOK: API.Bible, Biblia.com, YouVersion Platform, OpenAI / Claude (or WP AI Connectors)
 * Licensed translation safety: NIV/ESV/NLT and similar wording is not embedded into AI prompts (display-only via API)
-* Verse of the Day, email digests, progress tracking, PDF leader guides
+* Verse of the Day matches bible.com’s daily verse via YouVersion’s public list (no API key). Verse wording comes from the Bible stored on your site. Email digests, progress tracking, and PDF leader guides are included
 * Custom scheduling, cohorts, study finder, and ask-a-question tools
 * Gospel share pages (`/gospel/{id}`), QR/WhatsApp helpers, and optional gospel-response capture with consent
-* Companion app support (church directory, app connect, Sign in with Apple, account deletion)
+* Companion app support: church directory, app connect, Sign in with Apple, Sign in with Google, passkey account restore onto a new phone, and account deletion
 * Gutenberg blocks and shortcodes; lesson catalog at `/bible-lesson/`
 
 = Companion apps (iPhone and Android) =
@@ -73,7 +73,8 @@ Bundled NIV/KJV/WEB text is stored locally. All other external calls are optiona
 * Hello AO — free Bible text/audio API (no key); optional verse timing metadata for read-along highlight
 * Bundled cross-reference pack derived from CrossReferences.org / Treasury of Scripture Knowledge (CC BY 4.0); served locally — no phone-home for Related verses
 * API.Bible, Biblia.com, YouVersion Platform — optional translation providers (BYOK)
-* bible.com — Verse of the Day reference/image (when VOTD is enabled)
+* bible.com — Verse of the Day page when the server can read it
+* nodejs.bible.com — public Verse of the Day list (reference and image) used when bible.com blocks automated requests. No API key. Church sites do not need a YouVersion App Key for the daily verse
 * OpenAI or Anthropic — optional AI explain/study/ask (BYOK or Connectors)
 * BibleSuperSearch.com, eBible.org, BereanBible.com, theWord module archives (theword-modules.com), and the scrollmapper/bible_databases GitHub repository — used only when an administrator uses the built-in Local Bible Importer (Bible Lessons → Local Bibles) to download an additional public-domain translation
 * GitHub (raw.githubusercontent.com, api.github.com) — used only when an administrator browses or installs a shared "Explain Pack" from the optional community catalog, or publishes/updates their own pack
@@ -133,6 +134,10 @@ The hub operator’s policy for The Hidden Word (accounts, AI Ask, gospel-respon
 5. Plugin settings — schedule mode and translation switcher
 
 == Changelog ==
+
+= 2.3.32 =
+* Verse of the Day follows bible.com’s daily verse using YouVersion’s public list when bible.com blocks the server. No YouVersion API key is required. Verse text still comes from the Bible stored on the site
+* Companion accounts: Sign in with Google, and passkey restore so a member can move their account to a new phone
 
 = 2.3.31 =
 * Bible study rollout: SOAP / HEAR / Inductive note frameworks, Related verses (expanded TSK pack), Practice this verse, My / Church notes

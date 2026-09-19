@@ -959,7 +959,21 @@ class THW_Premium_Verse_Of_The_Day {
 
 		$remote = self::fetch_bible_com_meta();
 		if ( empty( $remote['reference'] ) ) {
-			self::debug_log( 'bible.com returned no reference; trying YouVersion API', array( 'day' => $day ) );
+			self::debug_log( 'bible.com returned no reference; trying public YouVersion VOTD list', array( 'day' => $day ) );
+			$remote = self::fetch_public_votd_list_meta( $day );
+			if ( ! empty( $remote['reference'] ) ) {
+				self::debug_log(
+					'Public YouVersion VOTD list succeeded',
+					array(
+						'day'        => $day,
+						'reference'  => (string) $remote['reference'],
+						'passage_id' => isset( $remote['passage_id'] ) ? (string) $remote['passage_id'] : '',
+					)
+				);
+			}
+		}
+		if ( empty( $remote['reference'] ) ) {
+			self::debug_log( 'public VOTD list returned no reference; trying YouVersion API', array( 'day' => $day ) );
 			$remote = self::fetch_youversion_votd_meta( $day );
 			if ( ! empty( $remote['reference'] ) ) {
 				self::debug_log(
@@ -974,7 +988,7 @@ class THW_Premium_Verse_Of_The_Day {
 		}
 
 		if ( empty( $remote['reference'] ) ) {
-			self::debug_log( 'No VOTD meta from bible.com or YouVersion API', array( 'day' => $day ) );
+			self::debug_log( 'No VOTD meta from bible.com, public list, or YouVersion API', array( 'day' => $day ) );
 			return $remote;
 		}
 
@@ -1367,6 +1381,16 @@ class THW_Premium_Verse_Of_The_Day {
 	 */
 	public static function fetch_youversion_votd_meta( $day ) {
 		return THW_Premium_Votd_YouVersion::fetch_youversion_votd_meta( $day );
+	}
+
+	/**
+	 * Fetch VOTD metadata from the public YouVersion day list.
+	 *
+	 * @param string $day Y-m-d calendar day.
+	 * @return array{reference:string,description_text:string,image:string,page_date:string,passage_id:string}
+	 */
+	public static function fetch_public_votd_list_meta( $day ) {
+		return THW_Premium_Votd_YouVersion::fetch_public_votd_list_meta( $day );
 	}
 
 	/**

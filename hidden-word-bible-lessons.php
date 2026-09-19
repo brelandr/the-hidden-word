@@ -3,7 +3,7 @@
  * Plugin Name: Hidden Word Bible Lessons
  * Plugin URI: https://wordpress.org/plugins/hidden-word-bible-lessons/
  * Description: Bible discipleship with 500 NIV lessons, memorization (SM-2), Bible reader, verse of the day, digests, AI study tools (BYOK), multi-translation APIs, PDF guides, and more — all free.
- * Version: 2.3.31
+ * Version: 2.3.32
  * Author: Land Tech Web Designs, Corp
  * Author URI: https://landtechwebdesigns.com
  * License: GPL-2.0+
@@ -25,7 +25,7 @@ if ( defined( 'HWBL_BOOTSTRAP_DONE' ) ) {
 }
 
 define( 'HWBL_BOOTSTRAP_DONE', true );
-define( 'HWBL_VERSION', '2.3.31' );
+define( 'HWBL_VERSION', '2.3.32' );
 define( 'HWBL_PLUGIN_FILE', __FILE__ );
 define( 'HWBL_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'HWBL_PLUGIN_URL', plugin_dir_url( __FILE__ ) );

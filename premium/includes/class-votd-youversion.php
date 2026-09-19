@@ -67,6 +67,234 @@ class THW_Premium_Votd_YouVersion {
 	}
 
 	/**
+	 * Public YouVersion verse-of-the-day list. Not behind the bible.com bot wall.
+	 */
+	const PUBLIC_VOTD_LIST_URL = 'https://nodejs.bible.com/api/moments/votd/3.1';
+
+	/**
+	 * Fetch VOTD metadata from the public YouVersion day list.
+	 *
+	 * bible.com HTML is often a client challenge for server requests. This JSON
+	 * list is the same calendar YouVersion shows on the verse-of-the-day page.
+	 *
+	 * @param string $day Y-m-d calendar day.
+	 * @return array{reference:string,description_text:string,image:string,page_date:string,passage_id:string}
+	 */
+	public static function fetch_public_votd_list_meta( $day ) {
+		$empty = self::empty_votd_meta();
+		$day   = (string) $day;
+
+		$url = add_query_arg(
+			array( 'language_tag' => 'en' ),
+			self::PUBLIC_VOTD_LIST_URL
+		);
+		$response = wp_safe_remote_get(
+			$url,
+			array(
+				'timeout'    => 12,
+				'user-agent' => 'Mozilla/5.0 (compatible; TheHiddenWordPremium/' . ( defined( 'THW_PREMIUM_VERSION' ) ? THW_PREMIUM_VERSION : '1.0' ) . '; ' . home_url( '/' ) . ')',
+				'headers'    => array(
+					'Accept' => 'application/json',
+				),
+			)
+		);
+
+		if ( is_wp_error( $response ) ) {
+			THW_Premium_Verse_Of_The_Day::debug_log(
+				'Public YouVersion VOTD list request failed',
+				array(
+					'day'   => $day,
+					'error' => $response->get_error_message(),
+				)
+			);
+			return $empty;
+		}
+
+		$code = (int) wp_remote_retrieve_response_code( $response );
+		$body = (string) wp_remote_retrieve_body( $response );
+		$data = json_decode( $body, true );
+		if ( $code < 200 || $code >= 300 || ! is_array( $data ) ) {
+			THW_Premium_Verse_Of_The_Day::debug_log(
+				'Public YouVersion VOTD list response rejected',
+				array(
+					'day'    => $day,
+					'status' => $code,
+					'bytes'  => strlen( $body ),
+				)
+			);
+			return $empty;
+		}
+
+		$meta = self::parse_public_votd_list( $data, self::get_day_of_year( $day ) );
+		if ( '' === $meta['reference'] ) {
+			THW_Premium_Verse_Of_The_Day::debug_log(
+				'Public YouVersion VOTD list had no verse for this day',
+				array(
+					'day'         => $day,
+					'day_of_year' => self::get_day_of_year( $day ),
+				)
+			);
+			return $empty;
+		}
+
+		$meta['page_date'] = $day;
+		return $meta;
+	}
+
+	/**
+	 * Pick one day from the public YouVersion VOTD list.
+	 *
+	 * @param array<string, mixed> $payload Decoded list JSON.
+	 * @param int                  $day_of_year Day of year, 1–366.
+	 * @return array{reference:string,description_text:string,image:string,page_date:string,passage_id:string}
+	 */
+	public static function parse_public_votd_list( $payload, $day_of_year ) {
+		$empty        = self::empty_votd_meta();
+		$day_of_year  = (int) $day_of_year;
+		$items        = ( is_array( $payload ) && isset( $payload['votd'] ) && is_array( $payload['votd'] ) ) ? $payload['votd'] : array();
+
+		foreach ( $items as $item ) {
+			if ( ! is_array( $item ) || (int) ( $item['day'] ?? 0 ) !== $day_of_year ) {
+				continue;
+			}
+
+			$usfm = array();
+			if ( ! empty( $item['usfm'] ) && is_array( $item['usfm'] ) ) {
+				$usfm = $item['usfm'];
+			}
+
+			$reference = self::reference_from_usfm_list( $usfm );
+			if ( '' === $reference ) {
+				return $empty;
+			}
+
+			$image_id = isset( $item['image_id'] ) ? absint( $item['image_id'] ) : 0;
+
+			return array(
+				'reference'        => $reference,
+				'description_text' => '',
+				'image'            => self::public_votd_image_url( $image_id ),
+				'page_date'        => '',
+				'passage_id'       => self::passage_id_from_usfm_list( $usfm ),
+			);
+		}
+
+		return $empty;
+	}
+
+	/**
+	 * Empty VOTD meta array.
+	 *
+	 * @return array{reference:string,description_text:string,image:string,page_date:string,passage_id:string}
+	 */
+	private static function empty_votd_meta() {
+		return array(
+			'reference'        => '',
+			'description_text' => '',
+			'image'            => '',
+			'page_date'        => '',
+			'passage_id'       => '',
+		);
+	}
+
+	/**
+	 * Turn one or more USFM ids into a single scripture reference.
+	 *
+	 * Consecutive verses in the same chapter become a range (Isaiah 43:18-19).
+	 *
+	 * @param array<int, mixed> $usfm_list USFM passage ids.
+	 * @return string
+	 */
+	public static function reference_from_usfm_list( $usfm_list ) {
+		if ( ! class_exists( 'HWBL_Books' ) ) {
+			return '';
+		}
+
+		$rows = array();
+		foreach ( (array) $usfm_list as $usfm ) {
+			$row = HWBL_Books::parse_youversion_passage_id( (string) $usfm );
+			if ( ! is_array( $row ) || empty( $row['book_id'] ) ) {
+				continue;
+			}
+			$rows[] = $row;
+		}
+
+		if ( ! $rows ) {
+			return '';
+		}
+
+		$book_id = (int) $rows[0]['book_id'];
+		$chapter = (int) $rows[0]['chapter'];
+		$start   = (int) $rows[0]['verse'];
+		$end     = (int) $rows[0]['verse_end'];
+
+		foreach ( $rows as $row ) {
+			if ( (int) $row['book_id'] !== $book_id || (int) $row['chapter'] !== $chapter ) {
+				$parts = array();
+				foreach ( $rows as $one ) {
+					$parts[] = (string) $one['reference'];
+				}
+				return implode( '; ', array_values( array_unique( $parts ) ) );
+			}
+			$start = min( $start, (int) $row['verse'] );
+			$end   = max( $end, (int) $row['verse_end'] );
+		}
+
+		return HWBL_Books::format_reference( $book_id, $chapter, $start, $end );
+	}
+
+	/**
+	 * Single USFM passage id for a verse list, including a same-chapter range.
+	 *
+	 * @param array<int, mixed> $usfm_list USFM passage ids.
+	 * @return string
+	 */
+	public static function passage_id_from_usfm_list( $usfm_list ) {
+		$ids = array();
+		foreach ( (array) $usfm_list as $usfm ) {
+			$usfm = strtoupper( trim( (string) $usfm ) );
+			if ( '' !== $usfm ) {
+				$ids[] = $usfm;
+			}
+		}
+		if ( ! $ids ) {
+			return '';
+		}
+		if ( 1 === count( $ids ) ) {
+			return $ids[0];
+		}
+
+		$first = HWBL_Books::parse_youversion_passage_id( $ids[0] );
+		$last  = HWBL_Books::parse_youversion_passage_id( $ids[ count( $ids ) - 1 ] );
+		if (
+			is_array( $first ) && is_array( $last )
+			&& (int) $first['book_id'] === (int) $last['book_id']
+			&& (int) $first['chapter'] === (int) $last['chapter']
+		) {
+			$book = strtok( $ids[0], '.' );
+			return $book . '.' . (int) $first['chapter'] . '.' . (int) $first['verse'] . '-' . (int) $last['verse_end'];
+		}
+
+		return $ids[0];
+	}
+
+	/**
+	 * Share image for a public-list image id.
+	 *
+	 * @param int $image_id YouVersion image id.
+	 * @return string
+	 */
+	public static function public_votd_image_url( $image_id ) {
+		$image_id = absint( $image_id );
+		if ( $image_id < 1 ) {
+			return '';
+		}
+
+		$url = 'https://imageproxy.youversionapi.com/640x640/https://s3.amazonaws.com/static-youversionapi-com/images/base/' . $image_id . '/1280x1280.jpg';
+		return self::normalize_votd_image_url( $url );
+	}
+
+	/**
 	 * Fetch Verse of the Day metadata from YouVersion Platform when bible.com is unreachable.
 	 *
 	 * @param string $day Y-m-d calendar day.
