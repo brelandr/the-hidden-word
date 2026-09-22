@@ -1060,6 +1060,7 @@ class THW_Premium_AI_Client {
 		}
 
 		$text = str_replace( array( "\r\n", "\r" ), "\n", $text );
+		$text = self::repair_broken_paragraph_tags( $text );
 
 		// Full fenced block: ```html … ``` (also smart-quote backticks).
 		if ( preg_match( '/^\s*[`\'"“”‘’]{0,3}\s*```(?:html)?\s*\n([\s\S]*?)\n\s*```\s*[`\'"“”‘’]{0,3}\s*$/iu', $text, $m ) ) {
@@ -1156,6 +1157,24 @@ class THW_Premium_AI_Client {
 		}
 
 		return $html;
+	}
+
+	/**
+	 * Repair a paragraph tag whose closing bracket was dropped.
+	 *
+	 * Models sometimes emit "<pFollowing" or a saved body stores that as
+	 * "&lt;pFollowing". A real tag is <p>, <p ...>, or </p>.
+	 *
+	 * @param string $text HTML or escaped HTML.
+	 * @return string
+	 */
+	public static function repair_broken_paragraph_tags( $text ) {
+		$text = (string) $text;
+		if ( '' === $text || false === stripos( $text, 'p' ) ) {
+			return $text;
+		}
+
+		return (string) preg_replace( '/(?:<|&lt;)p(?=[A-Z])/u', '<p>', $text );
 	}
 
 	/**
